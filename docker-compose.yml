@@ -1,0 +1,63 @@
+version: '3.0'
+
+services:
+    # replace to postgresql
+    # db:
+    #     image: mongo:latest
+    #     container_name: cnt_mongo
+    #     expose:
+    #         - "27017"
+    #     volumes:
+    #         - ./mongodb/db_data:/data/db
+    #         - ./mongodb/init_mongo.js:/docker-entrypoint-initdb.d/init_mongo.js:ro
+    #     networks: 
+    #         - backend
+    #     restart: always
+    #     environment: 
+    #         - MONGO_INITDB_ROOT_USERNAME=admin
+    #         - MONGO_INITDB_ROOT_PASSWORD=admin
+    #         - MONGO_INITDB_DATABASE=memory_db
+
+    # replace to nestJS
+    # backend:
+    #     depends_on: 
+    #         - db
+    #     build: ./memory/backend
+    #     image: img_memory_back
+    #     container_name: cnt_memory_back
+    #     ports:
+    #         - "8800:8800"
+    #         - "465:465"
+    #     volumes:
+    #         - '/server/node_modules'
+    #     restart: always
+    #     networks: 
+    #         - backend
+    #     links:
+    #         - "db:mongodb"
+    #     environment:
+    #         - NODE_PORT=8800
+    #         - SMTP_PORT=587
+    #         - DB_SERVICE=mongodb
+    #         - DB_CNT_NAME=cnt_mongo
+    #         - DB_PORT=27017
+    #         - DB_NAME=memory_db
+    #         - DB_USER=nlecaill
+    #         - DB_PASSWORD=nlecaill
+
+    frontend:
+        build: ./memory/frontend
+        image: img_memory_front
+        container_name: cnt_memory_front
+        ports:
+            - "3000:5000"
+        volumes: 
+            - '/app/node_modules'
+        networks: 
+            - backend
+            - frontend
+networks: 
+    frontend: {}
+    backend: {}
+volumes:
+    db_data: {}
