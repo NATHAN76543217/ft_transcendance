@@ -1,63 +1,67 @@
-version: '3.0'
+version: '3.7'
 
 services:
-    # replace to postgresql
-    # db:
-    #     image: mongo:latest
-    #     container_name: cnt_mongo
-    #     expose:
-    #         - "27017"
-    #     volumes:
-    #         - ./mongodb/db_data:/data/db
-    #         - ./mongodb/init_mongo.js:/docker-entrypoint-initdb.d/init_mongo.js:ro
-    #     networks: 
-    #         - backend
-    #     restart: always
-    #     environment: 
-    #         - MONGO_INITDB_ROOT_USERNAME=admin
-    #         - MONGO_INITDB_ROOT_PASSWORD=admin
-    #         - MONGO_INITDB_DATABASE=memory_db
-
-    # replace to nestJS
-    # backend:
-    #     depends_on: 
-    #         - db
-    #     build: ./memory/backend
-    #     image: img_memory_back
-    #     container_name: cnt_memory_back
-    #     ports:
-    #         - "8800:8800"
-    #         - "465:465"
-    #     volumes:
-    #         - '/server/node_modules'
-    #     restart: always
-    #     networks: 
-    #         - backend
-    #     links:
-    #         - "db:mongodb"
-    #     environment:
-    #         - NODE_PORT=8800
-    #         - SMTP_PORT=587
-    #         - DB_SERVICE=mongodb
-    #         - DB_CNT_NAME=cnt_mongo
-    #         - DB_PORT=27017
-    #         - DB_NAME=memory_db
-    #         - DB_USER=nlecaill
-    #         - DB_PASSWORD=nlecaill
+    db:
+        build: ./database/postgres
+        image: pong_db_img
+        container_name: pong_db_cnt
+        # expose:
+        #     - "27017"
+        # volumes:
+        #     - ./mongodb/db_data:/data/db
+        #     - ./mongodb/init_mongo.js:/docker-entrypoint-initdb.d/init_mongo.js:ro
+        # TODO voir networks in docker
+        # networks: 
+        #     - backend
+        restart: always
+        # environment: 
+        #     - MONGO_INITDB_ROOT_USERNAME=admin
+        #     - MONGO_INITDB_ROOT_PASSWORD=admin
+        #     - MONGO_INITDB_DATABASE=memory_db
+    pgadmin:
+        build: ./database/pgadmin
+        image: pong_pgadmin_img
+        container_name: pong_pgadmin_cnt
+        restart: always
+    backend:
+        depends_on: 
+            - db
+        build: ./backend
+        image: pong_back_img
+        container_name: pong_back_cnt
+        # ports:
+        #     - "8800:8800"
+        #     - "465:465"
+        # volumes:
+        #     - '/server/node_modules'
+        restart: always
+        # networks: 
+        #     - backend
+        # links:
+        #     - "db:mongodb"
+        # environment:
+        #     - NODE_PORT=8800
+        #     - SMTP_PORT=587
+        #     - DB_SERVICE=mongodb
+        #     - DB_CNT_NAME=cnt_mongo
+        #     - DB_PORT=27017
+        #     - DB_NAME=memory_db
+        #     - DB_USER=nlecaill
+        #     - DB_PASSWORD=nlecaill
 
     frontend:
-        build: ./memory/frontend
-        image: img_memory_front
-        container_name: cnt_memory_front
+        build: ./frontend
+        image: pong_front_img
+        container_name: pong_front_cnt
         ports:
-            - "3000:5000"
+            - "3000:3000"
         volumes: 
-            - '/app/node_modules'
-        networks: 
-            - backend
-            - frontend
-networks: 
-    frontend: {}
-    backend: {}
-volumes:
-    db_data: {}
+            - ./frontend/srcs/:/app/
+        # networks: 
+        #     - backend
+        #     - frontend
+# networks: 
+    # frontend: {}
+    # backend: {}
+# volumes:
+    # db_data: {}
