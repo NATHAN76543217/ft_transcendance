@@ -1,2 +1,15 @@
 FROM  node:16.2.0-alpine3.13
-# TODO replace latest by the latest version number
+
+# set working directory
+WORKDIR /app
+
+COPY srcs/* ./
+
+RUN npm install
+
+CMD npm start
+
+# REVIEW temporary left
+# COPY ./keep.sh /keep.sh
+
+# CMD sh /keep.sh

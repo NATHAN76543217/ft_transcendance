@@ -24,28 +24,24 @@ services:
         container_name: pong_pgadmin_cnt
         restart: always
     backend:
-        depends_on: 
-            - db
+        # depends_on: 
+        #     - db
         build: ./backend
         image: pong_back_img
         container_name: pong_back_cnt
-        # ports:
-        #     - "8800:8800"
-        #     - "465:465"
-        # volumes:
-        #     - '/server/node_modules'
+        ports:
+            - "8800:8800"
+            - "465:465"
+        volumes:
+            - './backend/srcs/:/app/'
+            - '/app/node_modules'
+            #REVIEW - delete upper line (?)
         restart: always
         # networks: 
         #     - backend
         # links:
         #     - "db:mongodb"
         # environment:
-        #     - NODE_PORT=8800
-        #     - SMTP_PORT=587
-        #     - DB_SERVICE=mongodb
-        #     - DB_CNT_NAME=cnt_mongo
-        #     - DB_PORT=27017
-        #     - DB_NAME=memory_db
         #     - DB_USER=nlecaill
         #     - DB_PASSWORD=nlecaill
 
@@ -57,6 +53,7 @@ services:
             - "3000:3000"
         volumes: 
             - ./frontend/srcs/:/app/
+            - /app/node_modules
         # networks: 
         #     - backend
         #     - frontend
