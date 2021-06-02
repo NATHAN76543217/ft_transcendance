@@ -4,7 +4,16 @@ a 42 school fullstack project
 # Description
 
 # Run
-To run the project: docker-compose up --build frontend
+
+Run together: `docker-compose up`
+Run and build together: `docker-compose up --build`
+
+Run separatly:
+To run the frontend:    `docker-compose up (--build) frontend`
+To run the backend:     `docker-compose up (--build) backend`
+To run the database:   `docker-compose up (--build) db`
+To run the pgadmin:     `docker-compose up (--build) pgadmin`
+
 # Docker
 ## Containers
 - A container always have the form: pong_<name>_cnt
@@ -20,4 +29,7 @@ website: https://www.pgadmin.org/
 
 
 TODO ajouter container pgAdmin
-TODO Configurer container pgAdmin
+
+TODO connection react et nestjs
+TODO connection nestJS postgresql
+TODO connection pgAdmin postgresql

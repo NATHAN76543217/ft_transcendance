@@ -2,11 +2,12 @@ version: '3.7'
 
 services:
     db:
-        build: ./database/postgres
-        image: pong_db_img
+        # build: ./database/postgres
+        image: postgres:latest
+        # TODO replace latest by the number of the last version
         container_name: pong_db_cnt
-        # expose:
-        #     - "27017"
+        expose:
+            - "5432"
         # volumes:
         #     - ./mongodb/db_data:/data/db
         #     - ./mongodb/init_mongo.js:/docker-entrypoint-initdb.d/init_mongo.js:ro
@@ -14,10 +15,13 @@ services:
         # networks: 
         #     - backend
         restart: always
-        # environment: 
-        #     - MONGO_INITDB_ROOT_USERNAME=admin
-        #     - MONGO_INITDB_ROOT_PASSWORD=admin
-        #     - MONGO_INITDB_DATABASE=memory_db
+        environment: 
+            - POSTGRES_HOST=127.0.0.1
+            - POSTGRES_PORT=5432
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=mysecretpassword
+            - POSTGRES_DATABASE=ft_transcendance
+
     pgadmin:
         build: ./database/pgadmin
         image: pong_pgadmin_img
@@ -34,7 +38,7 @@ services:
             - "465:465"
         volumes:
             - './backend/srcs/:/app/'
-            - '/app/node_modules'
+            # - '/app/node_modules'
             #REVIEW - delete upper line (?)
         restart: always
         # networks: 
