@@ -12,26 +12,7 @@
  * 	in this file. However "Game_Settings" is defined in "shared.ts"
 */
 
-import { Ball, Game_Config, Court, Player, Direction } from "./shared"
-
-
-/**
- *	@brief Represents a range between 2 values in a 2
- *	dimensional axis.
- *	@member min Represent the lower limit.
- *	@member max Represent the greather limit.
-*/
-export class Range
-{
-	min : number
-	max : number
-
-	constructor(min : number, max : number)
-	{
-		this.min = min;
-		this.max = max;
-	}
-}
+import { Ball, Game_Config, Player, Direction, Range } from "./shared"
 
 /**
  *	@brief Class that store the range of the settings sliders.
@@ -47,13 +28,13 @@ export class Settings_Config
 {
 	// TO DO: Add Style
 
-	pl1_paddle_width_range : Range
-	pl1_paddle_height_range : Range
-	pl2_paddle_width_range : Range
-	pl2_paddle_height_range : Range
-	ball_speed : Range
-	net_width : Range
-	net_height : Range
+	private p_pl1_paddle_width_range : Range
+	private p_pl1_paddle_height_range : Range
+	private p_pl2_paddle_width_range : Range
+	private p_pl2_paddle_height_range : Range
+	private p_ball_speed : Range
+	private p_net_width : Range
+	private p_net_height : Range
 
 	constructor(pl1_paddle_width_range : Range,
 		pl1_paddle_height_range : Range,
@@ -63,14 +44,22 @@ export class Settings_Config
 		net_width : Range,
 		net_height : Range)
 	{
-		this.pl1_paddle_width_range = pl1_paddle_width_range;
-		this.pl1_paddle_height_range = pl1_paddle_height_range;
-		this.pl2_paddle_width_range = pl2_paddle_width_range;
-		this.pl2_paddle_height_range = pl2_paddle_height_range;
-		this.ball_speed = ball_speed;
-		this.net_width = net_width;
-		this.net_height = net_height;
+		this.p_pl1_paddle_width_range = pl1_paddle_width_range;
+		this.p_pl1_paddle_height_range = pl1_paddle_height_range;
+		this.p_pl2_paddle_width_range = pl2_paddle_width_range;
+		this.p_pl2_paddle_height_range = pl2_paddle_height_range;
+		this.p_ball_speed = ball_speed;
+		this.p_net_width = net_width;
+		this.p_net_height = net_height;
 	}
+
+	public get pl1_paddle_width_range() : Range { return (this.p_pl1_paddle_width_range); }
+	public get pl1_paddle_height_range() : Range { return (this.p_pl1_paddle_height_range); }
+	public get pl2_paddle_width_range() : Range { return (this.p_pl2_paddle_width_range); }
+	public get pl2_paddle_height_range() : Range { return (this.p_pl2_paddle_height_range); }
+	public get ball_speed() : Range { return (this.p_ball_speed); }
+	public get net_width() : Range { return (this.p_net_width); }
+	public get net_height() : Range { return (this.p_net_height); }
 }
 
 // To change file
@@ -114,34 +103,37 @@ enum GameMode
 	Multiplayer
 }
 
-
 /**
  *	@brief Define engine's constants and methods, which specilises
  *	the calculations performed by the engine (enabling to create
- *	and infinity of Pongs specialisations with a single engine !)
- *	@method player1_handler
- *	@member player1_handler_type
- *	@method player2_handler
- *	@member player2_handler_type
- *	@member mode
- *	@member bot_level
- *	@method is_ball_on_left_court_side
- *	@method calc_paddle_rebound_angle_rads
- *	@method ball_speed_increment
- *	@method change_ball_direction
+ *	and infinity of Pongs specialisations with a single engine !).
+ *	@method player1_handler Updates player1's paddle position.
+ *	@member player1_handler_type Defines the type of the handler.
+ *	@method player2_handler Updates payer2's paddle position.
+ *	@member player2_handler_type Defines the type of the handler.
+ *	@member mode Can be Multiplayer or Single.
+ *	@member bot_level Define the difficulty in Single mode
+ *	@method is_ball_on_player1_side Return true of the ball is in
+ *	player1's side.
+ *	@method calc_paddle_rebound_angle_rads Calc the rebound angle
+ *	 of the ball in an arbitrary player the paddle.
+ *	@method ball_speed_increment The amount the ball increment its
+ *	sleep each time a collison with a paddle is performed. 
+ *	@method change_ball_direction A function that inverses the
+ *	paddle to paddle ball direction.
 */
 export class Engine_Config
 {
-	player1_handler : (event : any, game_config : Game_Config) => void
-	player1_handler_type : string
-	player2_handler : (event : any, game_config : Game_Config) => void
-	player2_handler_type : string
-	mode : GameMode
-	bot_level : number
-	is_ball_on_left_court_side : (game_config : Game_Config) => Boolean
-	calc_paddle_rebound_angle_rads : (ball : Ball, player : Player) => number
-	ball_speed_increment : number
-	change_ball_direction : (game_config : Game_Config, angle : number) => number
+	private p_player1_handler : (event : any, game_config : Game_Config) => void
+	private p_player1_handler_type : string
+	private p_player2_handler : (event : any, game_config : Game_Config) => void
+	private p_player2_handler_type : string
+	private p_mode : GameMode
+	private p_bot_level : number
+	private p_is_ball_on_player1_side : (game_config : Game_Config) => Boolean
+	private p_calc_paddle_rebound_angle_rads : (ball : Ball, player : Player) => number
+	private p_ball_speed_increment : number
+	private p_change_ball_direction : (game_config : Game_Config, angle : number) => number
 
 	constructor(player1_handler : (event : any, game_config : Game_Config) => void,
 	player1_handler_type : string,
@@ -149,22 +141,33 @@ export class Engine_Config
 	player2_handler_type : string,
 	mode : GameMode,
 	bot_level : number,
-	is_ball_on_left_court_side : (game_config : Game_Config) => Boolean,
+	is_ball_on_player1_side : (game_config : Game_Config) => Boolean,
 	calc_paddle_rebound_angle_rads : (ball : Ball, player : Player) => number,
 	ball_speed_increment : number,
 	change_ball_direction : (game_config : Game_Config, angle : number) => number)
 	{
-		this.player1_handler = player1_handler;
-		this.player1_handler_type = player1_handler_type;
-		this.player2_handler = player2_handler;
-		this.player2_handler_type;
-		this.mode = mode;
-		this.bot_level = bot_level;
-		this.is_ball_on_left_court_side = is_ball_on_left_court_side;
-		this.calc_paddle_rebound_angle_rads;
-		this.ball_speed_increment = ball_speed_increment;
-		this.change_ball_direction = change_ball_direction;
+		this.p_player1_handler = player1_handler;
+		this.p_player1_handler_type = player1_handler_type;
+		this.p_player2_handler = player2_handler;
+		this.p_player2_handler_type = player2_handler_type;
+		this.p_mode = mode;
+		this.p_bot_level = bot_level;
+		this.p_is_ball_on_player1_side = is_ball_on_player1_side;
+		this.p_calc_paddle_rebound_angle_rads = calc_paddle_rebound_angle_rads;
+		this.p_ball_speed_increment = ball_speed_increment;
+		this.p_change_ball_direction = change_ball_direction;
 	}
+
+	public get player1_handler() : (event : any, game_config : Game_Config) => void { return (this.p_player1_handler); }
+	public get player1_handler_type() : string { return (this.p_player1_handler_type); }
+	public get player2_handler() : (event : any, game_config : Game_Config) => void { return (this.p_player2_handler); }
+	public get player2_handler_type() : string { return (this.p_player2_handler_type); }
+	public get mode() : GameMode { return (this.p_mode); }
+	public get bot_level() : number { return (this.p_bot_level); }
+	public get is_ball_on_player1_side() : (game_config : Game_Config) => Boolean { return (this.p_is_ball_on_player1_side); }
+	public get calc_paddle_rebound_angle_rads() : (ball : Ball, player : Player) => number {return (this.p_calc_paddle_rebound_angle_rads); }
+	public get ball_speed_increment() : number { return (this.p_ball_speed_increment); }
+	public get change_ball_direction() : (game_config : Game_Config, angle : number) => number { return (this.p_change_ball_direction); }
 }
 
 /**
@@ -177,9 +180,9 @@ export class Engine_Config
 */
 export class Engine
 {
-	game_config : Game_Config
-	settings_config : Settings_Config
-	engine_config : Engine_Config
+	private game_config : Game_Config
+	private settings_config : Settings_Config
+	private engine_config : Engine_Config
 
 	constructor(config : Game_Config, settings_config : Settings_Config,
 		engine_config : Engine_Config)
@@ -189,123 +192,122 @@ export class Engine
 		this.engine_config = engine_config;
 	}
 
-	// TO DO: Some data defined here will come in the config too.
-	// Need to do the game setting.
-	run() : void
+	//////////////////
+	// CALCULATIONS //
+	//////////////////
+
+	private handle_front_collision() : void
 	{
-		/**
-		 *	@brief Does all the calculations over the game
-		 *	objects. Calculate the position of the ball,
-		 *	the position of the paddles and the scores
-		 *	values for each call.
-		 *	NOTE: Each step is compartmentalized in a
-		 *	self executing function.
-		*/
-		const update = () : void =>
-		{
-			(function on_front_collision(court : Court)
-			{
-				court.frontal_collision();
-			})(this.game_config.court);
-			
-			(function update_ball_pos(ball : Ball) : void
-			{
-				ball.pos.x += ball.velocity.x;
-				ball.pos.y += ball.velocity.y;
-			})(this.game_config.ball);
+		this.game_config.court.frontal_collision();
+	}
 
-			(function update_player2_pos(game_config : Game_Config,
-				engine_config : Engine_Config) : void
-			{
-				// TO DO: For the moment event is no need
-				// in the future the client will send the
-				// data to the server ...
-				// This definitions will change
-				engine_config.player2_handler(
-					engine_config.mode == GameMode.Single
-					? 0 : 0, game_config);
-			})(this.game_config, this.engine_config);
+	private handle_border_collision()
+	{
+		if (this.game_config.court.lateral_collsion())
+			this.game_config.ball.lateral_rebound();
+	}
 
-			(function on_border_collision(court : Court, ball : Ball) : void
-			{
-				if (court.lateral_collsion())
-					ball.lateral_rebound();
-			})(this.game_config.court, this.game_config.ball);
+	private update_ball_position() : void
+	{
+		this.game_config.ball.pos.x += this.game_config.ball.velocity.x;
+		this.game_config.ball.pos.y += this.game_config.ball.velocity.y;
+	}
 
-			(function on_paddle_collision(game_config : Game_Config,
-				engine_config : Engine_Config) : void
-			{
-				const player : Player = engine_config.is_ball_on_left_court_side(
-					game_config) ? game_config.player1 : game_config.player2;
+	private update_player2_position() : void
+	{
+		// TO DO: For the moment event is no need
+		// in the future the client will send the
+		// data to the server ...
+		// This definitions will change
+		this.engine_config.player2_handler(this.engine_config.mode == GameMode.Single
+		? 0 : 0, this.game_config);
+	}
 
-				if (player.collision(game_config.ball))
-				{
-					(function update_ball_velocity(ball : Ball,
-						engine_config : Engine_Config) : void
-					{
-						const rad_angle : number = engine_config.calc_paddle_rebound_angle_rads(
-							ball, player);
+	private update_ball_velocity(player : Player) : void
+	{
+		const rad_angle : number = this.engine_config.calc_paddle_rebound_angle_rads(
+			this.game_config.ball, player);
 
-						engine_config.change_ball_direction(game_config, rad_angle);
+		this.engine_config.change_ball_direction(this.game_config, rad_angle);
 
-						ball.speed += engine_config.ball_speed_increment;
-					})(game_config.ball, engine_config);
-				}
-			})(this.game_config, this.engine_config);
-	  
+		this.game_config.ball.speed += this.engine_config.ball_speed_increment;
+	}
 
-		};
+	private haddle_paddle_collision() : void
+	{
+		const player : Player = this.engine_config.is_ball_on_player1_side(
+			this.game_config) ? this.game_config.player1 : this.game_config.player2;
 
-		/**
-		 *	@brief Uses the canvas context graphic
-		 *	lib to display the elements in the canvas.
-		 *	NOTE: Each step is compartmentalized in a
-		 *	self executing function.
-		*/
-		const render = () : void =>
-		{
+		if (player.collision(this.game_config.ball))
+			this.update_ball_velocity(player);
+	}
 
-			const ctx : any = this.game_config.court.ctx;
+	/**
+	 *	@brief Does all the calculations over the game
+	 *	objects. Calculate the position of the ball,
+	 *	the position of the paddles and the scores
+	 *	values for each call.
+	*/
+	private update() : void
+	{
+		this.handle_front_collision();
+		this.update_ball_position();
+		this.update_player2_position();
+		this.handle_border_collision();
+		this.haddle_paddle_collision();
+	}
 
-			(function clear_court(court : Court) : void
-			{
-				court.clear();
-			})(this.game_config.court);
+	///////////////////
+	// RENDERIZATION //
+	///////////////////
 
-			(function display_scores(game_config : Game_Config) : void
-			{
-				game_config.player1.score.draw(ctx);
-				game_config.player2.score.draw(ctx);
-			})(this.game_config);
+	private clear_court() : void
+	{
+		this.game_config.court.clear();
+	}
 
-			(function display_net(game_config : Game_Config) : void
-			{
-				game_config.net.draw_net(ctx, 
-					game_config.net.direction == Direction.Vertical
-					? game_config.court.height : game_config.court.width);
-			})(this.game_config);
+	private display_scores(ctx : any) : void
+	{
+		this.game_config.player1.score.draw(ctx);
+		this.game_config.player2.score.draw(ctx);
+	}
 
-			(function display_players(game_config : Game_Config) : void
-			{
-				game_config.player1.draw(ctx);
-				game_config.player2.draw(ctx);
-			})(this.game_config);
-			
-			(function display_ball(ball : Ball) : void
-			{  
-				ball.draw(ctx);
-			})(this.game_config.ball);
-		};
+	private display_net(ctx : any) : void
+	{
+		this.game_config.net.draw_net(ctx, this.game_config.net.direction 
+			== Direction.Vertical ? this.game_config.court.height
+			: this.game_config.court.width);
+	}
 
-		/**
-		 *	@brief Call fps times update and render in a second.
-		*/
-		(function run_frames() : void
-		{
-			const fps : number = 50;
+	private display_players(ctx : any) : void
+	{
+		this.game_config.player1.draw(ctx);
+		this.game_config.player2.draw(ctx);
+	}
 
-			setInterval(() : void => { update(); render(); }, 1000 / fps);
-		})();
+	private display_ball(ctx : any) : void
+	{
+		this.game_config.ball.draw(ctx);
+	}
+
+	/**
+	 *	@brief Uses the canvas context graphic
+	 *	lib to display the elements in the canvas.
+	*/
+	private render()
+	{
+		this.clear_court();
+		this.display_scores(this.game_config.court.ctx);
+		this.display_net(this.game_config.court.ctx);
+		this.display_players(this.game_config.court.ctx);
+		this.display_ball(this.game_config.court.ctx);
+	}
+
+	public run() : void
+	{
+		const fps : number = 50;
+
+		setInterval(() : void => { this.update(); this.render(); }, 1000 / fps);
 	}
 }
 

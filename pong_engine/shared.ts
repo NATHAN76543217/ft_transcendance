@@ -21,8 +21,8 @@
 
 export class Point
 {
-	x : number
-	y : number
+	public x : number
+	public y : number
 
 	constructor(x : number, y : number)
 	{
@@ -38,19 +38,22 @@ export class Point
 */
 export class Style
 {
-	data : string
-	apply_f : (ctx : any, style : Style) => void
+	private p_data : string
+	private apply_f : (ctx : any, style : Style) => void
 
 	constructor(data : string, apply_f : (ctx : any, style : Style) => void)
 	{
-		this.data = data;
+		this.p_data = data;
 		this.apply_f = apply_f;
 	}
 
-	apply(ctx : any) : void
+	public apply(ctx : any) : void
 	{
 		this.apply_f(ctx, this);
 	}
+
+	public get data() : string { return (this.p_data); }
+	public set set_data(data : string) { this.p_data = data; }
 }
 
 /**
@@ -62,19 +65,22 @@ export class Style
 */
 class Circle
 {
-	pos : Point
-	rad : number
-	style : Style
+	public pos : Point
+	private p_rad : number
+	private p_style : Style
 
 	constructor(pos : Point, rad : number, style : Style)
 	{
 		this.pos = pos;
-		this.rad = rad;
-		this.style = style;
+		this.p_rad = rad;
+		this.p_style = style;
 	}
 
+	public get rad() : number { return (this.p_rad); }
+	public get style() : Style { return (this.p_style); }
+
 	/// Must use canvas's context.
-	draw(ctx : any) : void
+	public draw(ctx : any) : void
 	{
 		this.style.apply(ctx);
 		ctx.beginPath();
@@ -96,21 +102,29 @@ class Circle
 */
 class Rectangle
 {
-	pos : Point
-	width : number
-	height : number
-	style : Style
+	public pos : Point
+	private p_width : number
+	private p_height : number
+	private p_style : Style
 
 	constructor(pos : Point, width : number, height : number, style : Style)
 	{
 		this.pos = pos;
-		this.width = width;
-		this.height = height;
-		this.style = style;
+		this.p_width = width;
+		this.p_height = height;
+		this.p_style = style;
 	}
 
+	public get width() : number { return (this.p_width); }
+	public get height() : number { return (this.p_height); }
+
+	public set set_width(width : number) { this.p_width = width; }
+	public set set_height(height : number) { this.p_height = height; }
+
+	public get style() : Style { return (this.p_style); }
+
 	// Perhabs i need to specilise this one too !
-	collision(ball : Circle) : boolean
+	public collision(ball : Circle) : boolean
 	{
 		return (this.pos.x < ball.pos.x + ball.rad // rectangle left < ball right
 		&& this.pos.y < ball.pos.y + ball.rad // rectangle top < ball bottom
@@ -118,7 +132,7 @@ class Rectangle
 		&& this.pos.y + this.height > ball.pos.y - ball.rad); // rectangle bottom > ball top
 	}
 
-	draw(ctx : any) : void
+	public draw(ctx : any) : void
 	{
 		this.style.apply(ctx);
 		ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
@@ -134,28 +148,30 @@ class Rectangle
  */
 class Paddle extends Rectangle
 {
-	limit_left : Point
-	limit_right : Point
-	EventListenner_type : string
-	EventListenner_handler_f : (event : any, paddle : Paddle) => void
+	private p_limit_left : Point
+	private p_limit_right : Point
+	private p_EventListenner_type : string
+	private EventListenner_handler_f : (event : any, paddle : Paddle) => void
 
 	constructor(pos : Point, width : number, height : number, style : Style,
 	limit_left : Point, limit_right : Point, EventListenner_type : string,
 	EventListenner_handler_f : (event : any, paddle : Paddle) => void)
 	{
 		super(pos, width, height, style);
-		this.limit_left = limit_left;
-		this.limit_right = limit_right;
-		this.EventListenner_type = EventListenner_type;
+		this.p_limit_left = limit_left;
+		this.p_limit_right = limit_right;
+		this.p_EventListenner_type = EventListenner_type;
 		this.EventListenner_handler_f = EventListenner_handler_f;
 	}
 
-	EventListenner_handler(event : any) : void
+	public get limit_left() : Point { return (this.p_limit_left); }
+	public get limit_right() : Point { return (this.p_limit_right); }
+	public get EventListenner_type() : string { return (this.p_EventListenner_type); }
+
+	public EventListenner_handler(event : any) : void
 	{
 		this.EventListenner_handler_f(event, this);
 	}
-
-
 
 	// TO DO: NOTE: Handler must use limits to move the paddle.
 }
@@ -174,9 +190,9 @@ class Paddle extends Rectangle
 */
 export class Score extends Point
 {
-	score : number
-	color: string
-	font : string
+	private score : number
+	private color: string
+	private font : string
 
 	constructor(x : number, y : number, color : string, font : string)
 	{
@@ -186,7 +202,12 @@ export class Score extends Point
 		this.font = font;
 	}
 
-	draw(ctx : any) : void
+	public increase_score()
+	{
+		this.score++;
+	}
+
+	public draw(ctx : any) : void
 	{
 		ctx.fillStyle = this.color;
 		ctx.font = this.font;
@@ -202,7 +223,7 @@ export class Score extends Point
  */
 export class Player extends Paddle
 {
-	score : Score
+	private p_score : Score
 
 	constructor(pos : Point, width : number, height : number, style : Style,
 	limit_left : Point, limit_right : Point, EventListenner_type : string,
@@ -210,12 +231,14 @@ export class Player extends Paddle
 	{
 		super(pos, width, height, style, limit_left, limit_right,
 			EventListenner_type, EventListenner_handler);
-		this.score = score;
+		this.p_score = score;
 	}
 
-	score_point() : void
+	get score() : Score { return (this.p_score); }
+
+	public score_point() : void
 	{
-		this.score.score++;
+		this.p_score.increase_score();
 	}
 }
 
@@ -232,11 +255,11 @@ export class Player extends Paddle
 */
 export class Ball extends Circle
 {
-	velocity : Point
-	speed : number
-	default : Ball
-	reverse_f : (ball : Ball) => void
-	rebound_f : (ball : Ball) => void
+	public velocity : Point
+	public speed : number
+	private default : Ball
+	private reverse_f : (ball : Ball) => void
+	private rebound_f : (ball : Ball) => void
 
 	constructor(pos : Point, rad : number, style : Style,
 		velocity : Point, speed : number, dft : Ball,
@@ -251,17 +274,17 @@ export class Ball extends Circle
 		this,rebound_f = rebound_f;
 	}
 
-	frontal_rebound() : void
+	public frontal_rebound() : void
 	{
 		this.reverse_f(this);
 	}
 
-	lateral_rebound() : void
+	public lateral_rebound() : void
 	{
 		this.rebound_f(this);
 	}
 
-	reset() : void
+	public reset() : void
 	{
 		this.pos = this.default.pos;
 		this.velocity = this.default.velocity;
@@ -285,43 +308,49 @@ export class Ball extends Circle
 */
 export class Court
 {
-	canvas : any
-	ctx : any
-	width : number
-	height : number
-	style : Style
-	frontal_collision_f : (court : Court) => void
-	lateral_collision_f : (court : Court) => boolean
+	private p_canvas : any
+	private p_ctx : any
+	private p_width : number
+	private p_height : number
+	private p_style : Style
+	private frontal_collision_f : (court : Court) => void
+	private lateral_collision_f : (court : Court) => boolean
 
 	constructor(canvas_name : string, style : Style,
 	frontal_collision_f : (court : Court) => void,
 	lateral_collision_f : (court : Court) => boolean)
 	{
-		this.canvas = document.getElementById(canvas_name);
-		this.ctx = this.canvas.getContext("2d");
-		this.width = this.canvas.clientWidth;
-		this.height = this.canvas.clientHeight;
-		this.style = style;
+		this.p_canvas = document.getElementById(canvas_name);
+		this.p_ctx = this.p_canvas.getContext("2d");
+		this.p_width = this.p_canvas.clientWidth;
+		this.p_height = this.p_canvas.clientHeight;
+		this.p_style = style;
 		this.frontal_collision_f = frontal_collision_f;
 		this.lateral_collision_f = lateral_collision_f;
 	}
 
-	frontal_collision() : void
+	public get canvas() : any { return (this.p_canvas); }
+	public get ctx() : any { return (this.p_ctx); }
+	public get width() : number { return (this.p_width); }
+	public get height() : number { return (this.p_height); }
+	public get style() : Style { return (this.p_style); }
+
+	public frontal_collision() : void
 	{
 		// (player1 : Player, player2 : Player, ball : Circle) => void
 		this.frontal_collision_f(this);
 	}
 
-	lateral_collsion() : Boolean
+	public lateral_collsion() : Boolean
 	{
 		// (ball : Circle) => boolean
 		return this.lateral_collision_f(this);
 	}
 
-	clear() : void
+	public clear() : void
 	{
-		this.style.apply(this.ctx);
-		this.ctx.fillRect(0, 0, this.width, this.height);
+		this.p_style.apply(this.p_ctx);
+		this.p_ctx.fillRect(0, 0, this.p_width, this.p_height);
 	}
 }
 
@@ -347,32 +376,34 @@ export enum Direction
 */
 export class Net extends Rectangle
 {
-	direction : Direction
+	private p_direction : Direction
 
 	constructor(pos : Point, width : number, height : number, style : Style,
 		direction : Direction)
 	{
 		super(pos, width, height, style);
-		this.direction = direction;
+		this.p_direction = direction;
 		delete this.draw;
 	}
 
-	draw_net(ctx : any, court_width : number) : void
-	{
-		/**
-		* @brief Generates a sequence start - end by steps distance.
-		* @param start The start of the sequence.
-		* @param step Distance between each generated value.
-		* @param end The end of the sequence.
-		* @yields Each step.
-		*/
-		let gen_pos = function*(start : number, step : number, end : number) // TO DO: Check this for ts types
-		{
-			while (start < end / step)
-				yield start++ * step;
-		};
+	public get direction() : Direction { return (this.p_direction); }
 
-		for (const i of gen_pos(0, 15, court_width))
+	/**
+	* @brief Generates a sequence start - end by steps distance.
+	* @param start The start of the sequence.
+	* @param step Distance between each generated value.
+	* @param end The end of the sequence.
+	* @yields Each step.
+	*/
+	private *generate_position(start : number, step : number, end : number) // TO DO: Check return type
+	{
+		for ( ; start < end / step ; start++)
+				yield start * step;
+	}
+
+	public draw_net(ctx : any, court_width : number) : void
+	{
+		for (const i of this.generate_position(0, 15, court_width))
 		{
 			this.style.apply(ctx);
 			const target_pos : Point = new Point(
@@ -397,39 +428,41 @@ export interface IConfig
 }
 
 /**
- *	@brief Update target's value
- *	@param min The minimal value possible
- *	@param max The maximal value possible
- *	@param value Between 0 and 1. Represent the result of a range slider.
- *	@param target The value to be set.
+ *	@brief Represents a range between 2 values in a 2
+ *	dimensional axis.
+ *	@member min Represent the lower limit.
+ *	@member max Represent the greather limit.
 */
-function ISet(min : number, max : number, value : number, target : number) : void
+export class Range
 {
-	const distance : number = max - min;
+	public min : number
+	public max : number
 
-	target = distance * value;
+	constructor(min : number, max : number)
+	{
+		this.min = min;
+		this.max = max;
+	}
 }
 
-/// Converts a number to it hexadecimal value in a string
-function NumberToRGBString(numeric : number) : string
+/**
+ *	@brief Represent a range slider.
+ *	@member limits The range
+ *	@member value A 0 to 1 value representing a pourcentage of the range.
+*/
+export class RangeSlider
 {
-	return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6);
-}
+	private p_limits : Range
+	private p_value : number
 
-/// Same as ISet but for colors
-function ISetColor(min : number, max : number, value : number, target : string) : void
-{
-	let color : number;
+	constructor(limits : Range, value : number)
+	{
+		this.p_limits = limits;
+		this.p_value = value;
+	}
 
-	ISet(min, max, value, color);
-	target = NumberToRGBString(color);
-}
-
-/// Same as ISet but for texture
-function ISetTexture(min : number, max : number, value : number, target : string) : void
-{
-	// TO DO
-	console.log("Textures are not avalaible yet.");
+	public get limits() : Range { return (this.p_limits); }
+	public get value() : number { return (this.p_value); }
 }
 
 /**
@@ -445,20 +478,63 @@ function ISetTexture(min : number, max : number, value : number, target : string
  */
 export class Game_Config implements IConfig
 {
-	court : Court
-	player1 : Player
-	player2 : Player
-	ball : Ball
-	net : Net
+	private p_court : Court
+	private p_player1 : Player
+	private p_player2 : Player
+	private p_ball : Ball
+	private p_net : Net
 
 	constructor(court : Court, player1 : Player, player2 : Player,
 		ball : Ball, net : Net)
 	{
-		this.court = court;
-		this.player1 = player1;
-		this.player2 = player2;
-		this.ball = ball;
-		this.net = net;
+		this.p_court = court;
+		this.p_player1 = player1;
+		this.p_player2 = player2;
+		this.p_ball = ball;
+		this.p_net = net;
+	}
+
+	public get court() : Court { return (this.p_court); }
+	public get player1() : Player { return (this.p_player1); }
+	public get player2() : Player { return (this.p_player2); }
+	public get ball() : Ball { return (this.p_ball); }
+	public get net() : Net { return (this.p_net); }
+
+	//////////////////////////////////
+	// Setters for set the settings //
+	//////////////////////////////////
+
+	/**
+	 *	@brief Update target's value
+	 *	@param min The minimal value possible
+	 *	@param max The maximal value possible
+	 *	@param value Between 0 and 1. Represent the result of a range slider.
+	 *	@return 
+	*/
+	private RangeSliderValue(range_slider : RangeSlider) : number
+	{
+		const distance : number = range_slider.limits.max - range_slider.limits.min;
+
+		return distance * range_slider.value;
+	}
+
+	/// Converts a number to it hexadecimal value in a string
+	private NumberToRGBString(numeric : number) : string
+	{
+		return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6);
+	}
+
+	/// Same as ISet but for colors
+	private ISetColor(range_slider : RangeSlider, style : Style) : void
+	{
+		style.set_data = this.NumberToRGBString(this.RangeSliderValue(range_slider));
+	}
+
+	/// Same as ISet but for texture
+	private ISetTexture(range_slider : RangeSlider, style : Style) : void
+	{
+		// TO DO
+		console.log("Textures are not avalaible yet.");
 	}
 
 	/*
@@ -485,98 +561,98 @@ export class Game_Config implements IConfig
 	*	- net texture
 	*/
 
-	set_court_color(min : number, max : number, value : number) : void
+	public set set_court_color(range_slider : RangeSlider)
 	{
-		ISetColor(min, max, value, this.court.style.data);
+		this.ISetColor(range_slider, this.court.style);
 	}
 
-	set_court_texture(min : number, max : number, value : number) : void
+	public set set_court_texture(range_slider : RangeSlider)
 	{
-		ISetTexture(min, max, value, this.court.style.data);
+		this.ISetTexture(range_slider, this.court.style);
 	}
 
-	set_court_full_screen() : void
-	{
-
-	}
-
-	set_court_defualt_screen() : void
+	public set_court_full_screen() : void
 	{
 
 	}
 
-	set_player1_paddle_width(min : number, max : number, value : number) : void
+	public set_court_defualt_screen() : void
 	{
-		ISet(min, max, value, this.player1.width);
+
 	}
 
-	set_player1_paddle_height(min : number, max : number, value : number) : void
+	public set set_player1_paddle_width(range_slider : RangeSlider)
 	{
-		ISet(min, max, value, this.player1.height);
+		this.player1.set_width = this.RangeSliderValue(range_slider);
 	}
 
-	set_player2_paddle_width(min : number, max : number, value : number) : void
+	public set set_player1_paddle_height(range_slider : RangeSlider)
 	{
-		ISet(min, max, value, this.player2.width);
+		this.player1.set_height = this.RangeSliderValue(range_slider);
 	}
 
-	set_player2_paddle_height(min : number, max : number, value : number) : void
+	public set set_player2_paddle_width(range_slider : RangeSlider)
 	{
-		ISet(min, max, value, this.player2.height);
+		this.player2.set_width = this.RangeSliderValue(range_slider);
 	}
 
-	set_player1_color(min : number, max : number, value : number) : void
+	public set set_player2_paddle_height(range_slider : RangeSlider)
 	{
-		ISetColor(min, max, value, this.player1.style.data);
+		this.player2.set_height = this.RangeSliderValue(range_slider);
 	}
 
-	set_player2_color(min : number, max : number, value : number) : void
+	public set set_player1_color(range_slider : RangeSlider)
 	{
-		ISetColor(min, max, value, this.player2.style.data);
+		this.ISetColor(range_slider, this.player1.style);
 	}
 
-	set_player1_texture(min : number, max : number, value : number) : void
+	public set set_player2_color(range_slider : RangeSlider)
 	{
-		ISetTexture(min, max, value, this.player1.style.data);
+		this.ISetColor(range_slider, this.player2.style);
 	}
 
-	set_player2_texture(min : number, max : number, value : number) : void
+	public set set_player1_texture(range_slider : RangeSlider)
 	{
-		ISetTexture(min, max, value, this.player2.style.data);
+		this.ISetTexture(range_slider, this.player1.style);
 	}
 
-	set_ball_color(min : number, max : number, value : number) : void
+	public set set_player2_texture(range_slider : RangeSlider)
 	{
-		ISetColor(min, max, value, this.ball.style.data);
+		this.ISetTexture(range_slider, this.player2.style);
 	}
 
-	set_ball_texture(min : number, max : number, value : number) : void
+	public set set_ball_color(range_slider : RangeSlider)
 	{
-		ISetTexture(min, max, value, this.ball.style.data);
+		this.ISetColor(range_slider, this.ball.style);
 	}
 
-	set_ball_speed(min : number, max : number, value : number) : void
+	public set set_ball_texture(range_slider : RangeSlider)
 	{
-		ISet(min, max, value, this.ball.speed);
+		this.ISetTexture(range_slider, this.ball.style);
 	}
 
-	set_net_width(min : number, max : number, value : number) : void
+	public set set_ball_speed(range_slider : RangeSlider)
 	{
-		ISet(min, max, value, this.net.height);
+		this.ball.speed = this.RangeSliderValue(range_slider);
 	}
 
-	set_net_height(min : number, max : number, value : number) : void
+	public set set_net_width(range_slider : RangeSlider)
 	{
-		ISet(min, max, value, this.net.height);
+		this.net.set_height = this.RangeSliderValue(range_slider);
 	}
 
-	set_net_color(min : number, max : number, value : number) : void
+	public set set_net_height(range_slider : RangeSlider)
 	{
-		ISetColor(min, max, value, this.net.style.data);
+		this.net.set_height = this.RangeSliderValue(range_slider);
 	}
 
-	set_net_texture(min : number, max : number, value : number) : void
+	public set set_net_color(range_slider : RangeSlider)
 	{
-		ISetTexture(min, max, value, this.net.style.data);
+		this.ISetColor(range_slider, this.net.style);
+	}
+
+	public set set_net_texture(range_slider : RangeSlider)
+	{
+		this.ISetTexture(range_slider, this.net.style);
 	}
 }
