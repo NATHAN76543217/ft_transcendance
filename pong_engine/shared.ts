@@ -511,7 +511,7 @@ export class Game_Config implements IConfig
 	 *	@param value Between 0 and 1. Represent the result of a range slider.
 	 *	@return 
 	*/
-	private RangeSliderValue(range_slider : RangeSlider) : number
+	private static RangeSliderValue(range_slider : RangeSlider) : number
 	{
 		const distance : number = range_slider.limits.max - range_slider.limits.min;
 
@@ -519,19 +519,19 @@ export class Game_Config implements IConfig
 	}
 
 	/// Converts a number to it hexadecimal value in a string
-	private NumberToRGBString(numeric : number) : string
+	private static NumberToRGBString(numeric : number) : string
 	{
 		return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6);
 	}
 
 	/// Same as ISet but for colors
-	private ISetColor(range_slider : RangeSlider, style : Style) : void
+	private static ISetColor(range_slider : RangeSlider, style : Style) : void
 	{
-		style.set_data = this.NumberToRGBString(this.RangeSliderValue(range_slider));
+		style.set_data = Game_Config.NumberToRGBString(Game_Config.RangeSliderValue(range_slider));
 	}
 
 	/// Same as ISet but for texture
-	private ISetTexture(range_slider : RangeSlider, style : Style) : void
+	private static ISetTexture(range_slider : RangeSlider, style : Style) : void
 	{
 		// TO DO
 		console.log("Textures are not avalaible yet.");
@@ -563,12 +563,12 @@ export class Game_Config implements IConfig
 
 	public set set_court_color(range_slider : RangeSlider)
 	{
-		this.ISetColor(range_slider, this.court.style);
+		Game_Config.ISetColor(range_slider, this.court.style);
 	}
 
 	public set set_court_texture(range_slider : RangeSlider)
 	{
-		this.ISetTexture(range_slider, this.court.style);
+		Game_Config.ISetTexture(range_slider, this.court.style);
 	}
 
 	public set_court_full_screen() : void
@@ -583,76 +583,76 @@ export class Game_Config implements IConfig
 
 	public set set_player1_paddle_width(range_slider : RangeSlider)
 	{
-		this.player1.set_width = this.RangeSliderValue(range_slider);
+		this.player1.set_width = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_player1_paddle_height(range_slider : RangeSlider)
 	{
-		this.player1.set_height = this.RangeSliderValue(range_slider);
+		this.player1.set_height = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_player2_paddle_width(range_slider : RangeSlider)
 	{
-		this.player2.set_width = this.RangeSliderValue(range_slider);
+		this.player2.set_width = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_player2_paddle_height(range_slider : RangeSlider)
 	{
-		this.player2.set_height = this.RangeSliderValue(range_slider);
+		this.player2.set_height = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_player1_color(range_slider : RangeSlider)
 	{
-		this.ISetColor(range_slider, this.player1.style);
+		Game_Config.ISetColor(range_slider, this.player1.style);
 	}
 
 	public set set_player2_color(range_slider : RangeSlider)
 	{
-		this.ISetColor(range_slider, this.player2.style);
+		Game_Config.ISetColor(range_slider, this.player2.style);
 	}
 
 	public set set_player1_texture(range_slider : RangeSlider)
 	{
-		this.ISetTexture(range_slider, this.player1.style);
+		Game_Config.ISetTexture(range_slider, this.player1.style);
 	}
 
 	public set set_player2_texture(range_slider : RangeSlider)
 	{
-		this.ISetTexture(range_slider, this.player2.style);
+		Game_Config.ISetTexture(range_slider, this.player2.style);
 	}
 
 	public set set_ball_color(range_slider : RangeSlider)
 	{
-		this.ISetColor(range_slider, this.ball.style);
+		Game_Config.ISetColor(range_slider, this.ball.style);
 	}
 
 	public set set_ball_texture(range_slider : RangeSlider)
 	{
-		this.ISetTexture(range_slider, this.ball.style);
+		Game_Config.ISetTexture(range_slider, this.ball.style);
 	}
 
 	public set set_ball_speed(range_slider : RangeSlider)
 	{
-		this.ball.speed = this.RangeSliderValue(range_slider);
+		this.ball.speed = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_net_width(range_slider : RangeSlider)
 	{
-		this.net.set_height = this.RangeSliderValue(range_slider);
+		this.net.set_height = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_net_height(range_slider : RangeSlider)
 	{
-		this.net.set_height = this.RangeSliderValue(range_slider);
+		this.net.set_height = Game_Config.RangeSliderValue(range_slider);
 	}
 
 	public set set_net_color(range_slider : RangeSlider)
 	{
-		this.ISetColor(range_slider, this.net.style);
+		Game_Config.ISetColor(range_slider, this.net.style);
 	}
 
 	public set set_net_texture(range_slider : RangeSlider)
 	{
-		this.ISetTexture(range_slider, this.net.style);
+		Game_Config.ISetTexture(range_slider, this.net.style);
 	}
 }
