@@ -7,6 +7,8 @@
  *	configuration file (implemented at "pong_engine/engine_congig.ts")
 */
 
+// TO DO: Key controled paddle should have a velocity, need more spetialisation ...
+
 //////////////////
 // BASE OBSJETS //
 //////////////////
@@ -37,12 +39,17 @@ export class Point
 export class Style
 {
 	data : string
-	apply : (ctx : any) => void
+	apply_f : (ctx : any, style : Style) => void
 
-	constructor(data : string, apply : (ctx : any) => void)
+	constructor(data : string, apply_f : (ctx : any, style : Style) => void)
 	{
 		this.data = data;
-		this.apply = apply;
+		this.apply_f = apply_f;
+	}
+
+	apply(ctx : any) : void
+	{
+		this.apply_f(ctx, this);
 	}
 }
 
@@ -130,18 +137,25 @@ class Paddle extends Rectangle
 	limit_left : Point
 	limit_right : Point
 	EventListenner_type : string
-	EventListenner_handler : (event : any) => void
+	EventListenner_handler_f : (event : any, paddle : Paddle) => void
 
 	constructor(pos : Point, width : number, height : number, style : Style,
 	limit_left : Point, limit_right : Point, EventListenner_type : string,
-	EventListenner_handler : (event : any) => void)
+	EventListenner_handler_f : (event : any, paddle : Paddle) => void)
 	{
 		super(pos, width, height, style);
 		this.limit_left = limit_left;
 		this.limit_right = limit_right;
 		this.EventListenner_type = EventListenner_type;
-		this.EventListenner_handler = EventListenner_handler;
+		this.EventListenner_handler_f = EventListenner_handler_f;
 	}
+
+	EventListenner_handler(event : any) : void
+	{
+		this.EventListenner_handler_f(event, this);
+	}
+
+
 
 	// TO DO: NOTE: Handler must use limits to move the paddle.
 }
@@ -221,19 +235,30 @@ export class Ball extends Circle
 	velocity : Point
 	speed : number
 	default : Ball
-	reverse : () => void
-	rebound : () => void
+	reverse_f : (ball : Ball) => void
+	rebound_f : (ball : Ball) => void
 
 	constructor(pos : Point, rad : number, style : Style,
 		velocity : Point, speed : number, dft : Ball,
-		reverse : () => void, rebound : () => void)
+		reverse_f : (ball : Ball) => void,
+		rebound_f : (ball : Ball) => void)
 	{
 		super(pos, rad, style);
 		this.velocity = velocity;
 		this.speed = speed;
 		this.default = dft;
-		this.reverse = reverse;
-		this,rebound = rebound;
+		this.reverse_f = reverse_f;
+		this,rebound_f = rebound_f;
+	}
+
+	frontal_rebound() : void
+	{
+		this.reverse_f(this);
+	}
+
+	lateral_rebound() : void
+	{
+		this.rebound_f(this);
 	}
 
 	reset() : void
@@ -241,7 +266,7 @@ export class Ball extends Circle
 		this.pos = this.default.pos;
 		this.velocity = this.default.velocity;
 		this.speed = this.default.speed;
-		this.reverse();
+		this.frontal_rebound();
 	}
 }
 
@@ -253,9 +278,9 @@ export class Ball extends Circle
  *	@member height Short version of canvas.clientHeight".
  *	@member slyle A Style type representing the visual style of the court.
  *	@method clear A void function that clear the canvas.
- *	@method check_player_score A void function that increment the score of
+ *	@method frontal_collision A void function that increment the score of
  *	the player that scores a point.
- *	@method check_border_collison A function that return a bool which indicates if
+ *	@method lateral_collision A function that return a bool which indicates if
 *	the ball hit the border of the court.
 */
 export class Court
@@ -265,20 +290,32 @@ export class Court
 	width : number
 	height : number
 	style : Style
-	check_player_scored : (player1 : Player, player2 : Player, ball : Circle) => void
-	check_border_collison : (ball : Circle) => boolean
+	frontal_collision_f : (court : Court) => void
+	lateral_collision_f : (court : Court) => boolean
 
 	constructor(canvas_name : string, style : Style,
-	check_player_scored : (player1 : Player, player2 : Player, ball : Circle) => void,
-	check_border_collison : (ball : Circle) => boolean)
+	frontal_collision_f : (court : Court) => void,
+	lateral_collision_f : (court : Court) => boolean)
 	{
 		this.canvas = document.getElementById(canvas_name);
 		this.ctx = this.canvas.getContext("2d");
 		this.width = this.canvas.clientWidth;
 		this.height = this.canvas.clientHeight;
 		this.style = style;
-		this.check_player_scored = check_player_scored;
-		this.check_border_collison = check_border_collison;
+		this.frontal_collision_f = frontal_collision_f;
+		this.lateral_collision_f = lateral_collision_f;
+	}
+
+	frontal_collision() : void
+	{
+		// (player1 : Player, player2 : Player, ball : Circle) => void
+		this.frontal_collision_f(this);
+	}
+
+	lateral_collsion() : Boolean
+	{
+		// (ball : Circle) => boolean
+		return this.lateral_collision_f(this);
 	}
 
 	clear() : void
@@ -295,9 +332,11 @@ export class Court
 //	|| ball.pos.y + ball.rad > this.height); // ball collides on the bottom of the canvas
 //}
 
-
-/// Literal type for net object
-export type net_dirrection = "vertical" | "horizontal"
+export enum Direction
+{
+	Vertical,
+	Horizontal
+}
 
 /**
  *	@brief Represents the net. Can be displayed horizontally or vertically.
@@ -308,10 +347,10 @@ export type net_dirrection = "vertical" | "horizontal"
 */
 export class Net extends Rectangle
 {
-	direction : net_dirrection
+	direction : Direction
 
 	constructor(pos : Point, width : number, height : number, style : Style,
-		direction : net_dirrection)
+		direction : Direction)
 	{
 		super(pos, width, height, style);
 		this.direction = direction;
@@ -337,8 +376,8 @@ export class Net extends Rectangle
 		{
 			this.style.apply(ctx);
 			const target_pos : Point = new Point(
-				this.direction == "vertical" ? this.pos.x : this.pos.x + i,
-				this.direction == "vertical" ? this.pos.y + i : this.pos.x);
+				this.direction == Direction.Vertical ? this.pos.x : this.pos.x + i,
+				this.direction == Direction.Vertical ? this.pos.y + i : this.pos.x);
 			ctx.fillRect(target_pos.x, target_pos.y, this.width, this.height);
 		}
 	}
@@ -348,6 +387,51 @@ export class Net extends Rectangle
 // ENGINE CONFIGURATION OBJECT //
 /////////////////////////////////
 
+export interface IConfig
+{
+	court : Court
+	player1 : Player
+	player2 : Player
+	ball : Ball
+	net : Net
+}
+
+/**
+ *	@brief Update target's value
+ *	@param min The minimal value possible
+ *	@param max The maximal value possible
+ *	@param value Between 0 and 1. Represent the result of a range slider.
+ *	@param target The value to be set.
+*/
+function ISet(min : number, max : number, value : number, target : number) : void
+{
+	const distance : number = max - min;
+
+	target = distance * value;
+}
+
+/// Converts a number to it hexadecimal value in a string
+function NumberToRGBString(numeric : number) : string
+{
+	return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6);
+}
+
+/// Same as ISet but for colors
+function ISetColor(min : number, max : number, value : number, target : string) : void
+{
+	let color : number;
+
+	ISet(min, max, value, color);
+	target = NumberToRGBString(color);
+}
+
+/// Same as ISet but for texture
+function ISetTexture(min : number, max : number, value : number, target : string) : void
+{
+	// TO DO
+	console.log("Textures are not avalaible yet.");
+}
+
 /**
  *	@brief Engine configuration class.
  *	@member court Define the court's properties and behabiours.
@@ -355,8 +439,11 @@ export class Net extends Rectangle
  *	@member player2 Define the player2's properties and behabiours.
  *	@member ball Define the ball's properties and behabiours.
  *	@member net Define the net's properties and behabiours.
+ *
+ *	Furthermore, implements all the setters used by the settings.
+ *	(defines function which enable users to customize settings properties)
  */
-export class Config
+export class Game_Config implements IConfig
 {
 	court : Court
 	player1 : Player
@@ -372,5 +459,124 @@ export class Config
 		this.player2 = player2;
 		this.ball = ball;
 		this.net = net;
+	}
+
+	/*
+	*	The following properties are customizables
+	*	by the final user:
+	*	- court color
+	*	- court texture
+	*	- full screen on
+	*	- full screen off
+	*	- player1 paddle width
+	*	- player2 paddle width
+	*	- player1 paddle height
+	*	- player2 paddle height
+	*	- player1 paddle color
+	*	- player2 paddle color
+	*	- player1 paddle texture
+	*	- player2 paddle texture
+	*	- ball color
+	*	- ball texture
+	*	- ball speed
+	*	- net width
+	*	- net hight
+	*	- net color
+	*	- net texture
+	*/
+
+	set_court_color(min : number, max : number, value : number) : void
+	{
+		ISetColor(min, max, value, this.court.style.data);
+	}
+
+	set_court_texture(min : number, max : number, value : number) : void
+	{
+		ISetTexture(min, max, value, this.court.style.data);
+	}
+
+	set_court_full_screen() : void
+	{
+
+	}
+
+	set_court_defualt_screen() : void
+	{
+
+	}
+
+	set_player1_paddle_width(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.player1.width);
+	}
+
+	set_player1_paddle_height(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.player1.height);
+	}
+
+	set_player2_paddle_width(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.player2.width);
+	}
+
+	set_player2_paddle_height(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.player2.height);
+	}
+
+	set_player1_color(min : number, max : number, value : number) : void
+	{
+		ISetColor(min, max, value, this.player1.style.data);
+	}
+
+	set_player2_color(min : number, max : number, value : number) : void
+	{
+		ISetColor(min, max, value, this.player2.style.data);
+	}
+
+	set_player1_texture(min : number, max : number, value : number) : void
+	{
+		ISetTexture(min, max, value, this.player1.style.data);
+	}
+
+	set_player2_texture(min : number, max : number, value : number) : void
+	{
+		ISetTexture(min, max, value, this.player2.style.data);
+	}
+
+	set_ball_color(min : number, max : number, value : number) : void
+	{
+		ISetColor(min, max, value, this.ball.style.data);
+	}
+
+	set_ball_texture(min : number, max : number, value : number) : void
+	{
+		ISetTexture(min, max, value, this.ball.style.data);
+	}
+
+	set_ball_speed(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.ball.speed);
+	}
+
+	set_net_width(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.net.height);
+	}
+
+	set_net_height(min : number, max : number, value : number) : void
+	{
+		ISet(min, max, value, this.net.height);
+	}
+
+	set_net_color(min : number, max : number, value : number) : void
+	{
+		ISetColor(min, max, value, this.net.style.data);
+	}
+
+	set_net_texture(min : number, max : number, value : number) : void
+	{
+		ISetTexture(min, max, value, this.net.style.data);
 	}
 }
