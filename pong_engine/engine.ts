@@ -4,15 +4,15 @@
  *  @brief Contains the underlying engine which makes
  *  any Pong kind (variation) happen.
  *	The engine works using 3 configuration classes:
- *	- Game_Config: defines how the game will be.
- *	- Settings_Config: defines the limits of the settings sliders.
- *	- Engine_Config: defines how the engine will work.
+ *	- GameConfig: defines how the game will be.
+ *	- SettingsConfig: defines the limits of the settings sliders.
+ *	- EngineConfig: defines how the engine will work.
  *
- * 	NOTE: Both, "Settings_Congig" and "Engine_Config" are defined
- * 	in this file. However "Game_Settings" is defined in "shared.ts"
 */
 
-import { ABall, GameConfig, Player, Direction, Range } from "./shared"
+import { ABall, GameConfig, Player } from "./game_objs"
+import { Range } from "./frontend_objs"
+import { Direction } from "./customization"
 
 /**
  *	@brief Class that store the range of the settings sliders.
@@ -98,9 +98,6 @@ enum GameMode
 */
 export abstract class AEngineConfig
 {
-	public readonly mode : GameMode;
-	public botLevel : number;
-	public readonly ballSpeedIncrement : number;
 	public handlerPlayer1Type ?: string;
 	public handlerPlayer2Type ?: string;
 
@@ -110,7 +107,8 @@ export abstract class AEngineConfig
 	public abstract getPaddleReboundRad(ball : ABall, player : Player) : number;
 	public abstract changeBallDirection(gameConfig : GameConfig, angle : number) : number;
 
-	constructor(mode : GameMode, botLevel : number, ballSpeedIncrement : number)
+	constructor(public readonly mode : GameMode, public botLevel : number,
+		public readonly ballSpeedIncrement : number)
 	{
 		this.mode = mode;
 		this.botLevel = botLevel;
@@ -128,15 +126,12 @@ export abstract class AEngineConfig
 */
 export class Engine
 {
-	private gameConfig : GameConfig
-	private setingsConfig : ASettingsConfig
-	private engineConfig : AEngineConfig
-
-	constructor(gameConfig : GameConfig, settingsConfig : ASettingsConfig,
-		engineConfig : AEngineConfig)
+	constructor(private gameConfig : GameConfig,
+		private settingsConfig : ASettingsConfig,
+		private engineConfig : AEngineConfig)
 	{
 		this.gameConfig = gameConfig;
-		this.setingsConfig = settingsConfig;
+		this.settingsConfig = settingsConfig;
 		this.engineConfig = engineConfig;
 	}
 
@@ -146,12 +141,13 @@ export class Engine
 
 	private static onFrontCollision(gameConfig : GameConfig) : void
 	{
-		gameConfig.court.onFrontalCollision();
+		gameConfig.court.onFrontalCollision(gameConfig.player1,
+			gameConfig.player2, gameConfig.ball);
 	}
 
 	private static onBorderCollision(gameConfig : GameConfig) : void
 	{
-		if (gameConfig.court.onLateralCollision())
+		if (gameConfig.court.onLateralCollision(gameConfig.ball))
 			gameConfig.ball.lateralRebound();
 	}
 
@@ -212,9 +208,7 @@ export class Engine
 	///////////////////
 
 	private static clearCourt(gameConfig : GameConfig) : void
-	{
-		gameConfig.court.clear();
-	}
+	{ gameConfig.court.clear(); }
 
 	private static displayScores(gameConfig : GameConfig) : void
 	{
@@ -236,9 +230,7 @@ export class Engine
 	}
 
 	private static displayBall(gameConfig : GameConfig) : void
-	{
-		gameConfig.ball.draw(gameConfig.court.ctx);
-	}
+	{ gameConfig.ball.draw(gameConfig.court.ctx); }
 
 	/**
 	 *	@brief Uses the canvas context graphic
