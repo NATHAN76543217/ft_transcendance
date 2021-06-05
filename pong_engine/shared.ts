@@ -36,24 +36,16 @@ export class Point
  *	@member data A string representing a color or a texture file.
  *	@method apply A function that will apply color to some object.
 */
-export class Style
+export abstract class AStyle
 {
-	private p_data : string
-	private apply_f : (ctx : any, style : Style) => void
+	public data : string
 
-	constructor(data : string, apply_f : (ctx : any, style : Style) => void)
+	constructor(data : string)
 	{
-		this.p_data = data;
-		this.apply_f = apply_f;
+		this.data = data;
 	}
 
-	public apply(ctx : any) : void
-	{
-		this.apply_f(ctx, this);
-	}
-
-	public get data() : string { return (this.p_data); }
-	public set set_data(data : string) { this.p_data = data; }
+	public abstract apply(ctx : any) : void;
 }
 
 /**
@@ -66,27 +58,29 @@ export class Style
 class Circle
 {
 	public pos : Point
-	private p_rad : number
-	private p_style : Style
+	public rad : number
+	public style : AStyle
 
-	constructor(pos : Point, rad : number, style : Style)
+	constructor(pos : Point, rad : number, style : AStyle)
 	{
 		this.pos = pos;
-		this.p_rad = rad;
-		this.p_style = style;
+		this.rad = rad;
+		this.style = style;
 	}
 
-	public get rad() : number { return (this.p_rad); }
-	public get style() : Style { return (this.p_style); }
+	private static wrappedDraw(ctx : any, circle : Circle)
+	{
+		circle.style.apply(ctx);
+		ctx.beginPath();
+		ctx.arc(circle.pos.x, circle.pos.y, circle.rad, 0, Math.PI * 2, true);
+		ctx.closePath();
+		ctx.fill();
+	}
 
 	/// Must use canvas's context.
 	public draw(ctx : any) : void
 	{
-		this.style.apply(ctx);
-		ctx.beginPath();
-		ctx.arc(this.pos.x, this.pos.y, this.rad, 0, Math.PI * 2, true);
-		ctx.closePath();
-		ctx.fill();
+		Circle.wrappedDraw(ctx, this);
 	}
 }
 
@@ -103,28 +97,20 @@ class Circle
 class Rectangle
 {
 	public pos : Point
-	private p_width : number
-	private p_height : number
-	private p_style : Style
+	public width : number
+	public height : number
+	public style : AStyle
 
-	constructor(pos : Point, width : number, height : number, style : Style)
+	constructor(pos : Point, width : number, height : number, style : AStyle)
 	{
 		this.pos = pos;
-		this.p_width = width;
-		this.p_height = height;
-		this.p_style = style;
+		this.width = width;
+		this.height = height;
+		this.style = style;
 	}
 
-	public get width() : number { return (this.p_width); }
-	public get height() : number { return (this.p_height); }
-
-	public set set_width(width : number) { this.p_width = width; }
-	public set set_height(height : number) { this.p_height = height; }
-
-	public get style() : Style { return (this.p_style); }
-
 	// Perhabs i need to specilise this one too !
-	public collision(ball : Circle) : boolean
+	public thereIsCollision(ball : Circle) : boolean
 	{
 		return (this.pos.x < ball.pos.x + ball.rad // rectangle left < ball right
 		&& this.pos.y < ball.pos.y + ball.rad // rectangle top < ball bottom
@@ -132,10 +118,16 @@ class Rectangle
 		&& this.pos.y + this.height > ball.pos.y - ball.rad); // rectangle bottom > ball top
 	}
 
+	private static wrappedDraw(ctx : any, rectangle : Rectangle)
+	{
+		rectangle.style.apply(ctx);
+		ctx.fillRect(rectangle.pos.x, rectangle.pos.y,
+			rectangle.width, rectangle.height);
+	}
+
 	public draw(ctx : any) : void
 	{
-		this.style.apply(ctx);
-		ctx.fillRect(this.pos.x, this.pos.y, this.width, this.height);
+		Rectangle.wrappedDraw(ctx, this);
 	}
 }
 
@@ -143,37 +135,19 @@ class Rectangle
  *	@brief Present a paddle (a mouving rectangle).
  *	@member limit_left A Point type representing the max letf slide point.
  *	@member limit_right A Point type representing the max right slide point.
- *	@member EventListenner_type A string representing how the user control the paddle.
- *	@method EventListenner_handler The EventLister handler. 
  */
 class Paddle extends Rectangle
 {
-	private p_limit_left : Point
-	private p_limit_right : Point
-	private p_EventListenner_type : string
-	private EventListenner_handler_f : (event : any, paddle : Paddle) => void
+	public readonly p_limit_left : Point
+	public readonly p_limit_right : Point
 
-	constructor(pos : Point, width : number, height : number, style : Style,
-	limit_left : Point, limit_right : Point, EventListenner_type : string,
-	EventListenner_handler_f : (event : any, paddle : Paddle) => void)
+	constructor(pos : Point, width : number, height : number, style : AStyle,
+	limit_left : Point, limit_right : Point)
 	{
 		super(pos, width, height, style);
 		this.p_limit_left = limit_left;
 		this.p_limit_right = limit_right;
-		this.p_EventListenner_type = EventListenner_type;
-		this.EventListenner_handler_f = EventListenner_handler_f;
 	}
-
-	public get limit_left() : Point { return (this.p_limit_left); }
-	public get limit_right() : Point { return (this.p_limit_right); }
-	public get EventListenner_type() : string { return (this.p_EventListenner_type); }
-
-	public EventListenner_handler(event : any) : void
-	{
-		this.EventListenner_handler_f(event, this);
-	}
-
-	// TO DO: NOTE: Handler must use limits to move the paddle.
 }
 
 ///////////////////
@@ -202,43 +176,53 @@ export class Score extends Point
 		this.font = font;
 	}
 
-	public increase_score()
+	public increaseScore()
 	{
 		this.score++;
 	}
 
+	private static wrappedDraw(ctx : any, score : Score) : void
+	{
+		ctx.fillStyle = score.color;
+		ctx.font = score.font;
+		ctx.fillText(score.score, score.x, score.y);
+	}
+
 	public draw(ctx : any) : void
 	{
-		ctx.fillStyle = this.color;
-		ctx.font = this.font;
-		ctx.fillText(this.score, this.x, this.y);
+		Score.wrappedDraw(ctx, this);
 	}
+}
+
+interface IPlayer
+{
+	pos : Point;
+	width : number;
+	height : number;
+	style : AStyle;
+	score : Score;
 }
 
 /**
  *	@brief Final class representing a player that constrols
  *	a paddle and has an score.
  *	@member score A Store type representing the score of the payer.
- *	@method score_point Fast typing: "this.score.score++;".
+ *	@method scorePoint Fast typing: "this.score.score++;".
  */
-export class Player extends Paddle
+export class Player extends Paddle implements IPlayer
 {
-	private p_score : Score
+	public readonly score : Score
 
-	constructor(pos : Point, width : number, height : number, style : Style,
-	limit_left : Point, limit_right : Point, EventListenner_type : string,
-	EventListenner_handler : (event : any) => void, score : Score)
+	constructor(pos : Point, width : number, height : number, style : AStyle,
+	limitLeft : Point, limitRight : Point, score : Score)
 	{
-		super(pos, width, height, style, limit_left, limit_right,
-			EventListenner_type, EventListenner_handler);
-		this.p_score = score;
+		super(pos, width, height, style, limitLeft, limitRight);
+		this.score = score;
 	}
 
-	get score() : Score { return (this.p_score); }
-
-	public score_point() : void
+	public scorePoint() : void
 	{
-		this.p_score.increase_score();
+		this.score.increaseScore();
 	}
 }
 
@@ -246,42 +230,39 @@ export class Player extends Paddle
  *	@brief Represent the final object of the ball.
  *	@member velocity How fast the ball moves into frames.
  *	@member speed Also used to define how fast the ball moves.
- *	@method reverse A function that reverses the ball's paddle
+ *	@method frontalRebound A function that reverses the ball's paddle
  *	to paddle dirrection.
  *	@method reset Put the ball on the middle of the court each
  *	time a player score.
- *	@method rebound A function that handle the ball direction when
+ *	@method onLateralCollision A function that handle the ball direction when
  *	it collides in the court border.
 */
-export class Ball extends Circle
+export abstract class ABall extends Circle
 {
 	public velocity : Point
 	public speed : number
-	private default : Ball
-	private reverse_f : (ball : Ball) => void
-	private rebound_f : (ball : Ball) => void
+	private default : ABall
 
-	constructor(pos : Point, rad : number, style : Style,
-		velocity : Point, speed : number, dft : Ball,
-		reverse_f : (ball : Ball) => void,
-		rebound_f : (ball : Ball) => void)
+	constructor(pos : Point, rad : number, style : AStyle,
+		velocity : Point, speed : number, dft : ABall)
 	{
 		super(pos, rad, style);
 		this.velocity = velocity;
 		this.speed = speed;
 		this.default = dft;
-		this.reverse_f = reverse_f;
-		this,rebound_f = rebound_f;
 	}
 
-	public frontal_rebound() : void
+	public abstract wrappedFrontalRebound(ball : ABall);
+	public abstract wrappedLateralRebound(ball : ABall);
+
+	public frontalRebound() : void
 	{
-		this.reverse_f(this);
+		this.wrappedFrontalRebound(this);
 	}
 
-	public lateral_rebound() : void
+	public lateralRebound() : void
 	{
-		this.rebound_f(this);
+		this.wrappedLateralRebound(this);
 	}
 
 	public reset() : void
@@ -289,7 +270,7 @@ export class Ball extends Circle
 		this.pos = this.default.pos;
 		this.velocity = this.default.velocity;
 		this.speed = this.default.speed;
-		this.frontal_rebound();
+		this.frontalRebound();
 	}
 }
 
@@ -301,56 +282,47 @@ export class Ball extends Circle
  *	@member height Short version of canvas.clientHeight".
  *	@member slyle A Style type representing the visual style of the court.
  *	@method clear A void function that clear the canvas.
- *	@method frontal_collision A void function that increment the score of
+ *	@method onFrontalCollision A void function that increment the score of
  *	the player that scores a point.
- *	@method lateral_collision A function that return a bool which indicates if
+ *	@method onLateralCollision A function that return a bool which indicates if
 *	the ball hit the border of the court.
 */
-export class Court
+export abstract class ACourt
 {
-	private p_canvas : any
-	private p_ctx : any
-	private p_width : number
-	private p_height : number
-	private p_style : Style
-	private frontal_collision_f : (court : Court) => void
-	private lateral_collision_f : (court : Court) => boolean
+	public readonly canvas : any
+	public readonly ctx : any
+	public readonly width : number
+	public readonly height : number
+	public style : AStyle
 
-	constructor(canvas_name : string, style : Style,
-	frontal_collision_f : (court : Court) => void,
-	lateral_collision_f : (court : Court) => boolean)
+	constructor(canvas_name : string, style : AStyle)
 	{
-		this.p_canvas = document.getElementById(canvas_name);
-		this.p_ctx = this.p_canvas.getContext("2d");
-		this.p_width = this.p_canvas.clientWidth;
-		this.p_height = this.p_canvas.clientHeight;
-		this.p_style = style;
-		this.frontal_collision_f = frontal_collision_f;
-		this.lateral_collision_f = lateral_collision_f;
+		this.canvas = document.getElementById(canvas_name);
+		this.ctx = this.canvas.getContext("2d");
+		this.width = this.canvas.clientWidth;
+		this.height = this.canvas.clientHeight;
+		this.style = style;
 	}
 
-	public get canvas() : any { return (this.p_canvas); }
-	public get ctx() : any { return (this.p_ctx); }
-	public get width() : number { return (this.p_width); }
-	public get height() : number { return (this.p_height); }
-	public get style() : Style { return (this.p_style); }
+	public abstract wrappedFrontalCollision(court : ACourt) : void;
+	public abstract wrappedLateralCollision(court : ACourt) : boolean;
 
-	public frontal_collision() : void
+	public onFrontalCollision() : void
 	{
 		// (player1 : Player, player2 : Player, ball : Circle) => void
-		this.frontal_collision_f(this);
+		this.wrappedFrontalCollision(this);
 	}
 
-	public lateral_collsion() : Boolean
+	public onLateralCollision() : boolean
 	{
 		// (ball : Circle) => boolean
-		return this.lateral_collision_f(this);
+		return this.wrappedLateralCollision(this);
 	}
 
 	public clear() : void
 	{
-		this.p_style.apply(this.p_ctx);
-		this.p_ctx.fillRect(0, 0, this.p_width, this.p_height);
+		this.style.apply(this.ctx);
+		this.ctx.fillRect(0, 0, this.width, this.height);
 	}
 }
 
@@ -363,8 +335,8 @@ export class Court
 
 export enum Direction
 {
-	Vertical,
-	Horizontal
+	VERTICAL,
+	HORIZONAL
 }
 
 /**
@@ -372,21 +344,19 @@ export enum Direction
  *	NOTE: Contains Rectangle members.
  *	@member direction A string that can be "vertical" or "horizonal" which
  *	represent the direction of the net.
- *	@method draw_net Draws the net following the given dirrection.
+ *	@method drawNet Draws the net following the given dirrection.
 */
 export class Net extends Rectangle
 {
-	private p_direction : Direction
+	public readonly direction : Direction
 
-	constructor(pos : Point, width : number, height : number, style : Style,
+	constructor(pos : Point, width : number, height : number, style : AStyle,
 		direction : Direction)
 	{
 		super(pos, width, height, style);
-		this.p_direction = direction;
+		this.direction = direction;
 		delete this.draw;
 	}
-
-	public get direction() : Direction { return (this.p_direction); }
 
 	/**
 	* @brief Generates a sequence start - end by steps distance.
@@ -395,22 +365,28 @@ export class Net extends Rectangle
 	* @param end The end of the sequence.
 	* @yields Each step.
 	*/
-	private *generate_position(start : number, step : number, end : number) // TO DO: Check return type
+	private static *generatePos(start : number, step : number, end : number) // TO DO: Check return type
 	{
 		for ( ; start < end / step ; start++)
 				yield start * step;
+		// TO DO: IS THE GENERATOR REGENERED ?
 	}
 
-	public draw_net(ctx : any, court_width : number) : void
+	private static wrappedDrawNet(ctx : any, courtWidth : number, net : Net) : void
 	{
-		for (const i of this.generate_position(0, 15, court_width))
+		for (const i of Net.generatePos(0, 15, courtWidth))
 		{
-			this.style.apply(ctx);
-			const target_pos : Point = new Point(
-				this.direction == Direction.Vertical ? this.pos.x : this.pos.x + i,
-				this.direction == Direction.Vertical ? this.pos.y + i : this.pos.x);
-			ctx.fillRect(target_pos.x, target_pos.y, this.width, this.height);
+			net.style.apply(ctx);
+			const targetPos : Point = new Point(
+				net.direction == Direction.VERTICAL ? net.pos.x : net.pos.x + i,
+				net.direction == Direction.VERTICAL ? net.pos.y + i : net.pos.x);
+			ctx.fillRect(targetPos.x, targetPos.y, net.width, net.height);
 		}
+	}
+
+	public drawNet(ctx : any, courtWidth : number) : void
+	{
+		Net.wrappedDrawNet(ctx, courtWidth, this);
 	}
 }
 
@@ -420,10 +396,10 @@ export class Net extends Rectangle
 
 export interface IConfig
 {
-	court : Court
+	court : ACourt
 	player1 : Player
 	player2 : Player
-	ball : Ball
+	ball : ABall
 	net : Net
 }
 
@@ -435,8 +411,8 @@ export interface IConfig
 */
 export class Range
 {
-	public min : number
-	public max : number
+	public readonly min : number
+	public readonly max : number
 
 	constructor(min : number, max : number)
 	{
@@ -452,17 +428,14 @@ export class Range
 */
 export class RangeSlider
 {
-	private p_limits : Range
-	private p_value : number
+	public readonly limits : Range
+	public readonly value : number
 
 	constructor(limits : Range, value : number)
 	{
-		this.p_limits = limits;
-		this.p_value = value;
+		this.limits = limits;
+		this.value = value;
 	}
-
-	public get limits() : Range { return (this.p_limits); }
-	public get value() : number { return (this.p_value); }
 }
 
 /**
@@ -476,29 +449,29 @@ export class RangeSlider
  *	Furthermore, implements all the setters used by the settings.
  *	(defines function which enable users to customize settings properties)
  */
-export class Game_Config implements IConfig
+export class GameConfig implements IConfig
 {
-	private p_court : Court
-	private p_player1 : Player
-	private p_player2 : Player
-	private p_ball : Ball
-	private p_net : Net
+	private wrappedCourt : ACourt
+	private wrappedPlayer1 : Player
+	private wrappedPlayer2 : Player
+	private wrappedBall : ABall
+	private wrappedNet : Net
 
-	constructor(court : Court, player1 : Player, player2 : Player,
-		ball : Ball, net : Net)
+	constructor(court : ACourt, player1 : Player, player2 : Player,
+		ball : ABall, net : Net)
 	{
-		this.p_court = court;
-		this.p_player1 = player1;
-		this.p_player2 = player2;
-		this.p_ball = ball;
-		this.p_net = net;
+		this.wrappedCourt = court;
+		this.wrappedPlayer1 = player1;
+		this.wrappedPlayer2 = player2;
+		this.wrappedBall = ball;
+		this.wrappedNet = net;
 	}
 
-	public get court() : Court { return (this.p_court); }
-	public get player1() : Player { return (this.p_player1); }
-	public get player2() : Player { return (this.p_player2); }
-	public get ball() : Ball { return (this.p_ball); }
-	public get net() : Net { return (this.p_net); }
+	get court() : ACourt { return (this.wrappedCourt); }
+	get player1() : Player { return (this.wrappedPlayer1); }
+	get player2() : Player { return (this.wrappedPlayer2); }
+	get ball() : ABall { return (this.wrappedBall); }
+	get net() : Net { return (this.wrappedNet); }
 
 	//////////////////////////////////
 	// Setters for set the settings //
@@ -511,27 +484,27 @@ export class Game_Config implements IConfig
 	 *	@param value Between 0 and 1. Represent the result of a range slider.
 	 *	@return 
 	*/
-	private static RangeSliderValue(range_slider : RangeSlider) : number
+	private static RangeSliderValue(rangeSlider : RangeSlider) : number
 	{
-		const distance : number = range_slider.limits.max - range_slider.limits.min;
+		const distance : number = rangeSlider.limits.max - rangeSlider.limits.min;
 
-		return distance * range_slider.value;
+		return distance * rangeSlider.value;
 	}
 
 	/// Converts a number to it hexadecimal value in a string
-	private static NumberToRGBString(numeric : number) : string
+	private static NumbertoHexStr(numeric : number) : string
 	{
 		return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6);
 	}
 
 	/// Same as ISet but for colors
-	private static ISetColor(range_slider : RangeSlider, style : Style) : void
+	private static ISetColor(rangeSlider : RangeSlider, style : AStyle) : void
 	{
-		style.set_data = Game_Config.NumberToRGBString(Game_Config.RangeSliderValue(range_slider));
+		style.data = GameConfig.NumbertoHexStr(GameConfig.RangeSliderValue(rangeSlider));
 	}
 
 	/// Same as ISet but for texture
-	private static ISetTexture(range_slider : RangeSlider, style : Style) : void
+	private static ISetTexture(rangeSlider : RangeSlider, style : AStyle) : void
 	{
 		// TO DO
 		console.log("Textures are not avalaible yet.");
@@ -561,98 +534,93 @@ export class Game_Config implements IConfig
 	*	- net texture
 	*/
 
-	public set set_court_color(range_slider : RangeSlider)
+	set courtColor(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetColor(range_slider, this.court.style);
+		GameConfig.ISetColor(rangeSlider, this.court.style);
 	}
 
-	public set set_court_texture(range_slider : RangeSlider)
+	set courtTexture(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetTexture(range_slider, this.court.style);
+		GameConfig.ISetTexture(rangeSlider, this.court.style);
 	}
 
-	public set_court_full_screen() : void
-	{
-
-	}
-
-	public set_court_defualt_screen() : void
+	public toFullScreen() : void
 	{
 
 	}
 
-	public set set_player1_paddle_width(range_slider : RangeSlider)
+	public toDefaultScreen() : void
 	{
-		this.player1.set_width = Game_Config.RangeSliderValue(range_slider);
+
 	}
 
-	public set set_player1_paddle_height(range_slider : RangeSlider)
+	set player1Width(rangeSlider : RangeSlider)
 	{
-		this.player1.set_height = Game_Config.RangeSliderValue(range_slider);
+		this.player1.width = GameConfig.RangeSliderValue(rangeSlider);
 	}
 
-	public set set_player2_paddle_width(range_slider : RangeSlider)
+	set player1Height(rangeSlider : RangeSlider)
 	{
-		this.player2.set_width = Game_Config.RangeSliderValue(range_slider);
+		this.player1.height = GameConfig.RangeSliderValue(rangeSlider);
 	}
 
-	public set set_player2_paddle_height(range_slider : RangeSlider)
+	set player2Width(rangeSlider : RangeSlider)
 	{
-		this.player2.set_height = Game_Config.RangeSliderValue(range_slider);
+		this.player2.width = GameConfig.RangeSliderValue(rangeSlider);
 	}
 
-	public set set_player1_color(range_slider : RangeSlider)
+	set player2Height(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetColor(range_slider, this.player1.style);
+		this.player2.height = GameConfig.RangeSliderValue(rangeSlider);
 	}
 
-	public set set_player2_color(range_slider : RangeSlider)
+	set player1Color(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetColor(range_slider, this.player2.style);
+		GameConfig.ISetColor(rangeSlider, this.player1.style);
 	}
 
-	public set set_player1_texture(range_slider : RangeSlider)
+	set player2Color(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetTexture(range_slider, this.player1.style);
+		GameConfig.ISetColor(rangeSlider, this.player2.style);
 	}
 
-	public set set_player2_texture(range_slider : RangeSlider)
+	set player1Texture(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetTexture(range_slider, this.player2.style);
+		GameConfig.ISetTexture(rangeSlider, this.player1.style);
 	}
 
-	public set set_ball_color(range_slider : RangeSlider)
+	set player2Texture(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetColor(range_slider, this.ball.style);
+		GameConfig.ISetTexture(rangeSlider, this.player2.style);
 	}
 
-	public set set_ball_texture(range_slider : RangeSlider)
+	set ballColor(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetTexture(range_slider, this.ball.style);
+		GameConfig.ISetColor(rangeSlider, this.ball.style);
 	}
 
-	public set set_ball_speed(range_slider : RangeSlider)
+	set ballTexture(rangeSlider : RangeSlider)
 	{
-		this.ball.speed = Game_Config.RangeSliderValue(range_slider);
+		GameConfig.ISetTexture(rangeSlider, this.ball.style);
 	}
 
-	public set set_net_width(range_slider : RangeSlider)
+	set ballSpeed(rangeSlider : RangeSlider)
 	{
-		this.net.set_height = Game_Config.RangeSliderValue(range_slider);
+		this.ball.speed = GameConfig.RangeSliderValue(rangeSlider);
 	}
 
-	public set set_net_height(range_slider : RangeSlider)
+	set netHeight(rangeSlider : RangeSlider)
 	{
-		this.net.set_height = Game_Config.RangeSliderValue(range_slider);
+		this.net.height = GameConfig.RangeSliderValue(rangeSlider);
 	}
 
-	public set set_net_color(range_slider : RangeSlider)
+	set netColor(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetColor(range_slider, this.net.style);
+		GameConfig.ISetColor(rangeSlider, this.net.style);
 	}
 
-	public set set_net_texture(range_slider : RangeSlider)
+	set netTexture(rangeSlider : RangeSlider)
 	{
-		Game_Config.ISetTexture(range_slider, this.net.style);
+		GameConfig.ISetTexture(rangeSlider, this.net.style);
 	}
 }
