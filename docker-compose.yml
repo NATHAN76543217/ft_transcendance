@@ -38,8 +38,6 @@ services:
             - "465:465"
         volumes:
             - './backend/srcs/:/app/'
-            # - '/app/node_modules'
-            #REVIEW - delete upper line (?)
         restart: always
         # networks: 
         #     - backend
@@ -57,7 +55,6 @@ services:
             - "3000:3000"
         volumes: 
             - ./frontend/srcs/:/app/
-            - /app/node_modules
         # networks: 
         #     - backend
         #     - frontend
