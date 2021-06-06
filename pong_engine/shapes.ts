@@ -4,7 +4,7 @@
  *  complex objects.
 */
 
-import {AStyle} from "./customization"
+import { AStyle } from "./customization"
 
 export interface IPoint
 {

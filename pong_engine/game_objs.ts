@@ -7,6 +7,7 @@
 import { IPoint, Point, Circle, Rectangle } from "./shapes"
 import { AStyle, Direction } from "./customization"
 import { RangeSlider, IRangeSlider } from "./frontend_objs"
+import { GameObjIsOutOfRange } from "./exceptions"
 
 /**
  *	@brief Present a paddle (a mouving rectangle).
@@ -24,6 +25,15 @@ class Paddle extends Rectangle
 	}
 }
 
+declare class IScore
+{
+	public x : number;
+	public y : number;
+	score : number;
+	color : string;
+	font : string;
+}
+
 /**
  *	@brief Represents a player score.
  *	@member number A number representing the value of the score.
@@ -35,14 +45,19 @@ class Paddle extends Rectangle
 export class Score extends Point
 {
 	private score : number
+	protected color: string
+	protected font : string
 
-	constructor(x : number, y : number, private color: string,
-		private font : string)
+	constructor(x : Score);
+	constructor(x : number, y : number, color : string, font : string);
+	constructor(x : number | Score, y ?: number, color ?: string,
+		font ?: string)
 	{
-		super(x, y);
-		this.score = 0;
-		this.color = color;
-		this.font = font;
+		// TO DO: Overload other classes when i will need it, but need to find before my overloading style
+		super(x instanceof Score ? x.x : x, x instanceof Score ? x.y : y);
+		this.score = x instanceof Score ? x.score : 0;
+		this.color = x instanceof Score ? x.color : color;
+		this.font = x instanceof Score ? x.font : font;
 	}
 
 	public increaseScore()
@@ -255,6 +270,8 @@ export class GameConfig implements IConfig
 		this.wrappedPlayer2 = player2;
 		this.wrappedBall = ball;
 		this.wrappedNet = net;
+
+		this.sanitize();
 	}
 
 	get court() : ACourt { return (this.wrappedCourt); }
@@ -262,6 +279,64 @@ export class GameConfig implements IConfig
 	get player2() : Player { return (this.wrappedPlayer2); }
 	get ball() : ABall { return (this.wrappedBall); }
 	get net() : Net { return (this.wrappedNet); }
+
+	private sanitize() : void
+	{
+		if (this.player1.pos.x > this.court.width
+			|| this.player1.pos.y > this.court.height
+			|| this.player2.pos.x > this.court.width
+			|| this.player2.pos.y > this.court.height
+			|| this.ball.pos.x > this.court.width
+			|| this.ball.pos.y > this.court.height
+			|| this.net.pos.x > this.court.width
+			|| this.net.pos.y > this.court.height
+			|| this.player1.width > this.court.width
+			|| this.player1.height > this.court.height
+			|| this.player2.width > this.court.width
+			|| this.player2.height > this.court.height
+			|| this.net.width > this.court.width
+			|| this.net.height > this.court.height
+			|| this.player1.limitLeft.x > this.court.width
+			|| this.player1.limitLeft.y > this.court.height
+			|| this.player1.limitRight.x > this.court.width
+			|| this.player1.limitRight.y > this.court.width
+			|| this.player2.limitLeft.x > this.court.width
+			|| this.player2.limitLeft.y > this.court.height
+			|| this.player2.limitRight.x > this.court.width
+			|| this.player2.limitRight.y > this.court.width
+			|| this.player1.score.x > this.court.width
+			|| this.player1.score.y > this.court.height
+			|| this.player2.score.x > this.court.width
+			|| this.player2.score.y > this.court.height
+			//
+			|| this.player1.pos.x < 0
+			|| this.player1.pos.y < 0
+			|| this.player2.pos.x < 0
+			|| this.player2.pos.y < 0
+			|| this.ball.pos.x < 0
+			|| this.ball.pos.y < 0
+			|| this.net.pos.x < 0
+			|| this.net.pos.y < 0
+			|| this.player1.width < 0
+			|| this.player1.height <= 0
+			|| this.player2.width <= 0
+			|| this.player2.height <= 0
+			|| this.net.width <= 0
+			|| this.net.height <= 0
+			|| this.player1.limitLeft.x < 0
+			|| this.player1.limitLeft.y < 0
+			|| this.player1.limitRight.x < 0
+			|| this.player1.limitRight.y < 0
+			|| this.player2.limitLeft.x < 0
+			|| this.player2.limitLeft.y < 0
+			|| this.player2.limitRight.x < 0
+			|| this.player2.limitRight.y < 0
+			|| this.player1.score.x < 0
+			|| this.player1.score.y < 0
+			|| this.player2.score.x < 0
+			|| this.player2.score.y < 0)
+				throw new GameObjIsOutOfRange();
+	}
 
 	/*
 	*	The following properties are customizables

@@ -5,3 +5,15 @@
 
 // NOTE THIS WOULD BE A DIR, EACH FILE IN THE DIR WILL
 //  BE A DIFFERENT KINK OF PONG
+
+import { Score } from "./game_objs"
+/*
+const score : Score =  class extends Score {
+    x : number = 0;
+    y : number = 0;
+    color : string = "";
+    font : string = "";
+};
+
+new Score(score);
+*/
