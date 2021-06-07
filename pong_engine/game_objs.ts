@@ -54,7 +54,7 @@ export class Score extends Point
 		font ?: string)
 	{
 		// TO DO: Overload other classes when i will need it, but need to find before my overloading style
-		super(polimorph instanceof IScore ? polimorph.x : polimorph, polimorph instanceof Score ? polimorph.y : y);
+		super(polimorph instanceof IScore ? polimorph.x : polimorph, polimorph instanceof IScore ? polimorph.y : y);
 		this.score = polimorph instanceof IScore ? polimorph.score : 0;
 		this.color = polimorph instanceof IScore ? polimorph.color : color;
 		this.font = polimorph instanceof IScore ? polimorph.font : font;
@@ -73,6 +73,9 @@ export class Score extends Point
 	public draw(ctx : any) : void
 	{ Score.wrappedDraw(ctx, this); }
 }
+
+let i = new IScore();
+new Score(1, 1, "", );
 
 export declare class IPlayer
 {
@@ -238,6 +241,7 @@ export class Net extends Rectangle
 		this.direction = polimorph instanceof INet ? polimorph.direction : direction;
 		delete this.draw;
 	}
+
 
 	/**
 	* @brief Generates a sequence start - end by steps distance.

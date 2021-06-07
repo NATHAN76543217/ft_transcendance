@@ -19,9 +19,10 @@ class score extends IScore
 {
     x : number = 0;
     y : number = 0;
-    score : number = 0;
+    score : number;
     color : string = "";
     font : string = "";
 }
 
 new Score(new score());
+
