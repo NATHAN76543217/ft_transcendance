@@ -25,13 +25,13 @@ class Paddle extends Rectangle
 	}
 }
 
-declare class IScore
+export declare class IScore
 {
-	public x : number;
-	public y : number;
-	score : number;
-	color : string;
-	font : string;
+	public readonly x : number;
+	public readonly y : number;
+	public readonly score : number
+	public readonly color: string
+	public readonly font : string
 }
 
 /**
@@ -48,16 +48,16 @@ export class Score extends Point
 	protected color: string
 	protected font : string
 
-	constructor(x : Score);
+	constructor(other : IScore);
 	constructor(x : number, y : number, color : string, font : string);
-	constructor(x : number | Score, y ?: number, color ?: string,
+	constructor(polimorph : number | IScore, y ?: number, color ?: string,
 		font ?: string)
 	{
 		// TO DO: Overload other classes when i will need it, but need to find before my overloading style
-		super(x instanceof Score ? x.x : x, x instanceof Score ? x.y : y);
-		this.score = x instanceof Score ? x.score : 0;
-		this.color = x instanceof Score ? x.color : color;
-		this.font = x instanceof Score ? x.font : font;
+		super(polimorph instanceof IScore ? polimorph.x : polimorph, polimorph instanceof Score ? polimorph.y : y);
+		this.score = polimorph instanceof IScore ? polimorph.score : 0;
+		this.color = polimorph instanceof IScore ? polimorph.color : color;
+		this.font = polimorph instanceof IScore ? polimorph.font : font;
 	}
 
 	public increaseScore()
@@ -74,13 +74,15 @@ export class Score extends Point
 	{ Score.wrappedDraw(ctx, this); }
 }
 
-interface IPlayer
+export declare class IPlayer
 {
-	pos : IPoint;
-	width : number;
-	height : number;
-	style : AStyle;
-	score : Score;
+	public readonly pos : IPoint;
+	public readonly width : number;
+	public readonly height : number;
+	public readonly style : AStyle;
+	public readonly limitLeft : IPoint;
+	public readonly limitRight : IPoint;
+	public readonly score : Score;
 }
 
 /**
@@ -89,17 +91,37 @@ interface IPlayer
  *	@member score A Store type representing the score of the payer.
  *	@method scorePoint Fast typing: "this.score.score++;".
  */
-export class Player extends Paddle implements IPlayer
+export class Player extends Paddle
 {
-	constructor(pos : IPoint, width : number, height : number, style : AStyle,
-	limitLeft : IPoint, limitRight : IPoint, public readonly score : Score)
+	public readonly score : Score
+
+	constructor(x : IPoint, width : number, height : number, style : AStyle,
+		limitLeft : IPoint, limitRight : IPoint, score : Score);
+	constructor(other : IPlayer);
+	constructor(polimorph : IPoint | IPlayer, width ?: number, height ?: number, style ?: AStyle,
+	limitLeft ?: IPoint, limitRight ?: IPoint, score ?: Score)
 	{
-		super(pos, width, height, style, limitLeft, limitRight);
-		this.score = score;
+		super(polimorph instanceof IPlayer ? polimorph.pos : polimorph,
+			polimorph instanceof IPlayer ? polimorph.width : width,
+			polimorph instanceof IPlayer ? polimorph.height : height,
+			polimorph instanceof IPlayer ? polimorph.style : style,
+			polimorph instanceof IPlayer ? polimorph.limitLeft : limitLeft,
+			polimorph instanceof IPlayer ? polimorph.limitRight : limitLeft);
+		this.score = polimorph instanceof IPlayer ? polimorph.score : score;
 	}
 
 	public scorePoint() : void
 	{ this.score.increaseScore(); }
+}
+
+export declare class IBall
+{
+	public readonly pos : IPoint;
+	public readonly rad : number;
+	public readonly styte : AStyle;
+	public readonly velocity : IPoint;
+	public readonly speed : number;
+	public readonly defaultBall : ABall;
 }
 
 /**
@@ -183,6 +205,15 @@ export abstract class ACourt
 //	|| ball.pos.y + ball.rad > this.height); // ball collides on the bottom of the canvas
 //}
 
+export declare class INet
+{
+	public readonly pos : IPoint;
+	public readonly width : number;
+	public readonly height : number;
+	public readonly style : AStyle;
+	public readonly direction : Direction;
+}
+
 /**
  *	@brief Represents the net. Can be displayed horizontally or vertically.
  *	NOTE: Contains Rectangle members.
@@ -192,11 +223,19 @@ export abstract class ACourt
 */
 export class Net extends Rectangle
 {
+	public readonly direction : Direction
+
 	constructor(pos : IPoint, width : number, height : number, style : AStyle,
-		public readonly direction : Direction)
+		direction : Direction);
+	constructor(other : INet);
+	constructor(polimorph : IPoint | INet, width ?: number, height ?: number, style ?: AStyle,
+		direction ?: Direction)
 	{
-		super(pos, width, height, style);
-		this.direction = direction;
+		super(polimorph instanceof INet ? polimorph.pos : polimorph,
+			polimorph instanceof INet ? polimorph.width : width,
+			polimorph instanceof INet ? polimorph.height : height,
+			polimorph instanceof INet ? polimorph.style : style);
+		this.direction = polimorph instanceof INet ? polimorph.direction : direction;
 		delete this.draw;
 	}
 

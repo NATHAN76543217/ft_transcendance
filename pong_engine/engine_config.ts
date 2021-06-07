@@ -6,14 +6,22 @@
 // NOTE THIS WOULD BE A DIR, EACH FILE IN THE DIR WILL
 //  BE A DIFFERENT KINK OF PONG
 
-import { Score } from "./game_objs"
-/*
-const score : Score =  class extends Score {
+import { Score, IScore } from "./game_objs"
+
+// const score = class {
+//     x : number = 0;
+//     y : number = 0;
+//     color : string = "";
+//     font : string = "";
+// };
+
+class score extends IScore
+{
     x : number = 0;
     y : number = 0;
+    score : number = 0;
     color : string = "";
     font : string = "";
-};
+}
 
-new Score(score);
-*/
+new Score(new score());
