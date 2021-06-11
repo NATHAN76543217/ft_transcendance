@@ -3,33 +3,42 @@ version: '3.7'
 services:
     db:
         # build: ./database/postgres
-        image: postgres:latest
-        # TODO replace latest by the number of the last version
+        # image: pong_db_img
+        image: postgres:13
         container_name: pong_db_cnt
         expose:
             - "5432"
-        # volumes:
-        #     - ./mongodb/db_data:/data/db
-        #     - ./mongodb/init_mongo.js:/docker-entrypoint-initdb.d/init_mongo.js:ro
-        # TODO voir networks in docker
-        # networks: 
-        #     - backend
+        networks: 
+            - pong_database_network
         restart: always
+        volumes:
+             - pg_data:/var/lib/postgresql/data
         environment: 
             - POSTGRES_HOST=127.0.0.1
             - POSTGRES_PORT=5432
             - POSTGRES_USER=postgres
             - POSTGRES_PASSWORD=mysecretpassword
-            - POSTGRES_DATABASE=ft_transcendance
+            - POSTGRES_DB=ft_transcendance
+            - PG_DATA=/var/lib/postgresql/data
 
     pgadmin:
-        build: ./database/pgadmin
-        image: pong_pgadmin_img
+        depends_on: 
+            - db
+        # build: ./database/pgadmin
+        # image: pong_pgadmin_img
+        image: dpage/pgadmin4
         container_name: pong_pgadmin_cnt
         restart: always
+        ports:
+            - "80:80"
+        networks:
+            - pong_database_network
+        environment: 
+            - PGADMIN_DEFAULT_EMAIL=lecaille.nathan@outlook.fr
+            - PGADMIN_DEFAULT_PASSWORD=1234
     backend:
-        # depends_on: 
-        #     - db
+        depends_on: 
+            - db
         build: ./backend
         image: pong_back_img
         container_name: pong_back_cnt
@@ -39,13 +48,9 @@ services:
         volumes:
             - './backend/srcs/:/app/'
         restart: always
-        # networks: 
-        #     - backend
-        # links:
-        #     - "db:mongodb"
-        # environment:
-        #     - DB_USER=nlecaill
-        #     - DB_PASSWORD=nlecaill
+        networks: 
+            - pong_database_network
+            - pong_backend_network
 
     frontend:
         build: ./frontend
@@ -55,11 +60,13 @@ services:
             - "3000:3000"
         volumes: 
             - ./frontend/srcs/:/app/
-        # networks: 
-        #     - backend
-        #     - frontend
-# networks: 
-    # frontend: {}
-    # backend: {}
-# volumes:
-    # db_data: {}
+        networks: 
+            - pong_backend_network
+            - pong_frontend_network
+networks: 
+    pong_database_network : {}
+    pong_frontend_network : {}
+    pong_backend_network : {}
+    
+volumes:
+    pg_data: 
