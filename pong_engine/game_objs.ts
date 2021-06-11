@@ -74,9 +74,6 @@ export class Score extends Point
 	{ Score.wrappedDraw(ctx, this); }
 }
 
-let i = new IScore();
-new Score(1, 1, "", );
-
 export declare class IPlayer
 {
 	public readonly pos : IPoint;
@@ -109,7 +106,7 @@ export class Player extends Paddle
 			polimorph instanceof IPlayer ? polimorph.height : height,
 			polimorph instanceof IPlayer ? polimorph.style : style,
 			polimorph instanceof IPlayer ? polimorph.limitLeft : limitLeft,
-			polimorph instanceof IPlayer ? polimorph.limitRight : limitLeft);
+			polimorph instanceof IPlayer ? polimorph.limitRight : limitRight);
 		this.score = polimorph instanceof IPlayer ? polimorph.score : score;
 	}
 
@@ -121,10 +118,10 @@ export declare class IBall
 {
 	public readonly pos : IPoint;
 	public readonly rad : number;
-	public readonly styte : AStyle;
+	public readonly style : AStyle;
 	public readonly velocity : IPoint;
 	public readonly speed : number;
-	public readonly defaultBall : ABall;
+	public readonly defaultBall : IBall;
 }
 
 /**
@@ -142,7 +139,7 @@ export abstract class ABall extends Circle
 {
 	constructor(pos : IPoint, rad : number, style : AStyle,
 		public velocity : IPoint, public speed : number,
-		private defaultBall : ABall)
+		private defaultBall : IBall)
 	{
 		super(pos, rad, style);
 		this.velocity = velocity;
@@ -191,7 +188,7 @@ export abstract class ACourt
 		this.style = style;
 	}
 
-	public abstract onFrontalCollision(player1 : Player, player2 : Player, ball : Circle) : void;
+	public abstract onFrontalCollision(player1 : IPlayer, player2 : IPlayer, ball : Circle) : void;
 	public abstract onLateralCollision(ball : Circle) : boolean;
 
 	public clear() : void

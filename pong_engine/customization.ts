@@ -20,6 +20,15 @@ export abstract class AStyle
 	{ return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6); }
 }
 
+export class ColorStyle extends AStyle
+{
+	constructor(color : string)
+	{ super(color); }
+
+	apply(ctx : any) : void
+	{ ctx.fillStyle = this.data; }
+}
+
 export enum Direction
 {
 	VERTICAL,

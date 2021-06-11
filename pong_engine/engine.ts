@@ -7,7 +7,6 @@
  *	- GameConfig: defines how the game will be.
  *	- SettingsConfig: defines the limits of the settings sliders.
  *	- EngineConfig: defines how the engine will work.
- *
 */
 
 import { ABall, GameConfig, Player } from "./game_objs"
@@ -34,41 +33,6 @@ export abstract class ASettingsConfig
 	public abstract readonly ballSpeed : Range
 	public abstract readonly netSpeed : Range
 	public abstract readonly netHeight : Range
-}
-
-// To change file
-function pongBot(bot : Player, ball : ABall, level : number)
-{
-	bot.pos.y += ((ball.pos.y - (bot.pos.y + bot.height / 2))) * level;
-}
-
-// To change file
-function is_ball_on_left_court_side_horizontal(gameConfig : GameConfig) : Boolean
-{
-	return (gameConfig.ball.pos.x + gameConfig.ball.rad
-		< gameConfig.court.width / 2);
-}
-
-// To change file
-function calc_paddle_rebound_angle_rads_horizontal(ball : ABall, player : Player) : number
-{
-	/// Get a in radian the normalized angle
-	/// Default angles:
-	/// -45 (-PI / 4) (ball hit on the top)
-	/// 0 (ball hit on the middle)
-	/// 45 (PI / 4) (ball hit on the bottom)
-	return (((ball.pos.y - (player.pos.y + player.height / 2)) // Get value
-	/ player.height / 2) * (Math.PI / 4)); // Normalize it and convert to rads
-}
-
-// To change file
-function change_ball_direction_horizontal(gameConfig : GameConfig, angle : number)
-{
-	const direction : number = (gameConfig.ball.pos.x + gameConfig.ball.rad
-		< gameConfig.court.width / 2) ? 1 : -1;
-
-	gameConfig.ball.velocity.x = direction * gameConfig.ball.speed * Math.cos(angle);
-	gameConfig.ball.velocity.y = gameConfig.ball.speed * Math.sin(angle);
 }
 
 enum GameMode
