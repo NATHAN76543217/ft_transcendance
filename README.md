@@ -27,9 +27,4 @@ To run the pgadmin:     `docker-compose up (--build) pgadmin`
 dockerhub: https://hub.docker.com/r/dpage/pgadmin4/
 website: https://www.pgadmin.org/
 
-
-TODO ajouter container pgAdmin
-
-TODO connection react et nestjs
-TODO connection nestJS postgresql
-TODO connection pgAdmin postgresql
+<!-- REVIEW need to add packages-lock.json to .gitignore -->

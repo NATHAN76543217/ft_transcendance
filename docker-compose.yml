@@ -12,14 +12,9 @@ services:
             - pong_database_network
         restart: always
         volumes:
-             - pg_data:/var/lib/postgresql/data
-        environment: 
-            - POSTGRES_HOST=127.0.0.1
-            - POSTGRES_PORT=5432
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=mysecretpassword
-            - POSTGRES_DB=ft_transcendance
-            - PG_DATA=/var/lib/postgresql/data
+            - pg_data:/var/lib/postgresql/data
+        env_file:
+            - ./database/postgres/postgres.env
 
     pgadmin:
         depends_on: 
@@ -33,9 +28,9 @@ services:
             - "80:80"
         networks:
             - pong_database_network
-        environment: 
-            - PGADMIN_DEFAULT_EMAIL=lecaille.nathan@outlook.fr
-            - PGADMIN_DEFAULT_PASSWORD=1234
+        env_file:
+            - ./database/pgadmin/pgadmin.env
+
     backend:
         depends_on: 
             - db
@@ -63,10 +58,11 @@ services:
         networks: 
             - pong_backend_network
             - pong_frontend_network
+
 networks: 
     pong_database_network : {}
     pong_frontend_network : {}
     pong_backend_network : {}
-    
+
 volumes:
     pg_data: 
