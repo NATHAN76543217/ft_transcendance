@@ -19,5 +19,5 @@ COPY    srcs /app
 
 CMD     cp -r /data/*.json ./ && \
         cp -r /data/node_modules ./ && \
-        npm start:debug
+        npm run start:debug
         # npm start
