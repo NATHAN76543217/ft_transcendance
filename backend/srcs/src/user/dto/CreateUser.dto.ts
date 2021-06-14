@@ -1,0 +1,3 @@
+class CreateUserDto {
+    name : string;
+}
