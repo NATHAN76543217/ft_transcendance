@@ -6,6 +6,7 @@ RUN mkdir -p /app/node_modules /data
 WORKDIR /data
 COPY    srcs/node_modules ./node_modules
 COPY    srcs/package*.json ./
+RUN     npm install -g npm@7.17.0
 
 # If you are building your code for development
 RUN     npm install
