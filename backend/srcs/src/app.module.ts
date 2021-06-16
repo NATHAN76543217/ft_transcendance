@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './database/database.module';
 import * as Joi from '@hapi/joi';
 import UsersModule from './user/users.module';
 
+import { DatabaseModule } from './database/database.module';
+import { ChannelsModule } from './channels/channels.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import UsersModule from './user/users.module';
     }),
     DatabaseModule,
     UsersModule
+    ChannelsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
