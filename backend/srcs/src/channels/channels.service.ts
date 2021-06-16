@@ -1,7 +1,7 @@
 import {HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Channel from './channel.entity';
-import { CreateChannelDto } from './dto/createChannel';
-import { UpdateChannelDto } from './dto/updateChannel';
+import { CreateChannelDto } from './dto/createChannel.dto';
+import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -16,8 +16,8 @@ export default class ChannelsService {
     return this.channelsRepository.find();
   }
 
-  getChannelById(id: number) {
-    const channel = this.channelsRepository.findOne(id);
+  async getChannelById(id: number) {
+    const channel = await this.channelsRepository.findOne(id);
     if (channel) {
       return channel;
     }
