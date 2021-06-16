@@ -55,6 +55,7 @@ services:
             - "3000:3000"
         volumes: 
             - ./frontend/srcs/:/app/
+            - /app/node_modules
         networks: 
             - pong_backend_network
             - pong_frontend_network

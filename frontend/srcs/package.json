@@ -18,9 +18,9 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "npm run build:css && react-scripts start",
+    "start": "concurrently --kill-others \"npm run build:css\" \"react-scripts start\"",
     "build": "npm run build:css && react-scripts build",
-    "build:css": "postcss src/css/tailwind.css -o src/css/main.css",
+    "build:css": "postcss -w src/css/tailwind.css -o src/css/main.css",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -44,7 +44,9 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.2.6",
+    "concurrently": "^6.2.0",
     "postcss-cli": "^8.3.1",
-    "tailwindcss": "^2.1.4"
+    "tailwindcss": "^2.1.4",
+    "@tailwindcss/jit": "latest"
   }
 }

@@ -8,7 +8,7 @@ function App() {
     <div className="App">
       <Header/>
       <header className="App-header">
-        <img src={logo} className="bg-yellow-400 App-logo" alt="logo" />
+        <img src={logo} className="bg-[#000000] rounded-xl App-logo" alt="logo" />
         <p>
           Edit <code>src/App.tsx</code> and save to reload.
         </p>
