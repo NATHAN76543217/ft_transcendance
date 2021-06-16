@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
 import { DatabaseModule } from './database/database.module';
 import { ChannelsModule } from './channels/channels.module';
-
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -20,7 +20,8 @@ import { ChannelsModule } from './channels/channels.module';
       })
     }),
     DatabaseModule,
-    ChannelsModule
+    ChannelsModule,
+    MessagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
