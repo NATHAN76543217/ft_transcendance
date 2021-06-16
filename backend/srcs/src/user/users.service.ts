@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import CreateUserDto from './dto/createUser.dto';
+import CreateUserDto from './dto/CreateUser.dto';
 import User from './user.interface';
-import UpdateUserDto from './dto/updateUser.dto';
+import UpdateUserDto from './dto/UpdateUser.dto';
  
 @Injectable()
 export default class UsersService {
