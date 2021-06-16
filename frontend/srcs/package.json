@@ -18,9 +18,10 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "concurrently --kill-others \"npm run build:css\" \"react-scripts start\"",
+    "start": "concurrently --kill-others \"npm run watch:css\" \"react-scripts start\"",
     "build": "npm run build:css && react-scripts build",
-    "build:css": "postcss -w src/css/tailwind.css -o src/css/main.css",
+    "build:css": "postcss src/css/tailwind.css -o src/css/main.css",
+    "watch:css": "postcss -w src/css/tailwind.css -o src/css/main.css",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

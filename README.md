@@ -16,11 +16,22 @@ To run the pgadmin:     `docker-compose up (--build) pgadmin`
 
 # Docker
 ## Containers
-- A container always have the form: pong_<name>_cnt
+- frontend
+- backend
+- database
+- pgadmin
 
-## Images
-- The frontend and backend containers are based on image: `node:16.2.0-alpine3.13`
 - Images name always have the form pong_<name>_img
+
+
+# BACKEND
+## Docker(file)
+- The frontend and backend containers are based on image: `node:16.2.0-alpine3.13`
+
+## packages
+
+### Concurently
+    With --kill-others switch, all commands are killed if one dies
 
 
 # pgadmin
