@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Patch, Delete, Param, Body } from '@nestjs/common';
 import ChannelsService from './channels.service';
-import { CreateChannelDto }  from './dto/createChannel';
-import { UpdateChannelDto } from './dto/updateChannel';
+import { CreateChannelDto }  from './dto/createChannel.dto';
+import { UpdateChannelDto } from './dto/updateChannel.dto';
 
 @Controller()
 export default class ChannelsController {
@@ -13,7 +13,7 @@ export default class ChannelsController {
   }
 
   @Get(':id')
-  getChannelById(@Param('id') id: string) {
+  async getChannelById(@Param('id') id: string) {
     return this.channelsService.getChannelById(Number(id));
   }
 
