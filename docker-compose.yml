@@ -56,8 +56,7 @@ services:
         volumes: 
             - ./frontend/srcs/:/app/
             - /app/node_modules
-        networks: 
-            - pong_backend_network
+        networks:
             - pong_frontend_network
 
 networks: 
