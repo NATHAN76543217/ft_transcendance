@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import CreateMessageDto from "./dto/updateMessage.dto";
+import CreateMessageDto from "./dto/createMessage.dto";
 import UpdateMessageDto from "./dto/updateMessage.dto";
 import Message from "./message.entity";
 
