@@ -38,8 +38,7 @@ services:
         image: pong_back_img
         container_name: pong_back_cnt
         ports:
-            - "8800:8800"
-            - "465:465"
+            - "8080:8080"
         volumes:
             - './backend/srcs/:/app/'
         restart: always
