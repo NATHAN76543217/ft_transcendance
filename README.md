@@ -6,7 +6,7 @@ a 42 school fullstack project
 # Run
 
 Run together: `docker-compose up`
-Run and build together: `docker-compose up --build`
+Build and run together: `docker-compose up --build`
 
 Run separatly:
 To run the frontend:    `docker-compose up (--build) frontend`
@@ -14,14 +14,17 @@ To run the backend:     `docker-compose up (--build) backend`
 To run the database:   `docker-compose up (--build) db`
 To run the pgadmin:     `docker-compose up (--build) pgadmin`
 
+To have node_modules in local run: 
+    `docker cp pong_front_cnt:/app/node_modules/ ./frontend/srcs/`
+    `docker cp pong_back_cnt:/app/node_modules/ ./backend/srcs/`
+
 # Docker
 ## Containers
-- frontend
-- backend
-- database
-- pgadmin
+- pong_front_cnt
+- pong+back_cnt
+- pong_db_cnt
+- pong_pgadmin_cnt
 
-- Images name always have the form pong_<name>_img
 
 
 # BACKEND
