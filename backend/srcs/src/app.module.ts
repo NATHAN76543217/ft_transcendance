@@ -22,7 +22,7 @@ import { MessagesModule } from './messages/messages.module';
       })
     }),
     DatabaseModule,
-    UsersModule
+    UsersModule,
     ChannelsModule,
     MessagesModule,
   ],
