@@ -4,6 +4,7 @@ import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import ChannelNotFound from './exception/channelNotFound.exception';
 
 @Injectable()
 export default class ChannelsService {
@@ -21,7 +22,7 @@ export default class ChannelsService {
     if (channel) {
       return channel;
     }
-    throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
+    throw new ChannelNotFound(id);
   }
 
   async createChannel(channel: CreateChannelDto) {
@@ -36,13 +37,13 @@ export default class ChannelsService {
     if (updatedChannel) {
       return updatedChannel;
     }
-    throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
+    throw new ChannelNotFound(id);
   }
 
   async deleteChannel(id: number) {
     const deleteResponse = await this.channelsRepository.delete(id);
     if (!deleteResponse.affected) {
-      throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
+      throw new ChannelNotFound(id);
     }
   }
 }

@@ -41,6 +41,7 @@ services:
             - "8080:8080"
         volumes:
             - './backend/srcs/:/app/'
+            - /app/node_modules
         restart: always
         networks: 
             - pong_database_network
