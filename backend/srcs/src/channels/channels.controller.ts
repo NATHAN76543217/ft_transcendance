@@ -3,7 +3,7 @@ import ChannelsService from './channels.service';
 import { CreateChannelDto }  from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 
-@Controller()
+@Controller('channels')
 export default class ChannelsController {
   constructor(private readonly channelsService: ChannelsService) {}
 

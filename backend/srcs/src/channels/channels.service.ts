@@ -25,7 +25,7 @@ export default class ChannelsService {
   }
 
   async createChannel(channel: CreateChannelDto) {
-    const newChannel = await this.channelsRepository.create(channel);
+    const newChannel = this.channelsRepository.create(channel);
     await this.channelsRepository.save(newChannel);
     return newChannel;
   }
