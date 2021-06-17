@@ -1,7 +1,7 @@
 FROM 	node:16.2.0-alpine3.13
 
 RUN     npm update -g npm 
-RUN     mkdir -p /app/node_modules /data
+RUN     mkdir -p /app/node_modules
 
 WORKDIR	/app
 

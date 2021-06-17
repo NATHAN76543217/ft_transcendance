@@ -1,27 +1,40 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+	BrowserRouter as Router,
+	Switch,
+	Route
+} from 'react-router-dom';
+import FriendsBar from './components/friendsBar/friendsBar';
 import Header from './components/header/header';
+import Footer from './components/footer/footer';
+import SideMenu from './components/sideMenu/sideMenu';
+import Home from './pages/home/home';
 
 function App() {
   return (
-    <div className="App">
-      <Header/>
-      <header className="App-header">
-        <img src={logo} className="bg-[#000000] rounded-xl App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+	<div className="h-full ">
+		<Router>
+			<Header/>
+			<SideMenu/>
+			<FriendsBar/>
+			<main>
+				<Switch>
+					<Route path='/'>
+						<Home/>
+						<div>coucou</div>
+					</Route>
+					<Route path='/game'>
+
+					</Route>
+					<Route path="/profile">
+
+					</Route>
+				</Switch>
+			</main>
+			<Footer/>
+		</Router>
+
+	</div>
   );
 }
 
