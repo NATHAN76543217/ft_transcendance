@@ -17,7 +17,7 @@ export default class Message {
     @UpdateDateColumn()
     public updated_at: Date;
 
-    // TODO: Check if this should be empty
+    // TODO: Check if this can be empty
     @Column()
     public text: string;
 }

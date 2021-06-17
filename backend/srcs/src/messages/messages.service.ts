@@ -12,10 +12,12 @@ export default class MessageService {
         private messageRepository: Repository<Message>
     ) { }
     
-    // TODO: Check if we need this for admin purposes
+    // TODO: Check if we need this
     getAllMessages() {
         return this.messageRepository.find();
     }
+
+    // TODO: getMessagesByChatId(chatId: number)
 
     async getMessageById(id: number) {
         const message = await this.messageRepository.findOne(id);
@@ -24,6 +26,7 @@ export default class MessageService {
         throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
     }
 
+    // TODO: Add chatId parameter
     async createMessage(message: CreateMessageDto) {
         const newMessage = this.messageRepository.create(message);
         await this.messageRepository.save(newMessage);
