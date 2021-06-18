@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Patch, Delete, Param, Body, SerializeOption
 import ChannelsService from './channels.service';
 import { CreateChannelDto }  from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
-import { FindOneParan } from './utils/findOneParams';
+import { FindOneParam } from './utils/findOneParams';
 
 @Controller('channels')
 @SerializeOptions({
@@ -17,7 +17,7 @@ export default class ChannelsController {
   }
 
   @Get(':id')
-  async getChannelById(@Param() { id }: FindOneParan) {
+  async getChannelById(@Param() { id }: FindOneParam) {
     return this.channelsService.getChannelById(Number(id));
   }
 
@@ -27,12 +27,12 @@ export default class ChannelsController {
   }
 
   @Patch(':id')
-  async updateChannel(@Param('id') id: string, @Body() channel: UpdateChannelDto) {
+  async updateChannel(@Param('id') id: FindOneParam, @Body() channel: UpdateChannelDto) {
     return this.channelsService.updateChannel(Number(id), channel);
   }
 
   @Delete(':id')
-  async deleteChannel(@Param('id') id:string) {
+  async deleteChannel(@Param('id') id:FindOneParam) {
     return this.channelsService.deleteChannel(Number(id));
   }
 }

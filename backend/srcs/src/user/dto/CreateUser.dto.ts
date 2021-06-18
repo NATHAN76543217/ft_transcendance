@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from "class-validator";
+import { IsString, IsNotEmpty, IsOptional, IsNumberString, IsBoolean, IsNumber } from "class-validator";
 
 export default class CreateUserDto {
     @IsString()
@@ -6,20 +6,26 @@ export default class CreateUserDto {
     public name : string;
 
     @IsOptional()
-    public nbWin: number;
+    @IsNumber()
+    public nbWin: number = 0;
 
     @IsOptional()
-    public nbLoss: number;
+    @IsNumber()
+    public nbLoss: number = 0;
 
     @IsOptional()
-    public stats: number;
+    @IsNumber()
+    public stats: number = 0;
 
     @IsOptional()
-    public imgPath: string;
+    @IsString()
+    public imgPath: string = "";
 
     @IsOptional()
-    public twoFactorAuth: boolean;
+    @IsBoolean()
+    public twoFactorAuth: boolean = false;
 
     @IsOptional()
-    public status: string;
+    @IsString()
+    public status: string = "";
 }

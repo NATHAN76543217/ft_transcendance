@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import Channel from '../channels/channel.entity';
+import { Transform } from 'stream';
 
 @Entity()
 class User {
@@ -10,22 +11,22 @@ class User {
     @Column({ unique: true})
     public name: string;
 
-    @Column()
+    @Column({ nullable: true, default: 0 })
     public nbWin: number;
 
-    @Column()
+    @Column({ nullable: true, default: 0 })
     public nbLoss: number;
 
-    @Column()
+    @Column({ nullable: true })
     public stats: number;
 
-    @Column()
+    @Column({ nullable: true })
     public imgPath: string;
 
-    @Column()
+    @Column({ nullable: true, default: false})
     public twoFactorAuth: boolean;
 
-    @Column()
+    @Column({ nullable: true })
     public status: string;
 
     @ManyToMany(() => Channel, (channel: Channel) => channel.users)

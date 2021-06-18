@@ -1,10 +1,6 @@
-import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBoolean } from "class-validator";
+import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber } from "class-validator";
 
 export default class UpdateUserDto {
-	@IsNotEmpty()
-    @IsNumberString()
-    public id: number;
-
 	@IsOptional()
     @IsString()
     public name: string;
@@ -26,7 +22,7 @@ export default class UpdateUserDto {
     public imgPath: string;
 
 	@IsOptional()
-	@IsBoolean()
+	@IsBooleanString()
     public twoFactorAuth: boolean;
 
 	@IsOptional()
