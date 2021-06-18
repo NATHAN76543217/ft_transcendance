@@ -5,7 +5,7 @@ function SideMenu() {
 		const location = useLocation();
 
 		return (
-			<nav className="inline-flex flex-col h-full bg-gray-500 w-60">
+			<nav className="flex flex-col w-16 h-full bg-gray-500 duration-800 transition-width delay-0 hover:w-64 group lg:w-28">
 				<ul>
 					<li>
 						<Link to='/'>
@@ -15,20 +15,32 @@ function SideMenu() {
 								alt='logo-menu'/>
 						</Link>
 					</li>
-					<li className={ "h-12  flex uppercase font-semibold" + (location.pathname === '/' ? ' bg-gray-600' : "" )}>
+					<li className={ "h-12 relative flex uppercase font-semibold text-center" + (location.pathname === '/' ? ' bg-gray-600' : "" )}>
+						<i className="z-0 m-auto fas fa-home fa-2x group-hover:hidden"></i>
+						<i className="hidden pl-4 m-auto fas fa-home fa-lg group-hover:block"></i>
 						<Link 
 							to="/"
-							className="m-auto my-auto" >Home</Link>
+							className="absolute content-center w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
+								Home
+						</Link>
 					</li>
-					<li className={ "h-12 flex uppercase font-semibold" + (location.pathname === '/game' ? ' bg-gray-600' : "" )}>
+					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/game' ? ' bg-gray-600' : "" )}>
+						<i className="z-0 m-auto fas fa-dice-d6 fa-2x group-hover:hidden"></i>
+						<i className="hidden pl-4 m-auto fas fa-dice-d6 fa-lg group-hover:block"></i>
 						<Link 
 							to="/game"
-							className="m-auto my-auto" >Game</Link>
+							className="absolute content-center w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
+								Game
+						</Link>
 					</li>
-					<li className={ "h-12 flex uppercase font-semibold" + (location.pathname === '/profile' ? ' bg-gray-600' : "" )}>
+					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/profile' ? ' bg-gray-600' : "" )}>
+						<i className="z-0 m-auto far fa-address-card fa-2x group-hover:hidden"></i>
+						<i className="hidden pl-4 m-auto far fa-address-card fa-lg group-hover:block"></i>
 						<Link 
 							to="/profile"
-							className="m-auto my-auto" >Profile</Link>
+							className="absolute content-center w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
+								Profile
+						</Link>
 					</li>
 				</ul>
 			</nav>

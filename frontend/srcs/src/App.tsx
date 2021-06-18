@@ -12,25 +12,27 @@ import Home from './pages/home/home';
 
 function App() {
   return (
-	<div className="h-full ">
+	<div className="h-full">
 		<Router>
 			<Header/>
-			<SideMenu/>
-			<FriendsBar/>
-			<main>
-				<Switch>
-					<Route path='/'>
-						<Home/>
-						<div>coucou</div>
-					</Route>
-					<Route path='/game'>
+			<div className="flex h-full flex-nowrap">
+				<SideMenu/>
+				<main>
+					<Switch>
+						<Route path='/'>
+							<Home/>
+							<div>coucou</div>
+						</Route>
+						<Route path='/game'>
 
-					</Route>
-					<Route path="/profile">
+						</Route>
+						<Route path="/profile">
 
-					</Route>
-				</Switch>
-			</main>
+						</Route>
+					</Switch>
+				</main>
+				<FriendsBar/>
+			</div>
 			<Footer/>
 		</Router>
 
