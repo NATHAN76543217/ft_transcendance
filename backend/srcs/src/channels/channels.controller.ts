@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Patch, Delete, Param, Body } from '@nestjs/
 import ChannelsService from './channels.service';
 import { CreateChannelDto }  from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
+import { FindOneParan } from './utils/findOneParams';
 
 @Controller('channels')
 export default class ChannelsController {
@@ -13,7 +14,7 @@ export default class ChannelsController {
   }
 
   @Get(':id')
-  async getChannelById(@Param('id') id: string) {
+  async getChannelById(@Param() { id }: FindOneParan) {
     return this.channelsService.getChannelById(Number(id));
   }
 
