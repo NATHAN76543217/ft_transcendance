@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn, ManyToOne } from "typeorm";
+import Channel from '../channels/channel.entity';
 
 @Entity()
 export default class Message {
@@ -9,7 +10,7 @@ export default class Message {
     public id_sender: number;
 
     @Column()
-    public id_chat: number;
+    public id_chan: number;
 
     @CreateDateColumn()
     public created_at: Date;
@@ -20,4 +21,8 @@ export default class Message {
     // TODO: Check if this can be empty
     @Column()
     public text: string;
+
+    @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
+    public channel: Channel;
+    // should we keep the 'id_chan' above ? I don't think so
 }

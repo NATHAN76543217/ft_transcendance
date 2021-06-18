@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import Message from '../messages/message.entity';
 
 @Entity()
 class Channel {
@@ -15,6 +16,9 @@ class Channel {
 
     @Column()
     public mode: string;
+
+    @OneToMany(() => Message, (message: Message) => message.id_chan)
+    public messages: Message[];
 }
 
 export default Channel;
