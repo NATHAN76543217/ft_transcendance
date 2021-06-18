@@ -7,6 +7,14 @@ module.exports = {
         transitionProperty: {
             'width': 'width'
         },
+        colors: {
+          primary : '#b2e2eb',
+          secondary : '#0000FF',
+          neutral : {
+            DEFAULT : '#EFEFEF',
+            dark : '#AFAFAF'
+          }
+        }
     },
   },
   variants: {

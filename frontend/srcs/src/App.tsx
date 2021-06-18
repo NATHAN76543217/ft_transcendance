@@ -17,21 +17,22 @@ function App() {
 			<Header/>
 			<div className="flex h-full flex-nowrap">
 				<SideMenu/>
-				<main>
-					<Switch>
-						<Route path='/'>
-							<Home/>
-							<div>coucou</div>
-						</Route>
-						<Route path='/game'>
+				<div className="grid w-full grid-cols-4 xl:grid-cols-5">
+					<main className="col-span-3 xl:col-span-4">
+						<Switch>
+							<Route path='/'>
+								<Home/>
+							</Route>
+							<Route path='/game'>
 
-						</Route>
-						<Route path="/profile">
+							</Route>
+							<Route path="/profile">
 
-						</Route>
-					</Switch>
-				</main>
-				<FriendsBar/>
+							</Route>
+						</Switch>
+					</main>
+					<FriendsBar/>
+				</div>
 			</div>
 			<Footer/>
 		</Router>
