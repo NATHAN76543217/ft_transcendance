@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Put, Patch, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Body, SerializeOptions } from '@nestjs/common';
 import ChannelsService from './channels.service';
 import { CreateChannelDto }  from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { FindOneParan } from './utils/findOneParams';
 
 @Controller('channels')
+@SerializeOptions({
+  strategy: 'exposeAll'
+})
 export default class ChannelsController {
   constructor(private readonly channelsService: ChannelsService) {}
 
