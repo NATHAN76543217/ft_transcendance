@@ -18,7 +18,7 @@ export default class UsersService {
   }
 
   async getUserById(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne(id, { relations: ['channels'] });
     if (user) {
       return user;
     }
@@ -27,7 +27,7 @@ export default class UsersService {
 
   async updateUser(id: number, user: UpdateUserDto) {
     await this.usersRepository.update(id, user);
-    const updatedUser = this.usersRepository.findOne(id);
+    const updatedUser = this.usersRepository.findOne(id, { relations: ['channels'] });
     if (updatedUser) {
       return updatedUser;
     }

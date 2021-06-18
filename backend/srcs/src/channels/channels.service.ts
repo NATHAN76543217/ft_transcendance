@@ -5,6 +5,7 @@ import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import ChannelNotFound from './exception/channelNotFound.exception';
+import ChannelNameNotFound from './exception/channelNameNotFound.exception';
 
 @Injectable()
 export default class ChannelsService {
@@ -18,11 +19,19 @@ export default class ChannelsService {
   }
 
   async getChannelById(id: number) {
-    const channel = await this.channelsRepository.findOne(id);
+    const channel = await this.channelsRepository.findOne(id, { relations: ['users'] });
     if (channel) {
       return channel;
     }
     throw new ChannelNotFound(id);
+  }
+
+  async getChannelByName(name: string) {
+    const channel = await this.channelsRepository.findOne(name, { relations: ['users'] });
+    if (channel) {
+      return channel;
+    }
+    throw new ChannelNameNotFound(name);
   }
 
   async createChannel(channel: CreateChannelDto) {
@@ -33,7 +42,7 @@ export default class ChannelsService {
 
   async updateChannel(id: number, channel: UpdateChannelDto) {
     await this.channelsRepository.update(id, channel);
-    const updatedChannel = this.channelsRepository.findOne(id);
+    const updatedChannel = this.channelsRepository.findOne(id, { relations: ['users'] });
     if (updatedChannel) {
       return updatedChannel;
     }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Patch, Delete, Param, Body, SerializeOptions } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Query, Body, SerializeOptions } from '@nestjs/common';
 import ChannelsService from './channels.service';
 import { CreateChannelDto }  from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
@@ -19,6 +19,11 @@ export default class ChannelsController {
   @Get(':id')
   async getChannelById(@Param() { id }: FindOneParam) {
     return this.channelsService.getChannelById(Number(id));
+  }
+
+  @Get()
+  async getChannelByName(@Query() name: string) {
+    return this.channelsService.getChannelByName(name);
   }
 
   @Post()
