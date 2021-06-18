@@ -14,7 +14,7 @@ export default class ChannelsService {
   ) {}
 
   getAllChannels() {
-    return this.channelsRepository.find();
+    return this.channelsRepository.find({ relations: ['users']});
   }
 
   async getChannelById(id: number) {
