@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import Message from '../messages/message.entity';
-import User from '../user/user.entity';
+import User from '../users/user.entity';
 
 @Entity()
 class Channel {

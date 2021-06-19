@@ -5,6 +5,10 @@ export default class UpdateUserDto {
     @IsString()
     public name: string;
 
+    @IsString()
+    @IsOptional()
+    public password : string;
+
 	@IsOptional()
     @IsNumberString()
     public nbWin: number;

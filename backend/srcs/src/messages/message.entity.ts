@@ -9,7 +9,7 @@ export default class Message {
     @Column()
     public id_sender: number;
 
-    @Column()
+    @Column({ nullable: true })
     public id_chan: number;
 
     @CreateDateColumn()

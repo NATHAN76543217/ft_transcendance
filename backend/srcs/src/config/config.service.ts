@@ -37,7 +37,7 @@ class ConfigService {
       port: parseInt(this.getValue('POSTGRES_PORT')),
       username: this.getValue('POSTGRES_USER'),
       password: this.getValue('POSTGRES_PASSWORD'),
-      database: this.getValue('POSTGRES_DATABASE'),
+      database: this.getValue('POSTGRES_DB'),
 
       entities: ['**/*.entity{.ts,.js}'],
 
@@ -61,7 +61,7 @@ const configService = new ConfigService(process.env)
     'POSTGRES_PORT',
     'POSTGRES_USER',
     'POSTGRES_PASSWORD',
-    'POSTGRES_DATABASE'
+    'POSTGRES_DB'
   ]);
 
 export { configService };

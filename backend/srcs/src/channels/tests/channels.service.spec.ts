@@ -1,9 +1,9 @@
 import ChannelsService from '../channels.service';
-import UsersService from '../../user/users.service';
+import UsersService from '../../users/users.service';
 import { Repository } from 'typeorm';
 import Channel from '../channel.entity';
 import { Test } from '@nestjs/testing';
-import User from '../../user/user.entity';
+import User from '../../users/user.entity';
 // import { JwtService } from '@nestjs/jwt';
 // import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';

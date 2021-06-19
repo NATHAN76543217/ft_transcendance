@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
  
-export default class channelNameNotFoundException extends NotFoundException {
+export default class ChannelNameNotFoundException extends NotFoundException {
   constructor(channelName: string) {
     super(`Channel with name ${channelName} not found`);
   }

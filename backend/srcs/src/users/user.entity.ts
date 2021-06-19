@@ -11,6 +11,10 @@ class User {
     @Column({ unique: true})
     public name: string;
 
+    @Column({ nullable: true, default: "" })
+    @Exclude()
+    public password: string;
+
     @Column({ nullable: true, default: 0 })
     public nbWin: number;
 

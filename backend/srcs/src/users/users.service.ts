@@ -1,10 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import CreateUserDto from './dto/CreateUser.dto';
 import User from './user.entity';
 import UpdateUserDto from './dto/UpdateUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import UserNotFound from './exception/userNotFound.exception';
+import UserNotFound from './exception/UserNotFound.exception';
+import UserNameNotFound from './exception/UserNameNotFound.exception';
 
 @Injectable()
 export default class UsersService {
@@ -23,6 +24,13 @@ export default class UsersService {
       return user;
     }
     throw new UserNotFound(id);
+  }
+
+  async getUserByName(name: string) {
+    const user = await this.usersRepository.findOne(name, { relations: ['channels'] });
+    if (user)
+      return user;
+    throw new UserNameNotFound(name);
   }
 
   async updateUser(id: number, user: UpdateUserDto) {

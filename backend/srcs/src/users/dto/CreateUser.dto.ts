@@ -5,27 +5,31 @@ export default class CreateUserDto {
     @IsNotEmpty()
     public name : string;
 
+    @IsString()
     @IsOptional()
-    @IsNumber()
-    public nbWin: number = 0;
+    public password : string;
 
     @IsOptional()
     @IsNumber()
-    public nbLoss: number = 0;
+    public nbWin?: number;
 
     @IsOptional()
     @IsNumber()
-    public stats: number = 0;
+    public nbLoss?: number;
+
+    @IsOptional()
+    @IsNumber()
+    public stats?: number;
 
     @IsOptional()
     @IsString()
-    public imgPath: string = "";
+    public imgPath?: string;
 
     @IsOptional()
     @IsBoolean()
-    public twoFactorAuth: boolean = false;
+    public twoFactorAuth?: boolean;
 
     @IsOptional()
     @IsString()
-    public status: string = "";
+    public status?: string;
 }

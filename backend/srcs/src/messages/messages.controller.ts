@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
 
 import MessagesService from './messages.service';
 import CreateMessageDto from './dto/createMessage.dto';
 import UpdateMessageDto from './dto/updateMessage.dto';
+import JwtAuthenticationGuard from "src/authentication/jwt-authentication.guard";
 
 @Controller('messages')
 export default class MessagesController {
@@ -11,6 +12,7 @@ export default class MessagesController {
     ) { }
 
     @Get()
+    @UseGuards(JwtAuthenticationGuard)
     getAllMessages() {
         return this.messageService.getAllMessages();
     }
@@ -21,6 +23,7 @@ export default class MessagesController {
     }
 
     @Post()
+    @UseGuards(JwtAuthenticationGuard)
     async createMessage(@Body() message: CreateMessageDto) {
         return this.messageService.createMessage(message);
     }
