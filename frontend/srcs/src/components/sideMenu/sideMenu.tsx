@@ -5,19 +5,19 @@ function SideMenu() {
 		const location = useLocation();
 
 		return (
-			<nav className="flex flex-col w-16 h-full bg-neutral duration-800 transition-width delay-0 hover:w-64 group lg:w-28">
+			<nav className="flex flex-col w-16 h-full bg-neutral duration-800 transition-width delay-0 hover:w-64 group lg:w-28 xl:w-32">
 				<ul className="w-full">
-					<li>
+					<li className="h-40 xl:h-52 2xl:h-60">
 						<Link to='/'>
-							<header className="table-cell w-full text-center text-white align-middle bg-black lg:w-28 group-hover:hidden h-60" >
-								<span className="items-center justify-center inline-block w-10 h-10 text-3xl font-extrabold transform -rotate-90 w-min">
+							<header className="table-cell w-16 h-40 text-center text-white align-middle bg-black lg:w-28 xl:w-32 group-hover:hidden xl:h-52 2xl:h-60" >
+								<span className="items-center justify-center inline-block h-10 font-bold transform -rotate-90 w-min text-md md:text-md lg:text-2xl 2xl:text-3xl ">
 									ft_pong
 								</span>
 							</header>
 							<img
 								src={process.env.PUBLIC_URL + 'logo-menu.jpeg'}
 								alt='logo-menu'
-								className="hidden object-cover object-center w-full h-60 group-hover:block "/>
+								className="hidden object-cover object-center w-full h-full group-hover:block "/>
 						</Link>
 					</li>
 					<li className={ "h-12 relative flex uppercase font-semibold text-center" + (location.pathname === '/' ? ' bg-neutral-dark' : "" )}>
