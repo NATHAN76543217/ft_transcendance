@@ -21,10 +21,10 @@ export default class ChannelsController {
     return this.channelsService.getChannelById(Number(id));
   }
 
-  @Get()
-  async getChannelByName(@Query() name: string) {
-    return this.channelsService.getChannelByName(name);
-  }
+  // @Get()
+  // async getChannelByName(@Query() name: string) {
+  //   return this.channelsService.getChannelByName(name);
+  // }
 
   @Post()
   async createChannel(@Body() channel: CreateChannelDto) {

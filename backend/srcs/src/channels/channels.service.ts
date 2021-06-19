@@ -26,13 +26,13 @@ export default class ChannelsService {
     throw new ChannelNotFound(id);
   }
 
-  async getChannelByName(name: string) {
-    const channel = await this.channelsRepository.findOne(name, { relations: ['users'] });
-    if (channel) {
-      return channel;
-    }
-    throw new ChannelNameNotFound(name);
-  }
+  // async getChannelByName(name: string) {
+  //   const channel = await this.channelsRepository.findOne(name, { relations: ['users'] });
+  //   if (channel) {
+  //     return channel;
+  //   }
+  //   throw new ChannelNameNotFound(name);
+  // }
 
   async createChannel(channel: CreateChannelDto) {
     const newChannel = this.channelsRepository.create(channel);
