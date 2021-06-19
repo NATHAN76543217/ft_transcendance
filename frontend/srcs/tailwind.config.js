@@ -3,7 +3,19 @@ module.exports = {
   mode: 'jit',
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+        transitionProperty: {
+            'width': 'width'
+        },
+        colors: {
+          primary : '#b2e2eb',
+          secondary : '#28b9d4',
+          neutral : {
+            DEFAULT : '#EFEFEF',
+            dark : '#AFAFAF'
+          }
+        }
+    },
   },
   variants: {
     extend: {},
