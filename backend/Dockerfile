@@ -13,6 +13,8 @@ RUN     npm install
 # If you are building your code for production
 # RUN npm ci --only=production
 
+# Fix bcrypt cross-platform module
+RUN     npm uninstall bcrypt && npm install bcrypt
 
 CMD     npm run start:dev
         # npm start
