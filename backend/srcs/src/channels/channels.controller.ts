@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Patch, Delete, Param, Query, Body, Serializ
 import ChannelsService from './channels.service';
 import { CreateChannelDto }  from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
-import { FindOneParam } from './utils/findOneParams';
+import { FindOneParam } from '../utils/findOneParams';
 
 @Controller('channels')
 @SerializeOptions({
