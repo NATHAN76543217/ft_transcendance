@@ -12,7 +12,7 @@ class User {
     public name: string;
 
     @Column({ nullable: true, default: "" })
-    @Exclude()
+    // @Exclude()
     public password: string;
 
     @Column({ nullable: true, default: 0 })

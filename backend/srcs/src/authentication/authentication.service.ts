@@ -11,6 +11,9 @@ import TokenPayload from "./tokenPayload.interface";
 // import bcrypt from "bcrypt";
 import * as bcrypt from 'bcrypt'; // for unit tests
 
+import CreateUserDto from "src/users/dto/CreateUser.dto";
+import User from "src/users/user.entity";
+
 export class AuthenticationService {
   constructor(
     private readonly usersService: UsersService,
@@ -21,7 +24,7 @@ export class AuthenticationService {
   public async registerWithPassword(registrationData: RegisterWithPasswordDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     try {
-      const createdUser = await this.usersService.createUser({
+      let createdUser = await this.usersService.createUser({
         ...registrationData,
         password: hashedPassword
       });
