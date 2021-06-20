@@ -1,7 +1,7 @@
 import UsersService from "src/users/users.service";
 import bcrypt from "bcrypt";
 import { HttpException, HttpStatus } from "@nestjs/common";
-import { PostgresErrorCode } from "src/database/postgresErrorCodes";
+import { PostgresErrorCode } from "../database/postgresErrorCodes";
 import RegisterWithPasswordDto from "./dto/registerWithPassword.dto";
 import UserNameAlreadyExistsException from "./exception/UserNameAlreadyExists.exception";
 import WrongCredentialsException from "./exception/WrongCredentials.exception";
