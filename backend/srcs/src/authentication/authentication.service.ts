@@ -1,5 +1,4 @@
 import UsersService from "src/users/users.service";
-import bcrypt from "bcrypt";
 import { HttpException, HttpStatus } from "@nestjs/common";
 import { PostgresErrorCode } from "../database/postgresErrorCodes";
 import RegisterWithPasswordDto from "./dto/registerWithPassword.dto";
@@ -8,6 +7,9 @@ import WrongCredentialsException from "./exception/WrongCredentials.exception";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import TokenPayload from "./tokenPayload.interface";
+
+// import bcrypt from "bcrypt";
+import * as bcrypt from 'bcrypt'; // for unit tests
 
 export class AuthenticationService {
   constructor(
