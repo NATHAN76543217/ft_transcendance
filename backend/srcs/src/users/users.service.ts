@@ -43,7 +43,7 @@ export default class UsersService {
   }
 
   async createUser(user: CreateUserDto) {
-    const newUser = await this.usersRepository.create(user);
+    const newUser = this.usersRepository.create(user);
     await this.usersRepository.save(newUser);
     return newUser;
   }
