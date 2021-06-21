@@ -5,6 +5,9 @@ import RequestWithUser from './requestWithUser.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
+import RequestWithOauthCode from './requestWithOauthCode.interface';
+import { string } from '@hapi/joi';
+import { OauthAuthenticationGuard } from './oauthAuthentication.guard';
  
 @Controller('authentication')
 export class AuthenticationController {
@@ -16,7 +19,7 @@ export class AuthenticationController {
   async registerWithPassword(@Body() registrationData: RegisterWithPassword) {
     return this.authenticationService.registerWithPassword(registrationData);
   }
- 
+
   @Post('login')
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
@@ -27,6 +30,7 @@ export class AuthenticationController {
     user.password = undefined;
     return response.send(user);
   }
+
 
   @Post('logout')
   @HttpCode(200)

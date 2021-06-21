@@ -7,7 +7,7 @@ interface ILoginFormValues {
     password: string,
 }
 
-export function Login(props: {})
+export default function Login(props: {})
 {
     //const [username, password] = useState();
 

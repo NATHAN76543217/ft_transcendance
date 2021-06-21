@@ -19,6 +19,7 @@ function Home() {
                     </p>
                     <Button content="Let's play !" url="/game/quickgame" primary />
                     <Button content="Custom Game" url="/game"/>
+                    <Button content="Oauth" url="https://api.intra.42.fr/oauth/authorize?client_id=e2d030a76b4b62d20c5f0ef2b431169b9d845bdb68bfc12dc12d9aa31f215733&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fvalidate_oauth&response_type=code"/>
                 </nav>
             </section>
         </div>

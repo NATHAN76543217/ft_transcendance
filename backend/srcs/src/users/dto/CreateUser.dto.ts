@@ -28,6 +28,10 @@ export default class CreateUserDto {
     @IsOptional()
     @IsBoolean()
     public twoFactorAuth?: boolean;
+    
+    // @IsOptional()
+    // @IsBoolean()
+    // public twoFactorAuth?: boolean;
 
     @IsOptional()
     @IsString()
