@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTabl
 import { Exclude } from 'class-transformer';
 import Message from '../messages/message.entity';
 import User from '../users/user.entity';
+import { IsNumber } from 'class-validator';
 
 @Entity()
 class Channel {
@@ -12,7 +13,7 @@ class Channel {
     public name: string;
 
     @Column()
-    @Exclude()
+    @Exclude({ toPlainOnly: true })
     public password: string; // public ?
 
     @Column()

@@ -24,7 +24,7 @@ export class AuthenticationService {
   public async registerWithPassword(registrationData: RegisterWithPasswordDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     try {
-      let createdUser = await this.usersService.createUser({
+      const createdUser = await this.usersService.createUser({
         ...registrationData,
         password: hashedPassword
       });

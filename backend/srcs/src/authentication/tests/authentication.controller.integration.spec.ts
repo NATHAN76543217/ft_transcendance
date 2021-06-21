@@ -14,7 +14,9 @@ import * as request from 'supertest';
 
 import { plainToClass } from 'class-transformer';
 
-import { INestApplication, Patch, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, INestApplication, Patch, ValidationPipe } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
 
 describe('The AuthenticationController', () => {
   let app: INestApplication;
@@ -26,7 +28,6 @@ describe('The AuthenticationController', () => {
     }
     const usersRepository = {
       create: jest.fn().mockResolvedValue(userData),
-      // create: jest.fn().mockResolvedValue(plainToClass(User, userData)),
       save: jest.fn().mockReturnValue(Promise.resolve()),
     }
 
@@ -52,6 +53,10 @@ describe('The AuthenticationController', () => {
       .compile();
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(
+      app.get(Reflector)
+    ));
+    app.use(cookieParser());
     await app.init();
   })
 
@@ -66,12 +71,12 @@ describe('The AuthenticationController', () => {
         return request(app.getHttpServer())
           .post('/authentication/registerWithPassword')
           .send({
-            name: "name",
-            password: "password",
-            imgPath: "path"
+            name: 'name',
+            password: 'password',
+            imgPath: 'path'
           })
           .expect(201)
-          .expect(expectedData);
+          .expect(JSON.stringify(expectedData));
       })
     })
     describe('and using invalid data', () => {

@@ -14,8 +14,9 @@ export default class ChannelsService {
     private channelsRepository: Repository<Channel>
   ) {}
 
-  getAllChannels() {
-    return this.channelsRepository.find({ relations: ['users']});
+  async getAllChannels() {
+    const channels = await this.channelsRepository.find({ relations: ['users']});
+    return channels;
   }
 
   async getChannelById(id: number) {
@@ -42,7 +43,7 @@ export default class ChannelsService {
 
   async updateChannel(id: number, channel: UpdateChannelDto) {
     await this.channelsRepository.update(id, channel);
-    const updatedChannel = this.channelsRepository.findOne(id, { relations: ['users'] });
+    const updatedChannel = await this.channelsRepository.findOne(id, { relations: ['users'] });
     if (updatedChannel) {
       return updatedChannel;
     }
