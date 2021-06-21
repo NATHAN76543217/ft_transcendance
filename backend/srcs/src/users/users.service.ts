@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserNameNotFound from './exception/UserNameNotFound.exception';
+import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 
 @Injectable()
 export default class UsersService {
@@ -31,6 +32,17 @@ export default class UsersService {
     if (user)
       return user;
     throw new UserNameNotFound(name);
+  }
+
+  async getUserBy42Id(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne(id, { 
+      where: { 
+        oauth_id: id
+      }, 
+      relations: ['channels'] });
+    if (user)
+      return user;
+    throw new UserOauthIdNotFound(id);
   }
 
   async updateUser(id: number, user: UpdateUserDto) {

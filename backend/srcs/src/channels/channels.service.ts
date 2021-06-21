@@ -5,7 +5,6 @@ import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
-import ChannelNameNotFound from './exception/ChannelNameNotFound.exception';
 
 @Injectable()
 export default class ChannelsService {

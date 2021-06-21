@@ -25,6 +25,11 @@ export default class CreateUserDto {
     // @IsOptional()
     public imgPath?: string;
 
+
+    // @IsString()
+    // @IsOptional()
+    public oauth_id?: number;
+
     // @IsOptional()
     // @IsBoolean()
     // public twoFactorAuth?: boolean;
