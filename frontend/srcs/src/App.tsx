@@ -11,6 +11,7 @@ import SideMenu from './components/sideMenu/sideMenu';
 import Home from './pages/home/home';
 import Game from './pages/game/game';
 import Profile from './pages/profile/profile';
+import { Login } from './pages/login/login';
 
 function App() {
   return (
@@ -27,6 +28,9 @@ function App() {
 							</Route>
 							<Route path="/profile">
 								<Profile/>
+							</Route>
+							<Route path='/login'>
+								<Login/>
 							</Route>
 							<Route path='/'>
 								<Home/>
