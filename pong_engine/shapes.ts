@@ -42,6 +42,10 @@ export class Circle
 		public style : AStyle
 	) { }
 
+	public static lateralReboundHorizonal(circle : Circle)
+	{ circle.pos.y = -circle.pos.y; }
+
+
 	private static wrappedDraw(ctx : any, circle : Circle)
 	{
 		circle.style.apply(ctx);

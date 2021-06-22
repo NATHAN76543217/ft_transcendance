@@ -93,15 +93,11 @@ class ClassicPongBall extends ABall
             ball.speed, ball.defaultBall);
     }
 
-    frontalRebound() : void
-    {
-        // TODO
-    }
+    // frontalRebound() : void
+    // {  }
 
     lateralRebound() : void
-    {
-        // TODO
-    }
+    { ABall.lateralReboundHorizonal(this); }
 }
 
 class ClassicPongNet extends INet

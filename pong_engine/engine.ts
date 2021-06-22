@@ -21,8 +21,6 @@ import {
 	Player
 } from "./game_objs"
 
-import { pongBotHorizontal } from "./utils"
-
 import SettingsConfigOutOfRange from "./exceptions/SettingsConfigOutOfRange.exception"
 import SettingsConfigDiffSizes from "./exceptions/SettingsConfigDiffSizes.exception"
 import SettingsConfigInvalidBallSpeed from "./exceptions/SettingsConfigInvalidBallSpeed.exception"
@@ -142,12 +140,12 @@ export class Engine
 	private static onFrontCollision(gameConfig : GameConfig) : void
 	{
 		gameConfig.court.onFrontalCollision(gameConfig.player1,
-			gameConfig.player2, gameConfig.ball);
+			gameConfig.player2, gameConfig.ball, gameConfig.court.width);
 	}
 
 	private static onBorderCollision(gameConfig : GameConfig) : void
 	{
-		if (gameConfig.court.onLateralCollision(gameConfig.ball))
+		if (gameConfig.court.onLateralCollision(gameConfig.ball, gameConfig.court.height))
 			gameConfig.ball.lateralRebound();
 	}
 

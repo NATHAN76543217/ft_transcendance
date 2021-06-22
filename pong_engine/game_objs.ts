@@ -18,7 +18,12 @@ import {
 	RangeSlider,
 	IRangeSlider
 } from "./frontend_objs"
+import {
+	PosUpdaterLevel
+} from "./engine"
+
 import GameObjIsOutOfRange from "./exceptions/GameObjOutOfRange.exception"
+
 
 /**
  *	@brief Present a paddle (a mouving rectangle).
@@ -123,6 +128,34 @@ export class Player extends Paddle
 		this.score = polimorph instanceof IPlayer ? polimorph.score : score;
 	}
 
+	public static pongBotHorizontal(gameConfig : GameConfig, level : PosUpdaterLevel)
+	{
+		gameConfig.player2.pos.y += ((gameConfig.ball.pos.y
+			- (gameConfig.player2.pos.y + gameConfig.player2.height / 2))) * level;
+	}
+
+	public static pongBotVertical(gameConfig : GameConfig, level : PosUpdaterLevel)
+	{
+		// TO DO
+	}
+
+	public static calcPaddleReboundRadHorizontal(ball : ABall, player : Player) : number
+	{
+		/// Get a in radian the normalized angle
+		/// Default angles:
+		/// -45 (-PI / 4) (ball hit on the top)
+		/// 0 (ball hit on the middle)
+		/// 45 (PI / 4) (ball hit on the bottom)
+		return (((ball.pos.y - (player.pos.y + player.height / 2)) // Get value
+		/ player.height / 2) * (Math.PI / 4)); // Normalize it and convert to rads
+	}
+
+	public static calcPaddleReboundRadVertical(ball : ABall, player : Player) : number
+	{
+		return (0);
+		// TO DO
+	}
+
 	public scorePoint() : void
 	{ this.score.increaseScore(); }
 }
@@ -160,7 +193,21 @@ export abstract class ABall extends Circle
 	)
 	{ super(pos, rad, style); }
 
-	public abstract frontalRebound() : void;
+	public static changeDirHorizontal(gameConfig : GameConfig, angle : number) : void
+	{
+		const direction : number = (gameConfig.ball.pos.x + gameConfig.ball.rad
+			< gameConfig.court.width / 2) ? 1 : -1;
+
+		gameConfig.ball.velocity.x = direction * gameConfig.ball.speed * Math.cos(angle);
+		gameConfig.ball.velocity.y = gameConfig.ball.speed * Math.sin(angle);
+	}
+
+	public static changeDirVertical(gameConfig : GameConfig, angle : number) : void
+	{
+		// TO DO
+	}
+
+	//public abstract frontalRebound() : void;
 	public abstract lateralRebound() : void;
 
 	public reset() : void
@@ -168,7 +215,7 @@ export abstract class ABall extends Circle
 		this.pos = this.defaultBall.pos;
 		this.velocity = this.defaultBall.velocity;
 		this.speed = this.defaultBall.speed;
-		this.frontalRebound();
+		this.lateralRebound();
 	}
 }
 
@@ -203,8 +250,48 @@ export abstract class ACourt
 		this.height = this.canvas.clientHeight;
 	}
 
-	public abstract onFrontalCollision(player1 : IPlayer, player2 : IPlayer, ball : Circle) : void;
-	public abstract onLateralCollision(ball : Circle) : boolean;
+	public static isBallOnLeftSideHorizontal(gameConfig : GameConfig) : boolean
+	{
+		return (gameConfig.ball.pos.x + gameConfig.ball.rad
+			< gameConfig.court.width / 2);
+	}
+
+	public static isBallOnLeftSideVertical(gameConfig : GameConfig) : boolean
+	{
+		return (false); // TO DO
+	}
+
+	public static onLateralCollisionHorizontal(ball : Circle, courtHeight : number) : boolean
+	{ return ball.pos.y - ball.rad < 0 || ball.pos.y + ball.rad > courtHeight; }
+
+	public static onLateralCollisionVertical(ball : Circle, courtHeight : number) : boolean
+	{
+		return (false); // TO DO
+	}
+
+	public static onFrontalCollisionHorizontal(player1 : IPlayer, player2 : IPlayer, ball : Circle,
+		courtWidth : number) : void
+	{
+		if (ball.pos.x - ball.rad < 0)
+		{
+			player1.score.increaseScore();
+			(ball as ABall).reset();
+		}
+		else if (ball.pos.x + ball.rad > courtWidth)
+		{
+			player2.score.increaseScore();
+			(ball as ABall).reset();
+		}
+	}
+
+	public static onFrontalCollisionVertical(player1 : IPlayer, player2 : IPlayer, ball : Circle,
+		courtWidth : number) : void
+	{
+		// TO DO
+	}
+
+	public abstract onFrontalCollision(player1 : IPlayer, player2 : IPlayer, ball : Circle, courtHeight : number) : void;
+	public abstract onLateralCollision(ball : Circle, courtHeight : number) : boolean;
 
 	public clear() : void
 	{
@@ -253,7 +340,6 @@ export class Net extends Rectangle
 		this.direction = polimorph instanceof INet ? polimorph.direction : direction;
 		delete this.draw;
 	}
-
 
 	/**
 	* @brief Generates a sequence start - end by steps distance.
