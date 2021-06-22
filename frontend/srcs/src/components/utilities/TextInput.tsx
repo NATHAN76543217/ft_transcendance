@@ -4,10 +4,12 @@
 import { Path, UseFormRegister } from "react-hook-form";
 
 type TextInputProps<FormValues> = {
-    label: Path<FormValues>;
+    name: Path<FormValues>;
     register: UseFormRegister<FormValues>;
     type: "text" | "password";
     required: boolean;
+    labelClass: string;
+    inputClass: string;
 }
 
 /* const validateValue = (initialValue: string) => {
@@ -26,22 +28,17 @@ type TextInputProps<FormValues> = {
     };
 } */
 
-export function TextInput<FormValues>({label, register, type="text", required = false}: TextInputProps<FormValues>) {
+export {}
+
+export function TextInput<FormValues>({name, register, type, required, labelClass, inputClass}: TextInputProps<FormValues>) {
     //const {value, bind, reset} = validateValue("");
 
     //const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
     return (
         <div>
-            <label
-                className="first-letter:uppercase">
-                {label}
-            </label>
-            <input
-                type={type}
-                className="w-4/5"
-                {...register(label, { required })}
-            />
+            <label htmlFor={name} className={`capitalize m-5 border-1 ${labelClass}`}>{name}</label>
+            <input type={type} id={name} placeholder={`Enter ${name}`} className={`w-full ${inputClass}`} {...register(name, { required })}/>
         </div>
     );
 }
@@ -49,4 +46,6 @@ export function TextInput<FormValues>({label, register, type="text", required = 
 TextInput.defaultProps = {
     type: "text",
     required: false,
+    labelClass: "",
+    inputClass: ""
 }
