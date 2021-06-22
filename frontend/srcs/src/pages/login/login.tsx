@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { TextInput } from "../../components/utilities/TextInput";
 
 import axios from "axios";
@@ -19,17 +18,13 @@ export function Login(props: {})
     };
 
     return(
-        <div className="w-1/2 m-auto bg-neutral">
-            <section className='w-64'>
-                <h1 className='block mt-40 ml-40 text-6xl text-center'>
-                    Login
-                </h1>
-                <form onSubmit={handleSubmit(onSubmit)} method='POST' className="w-full">
-                    <TextInput label="username" register={register}></TextInput>
-                    <TextInput label="password" register={register} type="password"></TextInput>
-                    <button type='submit' title='Login'/> 
-                </form>
-            </section>
-        </div>
+        <section className="w-96 rounded-xl m-auto mt-32 p-4 bg-neutral">
+            <h1 className='mt-2 text-6xl text-center'>Login</h1>
+            <form onSubmit={handleSubmit(onSubmit)} method='POST' className="w-full flex flex-col">
+                <TextInput name="username" register={register}></TextInput>
+                <TextInput name="password" register={register} type="password"></TextInput>
+                <button type='button' className={ "inline-block rounded-xl text-neutral font-semibold p-2 mt-4 text-lg bg-secondary"}>Login</button>
+            </form>
+        </section>
     );
 }
