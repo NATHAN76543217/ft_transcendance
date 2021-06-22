@@ -4,10 +4,21 @@
  *	@brief Defines the objects composing the pong game.
 */
 
-import { IPoint, Point, Circle, Rectangle } from "./shapes"
-import { AStyle, Direction } from "./customization"
-import { RangeSlider, IRangeSlider } from "./frontend_objs"
-import { GameObjIsOutOfRange } from "./exceptions"
+import {
+	IPoint,
+	Point,
+	Circle,
+	Rectangle
+} from "./shapes"
+import {
+	AStyle,
+	Direction
+} from "./customization"
+import {
+	RangeSlider,
+	IRangeSlider
+} from "./frontend_objs"
+import GameObjIsOutOfRange from "./exceptions/GameObjOutOfRange.exception"
 
 /**
  *	@brief Present a paddle (a mouving rectangle).
@@ -16,13 +27,15 @@ import { GameObjIsOutOfRange } from "./exceptions"
  */
 class Paddle extends Rectangle
 {
-	constructor(pos : IPoint, width : number, height : number, style : AStyle,
-		public readonly limitLeft : IPoint, public readonly limitRight : Point)
-	{
-		super(pos, width, height, style);
-		this.limitLeft = limitLeft;
-		this.limitRight = limitLeft;
-	}
+	constructor(
+		pos : IPoint,
+		width : number,
+		height : number,
+		style : AStyle,
+		public readonly limitLeft : IPoint,
+		public readonly limitRight : Point
+	)
+	{ super(pos, width, height, style); }
 }
 
 export declare class IScore
@@ -137,15 +150,15 @@ export declare class IBall
 */
 export abstract class ABall extends Circle
 {
-	constructor(pos : IPoint, rad : number, style : AStyle,
-		public velocity : IPoint, public speed : number,
-		private defaultBall : IBall)
-	{
-		super(pos, rad, style);
-		this.velocity = velocity;
-		this.speed = speed;
-		this.defaultBall = defaultBall;
-	}
+	constructor(
+		pos : IPoint,
+		rad : number,
+		style : AStyle,
+		public velocity : IPoint,
+		public speed : number,
+		private defaultBall : IBall
+	)
+	{ super(pos, rad, style); }
 
 	public abstract frontalRebound() : void;
 	public abstract lateralRebound() : void;
@@ -179,13 +192,15 @@ export abstract class ACourt
 	public readonly width : number
 	public readonly height : number
 
-	constructor(canvasName : string, public style : AStyle)
+	constructor(
+		canvasName : string,
+		public style : AStyle
+	)
 	{
 		this.canvas = document.getElementById(canvasName);
 		this.ctx = this.canvas.getContext("2d");
 		this.width = this.canvas.clientWidth;
 		this.height = this.canvas.clientHeight;
-		this.style = style;
 	}
 
 	public abstract onFrontalCollision(player1 : IPlayer, player2 : IPlayer, ball : Circle) : void;
@@ -296,23 +311,14 @@ export interface IConfig
  */
 export class GameConfig implements IConfig
 {
-	private wrappedCourt : ACourt
-	private wrappedPlayer1 : Player
-	private wrappedPlayer2 : Player
-	private wrappedBall : ABall
-	private wrappedNet : Net
-
-	constructor(court : ACourt, player1 : Player, player2 : Player,
-		ball : ABall, net : Net)
-	{
-		this.wrappedCourt = court;
-		this.wrappedPlayer1 = player1;
-		this.wrappedPlayer2 = player2;
-		this.wrappedBall = ball;
-		this.wrappedNet = net;
-
-		this.sanitize();
-	}
+	constructor(
+		private wrappedCourt : ACourt,
+		private wrappedPlayer1 : Player,
+		private wrappedPlayer2 : Player,
+		private wrappedBall : ABall,
+		private wrappedNet : Net
+	)
+	{ this.sanitize(); }
 
 	get court() : ACourt { return (this.wrappedCourt); }
 	get player1() : Player { return (this.wrappedPlayer1); }

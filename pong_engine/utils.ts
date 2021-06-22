@@ -1,23 +1,32 @@
-import { Player, ABall, GameConfig } from "./game_objs";
+import {
+	Player,
+	ABall,
+	GameConfig
+} from "./game_objs";
+
+import {
+	PosUpdaterLevel,
+	PosUpdaterEvent
+} from "./engine"
 
 ///////////////////
 // Single Player //
 ///////////////////
 
-function pongBot(bot : Player, ball : ABall, level : number)
-{ bot.pos.y += ((ball.pos.y - (bot.pos.y + bot.height / 2))) * level; }
+export function pongBotHorizontal(gameConfig : GameConfig, level : PosUpdaterLevel)
+{ gameConfig.player2.pos.y += ((gameConfig.ball.pos.y - (gameConfig.player2.pos.y + gameConfig.player2.height / 2))) * level; }
 
 /////////////////////////////////////
 // Horizontal abstract definitions //
 /////////////////////////////////////
 
-function isBallOnLeftCourtSideHorizontal(gameConfig : GameConfig) : Boolean
+export function isBallOnLeftCourtSideHorizontal(gameConfig : GameConfig) : boolean
 {
 	return (gameConfig.ball.pos.x + gameConfig.ball.rad
 		< gameConfig.court.width / 2);
 }
 
-function calcPaddleReboundRadHorizontal(ball : ABall, player : Player) : number
+export function calcPaddleReboundRadHorizontal(ball : ABall, player : Player) : number
 {
 	/// Get a in radian the normalized angle
 	/// Default angles:
@@ -28,7 +37,7 @@ function calcPaddleReboundRadHorizontal(ball : ABall, player : Player) : number
 	/ player.height / 2) * (Math.PI / 4)); // Normalize it and convert to rads
 }
 
-function changeBallDirHorizontal(gameConfig : GameConfig, angle : number) : void
+export function changeBallDirHorizontal(gameConfig : GameConfig, angle : number) : void
 {
 	const direction : number = (gameConfig.ball.pos.x + gameConfig.ball.rad
 		< gameConfig.court.width / 2) ? 1 : -1;
@@ -41,17 +50,17 @@ function changeBallDirHorizontal(gameConfig : GameConfig, angle : number) : void
 // Vertical abstract definitions //
 ///////////////////////////////////
 
-function isBallOnLeftCourtSideVertical(gameConfig : GameConfig) : Boolean
+export function isBallOnLeftCourtSideVertical(gameConfig : GameConfig) : Boolean
 {
     return true;
 }
 
-function calcPaddleReboundRadVertical(ball : ABall, player : Player) : number
+export function calcPaddleReboundRadVertical(ball : ABall, player : Player) : number
 {
     return 1;
 }
 
-function changeBallDirVertical(gameConfig : GameConfig, angle : number) : void
+export function changeBallDirVertical(gameConfig : GameConfig, angle : number) : void
 {
 
 }

@@ -9,9 +9,23 @@
  *	- EngineConfig: defines how the engine will work.
 */
 
-import { ABall, GameConfig, Player } from "./game_objs"
-import { Range } from "./frontend_objs"
-import { Direction } from "./customization"
+import {
+	Range
+} from "./frontend_objs"
+import {
+	Direction
+} from "./customization"
+import {
+	ABall,
+	GameConfig,
+	Player
+} from "./game_objs"
+
+import { pongBotHorizontal } from "./utils"
+
+import SettingsConfigOutOfRange from "./exceptions/SettingsConfigOutOfRange.exception"
+import SettingsConfigDiffSizes from "./exceptions/SettingsConfigDiffSizes.exception"
+import SettingsConfigInvalidBallSpeed from "./exceptions/SettingsConfigInvalidBallSpeed.exception"
 
 /**
  *	@brief Class that store the range of the settings sliders.
@@ -23,23 +37,49 @@ import { Direction } from "./customization"
  *	@member netSpeed Net width limits.
  *	@member netHeight Net height limits.
 */
-export abstract class ASettingsConfig
+export class ASettingsConfig
 {
-	// TO DO: Add Style
-	public abstract readonly pl1Width : Range
-	public abstract readonly pl1Height : Range
-	public abstract readonly pl2Width : Range
-	public abstract readonly pl2Height : Range
-	public abstract readonly ballSpeed : Range
-	public abstract readonly netSpeed : Range
-	public abstract readonly netHeight : Range
+	constructor(
+		// TO DO: Add Style
+		public readonly pl1Width : Range,
+		public readonly pl1Height : Range,
+		public readonly pl2Width : Range,
+		public readonly pl2Height : Range,
+		public readonly ballSpeed : Range,
+		//public readonly netWidth : Range,
+		//public readonly netHeight : Range // why have a customizable net ?
+	) { }
+
+	public checkRanges(canvas : HTMLElement)
+	{
+		const WITDH_RATIO : number = 20;
+		const HEIGHT_RATIO : number = 4;
+		const MAX_BALL_SPEED : number = 40;
+
+		if (this.pl1Width.min - this.pl1Width.max > canvas.clientWidth / WITDH_RATIO
+		|| this.pl1Height.min - this.pl1Height.max > canvas.clientHeight / HEIGHT_RATIO
+		|| this.pl2Width.min - this.pl1Width.max > canvas.clientWidth / WITDH_RATIO
+		|| this.pl2Height.min - this.pl2Height.max > canvas.clientHeight / HEIGHT_RATIO)
+			throw new SettingsConfigOutOfRange();
+
+		if (this.pl1Width != this.pl2Width || this.pl1Height != this.pl2Height)
+			throw new SettingsConfigDiffSizes();
+
+		if (this.ballSpeed.min < 1 || this.ballSpeed.max > MAX_BALL_SPEED)
+			throw new SettingsConfigInvalidBallSpeed();
+
+		// TO DO: Exceptions, create class that hold the engine for this specific game (classic pong)
+	}
 }
 
-enum GameMode
+export enum GameMode
 {
 	SINGLEPLAYER,
 	MULTIPLAYER
 }
+
+export type PosUpdaterLevel = number;
+export type PosUpdaterEvent = unknown;
 
 /**
  *	@brief Define engine's constants and methods, which specilises
@@ -62,22 +102,21 @@ enum GameMode
 */
 export abstract class AEngineConfig
 {
-	public handlerPlayer1Type ?: string;
-	public handlerPlayer2Type ?: string;
+	public handlerPlayer1Type? : string;
+	public handlerPlayer2Type? : string;
 
-	public abstract updatePlayer1Pos(event : unknown , gameConfig : GameConfig) : void;
-	public abstract updatePlayer2Pos(event : unknown , gameConfig : GameConfig) : void;
+	constructor(
+		public readonly mode : GameMode,
+		public botLevel : number,
+		public readonly ballSpeedIncrement : number,
+		public updatePlayer2Pos : (gameConfig : GameConfig, Arg : PosUpdaterLevel | PointerEvent) => void
+	) { }
+
+	public abstract updatePlayer1Pos(gameConfig : GameConfig, event : PosUpdaterEvent) : void;
 	public abstract isBallOnPlayer1Side(gameConfig : GameConfig) : boolean;
 	public abstract getPaddleReboundRad(ball : ABall, player : Player) : number;
-	public abstract changeBallDirection(gameConfig : GameConfig, angle : number) : number;
+	public abstract changeBallDirection(gameConfig : GameConfig, angle : number) : void;
 
-	constructor(public readonly mode : GameMode, public botLevel : number,
-		public readonly ballSpeedIncrement : number)
-	{
-		this.mode = mode;
-		this.botLevel = botLevel;
-		this.ballSpeedIncrement = ballSpeedIncrement;
-	}
 }
 
 /**
@@ -90,14 +129,11 @@ export abstract class AEngineConfig
 */
 export class Engine
 {
-	constructor(private gameConfig : GameConfig,
+	constructor(
+		private gameConfig : GameConfig,
 		private settingsConfig : ASettingsConfig,
-		private engineConfig : AEngineConfig)
-	{
-		this.gameConfig = gameConfig;
-		this.settingsConfig = settingsConfig;
-		this.engineConfig = engineConfig;
-	}
+		private engineConfig : AEngineConfig
+	) { }
 
 	//////////////////
 	// CALCULATIONS //
@@ -128,10 +164,10 @@ export class Engine
 		// in the future the client will send the
 		// data to the server ...
 		// This definitions will change
-		engineConfig.updatePlayer1Pos(engineConfig.mode
-			== GameMode.SINGLEPLAYER ? 0 : 0, gameConfig); // bool need ?
-		engineConfig.updatePlayer2Pos(engineConfig.mode
-			== GameMode.SINGLEPLAYER ? 0 : 0, gameConfig);
+		engineConfig.updatePlayer1Pos(gameConfig,
+			engineConfig.mode == GameMode.SINGLEPLAYER ? 0 : 0); // bool need ?
+		engineConfig.updatePlayer2Pos(gameConfig,
+			engineConfig.mode == GameMode.SINGLEPLAYER ? 0 : 0);
 	}
 
 	private static updateBallVelocity(player : Player, gameConfig : GameConfig,

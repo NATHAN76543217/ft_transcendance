@@ -4,7 +4,9 @@
  *  complex objects.
 */
 
-import { AStyle } from "./customization"
+import {
+	AStyle
+} from "./customization"
 
 export interface IPoint
 {
@@ -19,11 +21,10 @@ export interface IPoint
 */
 export class Point implements IPoint
 {
-	constructor(public x : number, public y : number)
-	{
-		this.x = x;
-		this.y = y;
-	}
+	constructor(
+		public x : number,
+		public y : number
+	) { }
 }
 
 /**
@@ -35,13 +36,11 @@ export class Point implements IPoint
 */
 export class Circle
 {
-	constructor(public pos : IPoint, public rad : number,
-		public style : AStyle)
-	{
-		this.pos = pos;
-		this.rad = rad;
-		this.style = style;
-	}
+	constructor(
+		public pos : IPoint,
+		public rad : number,
+		public style : AStyle
+	) { }
 
 	private static wrappedDraw(ctx : any, circle : Circle)
 	{
@@ -69,14 +68,12 @@ export class Circle
 */
 export class Rectangle
 {
-	constructor(public pos : IPoint, public width : number,
-		public height : number, public style : AStyle)
-	{
-		this.pos = pos;
-		this.width = width;
-		this.height = height;
-		this.style = style;
-	}
+	constructor(
+		public pos : IPoint,
+		public width : number,
+		public height : number,
+		public style : AStyle
+	) { }
 
 	// Perhabs i need to specilise this one too !
 	public thereIsCollision(ball : Circle) : boolean

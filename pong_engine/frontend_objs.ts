@@ -20,12 +20,10 @@ interface IRange
 */
 export class Range implements IRange
 {
-	constructor(public readonly min : number,
-		public readonly max : number)
-	{
-		this.min = min;
-		this.max = max;
-	}
+	constructor(
+		public readonly min : number,
+		public readonly max : number
+	) { }
 }
 
 export interface IRangeSlider
@@ -41,12 +39,10 @@ export interface IRangeSlider
 */
 export class RangeSlider implements IRangeSlider
 {
-	constructor(public readonly limits : IRange,
-		public readonly value : number)
-	{
-		this.limits = limits;
-		this.value = value;
-	}
+	constructor(
+		public readonly limits : IRange,
+		public readonly value : number
+	) { }
 
 	/**
 	 *	@brief Update target's value

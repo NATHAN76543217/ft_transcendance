@@ -11,8 +11,9 @@
 */
 export abstract class AStyle
 {
-	constructor(public data : string)
-	{ this.data = data; }
+	constructor(
+		public data : string
+	) { }
 
 	public abstract apply(ctx : any) : void;
 

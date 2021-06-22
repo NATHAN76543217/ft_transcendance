@@ -1,11 +1,29 @@
-import { AStyle, ColorStyle, Direction } from "../customization";
-import { Score, IScore, Player, IPlayer, ABall, IBall, ACourt, Net, INet, GameConfig } from "../game_objs"
-import { IPoint, Point, Circle } from "../shapes";
+import {
+    AStyle,
+    ColorStyle,
+    Direction
+} from "../../../customization";
+import {
+    Score,
+    IScore,
+    Player,
+    IPlayer,
+    ABall,
+    IBall,
+    ACourt,
+    Net,
+    INet,
+    GameConfig
+} from "../../../game_objs";
+import {
+    IPoint,
+    Point,
+    Circle
+} from "../../../shapes";
+import {
+    COURT
+} from "./classicpong.court.instance"
 
-
-const NAME : string = "ClassicPong";
-
-const COURT_COLOR : string = "BLACK";
 const SCORE_COLOR : string = "WHITE";
 const SCORE_FONT : string = "75px Arial";
 const PLAYER1_COLOR : string = "WHITE";
@@ -16,33 +34,6 @@ const BALL_COLOR : string = "RED";
 const BALL_RAD : number = 10;
 const BALL_SPEED : number = 7;
 const NET_COLOR : string = "WHITE";
-
-/////////////////////////
-// Init & Parse canvas //
-/////////////////////////
-
-class ClassicPongCourt extends ACourt
-{
-    constructor(canvasName : string, style : AStyle)
-    { super(canvasName, style); }
-
-    onFrontalCollision(player1 : IPlayer, player2 : IPlayer, ball : Circle) : void
-    {
-        // TODO
-    }
-
-    onLateralCollision(ball : Circle) : boolean
-    {
-        // TODO
-        return true;
-    }
-}
-
-const COURT : ClassicPongCourt = new ClassicPongCourt(NAME, new ColorStyle(COURT_COLOR));
-
-///////////////////////////////////////////
-// Use Court to create the other objects //
-///////////////////////////////////////////
 
 class ClassicPongScore1 extends IScore
 {
@@ -122,19 +113,16 @@ class ClassicPongNet extends INet
     direction : Direction = Direction.VERTICAL;
 }
 
-////////////////////////////////////////////////////
-// Uses the other objects to create a game config //
-////////////////////////////////////////////////////
-
-export class ClassicPongConfig extends GameConfig
+export default class ClassicPongGameConfig extends GameConfig
 {
-    constructor(player1 : Player, player2 : Player,
-        ball : ABall, net : Net)
+    constructor()
     {
-        super(COURT,
+        super(
+            COURT,
             new Player(new ClassicPongPlayer1()),
             new Player(new ClassicPongPlayer2()),
             new ClassicPongBall(new ClassicPongIBall()),
-            new Net(new ClassicPongNet()));
+            new Net(new ClassicPongNet())
+        );
     }
 }
