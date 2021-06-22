@@ -18,10 +18,12 @@ function App() {
 	<div className="h-full">
 		<Router>
 			<Header/>
-			<div className="flex h-full flex-nowrap">
-				<SideMenu/>
-				<div className="grid w-full grid-cols-4 xl:grid-cols-5">
-					<main className="col-span-3 xl:col-span-4">
+			<div className="flex h-full">
+				<div className="flex-none">
+					<SideMenu/>
+				</div>
+				<div className="flex w-full flex-nowrap">
+					<main className="flex-grow bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500">
 						<Switch>
 							<Route path='/game'>
 								<Game/>
@@ -37,7 +39,9 @@ function App() {
 							</Route>
 						</Switch>
 					</main>
-					<FriendsBar/>
+					<div className="flex-none hidden md:block">
+						<FriendsBar/>
+					</div>
 				</div>
 			</div>
 			<Footer/>
