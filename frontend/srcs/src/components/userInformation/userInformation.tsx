@@ -1,4 +1,3 @@
-import React from 'react';
 import CustomButton from '../utilities/CustomButton';
 
 type UserProps = {
@@ -10,7 +9,7 @@ type UserProps = {
 
 function UserInformation(user: UserProps) {
     return (
-        <div className="py-4 my-4 h-42">
+        <div className="py-4 h-42">
             <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
                 <div className="relative w-32 mx-8">
 
@@ -18,7 +17,7 @@ function UserInformation(user: UserProps) {
                         src="https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg"
                         alt="user profile" />
                 </div>
-                <div className="mx-8">
+                <div className="w-40 mx-8">
                     <h1 className="relative text-xl font-bold">
                         {user.name}
                     </h1>
@@ -26,18 +25,20 @@ function UserInformation(user: UserProps) {
                         {user.status}
                     </h1>
                 </div>
-                <div className="my-4">
+                <div className="w-48 my-4 text-center">
                     {!user.isMe ?
-                        (user.isFriend ? <CustomButton
+                        (!user.isFriend ? <CustomButton
                             content="Add friend"
                             url="/user/friend"
-                            color="secondary"
+                            bg_color="bg-secondary"
+                            // bg_hover_color="bg-secondary-dark"
                             dark_text
                         /> :
                             <CustomButton
                                 content="Remove friend"
                                 url="/user/friend"
-                                color="unset"
+                                bg_color="bg-unset"
+                                // bg_hover_color="bg-unset-dark"
                                 dark_text
                             />
                         )

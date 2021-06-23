@@ -31,12 +31,12 @@ function App() {
 								<Game/>
 							</Route>
 							<Route path="/users">
-								<User/>
+								<User />
 							</Route>
 							<Route path='/login'>
 								<Login/>
 							</Route>
-							<Route path='/'>
+							<Route exact path='/'>
 								<Home/>
 							</Route>
 						</Switch>

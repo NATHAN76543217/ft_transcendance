@@ -39,12 +39,21 @@ function SideMenu() {
 						</Link>
 					</li>
 					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/profile' ? ' bg-neutral-dark' : "" )}>
+						<i className="z-0 m-auto fas fa-users fa-2x group-hover:hidden"></i>
+						<i className="hidden pl-4 m-auto fas fa-users fa-lg group-hover:block"></i>
+						<Link 
+							to="/users/find"
+							className="absolute w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
+								Users
+						</Link>
+					</li>
+					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/profile' ? ' bg-neutral-dark' : "" )}>
 						<i className="z-0 m-auto far fa-address-card fa-2x group-hover:hidden"></i>
 						<i className="hidden pl-4 m-auto far fa-address-card fa-lg group-hover:block"></i>
 						<Link 
 							to="/users"
 							className="absolute w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
-								Users
+								Profile
 						</Link>
 					</li>
 				</ul>
