@@ -7,7 +7,6 @@ import { TypeOrmModule } from "@nestjs/typeorm"
 
 /* Global TODOs:
 	- Better (js) syntax in MatchesService's functions.
-	- Controler must handle player by id (all & currents).
 	- Test the functionality of the module
 */
 
@@ -15,7 +14,7 @@ import { TypeOrmModule } from "@nestjs/typeorm"
     imports: [TypeOrmModule.forFeature([Match])],
     controllers: [MatchesControler],
     providers: [MatchesService],
-    exports: [MatchesService],
+    exports: [MatchesService]
 })
 export default class MatchesModule { }
 

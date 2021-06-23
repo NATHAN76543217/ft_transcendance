@@ -35,16 +35,16 @@ export default class MatchesService
     }
 
     // TO DO: Weird code
-    public async getAllMatchesByPlayerId(id : string) : Promise<Match>
+    public async getAllMatchesByPlayerId(id : string) : Promise<Match[]>
     {
-        let match = await this.matchesRepository.findOne({
+        let match = await this.matchesRepository.find({
             where: {
                 idPlayerOne: id
             }
         });
         if (match)
             return (match);
-        match = await this.matchesRepository.findOne({
+        match = await this.matchesRepository.find({
             where: {
                 idPlayerTwo: id
             }

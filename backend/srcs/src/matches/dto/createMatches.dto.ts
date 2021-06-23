@@ -16,17 +16,17 @@ export default class CreateMatchesDto
     @IsNotEmpty()
     public readonly idPlayerOne : string;
 
-    // @IsString()
-    // @IsNotEmpty()
-    // public readonly idPlayerTwo : string;
+    @IsString()
+    @IsNotEmpty()
+    public readonly idPlayerTwo : string;
 
     // @IsNumber()
     // @IsOptional()
     // public scorePlayerOne : number;
 
-    @IsNumber()
-    @IsOptional()
-    public scorePlayerTwo : number;
+    // @IsNumber()
+    // @IsOptional()
+    // public scorePlayerTwo : number;
 
     @IsDateString()
     @IsNotEmpty()
