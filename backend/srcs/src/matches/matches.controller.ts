@@ -10,12 +10,16 @@ import {
     Post,
 	Patch,
 	Body,
-	Delete
+	Delete,
+	SerializeOptions
 } from "@nestjs/common"
 
-// TO DO: Should exclude matches/user/ route
+// TO DO: Should exclude "matches/user/" route
 
 @Controller("matches")
+@SerializeOptions({
+	strategy: 'excludeAll',
+  })
 export default class MatchesControler
 {
     constructor(
