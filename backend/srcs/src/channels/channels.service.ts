@@ -102,7 +102,6 @@ export default class ChannelsService {
     if (channel) {
       return channel;
     }
-
     throw new ChannelNotFound(id);
   }
 

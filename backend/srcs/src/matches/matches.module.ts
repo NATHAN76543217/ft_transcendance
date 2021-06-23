@@ -15,7 +15,7 @@ import { TypeOrmModule } from "@nestjs/typeorm"
     imports: [TypeOrmModule.forFeature([Match])],
     controllers: [MatchesControler],
     providers: [MatchesService],
-    exports: [MatchesService]
+    exports: [MatchesService],
 })
 export default class MatchesModule { }
 

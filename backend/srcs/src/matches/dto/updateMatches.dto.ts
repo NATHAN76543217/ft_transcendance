@@ -1,14 +1,14 @@
 import {
     IsNotEmpty,
     IsString,
-    IsDigit,
+    IsNumber,
     IsOptional,
-    ISDateString
+    IsDateString
 } from "class-validator"
 
-export default class MatchesDto
+export default class UpdateMatchesDto
 {
-    @IsDigit()
+    @IsNumber()
     @IsNotEmpty()
     public readonly idMatch : number;
 
@@ -20,19 +20,19 @@ export default class MatchesDto
     @IsNotEmpty()
     public readonly idPlayerTwo : string;
 
-    @IsDigit()
+    @IsNumber()
     @IsOptional()
     public scorePlayerOne : number;
 
-    @IsDigit()
+    @IsNumber()
     @IsOptional()
     public scorePlayerTwo : number;
 
-    @ISDateString()
+    @IsDateString()
     @IsNotEmpty()
     public readonly startTime : Date;
 
-    @ISDateString()
+    @IsDateString()
     @IsOptional()
     public endTime : Date;
 }

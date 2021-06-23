@@ -1,5 +1,6 @@
 import Match from "./matches.entity"
-import MatchesDto  from "./dto/matches.dto"
+import CreateMatchesDto  from "./dto/createMatches.dto"
+import UpdateMatchesDto from "./dto/updateMatches.dto"
 
 import MatchNotFound from "./exceptions/MatchNotFound.exception"
 import MatchNotFoundByPlayerId from "./exceptions/MatchNotFoundByPlayerId.exception"
@@ -84,6 +85,15 @@ export default class MatchesService
         throw new CurrMatchesNotFound();
     }
 
+    public async getCurrentMatchesById(id : number)
+    {
+        const currMatches = this.getCurrentMaches();
+        const match = (await currMatches).find(currMatches => currMatches.id == id);
+        if (match)
+            return match;
+        throw new MatchNotFound(id);
+    }
+
     public async updateMatchElement(id : number, key : string, value : unknown)
     {
         // TO DO: This implementation seems nice but breaks constness
@@ -94,14 +104,23 @@ export default class MatchesService
         let match = this.getMatchById(id);
         switch (key)
         {
-            case "scorePlayerOne": { (await match).scorePlayerOne = value as string; break ; }
-            case "scorePlayerTwo": { (await match).scorePlayerTwo = value as string; break ; }
+            case "scorePlayerOne": { (await match).scorePlayerOne = value as number; break ; }
+            case "scorePlayerTwo": { (await match).scorePlayerTwo = value as number; break ; }
             case "endTime": { (await match).endTime = value as Date; break ; }
             default: { throw new DevWrongKeyGiven(key); }
         }
     }
 
-    public async createMatch(match : MatchesDto) :  Promise<Match>
+    public async updateMatch(id : number, match : UpdateMatchesDto)
+    {
+        await this.matchesRepository.update(id, match);
+        const updatedMatch = this.getMatchById(id);
+        if (updatedMatch)
+            return updatedMatch;
+        throw new MatchNotFound(id);
+    }
+
+    public async createMatch(match : CreateMatchesDto) :  Promise<Match>
     {
         const newMatch = this.matchesRepository.create(match);
         await this.matchesRepository.save(newMatch);
