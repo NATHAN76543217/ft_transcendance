@@ -10,7 +10,7 @@ import Footer from './components/footer/footer';
 import SideMenu from './components/sideMenu/sideMenu';
 import Home from './pages/home/home';
 import Game from './pages/game/game';
-import Profile from './pages/profile/profile';
+import User from './pages/users/user';
 import { Login } from './pages/login/login';
 
 let change_bg_color_with_size = "sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500";	// for testing
@@ -25,13 +25,13 @@ function App() {
 					<SideMenu/>
 				</div>
 				<div className="flex w-full flex-nowrap">
-					<main className={"flex-grow" + change_bg_color_with_size}>
+					<main className={"flex-grow " + change_bg_color_with_size}>
 						<Switch>
 							<Route path='/game'>
 								<Game/>
 							</Route>
 							<Route path="/users">
-								<Profile/>
+								<User/>
 							</Route>
 							<Route path='/login'>
 								<Login/>
