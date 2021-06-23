@@ -13,6 +13,8 @@ import Game from './pages/game/game';
 import Profile from './pages/profile/profile';
 import { Login } from './pages/login/login';
 
+let change_bg_color_with_size = "sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500";	// for testing
+
 function App() {
   return (
 	<div className="h-full">
@@ -23,12 +25,12 @@ function App() {
 					<SideMenu/>
 				</div>
 				<div className="flex w-full flex-nowrap">
-					<main className="flex-grow bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500">
+					<main className={"flex-grow" + change_bg_color_with_size}>
 						<Switch>
 							<Route path='/game'>
 								<Game/>
 							</Route>
-							<Route path="/profile">
+							<Route path="/users">
 								<Profile/>
 							</Route>
 							<Route path='/login'>

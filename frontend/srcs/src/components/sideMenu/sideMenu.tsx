@@ -42,9 +42,9 @@ function SideMenu() {
 						<i className="z-0 m-auto far fa-address-card fa-2x group-hover:hidden"></i>
 						<i className="hidden pl-4 m-auto far fa-address-card fa-lg group-hover:block"></i>
 						<Link 
-							to="/profile"
+							to="/users"
 							className="absolute w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
-								Profile
+								Users
 						</Link>
 					</li>
 				</ul>
