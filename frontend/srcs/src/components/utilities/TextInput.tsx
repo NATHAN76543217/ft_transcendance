@@ -1,7 +1,7 @@
 // TODO: Hint
 
 //import { ChangeEvent, useState } from "react";
-import { Path, UseFormRegister } from "react-hook-form";
+import { FieldError, Path, UseFormRegister } from "react-hook-form";
 
 type TextInputProps<FormValues> = {
     name: Path<FormValues>;
@@ -10,6 +10,7 @@ type TextInputProps<FormValues> = {
     required: boolean;
     labelClass: string;
     inputClass: string;
+    error?: FieldError;
 }
 
 /* const validateValue = (initialValue: string) => {
@@ -30,15 +31,29 @@ type TextInputProps<FormValues> = {
 
 export {}
 
-export function TextInput<FormValues>({name, register, type, required, labelClass, inputClass}: TextInputProps<FormValues>) {
+export function TextInputError(error?: FieldError) {
+    let message: string = "";
+
+    if (error)
+    {
+        if (error.message)
+            message = error.message;
+        else if (error.type === "required")
+            message = "This field is required";
+    }
+    return (<span>{message}</span>)
+}
+
+export function TextInput<FormValues>({name, register, type, required, labelClass, inputClass, error}: TextInputProps<FormValues>) {
     //const {value, bind, reset} = validateValue("");
 
     //const { register, handleSubmit, watch, formState: { errors } } = useForm();
 
     return (
         <div>
-            <label htmlFor={name} className={`capitalize m-5 border-1 ${labelClass}`}>{name}</label>
+            <label htmlFor={name} className={`capitalize ${labelClass}`}>{name}</label>
             <input type={type} id={name} placeholder={`Enter ${name}`} className={`w-full ${inputClass}`} {...register(name, { required })}/>
+            {TextInputError(error)}
         </div>
     );
 }
