@@ -1,13 +1,13 @@
 import {
     Entity,
-    PrimaryGeneratorColumn,
+    PrimaryGeneratedColumn,
     Column
 } from "typeorm"
 
-@Entity
+@Entity()
 export default class Match
 {
-    @PrimaryGeneratorColumn
+    @PrimaryGeneratedColumn()
     public id : number;
 
     @Column({unique: true})
@@ -17,10 +17,10 @@ export default class Match
     public readonly idPlayerTwo : string;
 
     @Column({nullable: true, default: 0})
-    public scorePlayerOne : string;
+    public scorePlayerOne : number;
 
     @Column({nullable: true, default: 0})
-    public scorePlayerTwo : string;
+    public scorePlayerTwo : number;
 
     // Should be nullable or not ?
     @Column({nullable: true, default: new Date()})
