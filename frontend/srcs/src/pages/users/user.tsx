@@ -5,10 +5,10 @@ import UserInformation from '../../components/userInformation/userInformation';
 import UserStats from '../../components/userStats/userStats';
 import MatchHistory from '../../components/matchHistory/matchHistory';
 
-class Profile extends React.Component {
+class User extends React.Component {
     render() {
         return (
-            <div className="w-full">
+            <div className="">
                 <section className="relative w-full">
                     <UserInformation
                         name="Login"
@@ -33,4 +33,4 @@ class Profile extends React.Component {
     }
 }
 
-export default Profile;
+export default User;
