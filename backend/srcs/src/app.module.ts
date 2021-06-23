@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
 import { AuthenticationModule } from './authentication/authentication.module';
+import MatchesModule from './matches/matches.module'
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
     UsersModule,
     ChannelsModule,
     MessagesModule,
+    MatchesModule
   ],
   controllers: [AppController],
   providers: [AppService],
