@@ -8,11 +8,21 @@ module.exports = {
             'width': 'width'
         },
         colors: {
-          primary : '#b2e2eb',
-          secondary : '#28b9d4',
+          primary : {
+            DEFAULT : '#b2e2eb',
+            dark : '#a1dbe6'
+          },
+          secondary : {
+            DEFAULT : '#28b9d4',
+            dark : '#26afc9'
+          },
           neutral : {
-            DEFAULT : '#EFEFEF',
-            dark : '#AFAFAF'
+            DEFAULT : '#efefef',
+            dark : '#e3e3e3'
+          },
+          unset : {
+            DEFAULT : '#f04545',
+            dark : '#ee3636'
           }
         }
     },

@@ -12,7 +12,10 @@ class Profile extends React.Component {
                 <section className="relative w-full">
                     <UserInformation
                         name="Login"
-                        status="Connected" />
+                        status="Connected"
+                        isMe
+                        // isFriend
+                    />
                 </section>
                 <div className="relative flex flex-wrap justify-center w-full">
                     <section className="relative">
