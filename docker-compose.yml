@@ -25,7 +25,7 @@ services:
         container_name: pong_pgadmin_cnt
         restart: always
         ports:
-            - "80:80"
+            - "8000:80"
         networks:
             - pong_database_network
         env_file:
@@ -48,6 +48,8 @@ services:
             - pong_backend_network
 
     frontend:
+        depends_on:
+            - backend
         build: ./frontend
         image: pong_front_img
         container_name: pong_front_cnt
@@ -58,6 +60,23 @@ services:
             - /app/node_modules
         networks:
             - pong_frontend_network
+
+    reverse_proxy:
+        depends_on:
+            - frontend
+            - backend
+        build: ./reverse_proxy
+        image: pong_reverse_proxy_img
+        container_name: pong_reverse_proxy_cnt
+        volumes:
+            - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
+            - ./reverse_proxy/certs/:/etc/nginx/certs/
+        ports:
+            - 80:80
+            - 443:443
+        networks:
+            - pong_frontend_network
+            - pong_backend_network
 
 networks: 
     pong_database_network : {}
