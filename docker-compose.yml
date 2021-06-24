@@ -24,8 +24,8 @@ services:
         image: dpage/pgadmin4
         container_name: pong_pgadmin_cnt
         restart: always
-        ports:
-            - "8000:80"
+        expose:
+            - "80"
         networks:
             - pong_database_network
         env_file:
@@ -37,8 +37,8 @@ services:
         build: ./backend
         image: pong_back_img
         container_name: pong_back_cnt
-        ports:
-            - "8080:8080"
+        expose:
+            - "8080"
         volumes:
             - './backend/srcs:/app'
             - /app/node_modules
@@ -53,8 +53,8 @@ services:
         build: ./frontend
         image: pong_front_img
         container_name: pong_front_cnt
-        ports:
-            - "3000:3000"
+        expose:
+            - "3000"
         volumes: 
             - ./frontend/srcs/:/app/
             - /app/node_modules
@@ -63,6 +63,7 @@ services:
 
     reverse_proxy:
         depends_on:
+            - pgadmin
             - frontend
             - backend
         build: ./reverse_proxy
@@ -75,6 +76,7 @@ services:
             - 80:80
             - 443:443
         networks:
+            - pong_database_network
             - pong_frontend_network
             - pong_backend_network
 
