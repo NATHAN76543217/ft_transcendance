@@ -1,5 +1,4 @@
 import axios from 'axios';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 
 // import Button from '../../components/utilities/Button';
@@ -26,7 +25,7 @@ function UserSearch (props: UserProps) {
     const { register, handleSubmit } = useForm<ILoginFormValues>();
 
     const onSubmit = (values: ILoginFormValues) => {
-    axios.get("localhost:8080/users/" + values.username); // use values to use name in search
+    axios.get("/api/users/" + values.username); // use values to use name in search
     }
 
 
