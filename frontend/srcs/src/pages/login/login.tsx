@@ -1,6 +1,6 @@
 import { TextInput } from "../../components/utilities/TextInput";
 
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 interface ILoginFormValues {
     username: string,
@@ -17,6 +17,7 @@ export function Login(props: {})
 
         try {
             const data = await axios.post("/api/authentication/login", { name: values.username, password: values.password });
+            console.log(data);
         }
         catch (error) {
             if (axios.isAxiosError(error))
