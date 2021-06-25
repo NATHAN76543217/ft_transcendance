@@ -17,15 +17,17 @@ class User extends React.Component {
     render() {
         return (
             <div className="">
-                <Route path='/users/find'>
+                <Route exact path='/users/find'>
                     <UserSearch />
                 </Route>
-                <Route exact path='/users'>
+                {/* <Route exact path='/users'>
                     <UserPage />
-                </Route>
-                <Route path='/users/:id'>
-                    <UserPage />
-                </Route>
+                </Route> */}
+                <Route exact path="/users/" component={UserPage} />
+
+                {/* <Route path={'/users/:id'} render={props => <UserPage {...props}} /> */}
+                <Route exact path="/users/:id" component={UserPage} />
+
 
                 {/* <Route path="/users/:id" component={UserPage}/> */}
 
