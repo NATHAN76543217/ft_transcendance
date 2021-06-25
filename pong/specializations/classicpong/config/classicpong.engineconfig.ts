@@ -9,7 +9,6 @@ import {
     Player,
     ACourt
 } from "../../../game_objs"
-import { IPoint } from "../../../shapes";
 import {
     PongSocketServer
 } from "../../../sockerServer"
