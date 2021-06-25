@@ -2,6 +2,9 @@ import {
     Engine,
     GameMode
 } from "../../engine"
+import {
+    PongSocketServer
+} from "../../sockerServer"
 
 import ClassicPongGameConfig from "./config/classicpong.gameconfig"
 import ClassicPongEngineConfig from "./config/classicpong.engineconfig"
@@ -12,14 +15,17 @@ const BALL_SPEED_INCREMENT : number = 1;
 export default class ClassicPong extends Engine
 {
     constructor(
+        server : PongSocketServer,
+        idPlayerOne : string,
+        idPlayerTwo : string,
         gameMode : GameMode,
         botlevel? : number,
     )
     {
         super(
-            new ClassicPongGameConfig(),
+            new ClassicPongGameConfig(idPlayerOne, idPlayerTwo),
             new ClassicPongSettingsConfig(),
-            new ClassicPongEngineConfig(gameMode, botlevel ? botlevel : 1, BALL_SPEED_INCREMENT)
+            new ClassicPongEngineConfig(server, gameMode, botlevel ? botlevel : 1, BALL_SPEED_INCREMENT)
         )
     }
 }

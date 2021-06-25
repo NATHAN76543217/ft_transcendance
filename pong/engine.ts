@@ -20,6 +20,10 @@ import {
 	GameConfig,
 	Player
 } from "./game_objs"
+import {
+	PongSocketServer
+} from "./sockerServer"
+
 
 import SettingsConfigOutOfRange from "./exceptions/SettingsConfigOutOfRange.exception"
 import SettingsConfigDiffSizes from "./exceptions/SettingsConfigDiffSizes.exception"
@@ -104,13 +108,14 @@ export abstract class AEngineConfig
 	public handlerPlayer2Type? : string;
 
 	constructor(
+		public readonly server : PongSocketServer,
 		public readonly mode : GameMode,
 		public botLevel : number,
 		public readonly ballSpeedIncrement : number,
-		public updatePlayer2Pos : (gameConfig : GameConfig, Arg : PosUpdaterLevel | PointerEvent) => void
+		public updatePlayerTwoPos : (data : Player | GameConfig, arg : PongSocketServer | number) => void
 	) { }
 
-	public abstract updatePlayer1Pos(gameConfig : GameConfig, event : PosUpdaterEvent) : void;
+	public abstract updatePlayerOnePos(playerOne : Player) : void;
 	public abstract isBallOnPlayer1Side(gameConfig : GameConfig) : boolean;
 	public abstract getPaddleReboundRad(ball : ABall, player : Player) : number;
 	public abstract changeBallDirection(gameConfig : GameConfig, angle : number) : void;
@@ -158,14 +163,16 @@ export class Engine
 	private static updatePlayersPos(gameConfig : GameConfig,
 		engineConfig : AEngineConfig) : void
 	{
-		// TO DO: For the moment event is no need
-		// in the future the client will send the
-		// data to the server ...
-		// This definitions will change
-		engineConfig.updatePlayer1Pos(gameConfig,
-			engineConfig.mode == GameMode.SINGLEPLAYER ? 0 : 0); // bool need ?
-		engineConfig.updatePlayer2Pos(gameConfig,
-			engineConfig.mode == GameMode.SINGLEPLAYER ? 0 : 0);
+		engineConfig.updatePlayerOnePos(gameConfig.player1);
+
+		const mode = engineConfig.mode;
+
+		engineConfig.updatePlayerTwoPos(
+			mode == GameMode.SINGLEPLAYER
+			? gameConfig : gameConfig.player2,
+			mode == GameMode.SINGLEPLAYER
+			? engineConfig.botLevel : engineConfig.server
+		);
 	}
 
 	private static updateBallVelocity(player : Player, gameConfig : GameConfig,

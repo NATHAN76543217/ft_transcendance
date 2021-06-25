@@ -21,9 +21,11 @@ import {
 import {
 	PosUpdaterLevel
 } from "./engine"
+import {
+	PongSocketServer
+} from "./sockerServer"
 
 import GameObjIsOutOfRange from "./exceptions/GameObjOutOfRange.exception"
-
 
 /**
  *	@brief Present a paddle (a mouving rectangle).
@@ -94,6 +96,7 @@ export class Score extends Point
 
 export declare class IPlayer
 {
+	public readonly id : string;
 	public readonly pos : IPoint;
 	public readonly width : number;
 	public readonly height : number;
@@ -112,12 +115,13 @@ export declare class IPlayer
 export class Player extends Paddle
 {
 	public readonly score : Score
+	public readonly id : string
 
 	constructor(x : IPoint, width : number, height : number, style : AStyle,
-		limitLeft : IPoint, limitRight : IPoint, score : Score);
+		limitLeft : IPoint, limitRight : IPoint, score : Score, id : string);
 	constructor(other : IPlayer);
 	constructor(polimorph : IPoint | IPlayer, width ?: number, height ?: number, style ?: AStyle,
-	limitLeft ?: IPoint, limitRight ?: IPoint, score ?: Score)
+	limitLeft ?: IPoint, limitRight ?: IPoint, score ?: Score, id? : string)
 	{
 		super(polimorph instanceof IPlayer ? polimorph.pos : polimorph,
 			polimorph instanceof IPlayer ? polimorph.width : width,
@@ -125,6 +129,7 @@ export class Player extends Paddle
 			polimorph instanceof IPlayer ? polimorph.style : style,
 			polimorph instanceof IPlayer ? polimorph.limitLeft : limitLeft,
 			polimorph instanceof IPlayer ? polimorph.limitRight : limitRight);
+		this.id = polimorph instanceof IPlayer ? polimorph.id : id
 		this.score = polimorph instanceof IPlayer ? polimorph.score : score;
 	}
 
@@ -137,6 +142,12 @@ export class Player extends Paddle
 	public static pongBotVertical(gameConfig : GameConfig, level : PosUpdaterLevel)
 	{
 		// TO DO
+	}
+
+	public static async updatePlayerPosHorizontal(player : Player, server : PongSocketServer)
+	{
+		const playerPos : IPoint = await server.getMousePosClient(player.id);
+		player.pos.y = playerPos.y;
 	}
 
 	public static calcPaddleReboundRadHorizontal(ball : ABall, player : Player) : number

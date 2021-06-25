@@ -9,27 +9,34 @@ import {
     Player,
     ACourt
 } from "../../../game_objs"
+import { IPoint } from "../../../shapes";
+import {
+    PongSocketServer
+} from "../../../sockerServer"
 
 export default class ClassicPongEngineConfig extends AEngineConfig
 {
     constructor(
+        server : PongSocketServer,
         gameMode : GameMode,
         botlevel : number,
         ballSpeedIncrement : number
     )
     {
-        // TO DO: Player Pos Updaters
-        super(gameMode, botlevel, ballSpeedIncrement,
+        // TO DO: Have to make sure that the server is a singleton
+        super(
+            server,
+            gameMode, 
+            botlevel,
+            ballSpeedIncrement,
         gameMode == GameMode.SINGLEPLAYER
         ? Player.pongBotHorizontal
-        : null // TO DO: Change null by the multiplayer handler
+        : Player.updatePlayerPosHorizontal
         );
     }
 
-    updatePlayer1Pos(gameConfig : GameConfig, event : PosUpdaterEvent) : void
-    {
-        // Use some function that get the users pos in the front
-    }
+    async updatePlayerOnePos(playerOne : Player)
+    { Player.updatePlayerPosHorizontal(playerOne, this.server); }
 
     isBallOnPlayer1Side(gameConfig : GameConfig) : boolean
     { return ACourt.isBallOnLeftSideHorizontal(gameConfig); }

@@ -24,6 +24,10 @@ import {
     COURT
 } from "./classicpong.court.instance"
 
+// TO DO: Add the players ids on all the chain starting here (id new element)
+// Create a class that take Player1 and Player2 classes as arg and the id,
+// this id will be propagated back until be a engine generator argument
+
 const SCORE_COLOR : string = "WHITE";
 const SCORE_FONT : string = "75px Arial";
 const PLAYER1_COLOR : string = "WHITE";
@@ -75,6 +79,31 @@ class ClassicPongPlayer2 extends IPlayer
     score : Score = new Score(new ClassicPongScore2()); 
 }
 
+class ClassicPongPlayer
+{
+    public pos : IPoint;
+    public width : number;
+    public height : number;
+    public style : AStyle;
+    public limitLeft : IPoint;
+    public limitRight : IPoint;
+    public score : Score;
+
+    constructor(
+        public readonly id : string,
+        player : IPlayer
+    )
+    {
+        this.pos = player.pos;
+        this.width = player.width;
+        this.height = player.height;
+        this.style = player.style;
+        this.limitLeft = player.limitLeft;
+        this.limitRight = player.limitRight;
+        this.score = player.score;
+    }
+}
+
 class ClassicPongIBall extends IBall
 {
     pos : IPoint = new Point(COURT.width / 2, COURT.height / 2);
@@ -111,12 +140,12 @@ class ClassicPongNet extends INet
 
 export default class ClassicPongGameConfig extends GameConfig
 {
-    constructor()
+    constructor(idPlayerOne : string, idPlayerTwo : string)
     {
         super(
             COURT,
-            new Player(new ClassicPongPlayer1()),
-            new Player(new ClassicPongPlayer2()),
+            new Player(new ClassicPongPlayer(idPlayerOne, new ClassicPongPlayer1())),
+            new Player(new ClassicPongPlayer(idPlayerTwo, new ClassicPongPlayer2())),
             new ClassicPongBall(new ClassicPongIBall()),
             new Net(new ClassicPongNet())
         );
