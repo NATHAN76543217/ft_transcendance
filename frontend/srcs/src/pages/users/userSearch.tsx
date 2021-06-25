@@ -4,6 +4,7 @@ import React, { useCallback } from 'react';
 import UserInformation from '../../components/userInformation/userInformation';
 import UserSearchForm from '../../components/Forms/userSearchForm';
 import IUserSearchFormValues from '../../components/Forms/IUserSearchFormValues';
+import axios from 'axios';
 
 interface UserProps {
     id?: number,
@@ -12,7 +13,7 @@ interface UserProps {
 
 interface   UserStates {
     list: string,
-    count: number
+    username: string
 }
 
 interface UserSearchFormData {
@@ -25,8 +26,8 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     {
         super(props);
         this.state = {
-            list: "begin",
-            count: 0
+            list: "",
+            username: ""
         };
     }
 
@@ -38,11 +39,12 @@ class UserSearch extends React.Component<UserProps, UserStates> {
 
     onSubmit = async (values: IUserSearchFormValues) => {
 
-        // const data = await axios.get("localhost:8080/users");
+        const data = await axios.get("/api/users");
 
         // console.log(values.username);
         // console.log(this.state.list);
-        this.setState({list: values.username});
+        this.setState({username: values.username});
+        this.setState({list: data.data});
         // console.log('The list value is ' + list + '!!!');
         // console.log(data);
     };
