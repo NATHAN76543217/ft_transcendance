@@ -3,9 +3,10 @@ import CreateUserDto from './dto/CreateUser.dto';
 import User from './user.entity';
 import UpdateUserDto from './dto/UpdateUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserNameNotFound from './exception/UserNameNotFound.exception';
+import { query } from 'express';
 
 @Injectable()
 export default class UsersService {
@@ -14,8 +15,12 @@ export default class UsersService {
     private usersRepository: Repository<User>
   ) { }
 
-  getAllUsers() {
-    return this.usersRepository.find({ relations: ['channels'] });
+  async getAllUsers(name: string) {
+    if (name === undefined) {
+      return await this.usersRepository.find({ relations: ['channels'] });
+    }
+    return this.usersRepository.find({
+      where: { 'name': Like('%' + name + '%') }});
   }
 
   async getUserById(id: number) {
@@ -27,10 +32,16 @@ export default class UsersService {
   }
 
   async getUserByName(name: string) {
-    const user = await this.usersRepository.findOne(name, { relations: ['channels'] });
-    if (user)
-      return user;
-    throw new UserNameNotFound(name);
+    if (name !== undefined)
+    // const user = await this.usersRepository.findOne(name, { relations: ['channels'] });
+    return this.usersRepository.findOne(name, { relations: ['channels']});
+  }
+
+
+  async getUsersFiltertByName(name: string) {
+    let results = this.usersRepository.find({
+      where: { 'name': Like('%' + name + '%') }});
+      return results;
   }
 
   async updateUser(id: number, user: UpdateUserDto) {

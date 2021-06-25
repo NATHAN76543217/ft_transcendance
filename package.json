@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "@nestjs/websockets": "^7.6.18"
+    "@tailwindcss/forms": "^0.3.3"
   }
 }
