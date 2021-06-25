@@ -5,14 +5,15 @@ import UserInformation from '../../components/userInformation/userInformation';
 import UserSearchForm from '../../components/Forms/userSearchForm';
 import IUserSearchFormValues from '../../components/Forms/IUserSearchFormValues';
 import axios from 'axios';
+import User from './IUserInterface';
 
 interface UserProps {
     id?: number,
     isMe?: boolean | false,
 }
 
-interface   UserStates {
-    list: string,
+interface UserStates {
+    list: User[],
     username: string
 }
 
@@ -22,11 +23,10 @@ interface UserSearchFormData {
 
 class UserSearch extends React.Component<UserProps, UserStates> {
 
-    constructor(props: UserProps)
-    {
+    constructor(props: UserProps) {
         super(props);
         this.state = {
-            list: "",
+            list: [],
             username: ""
         };
     }
@@ -35,48 +35,54 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         // Typical usage (don't forget to compare props):
         console.log("Previous list: " + prevStates.list);
         console.log("Current list: " + this.state.list);
-      }
+    }
 
     onSubmit = async (values: IUserSearchFormValues) => {
 
-        const data = await axios.get("/api/users");
+        // try {
+        //     const data = await axios.post("/api/users", { name: values.username });
+        //     console.log(data);
+        // } catch (error) {
+        //     console.log(error);
+        // }
 
-        // console.log(values.username);
-        // console.log(this.state.list);
-        this.setState({username: values.username});
-        this.setState({list: data.data});
-        // console.log('The list value is ' + list + '!!!');
-        // console.log(data);
+        try {
+            const data = await axios.get("/api/users");
+            console.log(data);
+            this.setState({ list: data.data });
+        } catch (error) {
+            console.log(error);
+        }
+
+        this.setState({ username: values.username });
+
     };
 
-    
+
 
     render() {
         return (
             <div className="">
-                <UserSearchForm onSubmit={this.onSubmit}/>
+                <UserSearchForm onSubmit={this.onSubmit} />
 
                 <ul>
-                    <li className="relative w-full">
+                    {this.state.list.map((user) => (
+                        <li key={user.id} className="relative w-full">
+                            <UserInformation
+                                name={user.name}
+                                status="Connected"
+                                isFriend
+                            />
+                        </li>
+                    ))}
+
+                    {/* <li className="relative w-full">
                         <UserInformation
                             name="Login"
                             status="Connected"
                             isFriend
                         />
-                    </li>
-                    <li className="relative w-full">
-                        <UserInformation
-                            name="Login2"
-                            status="Offline"
-                        />
-                    </li>
-                    <li className="relative w-full">
-                        <UserInformation
-                            name="Login3"
-                            status="In game"
-                            isFriend
-                        />
-                    </li>
+                    </li> */}
                 </ul>
             </div>
         );

@@ -39,7 +39,6 @@ export default function SearchUser(props: UserSearchProps) {
                 <input type='submit' value="search" className="h-auto px-2 py-1 font-semibold bg-gray-200 rounded-md text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"></input>
                 </div>
             </form>
-            <p>The liste value is {list}</p>
         </section>
     );
 }
