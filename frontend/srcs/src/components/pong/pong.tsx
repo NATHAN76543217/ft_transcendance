@@ -1,4 +1,20 @@
-export default function Pong(){
+
+import { Socket,
+} from "ngx-socket-io"
+
+export default function Pong(socketServ : Socket)
+{
+    const socket : Socket = socketServ;
+
+    const canvas = document.getElementById("pongCanvas");
+
+    canvas?.addEventListener("mousemove", (event : any) => {
+        socket.emit('mouseEvent', {
+            mousePosX: event.clientX,
+            mousePosY: event.clientY,
+        })
+    });
+
     return (
         <canvas id="pongCanvas" className="bg-black w-50 h-40">
 
