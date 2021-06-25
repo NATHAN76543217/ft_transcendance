@@ -1,53 +1,59 @@
-import axios from 'axios';
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useCallback } from 'react';
 
 // import Button from '../../components/utilities/Button';
 import UserInformation from '../../components/userInformation/userInformation';
+import UserSearchForm from '../../components/Forms/userSearchForm';
+import IUserSearchFormValues from '../../components/Forms/IUserSearchFormValues';
 
-type UserProps = {
+interface UserProps {
     id?: number,
-    isMe?: boolean | false
+    isMe?: boolean | false,
 }
 
-interface ILoginFormValues {
-    username: string
+interface   UserStates {
+    list: string,
+    count: number
 }
 
+interface UserSearchFormData {
+    username: string,
+}
 
-function UserSearch (props: UserProps) {
-    // constructor(props) 
-    // {
-    //     super(props);
-    //     this.props.isMe = false;
-    // }
+class UserSearch extends React.Component<UserProps, UserStates> {
 
-    // const isMe: boolean;
-    const { register, handleSubmit } = useForm<ILoginFormValues>();
-
-    const onSubmit = (values: ILoginFormValues) => {
-    axios.get("localhost:8080/users/" + values.username); // use values to use name in search
+    constructor(props: UserProps)
+    {
+        super(props);
+        this.state = {
+            list: "begin",
+            count: 0
+        };
     }
 
+    componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
+        // Typical usage (don't forget to compare props):
+        console.log("Previous list: " + prevStates.list);
+        console.log("Current list: " + this.state.list);
+      }
 
+    onSubmit = async (values: IUserSearchFormValues) => {
+
+        // const data = await axios.get("localhost:8080/users");
+
+        // console.log(values.username);
+        // console.log(this.state.list);
+        this.setState({list: values.username});
+        // console.log('The list value is ' + list + '!!!');
+        // console.log(data);
+    };
+
+    
+
+    render() {
         return (
             <div className="">
-                <form onSubmit={handleSubmit(onSubmit)} method='GET' className="py-4 pr-8 bg-white">
-                    <label className="bloc" htmlFor="username">
-                        <h1 className="mb-2">
-                            <span className="ml-8 text-lg font-bold">Search users</span>
-                        </h1>
-                        <div className="flex items-center object-center">
-                            <input
-                                className="w-64 py-1 pl-2 mx-4 bg-gray-200 rounded-sm focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
-                                type="text"
-                                placeholder="Enter a username..."
-                                id="username"
-                            />
-                            <button className="h-auto px-2 py-1 font-semibold bg-gray-200 rounded-md text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none">Search</button>
-                        </div>
-                    </label>
-                </form>
+                <UserSearchForm onSubmit={this.onSubmit}/>
+
                 <ul>
                     <li className="relative w-full">
                         <UserInformation
@@ -72,6 +78,7 @@ function UserSearch (props: UserProps) {
                 </ul>
             </div>
         );
+    }
 }
 
 export default UserSearch;
