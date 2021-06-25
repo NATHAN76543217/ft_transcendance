@@ -1,40 +1,41 @@
-import React from 'react';
-
-// import Button from '../../components/utilities/Button';
 import UserInformation from '../../components/userInformation/userInformation';
 import UserStats from '../../components/userStats/userStats';
 import MatchHistory from '../../components/matchHistory/matchHistory';
+import { useParams } from 'react-router-dom';
 
-type UserProps = {
-    id?: number,
-    isMe?: boolean | false
+// type UserProps = {
+//     id?: number,
+//     isMe?: boolean | false
+// }
+
+interface ParamTypes {
+    id: string | undefined
 }
 
-class UserPage extends React.Component<UserProps,{}> {
-    // constructor(props) 
-    // {
-    //     super(props);
-    //     this.props.isMe = false;
-    // }
+function UserPage() {
 
-    // const isMe: boolean;
+        const { id } = useParams<ParamTypes>();
 
-    render() {
+        if (id === "find") {
+            return <div></div>;
+        }
+
         return (
             <div className="">
                 <section className="relative w-full">
                     <UserInformation
+                        id={Number(id)}
                         name="Login"
                         status="Connected"
-                        isMe={this.props.isMe}
+                        isMe={id === undefined}
                         isFriend
                     />
                 </section>
                 <div className="relative flex flex-wrap justify-center w-full">
                     <section className="relative">
                         <UserStats
-                        nbWin={15}
-                        nbLoss={5}
+                            nbWin={15}
+                            nbLoss={5}
                         />
                     </section>
                     <section className="relative">
@@ -43,7 +44,7 @@ class UserPage extends React.Component<UserProps,{}> {
                 </div>
             </div>
         );
-    }
+    // }
 }
 
 export default UserPage;

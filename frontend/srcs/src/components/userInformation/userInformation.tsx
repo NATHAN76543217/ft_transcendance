@@ -1,6 +1,8 @@
 import CustomButton from '../utilities/CustomButton';
+import { NavLink } from 'react-router-dom';
 
 type UserProps = {
+    id?: number,        // optional ?
     name: string,
     status: string,
     isMe?: boolean | false,
@@ -12,15 +14,14 @@ function UserInformation(user: UserProps) {
         <div className="py-4 h-42">
             <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
                 <div className="relative w-32 mx-8">
-
                     <img className="object-contain w-32 h-full"
                         src="https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg"
                         alt="user profile" />
                 </div>
                 <div className="w-40 mx-8">
-                    <h1 className="relative text-xl font-bold">
+                    <NavLink to={"/users/" + user.id} className="relative text-xl font-bold">
                         {user.name}
-                    </h1>
+                    </NavLink>
                     <h1 className="relative font-bold text-green-600">
                         {user.status}
                     </h1>

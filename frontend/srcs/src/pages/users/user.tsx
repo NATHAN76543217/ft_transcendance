@@ -21,8 +21,23 @@ class User extends React.Component {
                     <UserSearch />
                 </Route>
                 <Route exact path='/users'>
-                    <UserPage isMe={true}/>
+                    <UserPage />
                 </Route>
+                <Route path='/users/:id'>
+                    <UserPage />
+                </Route>
+
+                {/* <Route path="/users/:id" component={UserPage}/> */}
+
+
+                {/* <Route
+                    exact path="/users/:id"
+                    render={(props) =>
+                        <UserPage isMe={false} id={Number(props.match.params.id)} />
+
+                    }
+                /> */}
+
             </div>
         );
     }
