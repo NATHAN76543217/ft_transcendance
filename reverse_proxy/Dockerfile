@@ -1,8 +1,5 @@
 FROM alpine:3.14.0
 
-ENV WWW_USER="www-data"
-ENV WWW_DIR="/var/www/localhost"
-
 # Install dependencies
 RUN apk add --update --no-cache bash nginx openssl
 
