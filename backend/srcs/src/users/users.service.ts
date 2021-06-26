@@ -44,14 +44,27 @@ export default class UsersService {
   }
 
   async getUserBy42Id(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne(id, { 
+    const user = await this.usersRepository.findOne({ 
       where: { 
-        oauth_id: id
+        school42id: id
       }, 
-      relations: ['channels'] });
+    });
     if (user)
       return user;
-    throw new UserOauthIdNotFound(id);
+    else
+      throw new UserOauthIdNotFound(id);
+  }
+
+  async getUserByGoogleId(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ 
+      where: { 
+        googleid: id
+      }, 
+    });
+    if (user)
+      return user;
+    else
+      throw new UserOauthIdNotFound(id);
   }
 
   async updateUser(id: number, user: UpdateUserDto) {

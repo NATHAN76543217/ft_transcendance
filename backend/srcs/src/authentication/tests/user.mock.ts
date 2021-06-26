@@ -8,6 +8,9 @@ export const mockedUser: User = {
   nbLoss: 0,
   stats: 0,
   imgPath: "path/img",
+  school42id: null,
+  googleid: null,
+  jwt: "",
   twoFactorAuth: false,
   status: "",
   channels: []
