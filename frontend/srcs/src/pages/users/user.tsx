@@ -3,6 +3,7 @@ import React from 'react';
 // import Button from '../../components/utilities/Button';
 import UserPage from './userPage';
 import UserSearch from './userSearch';
+import UserCreate from './userCreate';
 import { Route } from 'react-router';
 
 class User extends React.Component {
@@ -29,16 +30,11 @@ class User extends React.Component {
                 <Route exact path="/users/:id" component={UserPage} />
 
 
-                {/* <Route path="/users/:id" component={UserPage}/> */}
 
 
-                {/* <Route
-                    exact path="/users/:id"
-                    render={(props) =>
-                        <UserPage isMe={false} id={Number(props.match.params.id)} />
-
-                    }
-                /> */}
+                <Route exact path='/users/create'>
+                    <UserCreate />
+                </Route>
 
             </div>
         );

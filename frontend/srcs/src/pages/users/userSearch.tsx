@@ -3,9 +3,9 @@ import React from 'react';
 // import Button from '../../components/utilities/Button';
 import UserInformation from '../../components/userInformation/userInformation';
 import UserSearchForm from '../../components/Forms/userSearchForm';
-import IUserSearchFormValues from '../../components/Forms/IUserSearchFormValues';
+import IUserSearchFormValues from '../../components/interface/IUserSearchFormValues';
 import axios from 'axios';
-import UserInterface from './IUserInterface';
+import UserInterface from '../../components/interface/IUserInterface';
 
 interface UserProps {
     id?: number,
@@ -16,10 +16,6 @@ interface UserStates {
     list: UserInterface[],
     username: string
 }
-
-// interface UserSearchFormData {
-//     username: string,
-// }
 
 class UserSearch extends React.Component<UserProps, UserStates> {
 
@@ -67,12 +63,17 @@ class UserSearch extends React.Component<UserProps, UserStates> {
 
                 <ul>
                     {this.state.list.map((user) => (
+                        
                         <li key={user.id} className="relative w-full">
                             <UserInformation
                                 id = {user.id}
                                 name={user.name}
-                                status="Connected"
+                                status={user.status}
+                                nbWin={user.nbWin}
+                                nbLoss={user.nbLoss}
+                                imgPath={user.imgPath}
                                 isFriend
+                                displayWinLose
                             />
                         </li>
                     ))}

@@ -1,14 +1,14 @@
 import { TextInput } from "../../components/utilities/TextInput";
 
 import { useForm } from "react-hook-form";
-import IUserSearchFormValues from './IUserSearchFormValues';
+import IUserSearchFormValues from '../../components/interface/IUserSearchFormValues';
 
 
 type UserSearchProps = {
     onSubmit: (values: IUserSearchFormValues) => void  // define function type
 }
 
-export default function SearchUser(props: UserSearchProps) {
+export default function CreateUser(props: UserSearchProps) {
     //const [username, password] = useState();
 
     const { register, handleSubmit, formState: { errors } } = useForm<IUserSearchFormValues>();

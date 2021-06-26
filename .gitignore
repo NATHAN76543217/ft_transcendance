@@ -27,3 +27,6 @@ yarn-error.log*
 
 # css
 frontend/srcs/src/css/main.css
+
+# uploaded files
+backend/srcs/uploads
