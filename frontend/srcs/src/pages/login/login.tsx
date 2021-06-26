@@ -1,4 +1,5 @@
 import { TextInput } from "../../components/utilities/TextInput";
+import Button from "../../components/utilities/Button";
 
 import axios from "axios";
 import { useForm } from "react-hook-form";
@@ -46,6 +47,9 @@ export default function Login(props: {})
                 <TextInput name="password" register={register} type="password" required={true} error={errors.password}></TextInput>
                 <input type='submit' value="Login" className={"rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary"}></input>
             </form>
+        <Button content="Login with 42" url="http://localhost:8080/authentication/oauth2/school42"/>
+        <Button content="Login with google" url="http://localhost:8080/authentication/oauth2/google"/>
+
         </section>
     );
 }
