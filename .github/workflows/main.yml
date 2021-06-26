@@ -13,8 +13,11 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+  # This job runs multiple clones in parallel, injecting a different value eacht time
   build:
+    strategy:
+      matrix:
+        build_dir: ["backend", "frontend"]
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -25,7 +28,7 @@ jobs:
       
       - name: setup docker buildx
         uses: docker/setup-buildx-action@v1
-        
+  
       - name: cache docker layers
         uses: actions/cache@v2
         with:
@@ -39,8 +42,8 @@ jobs:
         with:
           load: true
           push: false
-          context: backend
-          file: backend/Dockerfile
+          context: ${{ matrix.build-dir }}
+          file: ${{ matrix.build-dir }}/Dockerfile
           tags: pong_backend_cnt:latestd
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
