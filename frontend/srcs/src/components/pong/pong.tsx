@@ -6,6 +6,9 @@
 // export default function Pong(socketServ : Socket, pongEngine : PongGenerator)
 // {
 //     const socket : Socket = socketServ;
+import {
+    Socket,
+} from "ngx-socket-io"
 
 //     const canvas = document.getElementById("pongCanvas");
 
