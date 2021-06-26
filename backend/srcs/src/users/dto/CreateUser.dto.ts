@@ -28,7 +28,6 @@ export default class CreateUserDto {
     @IsOptional()
     @IsBoolean()
     public twoFactorAuth?: boolean;
-    
 
     @IsNumber()
     @IsOptional()

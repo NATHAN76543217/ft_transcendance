@@ -26,6 +26,9 @@ function App() {
 				<div className="flex w-full flex-nowrap">
 					<main className={"flex-grow " + change_bg_color_with_size}>
 						<Switch>
+							<Route path='/login'>
+								<Login/>
+							</Route>
 							<Route path='/game'>
 								<Game/>
 							</Route>
