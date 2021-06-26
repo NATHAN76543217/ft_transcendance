@@ -56,4 +56,6 @@ export default class ChannelsService {
       throw new ChannelNotFound(id);
     }
   }
+
+
 }

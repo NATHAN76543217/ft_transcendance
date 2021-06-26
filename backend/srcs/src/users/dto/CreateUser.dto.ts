@@ -1,35 +1,35 @@
 import { IsString, IsNotEmpty, IsOptional, IsNumberString, IsBoolean, IsNumber } from "class-validator";
 
 export default class CreateUserDto {
-    // @IsString()
-    // @IsNotEmpty()
+    @IsString()
+    @IsNotEmpty()
     public name : string;
 
-    // @IsString()
-    // @IsOptional()
-    public password : string;
+    @IsString()
+    @IsOptional()
+    public password?: string;
 
-    // @IsOptional()
-    // @IsNumber()
-    // public nbWin?: number;
+    @IsOptional()
+    @IsNumberString()
+    public nbWin?: number;
 
-    // @IsOptional()
-    // @IsNumber()
-    // public nbLoss?: number;
+    @IsOptional()
+    @IsNumberString()
+    public nbLoss?: number;
 
-    // @IsOptional()
-    // @IsNumber()
-    // public stats?: number;
+    @IsOptional()
+    @IsNumber()
+    public stats?: number;
 
-    // @IsString()
-    // @IsOptional()
+    @IsString()
+    @IsOptional()
     public imgPath?: string;
 
-    // @IsOptional()
-    // @IsBoolean()
-    // public twoFactorAuth?: boolean;
+    @IsOptional()
+    @IsBoolean()
+    public twoFactorAuth?: boolean;
 
-    // @IsOptional()
-    // @IsString()
-    // public status?: string;
+    @IsOptional()
+    @IsString()
+    public status?: string;
 }

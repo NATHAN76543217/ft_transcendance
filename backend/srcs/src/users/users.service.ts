@@ -65,4 +65,5 @@ export default class UsersService {
       throw new UserNotFound(id);
     }
   }
+
 }

@@ -3,6 +3,10 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
+import path from 'path';
+import * as express from 'express';
+import * as serveStatic from 'serve-static';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -10,6 +14,9 @@ async function bootstrap() {
     app.get(Reflector)
   ));
   app.use(cookieParser());
+
+  app.use('/uploads', serveStatic(__dirname + '/../uploads'));
+  
   await app.listen(8080);
 }
 bootstrap();
