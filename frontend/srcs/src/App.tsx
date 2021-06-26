@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	BrowserRouter as Router,
 	Switch,
@@ -10,8 +9,8 @@ import Footer from './components/footer/footer';
 import SideMenu from './components/sideMenu/sideMenu';
 import Home from './pages/home/home';
 import Game from './pages/game/game';
-import SendOauthCode from './components/utilities/SendOauthCode';
 import Profile from './pages/profile/profile';
+import Login from './pages/login/login';
 
 function App() {
   return (
@@ -23,9 +22,9 @@ function App() {
 				<div className="grid w-full grid-cols-4 xl:grid-cols-5">
 					<main className="col-span-3 xl:col-span-4">
 						<Switch>
-						<Route path='/validate_oauth'>
-								<SendOauthCode/>
-						</Route>
+							<Route path='/login'>
+								<Login/>
+							</Route>
 							<Route path='/game'>
 								<Game/>
 							</Route>
