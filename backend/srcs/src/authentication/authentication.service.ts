@@ -39,24 +39,6 @@ export class AuthenticationService {
 	}
   }
 
-  public async registerWithOauth(accessToken: string) {
-	let userData = await (await axios.get("https://api.intra.42.fr/me")).data;
-	try {
-	  let createdUser = await this.usersService.createUser({
-		name: userData.login,
-		password: "",
-		oauth_id: userData.id
-	  });
-	  createdUser.password = undefined;
-	  return createdUser;
-	} catch (error) {
-	  if (error?.code === PostgresErrorCode.UniqueViolation) {
-		throw new UserNameAlreadyExistsException(userData.login);
-	  }
-	  throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-  }
-
   public async verifyPassword(plainTextPassword: string, hashedPassword: string) {
 	const isPasswordMatching = await bcrypt.compare(
 	  plainTextPassword,
@@ -80,32 +62,6 @@ export class AuthenticationService {
 	}
   }
 
-  public async authenticateUserWithOauth(code: string, api: string): Promise<User> {
-	
-	console.log("--code-- ", code);
-	if (api === '42')
-	{
-		const { data }  = await axios.post('https://api.intra.42.fr/oauth/token', {
-			grant_type: 'authorization_code',
-			client_id: process.env.OAUTH_42_UID ,
-			client_secret: process.env.OAUTH_42_SECRET,
-			code: code
-		  });
-		console.log("data = ",data);
-		const config = {
-			headers: { Authorization: 'Bearer ' + data.access_token }
-		};
-		const user_data = await (await axios.get("https://api.intra.42.fr/v2/me", config)).data
-		const user = this.usersService.getUserBy42Id(user_data.id)
-	//  .then((v) => {
-	// 	 return this.usersService.l ;
-	//  }) 
-	  .catch((e) => {
-		return this.registerWithOauth(data.access_token );
-	  });
-	  return user;
-	}
-  }
 
   public getCookieWithJwtToken(userId: number) {
 	const payload: TokenPayload = { userId };

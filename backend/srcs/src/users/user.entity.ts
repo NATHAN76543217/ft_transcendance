@@ -27,6 +27,12 @@ class User {
     @Column({ nullable: true })
     public imgPath: string;
 
+    @Column({ unique: true, nullable: true })
+    public school42id: number;
+
+    @Column({ unique: true, nullable: true })
+    public googleid: string;
+
     @Column({ nullable: true, default: false})
     public twoFactorAuth: boolean;
 
@@ -35,6 +41,7 @@ class User {
 
     @ManyToMany(() => Channel, (channel: Channel) => channel.users)
     public channels: Channel[];
-}
 
+    public jwt: string;
+}
 export default User;

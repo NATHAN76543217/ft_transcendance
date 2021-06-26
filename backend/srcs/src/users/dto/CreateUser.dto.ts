@@ -28,7 +28,11 @@ export default class CreateUserDto {
 
     // @IsString()
     // @IsOptional()
-    public oauth_id?: number;
+    public school42id?: number;
+
+    // @IsString()
+    // @IsOptional()
+    public googleid?: string;
 
     // @IsOptional()
     // @IsBoolean()

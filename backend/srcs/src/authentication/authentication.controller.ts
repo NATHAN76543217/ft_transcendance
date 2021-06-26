@@ -5,9 +5,6 @@ import RequestWithUser from './requestWithUser.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
-import RequestWithOauthCode from './requestWithOauthCode.interface';
-import { string } from '@hapi/joi';
-import { OauthAuthenticationGuard } from './oauthAuthentication.guard';
  
 @Controller('authentication')
 export class AuthenticationController {
@@ -20,31 +17,6 @@ export class AuthenticationController {
     return this.authenticationService.registerWithPassword(registrationData);
   }
   
-  @Post('oauth')
-  @HttpCode(200)
-  // @UseGuards(OauthAuthenticationGuard)
-  async logOauth(@Body() request: RequestWithOauthCode, @Res() response: Response) {
-  const headers = {
-    'Content-Type': 'application/json',
-  }
-    console.log("Fuck", request);
-    try {
-      const { code }  = request;
-      console.log("code-= ", code);
-      const user = await this.authenticationService.authenticateUserWithOauth(code, '42');
-      console.log(user);
-      // response.setHeader('Set-Cookie', cookie);
-      return response.send(user);
-    }
-    catch ( e )
-    {
-      console.log("e", e);
-      console.log("code");
-      return response.send(e);
-    }
-    return response.send("coucou");
-  }
-
   @Post('login')
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)

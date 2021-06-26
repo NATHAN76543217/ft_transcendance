@@ -8,6 +8,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { configService } from 'src/config/config.service';
 import { JwtStrategy } from './jwt.strategy';
+import { School42Strategy } from './oauth2/school42/school42.strategy';
+import { GoogleStrategy } from './oauth2/google/google.strategy';
+import { Oauth2Controller } from './oauth2/oauth2.controller';
 
 @Module({
   imports: [
@@ -25,7 +28,7 @@ import { JwtStrategy } from './jwt.strategy';
       }),
     }),
   ],
-  providers: [AuthenticationService, LocalStrategy, JwtStrategy],
-  controllers: [AuthenticationController]
+  providers: [AuthenticationService, LocalStrategy, JwtStrategy, School42Strategy, GoogleStrategy],
+  controllers: [AuthenticationController, Oauth2Controller]
 })
 export class AuthenticationModule { }
