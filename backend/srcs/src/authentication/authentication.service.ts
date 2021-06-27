@@ -7,7 +7,6 @@ import WrongCredentialsException from "./exception/WrongCredentials.exception";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import TokenPayload from "./tokenPayload.interface";
-import axios from 'axios';
 
 // import bcrypt from "bcrypt";
 import * as bcrypt from 'bcrypt'; // for unit tests
@@ -63,7 +62,7 @@ export class AuthenticationService {
   public getCookieWithJwtToken(userId: number) {
 	const payload: TokenPayload = { userId };
 	const token = this.jwtService.sign(payload);
-	return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}`;
+	return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}; SameSite=None; Secure`;
   }
 
   public getCookieForLogOut() {

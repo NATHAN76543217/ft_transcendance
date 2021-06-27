@@ -8,10 +8,10 @@ interface ILoginFormValues {
 	password: string,
 }
 
-export default function Login(props: { setUser: Function})
+export default function Register(props: {})
 {
 	//const [username, password] = useState();
-	console.log("login props:", props);
+
 	const { register, handleSubmit, setError, formState: { errors } } = useForm<ILoginFormValues>();
 
 	const onSubmit = async (values: ILoginFormValues) => {
@@ -49,14 +49,8 @@ export default function Login(props: { setUser: Function})
 			</form>
 			<Button
 				content="Login with 42"
-				// url="https://localhost/api/authentication/oauth2/school42"
+				url="https://localhost/api/authentication/oauth2/school42"
 				className=""
-				onClick={async () => {
-
-					let { data } = await axios.get("https://localhost/api/authentication/oauth2/school42",  {withCredentials: true});
-					console.log("get data oauth", data);
-					props.setUser(data);
-				}}
 				/>
 			<Button
 				content="Login with google"
