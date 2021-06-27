@@ -1,7 +1,8 @@
 import Channel from './IChannelInterface';
+import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
 
 export default interface User {
-    id: number;
+    id: string;
     name: string;
     password: string;
     nbWin: number;
@@ -11,4 +12,7 @@ export default interface User {
     twoFactorAuth: boolean;
     status: string;
     channels: Channel[];
+    relationshipType: UserRelationshipTypes;
+    idInf: boolean
+    // isBlock: boolean;
 }

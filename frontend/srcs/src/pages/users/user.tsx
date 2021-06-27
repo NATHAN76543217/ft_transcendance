@@ -21,12 +21,9 @@ class User extends React.Component {
                 <Route exact path='/users/find'>
                     <UserSearch />
                 </Route>
-                {/* <Route exact path='/users'>
-                    <UserPage />
-                </Route> */}
+
                 <Route exact path="/users/" component={UserPage} />
 
-                {/* <Route path={'/users/:id'} render={props => <UserPage {...props}} /> */}
                 <Route exact path="/users/:id" component={UserPage} />
 
 
