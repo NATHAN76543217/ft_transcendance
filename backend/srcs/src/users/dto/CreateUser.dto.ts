@@ -29,6 +29,14 @@ export default class CreateUserDto {
     @IsBoolean()
     public twoFactorAuth?: boolean;
 
+    @IsNumber()
+    @IsOptional()
+    public school42id?: number;
+
+    @IsString()
+    @IsOptional()
+    public googleid?: string;
+
     @IsOptional()
     @IsString()
     public status?: string;

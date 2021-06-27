@@ -16,7 +16,6 @@ export class AuthenticationController {
   async registerWithPassword(@Body() registrationData: RegisterWithPassword) {
     return this.authenticationService.registerWithPassword(registrationData);
   }
- 
   @Post('login')
   @HttpCode(200)
   @UseGuards(LocalAuthenticationGuard)
@@ -27,6 +26,7 @@ export class AuthenticationController {
     user.password = undefined;
     return response.send(user);
   }
+
 
   @Post('logout')
   @HttpCode(200)

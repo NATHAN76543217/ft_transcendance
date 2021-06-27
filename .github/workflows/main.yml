@@ -1,0 +1,72 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This job runs multiple clones in parallel, injecting a different value each time
+  build:
+    strategy:
+      matrix:
+        build_dir: ["backend", "frontend"]
+        include:
+          - build_dir: backend
+            image_tag: pong_back_cnt
+          - build_dir: frontend
+            image_tag: pong_front_cnt
+
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so the job can access it
+      - uses: actions/checkout@v2
+      # Build using GitHub cache
+      - name: setup docker buildx
+        uses: docker/setup-buildx-action@v1
+      - name: cache docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: build docker image
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          push: false
+          context: ${{ matrix.build_dir }}
+          file: ${{ matrix.build_dir }}/Dockerfile
+          tags: ${{ matrix.image_tag }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+      # Temporary fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: lint
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ${{ matrix.image_tag }}:latest
+          run: npm run lint
+
+      - name: test
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ${{ matrix.image_tag }}:latest
+          run: npm run test

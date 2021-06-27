@@ -5,8 +5,7 @@ import UpdateUserDto from './dto/UpdateUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
-import UserNameNotFound from './exception/UserNameNotFound.exception';
-import { query } from 'express';
+import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 
 @Injectable()
 export default class UsersService {
@@ -42,6 +41,30 @@ export default class UsersService {
     let results = this.usersRepository.find({
       where: { 'name': Like('%' + name + '%') }});
       return results;
+  }
+
+  async getUserBy42Id(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ 
+      where: { 
+        school42id: id
+      }, 
+    });
+    if (user)
+      return user;
+    else
+      throw new UserOauthIdNotFound(id);
+  }
+
+  async getUserByGoogleId(id: number): Promise<User> {
+    const user = await this.usersRepository.findOne({ 
+      where: { 
+        googleid: id
+      }, 
+    });
+    if (user)
+      return user;
+    else
+      throw new UserOauthIdNotFound(id);
   }
 
   async updateUser(id: number, user: UpdateUserDto) {
