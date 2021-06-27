@@ -13,5 +13,7 @@ export const mockedUser: User = {
   jwt: "",
   twoFactorAuth: false,
   status: "",
-  channels: []
+  channels: [],
+  userRelationship1: [],
+  userRelationship2: []
 }

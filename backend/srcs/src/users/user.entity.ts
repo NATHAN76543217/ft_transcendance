@@ -1,7 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import Channel from '../channels/channel.entity';
 import { Transform } from 'stream';
+import UsersController from './users.controller';
+import UserRelationship from './user-relationship.entity'
 
 @Entity()
 class User {
@@ -41,6 +43,12 @@ class User {
 
     @ManyToMany(() => Channel, (channel: Channel) => channel.users)
     public channels: Channel[];
+
+    @OneToMany(() => UserRelationship, userRelationship => userRelationship.user1_id)
+    public userRelationship1: UserRelationship[]
+
+    @OneToMany(() => UserRelationship, userRelationship => userRelationship.user2_id)
+    public userRelationship2: UserRelationship[]
 
     public jwt: string;
 }
