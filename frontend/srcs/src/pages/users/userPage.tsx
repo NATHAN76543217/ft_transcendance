@@ -228,7 +228,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 UserRelationshipTypes.pending_second_first
             try {
                 const dataCreate = await axios.post("/api/users/relationships", {
-                    user1_id: id,
+                    user1_id: id + "",
                     user2_id: "1",
                     type: newType
                 })
@@ -243,7 +243,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     async removeFriend(id: string) {
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
-            if (currentRel.data & UserRelationshipTypes.friends) {
+            if (currentRel.data.type & UserRelationshipTypes.friends) {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
                     if (newType === UserRelationshipTypes.null) {

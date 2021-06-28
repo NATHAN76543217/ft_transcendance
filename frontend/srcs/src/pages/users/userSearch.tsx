@@ -117,7 +117,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 UserRelationshipTypes.pending_second_first
             try {
                 const dataCreate = await axios.post("/api/users/relationships", {
-                    user1_id: id,
+                    user1_id: id + "",
                     user2_id: "1",
                     type: newType
                 })
@@ -130,9 +130,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async removeFriend(id: string) {
+        let inf = (Number(id) < Number("1"));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
-            if (currentRel.data & UserRelationshipTypes.friends) {
+            
+            console.log("currentRel: " + currentRel.data);
+            
+            if (currentRel.data.type & UserRelationshipTypes.friends) {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
                     if (newType === UserRelationshipTypes.null) {

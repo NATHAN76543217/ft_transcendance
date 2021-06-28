@@ -13,8 +13,6 @@ type UserProps = {
     isMe?: boolean | false,
     relationshipTypes: UserRelationshipTypes,
     idInf: boolean,
-    // isFriend?: boolean | false
-    // isBlocked?: boolean | false
     isInSearch?: boolean | false
     handleClickTwoFactorAuth?: () => void
     handleClickProfilePicture?: () => void
@@ -99,7 +97,8 @@ function displayFriendButton(user: UserProps) {
     let isPending = user.idInf ?
         user.relationshipTypes & UserRelationshipTypes.pending_first_second :
         user.relationshipTypes & UserRelationshipTypes.pending_second_first;
-    let isFriend = user.relationshipTypes & UserRelationshipTypes.friends;
+    let isFriend = user.relationshipTypes & UserRelationshipTypes.pending_first_second &&
+    user.relationshipTypes & UserRelationshipTypes.pending_second_first 
     return (
         <div className="w-48 my-4 text-center">
             {!user.isMe ?

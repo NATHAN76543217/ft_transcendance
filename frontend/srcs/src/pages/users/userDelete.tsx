@@ -1,9 +1,9 @@
 import React from 'react';
 
-import UserCreateForm from '../../components/Forms/userCreateForm';
+import UserDeleteForm from '../../components/Forms/userDeleteForm';
 import axios from 'axios';
 import UserInterface from '../../components/interface/IUserInterface';
-import IUserCreateFormValues from '../../components/interface/IUserCreateFormValues';
+import IUserDeleteFormValues from '../../components/interface/IUserDeleteFormValues';
 
 interface UserProps {
     id?: number,
@@ -19,7 +19,8 @@ interface UserStates {
 //     username: string,
 // }
 
-class UserCreate extends React.Component<UserProps, UserStates> {
+
+class UserDelete extends React.Component<UserProps, UserStates> {
 
     constructor(props: UserProps) {
         super(props);
@@ -29,7 +30,13 @@ class UserCreate extends React.Component<UserProps, UserStates> {
         };
     }
 
-    onSubmit = async (values: IUserCreateFormValues) => {
+    // componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
+    //     // Typical usage (don't forget to compare props):
+    //     console.log("Previous list: " + prevStates.list);
+    //     console.log("Current list: " + this.state.list);
+    // }
+
+    onSubmit = async (values: IUserDeleteFormValues) => {
 
         // try {
         //     const data = await axios.post("/api/users", { name: values.username });
@@ -39,7 +46,7 @@ class UserCreate extends React.Component<UserProps, UserStates> {
         // }
 
         try {
-            const data = await axios.post("/api/users", values);
+            const data = await axios.delete("/api/users/" + values.id);
             console.log(data);
             // this.setState({ list: data.data });
         } catch (error) {
@@ -55,10 +62,10 @@ class UserCreate extends React.Component<UserProps, UserStates> {
     render() {
         return (
             <div className="">
-                <UserCreateForm onSubmit={this.onSubmit} />
+                <UserDeleteForm onSubmit={this.onSubmit} />
             </div>
         );
     }
 }
 
-export default UserCreate;
+export default UserDelete;
