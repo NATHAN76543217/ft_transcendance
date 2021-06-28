@@ -14,6 +14,6 @@ export const mockedUser: User = {
   twoFactorAuth: false,
   status: "",
   channels: [],
-  userRelationship1: [],
-  userRelationship2: []
+  // userRelationship1: [],
+  // userRelationship2: []
 }

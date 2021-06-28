@@ -16,25 +16,28 @@ export default class UserRelationshipsService {
   ) { }
 
   async getAllUserRelationships() {
-    return await this.userRelationshipsRepository.find();
+    const data =  await this.userRelationshipsRepository.find();
+    return data;
   }
 
   async getAllUserRelationshipsFromOneUser(id: string) {
-    return await this.userRelationshipsRepository.find({
+    const data =  await this.userRelationshipsRepository.find({
       where: [
-        { 'user1_id': Number(id) },
-        { 'user2_id': Number(id) }
+        { 'user1_id': Number(id)},
+        { 'user2_id': Number(id)}
       ]
     });
+
+    return data;
   }
 
   async getUserRelationshipByIds(id1: string, id2: string) {
     let userRelationship;
     if (Number(id1) < Number(id2)) {
-      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id: Number(id1), user2_id: Number(id2) });
+      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id:id1, user2_id:id2 });
     }
     else {
-      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id: Number(id2), user2_id: Number(id1) });
+      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id:id2, user2_id:id1 });
     }
     if (userRelationship) {
       return userRelationship;

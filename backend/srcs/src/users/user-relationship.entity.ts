@@ -11,13 +11,15 @@ class UserRelationship {
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @Column({ nullable: true, default: null })
+    @Column({default: UserRelationshipTypes.null })
     public type: UserRelationshipTypes;
 
-    @ManyToOne(() => User, user => user.userRelationship1)
-    public user1_id: number;
-
-    @ManyToOne(() => User, user => user.userRelationship2)
-    public user2_id: number;
+    @Column({nullable: true})
+    // @ManyToOne(() => User, user => user.userRelationship1)
+    public user1_id: string;
+    
+    @Column({nullable: true})
+    // @ManyToOne(() => User, user => user.userRelationship2)
+    public user2_id: string;
 }
 export default UserRelationship;
