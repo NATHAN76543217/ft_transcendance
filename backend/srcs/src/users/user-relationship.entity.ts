@@ -15,9 +15,9 @@ class UserRelationship {
     public type: UserRelationshipTypes;
 
     @ManyToOne(() => User, user => user.userRelationship1)
-    public user1_id: string;                        // id ou User ?
+    public user1_id: number;
 
     @ManyToOne(() => User, user => user.userRelationship2)
-    public user2_id: string;
+    public user2_id: number;
 }
 export default UserRelationship;

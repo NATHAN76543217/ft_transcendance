@@ -5,11 +5,11 @@ import { UserRelationshipTypes } from '../utils/userRelationshipTypes'
 export default class CreateUserRelationshipDto {
     @IsNumberString()
     @IsNotEmpty()
-    public user1_id: string;
+    public user1_id: number;
 
     @IsNumberString()
     @IsNotEmpty()
-    public user2_id: string;
+    public user2_id: number;
 
     // @IsOptional()
     @IsNumber()
