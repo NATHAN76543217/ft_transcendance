@@ -207,7 +207,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     async addFriend(id: string) {
-        let inf = (Number(id) < Number("1"));
+        let inf = (Number("1") < Number(id));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
             if (!(inf && currentRel.data.type & UserRelationshipTypes.pending_first_second) &&
@@ -264,7 +264,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     async blockUser(id: string) {
-        let inf = (Number(id) < Number("1"));
+        let inf = (Number("1") < Number(id));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
             console.log("currentRel : " + currentRel.data);
@@ -299,7 +299,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     async unblockUser(id: string) {
-        let inf = (Number(id) < Number("1"));
+        let inf = (Number("1") < Number(id));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
             if (!(inf && !(currentRel.data.type & UserRelationshipTypes.block_first_second)) &&
@@ -354,7 +354,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                         isMe={this.state.id === undefined || Number(this.state.id) === Number("1")} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         // --------------------------------------------------
                         relationshipTypes={this.state.user.relationshipType}    // A Gerer au niveau de l'update
-                        idInf={Number(this.state.user.id) < Number("1")}
+                        idInf={Number("1") < Number(this.state.user.id)}
                         // isFriend
                         twoFactorAuth={this.state.user.twoFactorAuth}
                         handleClickTwoFactorAuth={this.handleClickTwoFactorAuth}

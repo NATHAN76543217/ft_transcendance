@@ -98,7 +98,10 @@ function displayFriendButton(user: UserProps) {
         user.relationshipTypes & UserRelationshipTypes.pending_first_second :
         user.relationshipTypes & UserRelationshipTypes.pending_second_first;
     let isFriend = user.relationshipTypes & UserRelationshipTypes.pending_first_second &&
-    user.relationshipTypes & UserRelationshipTypes.pending_second_first 
+        user.relationshipTypes & UserRelationshipTypes.pending_second_first;
+    let isAccept = user.idInf ?
+        user.relationshipTypes & UserRelationshipTypes.pending_second_first :
+        user.relationshipTypes & UserRelationshipTypes.pending_first_second;
     return (
         <div className="w-48 my-4 text-center">
             {!user.isMe ?
@@ -124,17 +127,30 @@ function displayFriendButton(user: UserProps) {
                             // bg_hover_color="bg-secondary-dark"
                             dark_text
                         />
-                        :
-                        <CustomButton
-                            content="Add friend"
-                            // url="/users/friend"
-                            onClickFunctionId={user.addFriend}
-                            argId={user.id}
+                        : (isAccept
+                            ?
+                            <CustomButton
+                                content="Accept friend request"
+                                // url="/users/friend"
+                                onClickFunctionId={user.addFriend}
+                                argId={user.id}
 
-                            bg_color="bg-secondary"
-                            // bg_hover_color="bg-secondary-dark"
-                            dark_text
-                        />
+                                bg_color="bg-accept"
+                                // bg_hover_color="bg-secondary-dark"
+                                dark_text
+                            />
+                            :
+                            <CustomButton
+                                content="Add friend"
+                                // url="/users/friend"
+                                onClickFunctionId={user.addFriend}
+                                argId={user.id}
+
+                                bg_color="bg-secondary"
+                                // bg_hover_color="bg-secondary-dark"
+                                dark_text
+                            />
+                        )
                     )
                 )
                 : null

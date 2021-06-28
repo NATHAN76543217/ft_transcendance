@@ -28,6 +28,10 @@ module.exports = {
             DEFAULT : '#c1d2e3',
             dark : '#a4bdd5'
           },
+          accept : {
+            DEFAULT : '#50d97e',
+            dark : '#37d36c'
+          },
         }
     },
   },

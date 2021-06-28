@@ -7,7 +7,6 @@ import IUserSearchFormValues from '../../components/interface/IUserSearchFormVal
 import axios from 'axios';
 import IUserInterface from '../../components/interface/IUserInterface';
 import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
-import { isError } from 'util';
 
 
 interface UserProps {
@@ -36,8 +35,8 @@ class UserSearch extends React.Component<UserProps, UserStates> {
 
     componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
         // Typical usage (don't forget to compare props):
-        console.log("Previous list: " + prevStates.list);
-        console.log("Current list: " + this.state.list);
+        // console.log("Previous list: " + prevStates.list);
+        // console.log("Current list: " + this.state.list);
         // if (JSON.stringify(prevStates.list) !== JSON.stringify(this.state.list)) {
         //     this.setFriendAndBlockBoolean(this.state.list); // infinite loop ?
         // }
@@ -96,7 +95,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async addFriend(id: string) {
-        let inf = (Number(id) < Number("1"));
+        let inf = (Number("1") < Number(id));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
             if (!(inf && currentRel.data.type & UserRelationshipTypes.pending_first_second) &&
@@ -130,12 +129,8 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async removeFriend(id: string) {
-        let inf = (Number(id) < Number("1"));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
-            
-            console.log("currentRel: " + currentRel.data);
-            
             if (currentRel.data.type & UserRelationshipTypes.friends) {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
@@ -154,10 +149,9 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async blockUser(id: string) {
-        let inf = (Number(id) < Number("1"));
+        let inf = (Number("1") < Number(id));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
-            console.log("currentRel : " + currentRel.data);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.block_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.block_second_first)) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -189,7 +183,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async unblockUser(id: string) {
-        let inf = (Number(id) < Number("1"));
+        let inf = (Number("1") < Number(id));
         try {
             const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
             if (!(inf && !(currentRel.data.type & UserRelationshipTypes.block_first_second)) &&
@@ -230,7 +224,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                                 nbLoss={user.nbLoss}
                                 imgPath={user.imgPath}
                                 relationshipTypes={user.relationshipType}
-                                idInf={Number(user.id) < Number("1")}
+                                idInf={Number("1") < Number(user.id)}
                                 addFriend={this.addFriend}
                                 removeFriend={this.removeFriend}
                                 blockUser={this.blockUser}
