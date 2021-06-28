@@ -1,12 +1,9 @@
 import CustomButton from '../utilities/CustomButton';
 import { NavLink } from 'react-router-dom';
-import { render } from '@testing-library/react';
-import React, { useRef, useState } from 'react';
-import User from '../../pages/users/user';
-import axios from 'axios';
+import { UserRelationshipTypes } from './userRelationshipTypes';
 
 type UserProps = {
-    id?: number,        // optional ?
+    id: string,        // optional ?
     name: string,
     status: string,
     nbWin?: number,
@@ -14,17 +11,18 @@ type UserProps = {
     imgPath: string,
     twoFactorAuth?: boolean | false
     isMe?: boolean | false,
-    isFriend?: boolean | false
-    displayWinLose?: boolean | false
+    relationshipTypes: UserRelationshipTypes,
+    idInf: boolean,
+    // isFriend?: boolean | false
+    // isBlocked?: boolean | false
+    isInSearch?: boolean | false
     handleClickTwoFactorAuth?: () => void
     handleClickProfilePicture?: () => void
     onFileChange?: (fileChangeEvent: any) => void
-}
-
-interface UserInformationStates {
-    id?: number,
-    twoFactorAuth?: boolean,
-    imgPath: string
+    addFriend: (id: string) => void
+    removeFriend: (id: string) => void
+    blockUser: (id: string) => void
+    unblockUser: (id: string) => void
 }
 
 function getStatusColor(param: string) {
@@ -41,7 +39,7 @@ function getStatusColor(param: string) {
 }
 
 function displayWinAndLose(user: UserProps) {
-    if (user.displayWinLose) {
+    if (user.isInSearch) {
         return (
             <div className="w-24 mx-2 text-center">
                 <NavLink to={"/users/" + user.id} className="relative font-bold text-md">
@@ -59,7 +57,7 @@ function displayWinAndLose(user: UserProps) {
 function displayProfilePicture(user: UserProps) {
     let path = "https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg";
 
-    if (user.imgPath !== null && user.imgPath != "") {
+    if (user.imgPath !== null && user.imgPath !== "") {
         path = "/api/" + user.imgPath;
     }
     return (
@@ -80,23 +78,118 @@ function onFileChangeTrigger(user: UserProps, ev: any) {
 
 function displayFileChange(user: UserProps) {
     if (user.onFileChange !== undefined && user.isMe) {
-        {
-            return (
-                <div className="mt-1 align-center">
-                    <label className="custom-file-upload">
-                        <input
-                            type="file"
-                            name="file"
-                            className="hidden"
-                            onChange={(ev) => onFileChangeTrigger(user, ev)} />
-                        <i className="fa fa-cloud-upload" />
-                        <span className="pl-1 ml-1 text-sm italic">Change picture</span>
-                    </label>
-                </div>
+        return (
+            <div className="mt-1 align-center">
+                <label className="custom-file-upload">
+                    <input
+                        type="file"
+                        name="file"
+                        className="hidden"
+                        onChange={(ev) => onFileChangeTrigger(user, ev)} />
+                    <i className="fa fa-cloud-upload" />
+                    <span className="pl-1 ml-1 text-sm italic">Change picture</span>
+                </label>
+            </div>
 
-            );
-        }
+        );
     }
+}
+
+function displayFriendButton(user: UserProps) {
+    let isPending = user.idInf ?
+        user.relationshipTypes & UserRelationshipTypes.pending_first_second :
+        user.relationshipTypes & UserRelationshipTypes.pending_second_first;
+    let isFriend = user.relationshipTypes & UserRelationshipTypes.friends;
+    return (
+        <div className="w-48 my-4 text-center">
+            {!user.isMe ?
+                (isFriend ?
+                    <CustomButton
+                        content="Remove friend"
+                        // url="/users/unfriend"
+                        onClickFunctionId={user.removeFriend}
+                        argId={user.id}
+
+                        bg_color="bg-unset"
+                        // bg_hover_color="bg-unset-dark"
+                        dark_text
+                    />
+                    : (isPending ?
+                        <CustomButton
+                            content="Pending request"
+                            // url="/users/pending"
+                            onClickFunctionId={user.removeFriend}
+                            argId={user.id}
+
+                            bg_color="bg-pending"
+                            // bg_hover_color="bg-secondary-dark"
+                            dark_text
+                        />
+                        :
+                        <CustomButton
+                            content="Add friend"
+                            // url="/users/friend"
+                            onClickFunctionId={user.addFriend}
+                            argId={user.id}
+
+                            bg_color="bg-secondary"
+                            // bg_hover_color="bg-secondary-dark"
+                            dark_text
+                        />
+                    )
+                )
+                : null
+            }
+        </div>
+    )
+}
+
+function displayBlockButton(user: UserProps) {
+    let isBlock = user.idInf ?
+        user.relationshipTypes & UserRelationshipTypes.block_first_second :
+        user.relationshipTypes & UserRelationshipTypes.block_second_first
+
+    return (
+        <div className="w-48 my-4 text-center">
+            {!user.isMe ?
+                (!isBlock ? <CustomButton
+                    content="Block user"
+                    // url="/users/block"
+                    onClickFunctionId={user.blockUser}
+                    argId={user.id}
+                    bg_color="bg-unset"
+                    // bg_hover_color="bg-secondary-dark"
+                    dark_text
+                /> :
+                    <CustomButton
+                        content="Unblock user"
+                        // url="/users/unblock"
+                        onClickFunctionId={user.unblockUser}
+                        argId={user.id}
+                        bg_color="bg-secondary"
+                        // bg_hover_color="bg-unset-dark"
+                        dark_text
+                    />
+                )
+                : null
+            }
+        </div>
+    )
+}
+
+function displayTwoFactorAuth(user: UserProps) {
+    return (
+        user.isMe && !user.isInSearch ?
+            <section className="relative flex items-center justify-center">
+                <label className="font-bold text-gray-700">
+                    <input className="mr-2 leading-tight" type="checkbox" onChange={user.handleClickTwoFactorAuth} checked={user.twoFactorAuth} />
+                    <span className="text-sm">
+                        Activate 2 factor authentication
+                    </span>
+                </label>
+            </section>
+            : null
+    )
 }
 
 
@@ -106,6 +199,7 @@ function displayFileChange(user: UserProps) {
 
 
 function UserInformation(user: UserProps) {
+
     return (
         <div className="py-4 h-42">
             <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
@@ -113,8 +207,6 @@ function UserInformation(user: UserProps) {
                     {displayProfilePicture(user)}
                     {displayFileChange(user)}
                 </div>
-
-
 
                 <div className="w-40 mx-2 text-center">
                     <NavLink to={"/users/" + user.id} className="relative text-xl font-bold">
@@ -126,39 +218,14 @@ function UserInformation(user: UserProps) {
                 </div>
 
                 {displayWinAndLose(user)}
-
-                <div className="w-48 my-4 text-center">
-                    {!user.isMe ?
-                        (!user.isFriend ? <CustomButton
-                            content="Add friend"
-                            url="/user/friend"
-                            bg_color="bg-secondary"
-                            // bg_hover_color="bg-secondary-dark"
-                            dark_text
-                        /> :
-                            <CustomButton
-                                content="Remove friend"
-                                url="/user/friend"
-                                bg_color="bg-unset"
-                                // bg_hover_color="bg-unset-dark"
-                                dark_text
-                            />
-                        )
-                        : null
-                    }
+                <div>
+                    {displayFriendButton(user)}
+                    {displayBlockButton(user)}
                 </div>
+
+
             </section>
-            { user.isMe ?
-                <section className="relative flex items-center justify-center">
-                    <label className="font-bold text-gray-700">
-                        <input className="mr-2 leading-tight" type="checkbox" onChange={user.handleClickTwoFactorAuth} checked={user.twoFactorAuth} />
-                        <span className="text-sm">
-                            Activate 2 factor authentication
-                    </span>
-                    </label>
-                </section>
-                : null
-            }
+            {displayTwoFactorAuth(user)}
         </div>
     );
 }

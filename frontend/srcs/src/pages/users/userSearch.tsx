@@ -5,15 +5,18 @@ import UserInformation from '../../components/userInformation/userInformation';
 import UserSearchForm from '../../components/Forms/userSearchForm';
 import IUserSearchFormValues from '../../components/interface/IUserSearchFormValues';
 import axios from 'axios';
-import UserInterface from '../../components/interface/IUserInterface';
+import IUserInterface from '../../components/interface/IUserInterface';
+import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
+import { isError } from 'util';
+
 
 interface UserProps {
-    id?: number,
+    id?: string,
     isMe?: boolean | false,
 }
 
 interface UserStates {
-    list: UserInterface[],
+    list: IUserInterface[],
     username: string
 }
 
@@ -25,12 +28,36 @@ class UserSearch extends React.Component<UserProps, UserStates> {
             list: [],
             username: ""
         };
+        this.addFriend = this.addFriend.bind(this);
+        this.removeFriend = this.removeFriend.bind(this);
+        this.blockUser = this.blockUser.bind(this);
+        this.unblockUser = this.unblockUser.bind(this);
     }
 
     componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
         // Typical usage (don't forget to compare props):
         console.log("Previous list: " + prevStates.list);
         console.log("Current list: " + this.state.list);
+        // if (JSON.stringify(prevStates.list) !== JSON.stringify(this.state.list)) {
+        //     this.setFriendAndBlockBoolean(this.state.list); // infinite loop ?
+        // }
+    }
+
+    async setFriendAndBlockBoolean(list: IUserInterface[]) {
+        list.map(async (user, index) => {
+            try {
+                const data = await axios.get("/api/users/relationships/" + user.id + "/" + "1") // A CHANGER a remettre quand ca marchera
+                if (data.data.type !== this.state.list[index].relationshipType) {
+                    let a = this.state.list.slice()
+                    a[index].relationshipType = data.data.type;
+                    this.setState({ list: a });
+                }
+            } catch (error) {
+                let a = this.state.list.slice()
+                a[index].relationshipType = UserRelationshipTypes.null;
+                this.setState({ list: a });
+            }
+        })
     }
 
     onSubmit = async (values: IUserSearchFormValues) => {
@@ -45,7 +72,14 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         try {
             const data = await axios.get("/api/users?name=" + values.username);
             console.log(data);
-            this.setState({ list: data.data });
+
+
+            let a = data.data.slice()
+            this.setFriendAndBlockBoolean(a);
+            this.setState({ list: a });
+
+
+            // this.setState({ list: data.data });
         } catch (error) {
             console.log(error);
         }
@@ -54,7 +88,126 @@ class UserSearch extends React.Component<UserProps, UserStates> {
 
     };
 
+    updateRelationshipState(id: string, newType: UserRelationshipTypes) {
+        let a = this.state.list.slice()
+        let index = a.findIndex((userId) => userId.id === id)
+        a[index].relationshipType = newType;
+        this.setState({ list: a });
+    }
 
+    async addFriend(id: string) {
+        let inf = (Number(id) < Number("1"));
+        try {
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            if (!(inf && currentRel.data.type & UserRelationshipTypes.pending_first_second) &&
+                !(!inf && currentRel.data.type & UserRelationshipTypes.pending_second_first)) {
+                let newType: UserRelationshipTypes = currentRel.data.type;
+                newType |= inf ?
+                    UserRelationshipTypes.pending_first_second :
+                    UserRelationshipTypes.pending_second_first
+                try {
+                    const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
+                    console.log(dataUpdate);
+                    this.updateRelationshipState(id, newType);
+                } catch (error) { }
+            }
+        } catch (error) {
+            let newType: UserRelationshipTypes = inf ?
+                UserRelationshipTypes.pending_first_second :
+                UserRelationshipTypes.pending_second_first
+            try {
+                const dataCreate = await axios.post("/api/users/relationships", {
+                    user1_id: id,
+                    user2_id: "1",
+                    type: newType
+                })
+                console.log(dataCreate)
+                this.updateRelationshipState(id, newType);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
+    async removeFriend(id: string) {
+        try {
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            if (currentRel.data & UserRelationshipTypes.friends) {
+                let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
+                try {
+                    if (newType === UserRelationshipTypes.null) {
+                        const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
+                        console.log(dataDelete);
+                        this.updateRelationshipState(id, newType);
+                    } else {
+                        const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
+                        console.log(dataUpdate);
+                        this.updateRelationshipState(id, newType);
+                    }
+                } catch (error) { }
+            }
+        } catch (error) { }
+    }
+
+    async blockUser(id: string) {
+        let inf = (Number(id) < Number("1"));
+        try {
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            console.log("currentRel : " + currentRel.data);
+            if (!(inf && currentRel.data.type & UserRelationshipTypes.block_first_second) &&
+                !(!inf && currentRel.data.type & UserRelationshipTypes.block_second_first)) {
+                let newType: UserRelationshipTypes = currentRel.data.type;
+                newType |= inf ?
+                    UserRelationshipTypes.block_first_second :
+                    UserRelationshipTypes.block_second_first
+                try {
+                    const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
+                    console.log(dataUpdate);
+                    this.updateRelationshipState(id, newType);
+                } catch (error) { }
+            }
+        } catch (error) {
+            let newType: UserRelationshipTypes = inf ?
+                UserRelationshipTypes.block_first_second :
+                UserRelationshipTypes.block_second_first
+            try {
+                const dataCreate = await axios.post("/api/users/relationships", {
+                    user1_id: id + "",
+                    user2_id: "1",
+                    type: newType
+                })
+                console.log(dataCreate)
+                this.updateRelationshipState(id, newType);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
+    async unblockUser(id: string) {
+        let inf = (Number(id) < Number("1"));
+        try {
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            if (!(inf && !(currentRel.data.type & UserRelationshipTypes.block_first_second)) &&
+                !(!inf && !(currentRel.data.type & UserRelationshipTypes.block_second_first))) {
+                let newType: UserRelationshipTypes = currentRel.data.type;
+                newType &= inf ?
+                    ~UserRelationshipTypes.block_first_second :
+                    ~UserRelationshipTypes.block_second_first
+                try {
+                    if (newType === UserRelationshipTypes.null) {
+                        const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
+                        console.log(dataDelete);
+                        this.updateRelationshipState(id, newType);
+                    } else {
+                        const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
+                        console.log(dataUpdate);
+                        this.updateRelationshipState(id, newType);
+                    }
+                } catch (error) { }
+            }
+        } catch (error) { }
+    }
 
     render() {
         return (
@@ -63,17 +216,34 @@ class UserSearch extends React.Component<UserProps, UserStates> {
 
                 <ul>
                     {this.state.list.map((user) => (
-                        
+
                         <li key={user.id} className="relative w-full">
                             <UserInformation
-                                id = {user.id}
+                                id={user.id}
                                 name={user.name}
                                 status={user.status}
                                 nbWin={user.nbWin}
                                 nbLoss={user.nbLoss}
                                 imgPath={user.imgPath}
-                                isFriend
-                                displayWinLose
+                                relationshipTypes={user.relationshipType}
+                                idInf={Number(user.id) < Number("1")}
+                                addFriend={this.addFriend}
+                                removeFriend={this.removeFriend}
+                                blockUser={this.blockUser}
+                                unblockUser={this.unblockUser}
+                                // --------------------------------------------------
+                                // isFriend={user.relationshipType === UserRelationshipTypes.friends}    // A CHANGER QUAND ON SAURA
+                                // --------------------------------------------------
+                                // --------------------------------------------------
+                                // isBlocked={
+                                //     (Number("1") < Number(user.id) && user.relationshipType === UserRelationshipTypes.block_first_second) ||
+                                //     (Number("1") > Number(user.id) && user.relationshipType === UserRelationshipTypes.block_second_first)
+                                // }    // A CHANGER QUAND ON SAURA
+                                // --------------------------------------------------
+                                isInSearch
+                                // --------------------------------------------------
+                                isMe={Number(user.id) === Number("1")} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            // --------------------------------------------------
                             />
                         </li>
                     ))}

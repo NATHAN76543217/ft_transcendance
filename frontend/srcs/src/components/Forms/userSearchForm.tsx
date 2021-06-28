@@ -8,10 +8,12 @@ type UserSearchProps = {
     onSubmit: (values: IUserSearchFormValues) => void  // define function type
 }
 
-export default function CreateUser(props: UserSearchProps) {
+export default function SearchUser(props: UserSearchProps) {
     //const [username, password] = useState();
 
     const { register, handleSubmit, formState: { errors } } = useForm<IUserSearchFormValues>();
+
+    console.log(errors);
 
     return (
         <section className="flex flex-col max-w-sm p-4 m-auto mt-32 bg-neutral">

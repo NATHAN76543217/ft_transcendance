@@ -4,6 +4,10 @@ import CreateUserDto from './dto/CreateUser.dto';
 import UpdateUserDto from './dto/UpdateUser.dto';
 import { FindOneParam } from './utils/findOneParams';
 import User from './user.entity';
+import UserRelationship from './user-relationship.entity';
+import UserRelationshipsService from './user-relationships.service';
+import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
+import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
 
 @Controller('users')
 @SerializeOptions({
@@ -11,7 +15,8 @@ import User from './user.entity';
 })
 export default class UsersController {
 	constructor(
-		private readonly usersService: UsersService) { }
+		private readonly usersService: UsersService,
+		private readonly userRelationshipsService: UserRelationshipsService) { }
 
 	@Get()
 	getUsers(@Query('name') name: string) {
@@ -24,18 +29,50 @@ export default class UsersController {
 	}
 
 	@Post()
-	async createUser(@Body() User: CreateUserDto) {
-		return this.usersService.createUser(User);
+	async createUser(@Body() user: CreateUserDto) {
+		return this.usersService.createUser(user);
 	}
 
 	@Patch(':id')
-	async updateUser(@Param('id') id: FindOneParam, @Body() User: UpdateUserDto) {
-		return this.usersService.updateUser(Number(id), User);
+	async updateUser(@Param('id') id: FindOneParam, @Body() user: UpdateUserDto) {
+		return this.usersService.updateUser(Number(id), user);
 	}
 
 	@Delete(':id')
 	async deleteUser(@Param('id') id: FindOneParam) {
 		return this.usersService.deleteUser(Number(id));
+	}
+
+	// ---------- relationships ----------
+
+	@Get('relationships')
+	getUserRelationships() {
+		return this.userRelationshipsService.getAllUserRelationships();
+	}
+
+	@Get('relationships/:id')
+	async getUserRelationshipsById(@Param('id') id: string) {
+		return this.userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
+	}
+
+	@Get('relationships/:id1/:id2')
+	async getUserRelationshipsByIds(@Param('id1') id1: string, @Param('id2') id2: string) {
+		return this.userRelationshipsService.getUserRelationshipByIds(id1, id2);
+	}
+
+	@Post('relationships')
+	async createUserRelationship(@Body() userRelationship: CreateUserRelationshipDto) {
+		return this.userRelationshipsService.createUserRelationship(userRelationship);
+	}
+
+	@Patch('relationships/:id')
+	async updateUserRelationship(@Param('id') id: FindOneParam, @Body() userRelationship: UpdateUserRelationshipDto) {
+		return this.userRelationshipsService.updateUserRelationship(Number(id), userRelationship);
+	}
+
+	@Delete('relationships/:id')
+	async deleteUserRelationship(@Param('id') id: FindOneParam) {
+		return this.userRelationshipsService.deleteUserRelationship(Number(id));
 	}
 
 }

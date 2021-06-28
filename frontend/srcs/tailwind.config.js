@@ -23,7 +23,11 @@ module.exports = {
           unset : {
             DEFAULT : '#f04545',
             dark : '#ee3636'
-          }
+          },
+          pending : {
+            DEFAULT : '#c1d2e3',
+            dark : '#a4bdd5'
+          },
         }
     },
   },

@@ -1,7 +1,5 @@
 import React from 'react';
 
-// import Button from '../../components/utilities/Button';
-import UserInformation from '../../components/userInformation/userInformation';
 import UserCreateForm from '../../components/Forms/userCreateForm';
 import axios from 'axios';
 import UserInterface from '../../components/interface/IUserInterface';
