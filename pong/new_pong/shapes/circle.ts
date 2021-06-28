@@ -14,4 +14,5 @@ export class Circle extends Vector2D implements ICircle
         pos : IVector2D,
         public rad : number
     ) { super(pos.x, pos.y); }
+
 }

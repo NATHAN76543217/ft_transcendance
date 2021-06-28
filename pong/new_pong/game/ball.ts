@@ -17,7 +17,7 @@ export interface IBall extends ICircleRender
 {
     velocity : IVector2D;
     speed : number;
-    defaultBall : ICircle
+    defaultBall : IBall
 }
 
 export class Ball extends CircleRender implements IBall
@@ -28,7 +28,7 @@ export class Ball extends CircleRender implements IBall
         style : AStyle,
         public velocity : IVector2D,
         public speed : number,
-        public readonly defaultBall : ICircle
+        public readonly defaultBall : IBall
     )
     { super(pos, rad, style); }
 }

@@ -1,13 +1,30 @@
 import {
-    IVector2D
-} from "../shapes/vector2d";
+    Player
+} from "../game/player"
+import {
+    Ball
+} from "../game/ball"
+import {
+    Court
+} from "../game/court"
 
-export interface IGameDto
+export interface IGameStatus
 {
-    playerOne : IVector2D;
-    playerTwo : IVector2D;
+    court : Court;
+    playerOne : Player;
+    playerTwo : Player;
+    ball : Ball;
 }
 
-// TO DO: End this containig all the dto data
-// Make another for constanst (or the same)
-// Make another onw for the style and frontend calculations that are not important
+export class GameStatus implements IGameStatus
+{
+    constructor(
+        public court : Court,
+        public playerOne : Player,
+        public playerTwo : Player,
+        public ball : Ball
+    )
+    { }
+
+    // TO DO: Sanitize function that checks the limits and input coherence
+}

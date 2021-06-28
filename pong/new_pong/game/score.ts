@@ -3,10 +3,8 @@ import {
     Vector2D
 } from "../shapes/vector2d"
 
-export declare class IScore implements IVector2D
+export declare class IScore extends Vector2D
 {
-    public x : number;
-    public y : number;
     private wrappedPoints : number;
     public color : string;
     public font : string;
