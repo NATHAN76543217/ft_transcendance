@@ -56,7 +56,7 @@ services:
         container_name: pong_front_cnt
         expose:
             - "3000"
-        volumes: 
+        volumes:
             - ./frontend/srcs/:/app/
             - /app/node_modules
         networks:
