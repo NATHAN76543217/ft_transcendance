@@ -1,15 +1,12 @@
 import {
-    IVector2D, Vector2D
-} from "../shapes/vector2d"
-import {
     DynamicDto, IDynamicPlayerDto
 } from "../dto/dynamic.dto"
 import {
     APolimorphicLib
 } from "./polimorphiclib"
 import {
-    Player
-} from "../game/player"
+    GameMode
+} from "./polimorphiclib";
 
 export default function calcGameStatus(status : DynamicDto, lib : APolimorphicLib)
 {
@@ -25,17 +22,19 @@ export default function calcGameStatus(status : DynamicDto, lib : APolimorphicLi
 
     // Mouve the players
     lib.updatePlayerOnePos(status.playerOne);
-    lib.updatePlayerTwoPos(status.playerTwo);
+    lib.updatePlayerTwoPos(status, lib.level);
 
     // Calculate which player is able to kick the ball
-    const player : IDynamicPlayerDto = lib.isBallOnRightSide(status.ball)
+    const player : IDynamicPlayerDto = lib.isBallOnLeftSide(status.ball)
         ? status.playerOne : status.playerTwo;
 
     // If this player kicks the ball
-    if (lib.onPaddleCollision(status))
+    if (lib.onPaddleCollision(player, status))
     {
         // Ball should change it directional angle, perform a rebound
         lib.updateBallVelocity(status, lib.calcBallReboundOnPaddle(status.ball, player));
-        // status.ball.add(engineConfig.ballSpeedIncrement); // TO DO
+        status.ball.speed = lib.ballSpeedIncrement;
     }
+
+    return (status);
 }

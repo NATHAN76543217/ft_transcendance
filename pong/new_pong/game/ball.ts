@@ -13,11 +13,17 @@ import {
     ICircle
 } from "../shapes/circle"
 
+export interface IDefaultBall extends IVector2D
+{
+    velocity : IVector2D;
+    speed : number;
+}
+
 export interface IBall extends ICircleRender
 {
     velocity : IVector2D;
     speed : number;
-    defaultBall : IBall
+    defaultBall : IDefaultBall
 }
 
 export class Ball extends CircleRender implements IBall
@@ -28,7 +34,15 @@ export class Ball extends CircleRender implements IBall
         style : AStyle,
         public velocity : IVector2D,
         public speed : number,
-        public readonly defaultBall : IBall
+        public readonly defaultBall : IDefaultBall
     )
     { super(pos, rad, style); }
+
+    public reset()
+    {
+        this.x = this.defaultBall.x;
+        this.y = this.defaultBall.y;
+        this.velocity = this.defaultBall.velocity;
+        this.speed = this.defaultBall.speed;
+    }
 }

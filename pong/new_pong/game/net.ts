@@ -49,4 +49,26 @@ export class Net extends Rectangle implements INet
         this.style = polimorph instanceof INet ? polimorph.style : style;
         this.direction = polimorph instanceof INet ? polimorph.direction : direction;
     }
+
+    private static *generatePos(start : number, step : number, end : number) : Generator<number, void, unknown>
+	{
+		for ( ; start < end / step ; start++)
+				yield start * step;
+		// TO DO: IS THE GENERATOR REGENERED ?
+	}
+
+	private static wrappedDraw(ctx : any, courtWidth : number, net : Net) : void
+	{
+		for (const i of Net.generatePos(0, 15, courtWidth))
+		{
+			net.style.apply(ctx);
+			const targetPos : IVector2D = new Vector2D(
+				net.direction == Direction.VERTICAL ? net.x : net.x + i,
+				net.direction == Direction.VERTICAL ? net.y + i : net.x);
+			ctx.fillRect(targetPos.x, targetPos.y, net.width, net.height);
+		}
+	}
+
+	public draw(ctx : any, courtWidth : number) : void
+	{ Net.wrappedDraw(ctx, courtWidth, this); }
 }

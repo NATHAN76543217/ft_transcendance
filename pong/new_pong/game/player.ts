@@ -32,7 +32,7 @@ class Paddle extends  RectangleRender implements IRectangleRender
     ) { super(pos, width, height, style); }
 }
 
-export declare class IPlayer implements IPaddle
+export declare class IPlayer implements Partial<IPaddle>
 {
     x : number;
     y : number;

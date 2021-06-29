@@ -2,11 +2,12 @@ import {
     IVector2D
 } from "../shapes/vector2d"
 import {
-    IBall
+    IDefaultBall
 } from "../game/ball"
 
 export interface IStaticPlayerDto
 {
+    id : string;
     width : number;
     height : number;
     limitLeft : IVector2D;
@@ -16,7 +17,7 @@ export interface IStaticPlayerDto
 export interface IStaticBallDto
 {
     rad : number;
-    defaultBall : IBall
+    defaultBall : IDefaultBall;
 }
 
 export interface IStaticCourtDto

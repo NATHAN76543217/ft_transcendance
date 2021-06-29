@@ -14,11 +14,9 @@ export declare class IScore extends Vector2D
 
 export class Score extends Vector2D
 {
-    private wrappedPoints : number = 0;
+    public points : number = 0;
     public color : string;
     public font : string;
-
-    get points() { return this.wrappedPoints; }
 
     constructor(other : IScore);
     constructor(pos : Vector2D,color : string, font : string);
@@ -32,9 +30,6 @@ export class Score extends Vector2D
         this.color = polimorph instanceof IScore ? polimorph.color : color;
         this.font = polimorph instanceof IScore ? polimorph.font : font;
     }
-
-    public scorePoint()
-    { this.wrappedPoints++; }
 
     private static wrappedDraw(ctx : any, score : Score) : void
 	{

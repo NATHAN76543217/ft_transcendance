@@ -7,6 +7,9 @@ import {
 import {
     Court
 } from "../game/court"
+import {
+    Net
+} from "../game/net"
 
 export interface IGameStatus
 {
@@ -22,7 +25,8 @@ export class GameStatus implements IGameStatus
         public court : Court,
         public playerOne : Player,
         public playerTwo : Player,
-        public ball : Ball
+        public ball : Ball,
+        public net : Net
     )
     { }
 
