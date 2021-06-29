@@ -10,8 +10,9 @@ import SideMenu from './components/sideMenu/sideMenu';
 import Home from './pages/home/home';
 import Game from './pages/game/game';
 import User from './pages/users/user';
-import Login from './pages/login/login';
 import Admin from './pages/admin/admin';
+import Login  from './pages/login/login';
+import Register from './pages/register/register';
 
 let change_bg_color_with_size = "sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500";	// for testing
 
@@ -36,6 +37,12 @@ function App() {
 					<div className="flex w-full flex-nowrap">
 						<main className={"flex-grow " + change_bg_color_with_size}>
 							<Switch>
+								<Route exact path='/'>
+									<Home />
+								</Route>
+								<Route path='/register'>
+									<Register/>
+								</Route>
 								<Route path='/login'>
 									<Login />
 								</Route>
@@ -48,9 +55,6 @@ function App() {
 								{displayAdminRoute(true)}			
 								{/* {displayAdminRoute(false)} */}
 										{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
-								<Route exact path='/'>
-									<Home />
-								</Route>
 							</Switch>
 						</main>
 						<div className="flex-none hidden w-48 border-l-2 border-gray-700 md:block border-opacity-70">
