@@ -42,6 +42,7 @@ services:
         volumes:
             - './backend/srcs:/app'
             - /app/node_modules
+            - /app/dist
         restart: always
         networks: 
             - pong_database_network
