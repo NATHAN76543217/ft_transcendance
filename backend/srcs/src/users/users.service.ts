@@ -6,6 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
+import axios from 'axios';
+import UserRelationshipsService from './user-relationships.service';
+import { FindOneParam } from './utils/findOneParams';
 
 @Injectable()
 export default class UsersService {
@@ -82,10 +85,20 @@ export default class UsersService {
     return newUser;
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string, userRelationshipsService: UserRelationshipsService) {
+
+    try {
+      const dataRel = await userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
+      if (dataRel) {
+        dataRel.map((relation) => {
+          userRelationshipsService.deleteUserRelationship(Number(relation.id))
+        })
+      }
+    } catch (error) {}
+
     const deleteResponse = await this.usersRepository.delete(id);
     if (!deleteResponse.affected) {
-      throw new UserNotFound(id);
+      throw new UserNotFound(Number(id));
     }
   }
 

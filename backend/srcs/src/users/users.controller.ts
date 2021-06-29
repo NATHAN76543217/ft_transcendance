@@ -40,7 +40,7 @@ export default class UsersController {
 
 	@Delete(':id')
 	async deleteUser(@Param('id') id: FindOneParam) {
-		return this.usersService.deleteUser(Number(id));
+		return this.usersService.deleteUser(id + "", this.userRelationshipsService);
 	}
 
 	// ---------- relationships ----------

@@ -5,6 +5,7 @@ import UserPage from './userPage';
 import UserSearch from './userSearch';
 import UserCreate from './userCreate';
 import { Route } from 'react-router';
+import UserDelete from './userDelete';
 
 class User extends React.Component {
     // constructor(props) 
@@ -31,6 +32,10 @@ class User extends React.Component {
 
                 <Route exact path='/users/create'>
                     <UserCreate />
+                </Route>
+
+                <Route exact path='/users/delete'>
+                    <UserDelete />
                 </Route>
 
             </div>

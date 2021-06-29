@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import User from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Equal, Like, Repository } from 'typeorm';
 import UserRelationshipNotFound from './exception/UserRelationshipNotFound.exception';
 import UserRelationship from './user-relationship.entity';
 import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
@@ -16,25 +16,28 @@ export default class UserRelationshipsService {
   ) { }
 
   async getAllUserRelationships() {
-    return await this.userRelationshipsRepository.find();
+    const data =  await this.userRelationshipsRepository.find();
+    return data;
   }
 
   async getAllUserRelationshipsFromOneUser(id: string) {
-    return await this.userRelationshipsRepository.find({
+    const data =  await this.userRelationshipsRepository.find({
       where: [
-        { 'user1_id': Like(id) },
-        { 'user2_id': Like(id) }
+        { 'user1_id': Number(id)},
+        { 'user2_id': Number(id)}
       ]
     });
+
+    return data;
   }
 
   async getUserRelationshipByIds(id1: string, id2: string) {
     let userRelationship;
     if (Number(id1) < Number(id2)) {
-      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id: id1, user2_id: id2 });
+      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id:id1, user2_id:id2 });
     }
     else {
-      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id: id2, user2_id: id1 });
+      userRelationship = await this.userRelationshipsRepository.findOne({ user1_id:id2, user2_id:id1 });
     }
     if (userRelationship) {
       return userRelationship;

@@ -3,10 +3,10 @@ type FriendsProps = {
     status : string
 }
 
-function FriendItem({name } : FriendsProps)
+function FriendItem({name, status } : FriendsProps)
 {
     return (
-        <li className="flex h-16">
+        <li className="flex h-16" key={name}>
             <img
                 src={ process.env.PUBLIC_URL + '/logo-menu.jpeg' }
                 alt='friends_1_avatar'

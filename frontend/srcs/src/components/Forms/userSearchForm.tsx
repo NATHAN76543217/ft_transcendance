@@ -13,8 +13,6 @@ export default function SearchUser(props: UserSearchProps) {
 
     const { register, handleSubmit, formState: { errors } } = useForm<IUserSearchFormValues>();
 
-    console.log(errors);
-
     return (
         <section className="flex flex-col max-w-sm p-4 m-auto mt-32 bg-neutral">
             <h1 className="mb-2">

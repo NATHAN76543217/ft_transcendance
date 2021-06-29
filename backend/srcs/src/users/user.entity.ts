@@ -44,11 +44,11 @@ class User {
     @ManyToMany(() => Channel, (channel: Channel) => channel.users)
     public channels: Channel[];
 
-    @OneToMany(() => UserRelationship, userRelationship => userRelationship.user1_id)
-    public userRelationship1: UserRelationship[]
+    // @OneToMany(() => UserRelationship, userRelationship => userRelationship.user1_id)
+    // public userRelationship1: UserRelationship[]
 
-    @OneToMany(() => UserRelationship, userRelationship => userRelationship.user2_id)
-    public userRelationship2: UserRelationship[]
+    // @OneToMany(() => UserRelationship, userRelationship => userRelationship.user2_id)
+    // public userRelationship2: UserRelationship[]
 
     public jwt: string;
 }

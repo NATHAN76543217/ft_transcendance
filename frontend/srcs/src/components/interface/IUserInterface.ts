@@ -1,7 +1,7 @@
 import Channel from './IChannelInterface';
 import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
 
-export default interface User {
+export default interface IUser {
     id: string;
     name: string;
     password: string;
