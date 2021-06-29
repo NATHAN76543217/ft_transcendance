@@ -16,5 +16,9 @@ RUN     npm install
 # Fix bcrypt cross-platform module
 RUN     npm uninstall bcrypt && npm install bcrypt
 
+# RUN npm update @nestjs/cli
+
+# RUN npx @nestjs/cli update
+
 CMD     npm run start:dev
         # npm start

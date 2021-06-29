@@ -1,12 +1,15 @@
-import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber, IsBoolean } from "class-validator";
+import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber, IsBoolean, isNotEmpty, Length } from "class-validator";
 
 export default class UpdateUserDto {
 	@IsOptional()
     @IsString()
+    @IsNotEmpty()
+    @Length(1, 20)
     public name: string;
-
+    
     @IsString()
     @IsOptional()
+    @IsNotEmpty()
     public password : string;
 
 	@IsOptional()

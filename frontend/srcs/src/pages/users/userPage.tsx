@@ -6,6 +6,9 @@ import { RouteComponentProps } from 'react-router-dom';
 import axios from 'axios';
 import IUserInterface from '../../components/interface/IUserInterface';
 import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
+import Popup from 'reactjs-popup';
+import IUserChangeNameFormValues from '../../components/interface/IUserChangeNameFormValues';
+
 
 type UserProps = {
     id?: string,
@@ -48,6 +51,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
         this.removeFriend = this.removeFriend.bind(this);
         this.blockUser = this.blockUser.bind(this);
         this.unblockUser = this.unblockUser.bind(this);
+        this.onSubmitChangeUsername = this.onSubmitChangeUsername.bind(this);
     }
 
     componentDidMount() {
@@ -330,6 +334,21 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
         } catch (error) { }
     }
 
+    onSubmitChangeUsername = async (values: IUserChangeNameFormValues) => {
+        try {
+            await axios.patch("/api/users/" + this.state.user.id, { "name": values.username });
+            this.setState({
+                user: {
+                    ...this.state.user,
+                    name: values.username
+                }
+            });
+            return true;
+        } catch (error) {
+            return false;
+        }
+
+    };
 
     render() {
 
@@ -373,6 +392,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                         removeFriend={this.removeFriend}
                         blockUser={this.blockUser}
                         unblockUser={this.unblockUser}
+                        changeUsername={this.onSubmitChangeUsername}
                     />
                 </section>
                 <div className="relative flex flex-wrap justify-center w-full">

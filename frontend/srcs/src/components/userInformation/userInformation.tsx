@@ -1,6 +1,13 @@
 import CustomButton from '../utilities/CustomButton';
 import { NavLink } from 'react-router-dom';
 import { UserRelationshipTypes } from './userRelationshipTypes';
+import React from 'react';
+import { TextInput } from '../utilities/TextInput';
+import { useForm } from 'react-hook-form';
+import ChangeNameUserForm from '../Forms/userChangeNameForm';
+import IUserChangeNameFormValues from '../interface/IUserChangeNameFormValues';
+import Popup from 'reactjs-popup';
+import Alert from 'react-bootstrap/Alert'
 
 type UserProps = {
     id: string,        // optional ?
@@ -13,14 +20,15 @@ type UserProps = {
     isMe?: boolean | false,
     relationshipTypes: UserRelationshipTypes,
     idInf: boolean,
-    isInSearch?: boolean | false
-    handleClickTwoFactorAuth?: () => void
-    handleClickProfilePicture?: () => void
-    onFileChange?: (fileChangeEvent: any) => void
-    addFriend: (id: string) => void
-    removeFriend: (id: string) => void
-    blockUser: (id: string) => void
-    unblockUser: (id: string) => void
+    isInSearch?: boolean | false,
+    handleClickTwoFactorAuth?: () => void,
+    handleClickProfilePicture?: () => void,
+    onFileChange?: (fileChangeEvent: any) => void,
+    addFriend: (id: string) => void,
+    removeFriend: (id: string) => void,
+    blockUser: (id: string) => void,
+    unblockUser: (id: string) => void,
+    changeUsername?: (values: IUserChangeNameFormValues) => void,
 }
 
 function getStatusColor(param: string) {
@@ -204,9 +212,15 @@ function displayTwoFactorAuth(user: UserProps) {
 }
 
 
-// ------------------------------------------------------------------------------------
-// NEED TO DELETE PROFILE PICTURE WHEN CHANGER ------------------------------------------
-// ------------------------------------------------------------------------------------
+function DisplayChangeNameField(user: UserProps) {
+    if (user.isMe && !user.isInSearch && user.changeUsername !== undefined) {
+        return (
+            <ChangeNameUserForm onSubmit={user.changeUsername} />
+        )
+    } else {
+        return <div></div>
+    }
+}
 
 
 function UserInformation(user: UserProps) {
@@ -228,6 +242,7 @@ function UserInformation(user: UserProps) {
                     </h1>
                 </div>
 
+
                 {displayWinAndLose(user)}
                 <div>
                     {displayFriendButton(user)}
@@ -236,6 +251,7 @@ function UserInformation(user: UserProps) {
 
 
             </section>
+            {DisplayChangeNameField(user)}
             {displayTwoFactorAuth(user)}
         </div>
     );
