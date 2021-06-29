@@ -37,6 +37,7 @@
     "cookie-parser": "^1.4.5",
     "dotenv": "^10.0.0",
     "express-session": "^1.17.2",
+    "file-system": "^2.2.2",
     "ngx-socket-io": "^4.0.0",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",

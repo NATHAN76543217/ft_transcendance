@@ -1,14 +1,16 @@
 type FriendsProps = {
     name : string,
-    status : string
+    status : string,
+    imgPath?: string,
 }
 
-function FriendItem({name, status } : FriendsProps)
+function FriendItem({name, status, imgPath} : FriendsProps)
 {
+    let path = (imgPath === "") ? "/api/uploads/default-profile-picture.png" : "/api/uploads/" + imgPath;
     return (
-        <li className="flex h-16" key={name}>
+        <li className="flex h-16 border-t-2 border-gray-200">
             <img
-                src={ process.env.PUBLIC_URL + '/logo-menu.jpeg' }
+                src={path}
                 alt='friends_1_avatar'
                 className='inline w-10 h-10 mx-4 my-auto bg-white rounded-full'/>
             <div className="inline-block my-auto align-middle">

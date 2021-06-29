@@ -19,8 +19,8 @@ function App() {
 	<div className="h-full">
 		<Router>
 			<Header/>
-			<div className="flex h-full">
-				<div className="flex-none">
+			<div className="flex h-full border-t-2 border-gray-700 border-opacity-70">
+				<div className="flex-none border-r-2 border-gray-700 md:block border-opacity-70">
 					<SideMenu/>
 				</div>
 				<div className="flex w-full flex-nowrap">
@@ -43,7 +43,7 @@ function App() {
 							</Route>
 						</Switch>
 					</main>
-					<div className="flex-none hidden md:block">
+					<div className="flex-none hidden w-48 border-l-2 border-gray-700 md:block border-opacity-70">
 						<FriendsBar/>
 					</div>
 				</div>

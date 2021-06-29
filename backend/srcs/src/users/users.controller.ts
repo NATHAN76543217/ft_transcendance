@@ -30,6 +30,9 @@ export default class UsersController {
 
 	@Post()
 	async createUser(@Body() user: CreateUserDto) {
+		if (user.imgPath === "") {
+			user.imgPath = "default-profile-picture.png"
+		}
 		return this.usersService.createUser(user);
 	}
 

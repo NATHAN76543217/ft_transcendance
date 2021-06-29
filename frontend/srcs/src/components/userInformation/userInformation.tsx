@@ -53,11 +53,7 @@ function displayWinAndLose(user: UserProps) {
 
 
 function displayProfilePicture(user: UserProps) {
-    let path = "https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg";
-
-    if (user.imgPath !== null && user.imgPath !== "") {
-        path = "/api/" + user.imgPath;
-    }
+    let path = (user.imgPath === "") ? "/api/uploads/default-profile-picture.png" : "/api/uploads/" + user.imgPath;
     return (
         <img className="object-contain w-32 h-full"
             src={path}

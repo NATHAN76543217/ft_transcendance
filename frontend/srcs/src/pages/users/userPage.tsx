@@ -97,7 +97,9 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     doesUserExist: true,
                     user: data.data
                 });
-                this.setFriendAndBlockBoolean(this.state.user);
+                if (this.state.id !== undefined) {
+                    this.setFriendAndBlockBoolean(this.state.user);
+                }
             }
             else {
                 this.setState({ doesUserExist: false })
@@ -170,15 +172,16 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
 
         try {
             const data = await axios.post("/api/photos/upload", formData);
-            // console.log(data);
+            let oldImgPath = this.state.user.imgPath;
+            let newImgPath = data.data.path.replace("uploads/", "");
             this.setState({
                 user: {
                     ...this.state.user,
-                    imgPath: data.data.path
+                    imgPath: newImgPath
                 }
             })
-            const data2 = await axios.patch("/api/users/" + this.state.user.id, { "imgPath": data.data.path })
-            console.log(data2);
+            const dataPatch = await axios.patch("/api/users/" + this.state.user.id, { "imgPath": newImgPath })
+            const dataDelete = await axios.delete("/api/photos/" + oldImgPath);
         } catch (error) {
             console.log(error);
         }
@@ -200,10 +203,12 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     updateRelationshipState(newType: UserRelationshipTypes) {
-        this.setState({user: {
-            ...this.state.user,
-            relationshipType: newType
-        }})
+        this.setState({
+            user: {
+                ...this.state.user,
+                relationshipType: newType
+            }
+        })
     }
 
     async addFriend(id: string) {
@@ -249,10 +254,12 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     if (newType === UserRelationshipTypes.null) {
                         const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
                         console.log(dataDelete);
-                        this.setState({user: {
-                            ...this.state.user,
-                            relationshipType: newType
-                        }})
+                        this.setState({
+                            user: {
+                                ...this.state.user,
+                                relationshipType: newType
+                            }
+                        })
                     } else {
                         const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                         console.log(dataUpdate);
@@ -339,6 +346,8 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
         if (!this.state.doesUserExist) {
             return <div className="px-2 py-2 font-bold">This user does not exist</div>
         }
+
+        let isMe = (this.state.id === undefined || Number(this.state.id) === Number("1"));
 
         return (
             <div className="">

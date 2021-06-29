@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { imageFileFilter, PhotosService } from './photos.service';
+import * as fs from 'fs';
 
 @Controller('photos')
 export default class PhotosController {
@@ -24,6 +25,8 @@ export default class PhotosController {
         return res.sendFile(image, { root: './uploads' });
     }
 
-    // need to add DELETE
-
+    @Delete(':imgpath')
+    deleteUploadedFile(@Param('imgpath') image: any) {
+        fs.unlinkSync('./uploads/' + image)
+    }
 }
