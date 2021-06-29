@@ -23,8 +23,9 @@ async function bootstrap() {
   }))
 
   const config = new DocumentBuilder()
+    .addServer('https://localhost/api', 'Development server.')
     .setTitle('Transcendance')
-    .setDescription('The transcendance API.')
+    .setDescription('Transcendance API documentation.')
     .setVersion('1.0')
     .addTag('transcendance')
     .build();
