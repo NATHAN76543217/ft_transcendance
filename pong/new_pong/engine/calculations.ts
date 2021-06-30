@@ -1,12 +1,10 @@
 import {
-    DynamicDto, IDynamicPlayerDto
+    DynamicDto,
+    IDynamicPlayerDto
 } from "../dto/dynamic.dto"
 import {
     APolimorphicLib
 } from "./polimorphiclib"
-import {
-    GameMode
-} from "./polimorphiclib";
 
 export default function calcGameStatus(status : DynamicDto, lib : APolimorphicLib)
 {

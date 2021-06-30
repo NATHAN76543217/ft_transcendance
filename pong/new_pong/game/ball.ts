@@ -7,36 +7,65 @@ import {
 } from "../render/style"
 import {
     CircleRender,
-    ICircleRender
 } from "../render/circle"
 import {
-    ICircle
+    Circle
 } from "../shapes/circle"
 
-export interface IDefaultBall extends IVector2D
+export interface IDefaultBall
 {
+    x : number;
+    y : number;
     velocity : IVector2D;
     speed : number;
 }
 
-export interface IBall extends ICircleRender
+export declare class IBall extends Circle
 {
     velocity : IVector2D;
     speed : number;
+    style : AStyle;
     defaultBall : IDefaultBall
 }
 
 export class Ball extends CircleRender implements IBall
 {
+    public velocity : IVector2D
+    public speed : number
+    public readonly defaultBall : IDefaultBall
+
     constructor(
         pos : IVector2D,
         rad : number,
         style : AStyle,
-        public velocity : IVector2D,
-        public speed : number,
-        public readonly defaultBall : IDefaultBall
+        velocity : IVector2D,
+        speed : number,
+        defaultBall : IDefaultBall
+    );
+
+    constructor(
+        other : IBall
+    );
+
+    constructor(
+        polimorph : IVector2D | IBall,
+        rad? : number,
+        style? : AStyle,
+        velocity? : IVector2D,
+        speed? : number,
+        defaultBall? : IDefaultBall
     )
-    { super(pos, rad, style); }
+    {
+        super(
+            polimorph.toVector2D(),
+            polimorph instanceof IBall ? polimorph.rad : rad,
+            polimorph instanceof IBall ? polimorph.style : style
+        );
+
+        this.velocity = polimorph instanceof IBall ? polimorph.velocity : velocity;
+        this.speed = polimorph instanceof IBall ? polimorph.speed : speed;
+        this.defaultBall = polimorph instanceof IBall ? polimorph.defaultBall : defaultBall;
+    }
 
     public reset()
     {

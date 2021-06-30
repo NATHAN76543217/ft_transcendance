@@ -3,10 +3,11 @@ export interface IVector2D
 {
     x : number;
     y : number;
-    add(other : IVector2D);
-    sub(other : IVector2D);
-    mul(scale : number);
-    div(scale : number);
+    add(other : IVector2D) : void;
+    sub(other : IVector2D) : void;
+    mul(scale : number) : void;
+    div(scale : number) : void;
+    toVector2D() : IVector2D;
 }
 
 export class Vector2D implements IVector2D
@@ -39,4 +40,7 @@ export class Vector2D implements IVector2D
         this.x /= scale;
         this.y /= scale;
     }
+
+    public toVector2D()
+    { return this; }
 }

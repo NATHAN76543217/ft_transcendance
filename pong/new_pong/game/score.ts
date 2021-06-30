@@ -5,11 +5,10 @@ import {
 
 export declare class IScore extends Vector2D
 {
-    private wrappedPoints : number;
+    public points : number;
     public color : string;
     public font : string;
     public scorePoint() : void;
-    get points();
 }
 
 export class Score extends Vector2D

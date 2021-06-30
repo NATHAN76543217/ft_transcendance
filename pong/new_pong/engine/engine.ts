@@ -7,27 +7,32 @@ import {
 
 import  renderGameStatus from "../render/render"
 
-export default class PolimorphicEngine
+export default class PongClient
 {
     constructor(
         public gameStatus : GameStatus,
-        public socket : Socket
+        public calculationLib : string,
+        public socket : Socket,
+        public roomId : number
     )
-    { }
+    {
+        socket.emit('onConnextion', {
+            idRoom: roomId,
+            idPlayerOne: gameStatus.playerOne.id,
+            idPlayerTwo: gameStatus.playerTwo.id,
+            config: gameStatus
+        });
+    }
 
-    // TO DO: Init the engine
-    // Parse mouse mov
-    // Disconect clients
+    // TO DO: Disconect clients
 
     public readonly run = () => {
 
         const fps : number = 50;
 
-
-
         setInterval(() : void => {
-            // this.socket.emit('mouseEvent', ) to do
-            this.gameStatus = this.socket.emit('calcGameStatus', this.gameStatus);
+            this.gameStatus = this.socket.emit('calcGameStatus',
+                this.calculationLib, this.gameStatus);
             renderGameStatus(this.gameStatus);
         }, 1000 / fps);
     }
