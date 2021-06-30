@@ -1,3 +1,0 @@
-
-export const LIB_VERTICAL = "LIB_VERTICAL";
-export const LIB_HORIZONTAL = "LIB_HORIZONTAL";
