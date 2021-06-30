@@ -1,9 +1,9 @@
-export default function Pong(){
-
-import { Socket,
+import PongGenerator from "../../../../../pong/new_pong/engine/engine"
+import {
+    Socket,
 } from "ngx-socket-io"
 
-export default function Pong(socketServ : Socket)
+export default function Pong(socketServ : Socket, pongEngine : PongGenerator)
 {
     const socket : Socket = socketServ;
 
@@ -15,6 +15,9 @@ export default function Pong(socketServ : Socket)
             mousePosY: event.clientY,
         })
     });
+
+    // Canvas should call this
+    pongEngine.run();
 
     return (
         <canvas id="pongCanvas" className="bg-black w-50 h-40">
