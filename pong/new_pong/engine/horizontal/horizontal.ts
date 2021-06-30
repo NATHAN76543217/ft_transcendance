@@ -18,9 +18,6 @@ import {
 import {
     PongSocketServer
 } from "../../server/socketserver"
-import {
-    IBall
-} from "../../game/ball"
 
 export default abstract class AHorizontalLib extends APolimorphicLib
 {
@@ -52,22 +49,23 @@ export default abstract class AHorizontalLib extends APolimorphicLib
     {
         const direction : number = status.ball.x + this.gameConfig.ball.rad
             < this.gameConfig.court.width / 2 ? 1 : -1;
-
+        
         status.ball.velocity.x = direction * status.ball.speed * Math.cos(angle);
         status.ball.velocity.y = status.ball.speed * Math.sin(angle);
     }
+            
 
     onFrontalCourtCollision(status : IDynamicDto)
     {
         if (status.ball.x - this.gameConfig.ball.rad < 0)
         {
             status.playerOne.score.points++;
-            status.ball = this.gameConfig.ball.defaultBall as IBall;
+            status.ball = this.gameConfig.ball.defaultBall;
         }
         else if (status.ball.x + this.gameConfig.ball.rad > this.gameConfig.court.width)
         {
             status.playerTwo.score.points++;
-            status.ball = this.gameConfig.ball.defaultBall as IBall;
+            status.ball = this.gameConfig.ball.defaultBall;
         }        
     }
 

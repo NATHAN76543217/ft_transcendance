@@ -15,27 +15,16 @@ import {
     APolimorphicLib
 } from "../engine/polimorphiclib"
 import calcGameStatus from "../engine/calculations"
-import {
-    GameMode
-} from "../engine/polimorphiclib"
 
-declare interface LibPair<T extends APolimorphicLib>
-{
-    [key : string] : T
-}
-
-declare interface IRoomDto
+declare interface RoomDto
 {
     idRoom : number;
     idPlayerOne : string;
     idPlayerTwo : string;
     config : IStaticDto;
-    libName : string;
-    mode : GameMode;
-    level? : number;
 }
 
-declare interface IMousePosDto
+declare interface MousePosDto
 {
     x : number;
     y : number;
@@ -45,29 +34,22 @@ declare interface IMousePosDto
 export class PongSocketServer implements OnGatewayConnection, OnGatewayDisconnect
 {
     @WebSocketServer() server;
-    public rooms : Map <number, IRoomDto> // Map< roomId, RoomPlayersIds >
-    public mousesPos : Map<string, IMousePosDto> // Map< playerId, mousePos >
-    public libs : Map<string, APolimorphicLib> = {
-        // TO DO: INIT THE MAP
-        // TO DO: Think about single player multiplayer
-        // Map of map ?
-    }
+    public rooms : Map <number, RoomDto> // Map< roomId, RoomPlayersIds >
+    public mousesPos : Map<string, MousePosDto>; // Map< playerId, mousePos >
 
-    // TO DO: Warning circular reference that trick garbage collector to never free objects !!!
+    // TO DO: Warnign circular reference that trick garbage collector to never free objects !!!
     // PongSocketServer <-> APolimorphicLib
-    
-    @SubscribeMessage('onConnexion')
-    async handleConnection(room : IRoomDto)
-    {
-        if (this.rooms[room.idRoom])
-        {
-            this.rooms[room.idRoom] = room;
-            
-        }         
-    }
+    constructor(
+        public calcLib : APolimorphicLib
+    )
+    { }
 
-    @SubscribeMessage('onDisconnexion')
-    async handleDisconnect(room : IRoomDto)
+    @SubscribeMessage('onConnextion')
+    async handleConnection(room : RoomDto)
+    { this.rooms[room.idRoom] = room; }
+
+    @SubscribeMessage('onDisconextion')
+    async handleDisconnect(room : RoomDto)
     {
         this.rooms.delete(room.idRoom);
         this.mousesPos.delete(room.idPlayerOne);
@@ -75,14 +57,14 @@ export class PongSocketServer implements OnGatewayConnection, OnGatewayDisconnec
     }
 
     @SubscribeMessage('calcGameStatus')
-    async calcPongStatus(keyOfLibs : string, status : IDynamicDto)
-    { return calcGameStatus(status, this.libs[keyOfLibs]); }
+    async calcPongStatus(status : IDynamicDto)
+    { return calcGameStatus(status, this.calcLib); }
 
     @SubscribeMessage('mouseEvent')
-    async updateMousePosClient(id : string, mousePos : IMousePosDto)
+    async updateMousePosClient(id : string, mousePos : MousePosDto)
     { this.mousesPos[id] = mousePos; }
 
     // TO DO: Should i use Promises ?
-    async getMousePosClient(id : string) : Promise<IMousePosDto>
+    async getMousePosClient(id : string) : Promise<MousePosDto>
     { return this.mousesPos[id]; }
 }

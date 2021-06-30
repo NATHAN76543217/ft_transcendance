@@ -47,7 +47,7 @@ function getStatusColor(param: string) {
 function displayWinAndLose(user: UserProps) {
     if (user.isInSearch) {
         return (
-            <div className="w-24 mx-2 text-center">
+            <div className="w-24 mx-4 text-center">
                 <NavLink to={"/users/" + user.id} className="relative font-bold text-md">
                     Win / Lose
                         </NavLink>
@@ -242,8 +242,9 @@ function UserInformation(user: UserProps) {
                     </h1>
                 </div>
 
-
-                {displayWinAndLose(user)}
+                <div>
+                    {displayWinAndLose(user)}
+                </div>
                 <div>
                     {displayFriendButton(user)}
                     {displayBlockButton(user)}

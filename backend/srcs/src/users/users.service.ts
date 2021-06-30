@@ -7,7 +7,7 @@ import { Like, Repository } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 import axios from 'axios';
-import UserRelationshipsService from './user-relationships.service';
+import UserRelationshipsService from './relationships/user-relationships.service';
 import { FindOneParam } from './utils/findOneParams';
 
 @Injectable()

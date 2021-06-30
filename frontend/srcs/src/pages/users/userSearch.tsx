@@ -1,12 +1,12 @@
 import React from 'react';
 
 // import Button from '../../components/utilities/Button';
-import UserInformation from '../../components/userInformation/userInformation';
+import UserInformation from '../../components/users/userInformation';
 import UserSearchForm from '../../components/Forms/userSearchForm';
 import IUserSearchFormValues from '../../components/interface/IUserSearchFormValues';
 import axios from 'axios';
 import IUserInterface from '../../components/interface/IUserInterface';
-import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
+import { UserRelationshipTypes } from '../../components/users/userRelationshipTypes';
 
 
 interface UserProps {
@@ -70,10 +70,8 @@ class UserSearch extends React.Component<UserProps, UserStates> {
 
         try {
             const data = await axios.get("/api/users?name=" + values.username);
-            console.log(data);
-
-
             let a = data.data.slice()
+            a.sort((user1: IUserInterface, user2: IUserInterface) => user1.name.localeCompare(user2.name))
             this.setFriendAndBlockBoolean(a);
             this.setState({ list: a });
 

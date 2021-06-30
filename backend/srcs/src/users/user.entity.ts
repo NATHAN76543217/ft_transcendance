@@ -3,7 +3,8 @@ import { Exclude } from 'class-transformer';
 import Channel from '../channels/channel.entity';
 import { Transform } from 'stream';
 import UsersController from './users.controller';
-import UserRelationship from './user-relationship.entity'
+import UserRelationship from './relationships/user-relationship.entity'
+import { UserRoleTypes } from './utils/userRoleTypes';
 
 @Entity()
 class User {
@@ -40,6 +41,9 @@ class User {
 
     @Column({ nullable: true })
     public status: string;
+
+    @Column({default: UserRoleTypes.null})
+    public role: UserRoleTypes;
 
     @ManyToMany(() => Channel, (channel: Channel) => channel.users)
     public channels: Channel[];

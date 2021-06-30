@@ -1,11 +1,11 @@
 import React from 'react';
-import UserInformation from '../../components/userInformation/userInformation';
-import UserStats from '../../components/userStats/userStats';
+import UserInformation from '../../components/users/userInformation';
+import UserStats from '../../components/users/userStats';
 import MatchHistory from '../../components/matchHistory/matchHistory';
 import { RouteComponentProps } from 'react-router-dom';
 import axios from 'axios';
 import IUserInterface from '../../components/interface/IUserInterface';
-import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
+import { UserRelationshipTypes } from '../../components/users/userRelationshipTypes';
 import Popup from 'reactjs-popup';
 import IUserChangeNameFormValues from '../../components/interface/IUserChangeNameFormValues';
 

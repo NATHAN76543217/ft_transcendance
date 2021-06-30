@@ -1,4 +1,4 @@
-import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
+import { UserRelationshipTypes } from '../users/userRelationshipTypes';
 
 export default interface IUserRelationship {
     id: number;

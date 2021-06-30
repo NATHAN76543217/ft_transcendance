@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty, IsOptional } from "class-validator";
+import { IsString, IsNotEmpty, IsOptional, IsNumber } from "class-validator";
+import { ChannelModeTypes } from "../utils/channelModeTypes";
 
 export class CreateChannelDto {
     @IsString()
@@ -9,7 +10,7 @@ export class CreateChannelDto {
     @IsOptional()
     password: string;
     
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
-    mode: string;
+    mode: ChannelModeTypes;
 }

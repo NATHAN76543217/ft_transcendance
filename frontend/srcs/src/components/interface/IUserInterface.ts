@@ -1,5 +1,6 @@
 import Channel from './IChannelInterface';
-import { UserRelationshipTypes } from '../../components/userInformation/userRelationshipTypes';
+import { UserRelationshipTypes } from '../users/userRelationshipTypes';
+import { UserRoleTypes } from '../users/userRoleTypes';
 
 export default interface IUser {
     id: string;
@@ -11,6 +12,7 @@ export default interface IUser {
     imgPath: string;
     twoFactorAuth: boolean;
     status: string;
+    role: UserRoleTypes;
     channels: Channel[];
     relationshipType: UserRelationshipTypes;
     idInf: boolean

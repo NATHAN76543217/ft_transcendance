@@ -1,30 +1,41 @@
-import PongGenerator from "../../../../../pong/new_pong/engine/engine"
-import {
-    Socket,
-} from "ngx-socket-io"
+// import PongGenerator from "../../../../../pong/new_pong/engine/engine"
+// import {
+//     Socket,
+// } from "ngx-socket-io"
 
-export default function Pong(socketServ : Socket, pongEngine : PongGenerator)
-{
-    const socket : Socket = socketServ;
+// export default function Pong(socketServ : Socket, pongEngine : PongGenerator)
+// {
+//     const socket : Socket = socketServ;
 
-    const canvas = document.getElementById("pongCanvas");
+//     const canvas = document.getElementById("pongCanvas");
 
-    canvas?.addEventListener("mousemove", (event : any) => {
-        socket.emit('mouseEvent', {
-            mousePosX: event.clientX,
-            mousePosY: event.clientY,
-        })
-    });
+//     canvas?.addEventListener("mousemove", (event : any) => {
+//         socket.emit('mouseEvent', {
+//             mousePosX: event.clientX,
+//             mousePosY: event.clientY,
+//         })
+//     });
 
-    // Canvas should call this
-    pongEngine.run();
+//     // Canvas should call this
+//     pongEngine.run();
 
-    return (
-        <canvas id="pongCanvas" className="bg-black w-50 h-40">
+//     return (
+//         <canvas id="pongCanvas" className="h-40 bg-black w-50">
 
-        </canvas>
-    );
-}
+//         </canvas>
+//     );
+// }
+
+
+
+
+export {}
+
+
+
+
+
+
 
 // TO DO: Responsive canvas
 // Mouse pos scraper form the client
