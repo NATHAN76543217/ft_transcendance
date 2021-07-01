@@ -15,8 +15,16 @@ import {
     APolimorphicLib
 } from "../engine/polimorphiclib"
 import calcGameStatus from "../engine/calculations"
+import {
+    GameMode
+} from "../engine/polimorphiclib"
 
-declare interface RoomDto
+declare interface LibPair<T extends APolimorphicLib>
+{
+    [key : string] : T;
+}
+
+export declare interface IRoomDto
 {
     idRoom : number;
     idPlayerOne : string;
@@ -48,10 +56,28 @@ export class PongSocketServer implements OnGatewayConnection, OnGatewayDisconnec
     async handleConnection(room : RoomDto)
     { this.rooms[room.idRoom] = room; }
 
-    @SubscribeMessage('onDisconextion')
-    async handleDisconnect(room : RoomDto)
+    @SubscribeMessage('onJoin')
+    async joinRoom(idRoom : string, idPlayer : string)
     {
-        this.rooms.delete(room.idRoom);
+        // throw exeption here
+        
+        const room : IRoomDto = this.rooms[idRoom];
+        if (room)
+        {
+            room.config.playerTwo.id = idPlayer;
+            this.rooms[idRoom] = room;
+        }
+        else
+            throw new Error(); // TO DO: Customize exceptions
+    }
+
+    @SubscribeMessage('onDisconnexion')
+    async handleDisconnect(idRoom : number)
+    {
+        const room : IRoomDto = this.rooms[idRoom];
+        if (room === undefined)
+            throw new Error(); // to do
+        this.rooms.delete(idRoom);
         this.mousesPos.delete(room.idPlayerOne);
         this.mousesPos.delete(room.idPlayerTwo);
     }
