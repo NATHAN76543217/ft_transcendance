@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@nestjs/websockets": "^7.6.18",
-    "ngx-socket-io": "^4.0.0"
-  }
-}
