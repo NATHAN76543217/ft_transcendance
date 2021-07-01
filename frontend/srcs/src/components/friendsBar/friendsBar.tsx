@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import IUserInterface from '../interface/IUserInterface';
 import IUserRelationship from '../interface/IUserRelationshipInterface';
-import { UserRelationshipTypes } from '../userInformation/userRelationshipTypes';
+import { UserRelationshipTypes } from '../users/userRelationshipTypes';
 import FriendItem from './friendsItem';
 
 type FriendsBarProps = {

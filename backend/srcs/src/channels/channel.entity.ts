@@ -3,6 +3,7 @@ import { Exclude } from 'class-transformer';
 import Message from '../messages/message.entity';
 import User from '../users/user.entity';
 import { IsNumber } from 'class-validator';
+import { ChannelModeTypes } from './utils/channelModeTypes';
 
 @Entity()
 class Channel {
@@ -16,8 +17,8 @@ class Channel {
     @Exclude({ toPlainOnly: true })
     public password: string; // public ?
 
-    @Column()
-    public mode: string;
+    @Column({default: ChannelModeTypes.public})
+    public mode: ChannelModeTypes;
 
     @OneToMany(() => Message, (message: Message) => message.id_chan)
     public messages: Message[];

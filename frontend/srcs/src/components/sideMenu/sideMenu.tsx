@@ -38,7 +38,7 @@ function SideMenu() {
 								Game
 						</Link>
 					</li>
-					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/profile' ? ' bg-neutral-dark' : "" )}>
+					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/users/find' ? ' bg-neutral-dark' : "" )}>
 						<i className="z-0 m-auto fas fa-users fa-2x group-hover:hidden"></i>
 						<i className="hidden pl-4 m-auto fas fa-users fa-lg group-hover:block"></i>
 						<Link 
@@ -47,13 +47,22 @@ function SideMenu() {
 								Users
 						</Link>
 					</li>
-					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/profile' ? ' bg-neutral-dark' : "" )}>
+					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/users' ? ' bg-neutral-dark' : "" )}>
 						<i className="z-0 m-auto far fa-address-card fa-2x group-hover:hidden"></i>
 						<i className="hidden pl-4 m-auto far fa-address-card fa-lg group-hover:block"></i>
 						<Link 
 							to="/users"
 							className="absolute w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
 								Profile
+						</Link>
+					</li>
+					<li className={ "h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/admin' ? ' bg-neutral-dark' : "" )}>
+						<i className="z-0 m-auto fas fa-shield-alt fa-2x group-hover:hidden"></i>
+						<i className="hidden pl-4 m-auto fas fa-shield-alt fa-lg group-hover:block"></i>
+						<Link 
+							to="/admin"
+							className="absolute w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
+								Admin
 						</Link>
 					</li>
 				</ul>

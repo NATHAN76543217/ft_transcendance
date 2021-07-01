@@ -5,6 +5,10 @@ import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { FindOneParam } from '../utils/findOneParams';
 import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
 
+import ChannelRelationshipsService from './relationships/channel-relationships.service';
+import CreateChannelRelationshipDto from './dto/CreateChannelRelationship.dto';
+import UpdateChannelRelationshipDto from './dto/UpdateChannelRelationship.dto';
+
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
@@ -12,7 +16,10 @@ import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
   // strategy: 'excludeAll'
 })
 export default class ChannelsController {
-  constructor(private readonly channelsService: ChannelsService) {}
+  constructor(
+    private readonly channelsService: ChannelsService,
+    private readonly channelRelationshipsService: ChannelRelationshipsService
+    ) {}
 
   @Get()
   // @UseGuards(JwtAuthenticationGuard)
@@ -49,4 +56,35 @@ export default class ChannelsController {
     // return this.channelsService.deleteChannel(id);
     return this.channelsService.deleteChannel(Number(id));
   }
+
+
+	// -----------------------------------
+	// ---------- relationships ----------
+	// -----------------------------------
+
+  @Get('relationships')
+	getChannelRelationships() {
+		return this.channelRelationshipsService.getAllChannelRelationships();
+	}
+
+  @Get('relationships/:id')
+	async getChannelRelationshipsById(@Param('id') id: string) {
+		return this.channelRelationshipsService.getAllChannelRelationshipsFromChannelId(id);
+	}
+
+  @Post('join')
+	async createChannelRelationship(@Body() channelRelationship: CreateChannelRelationshipDto) {
+		return this.channelRelationshipsService.createChannelRelationship(channelRelationship);
+	}
+
+	@Patch('update/:id')
+	async updateChannelRelationship(@Param('id') id: FindOneParam, @Body() channelRelationship: UpdateChannelRelationshipDto) {
+		return this.channelRelationshipsService.updateChannelRelationship(Number(id), channelRelationship);
+	}
+
+	@Delete('leave/:id')
+	async deleteChannelRelationship(@Param('id') id: FindOneParam) {
+		return this.channelRelationshipsService.deleteChannelRelationship(Number(id));
+	}
+
 }

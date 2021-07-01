@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import User from './user.entity';
+import User from '../user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Like, Repository } from 'typeorm';
-import UserRelationshipNotFound from './exception/UserRelationshipNotFound.exception';
+import UserRelationshipNotFound from '../exception/UserRelationshipNotFound.exception';
 import UserRelationship from './user-relationship.entity';
-import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
-import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
-import UserRelationshipByNameNotFoundException from './exception/UserRelationshipByNameNotFound.exception';
+import UpdateUserRelationshipDto from '../dto/UpdateUserRelationship.dto';
+import CreateUserRelationshipDto from '../dto/CreateUserRelationship.dto';
+import UserRelationshipByNameNotFoundException from '../exception/UserRelationshipByNameNotFound.exception';
 
 @Injectable()
 export default class UserRelationshipsService {

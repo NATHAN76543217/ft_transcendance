@@ -4,8 +4,8 @@ import CreateUserDto from './dto/CreateUser.dto';
 import UpdateUserDto from './dto/UpdateUser.dto';
 import { FindOneParam } from './utils/findOneParams';
 import User from './user.entity';
-import UserRelationship from './user-relationship.entity';
-import UserRelationshipsService from './user-relationships.service';
+import UserRelationship from './relationships/user-relationship.entity';
+import UserRelationshipsService from './relationships/user-relationships.service';
 import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
 import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
 
@@ -46,7 +46,10 @@ export default class UsersController {
 		return this.usersService.deleteUser(id + "", this.userRelationshipsService);
 	}
 
+	
+	// -----------------------------------
 	// ---------- relationships ----------
+	// -----------------------------------
 
 	@Get('relationships')
 	getUserRelationships() {

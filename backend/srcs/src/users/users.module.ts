@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import UsersController from './users.controller';
 import UsersService from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import User from './user.entity'; 
-import UserRelationship from './user-relationship.entity';
-import UserRelationshipsService from './user-relationships.service';
+import User from './user.entity';
+import UserRelationship from './relationships/user-relationship.entity';
+import UserRelationshipsService from './relationships/user-relationships.service';
 
 @Module({
     imports: [
@@ -21,4 +21,4 @@ import UserRelationshipsService from './user-relationships.service';
         UserRelationshipsService
     ]
 })
-export default class UsersModule {}
+export default class UsersModule { }

@@ -11,6 +11,7 @@ import Home from './pages/home/home';
 import Game from './pages/game/game';
 import User from './pages/users/user';
 import Login  from './pages/login/login';
+import Admin from './pages/admin/admin';
 
 let change_bg_color_with_size = "sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500";	// for testing
 
@@ -35,8 +36,8 @@ function App() {
 							<Route path="/users">
 								<User />
 							</Route>
-							<Route path='/login'>
-								<Login/>
+							<Route path='/admin'>
+								<Admin/>
 							</Route>
 							<Route exact path='/'>
 								<Home/>

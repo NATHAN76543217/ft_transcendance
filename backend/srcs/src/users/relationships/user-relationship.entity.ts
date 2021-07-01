@@ -1,10 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn, ManyToOne } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import Channel from '../channels/channel.entity';
+import Channel from '../../channels/channel.entity';
 import { Transform } from 'stream';
-import UsersController from './users.controller';
-import User from './user.entity';
-import { UserRelationshipTypes } from './utils/userRelationshipTypes'
+import UsersController from '../users.controller';
+import User from '../user.entity';
+import { UserRelationshipTypes } from './userRelationshipTypes'
 
 @Entity()
 class UserRelationship {
