@@ -1,13 +1,6 @@
 import CustomButton from '../utilities/CustomButton';
 import { NavLink } from 'react-router-dom';
-import { UserRelationshipTypes } from './userRelationshipTypes';
 import React from 'react';
-import { TextInput } from '../utilities/TextInput';
-import { useForm } from 'react-hook-form';
-import ChangeNameUserForm from '../Forms/userChangeNameForm';
-import IUserChangeNameFormValues from '../interface/IUserChangeNameFormValues';
-import Popup from 'reactjs-popup';
-import Alert from 'react-bootstrap/Alert'
 import { ChannelModeTypes } from './channelModeTypes';
 import { ChannelRelationshipTypes } from './channelRelationshipTypes';
 
@@ -54,7 +47,7 @@ function displayChannelPicture(channel: ChannelProps) {
     return (
         <img className="object-contain w-32 h-full"
             src={path}
-            alt="channel picture"
+            alt="channel"
             onClick={() => {}} />
     );
 }
