@@ -61,6 +61,12 @@ services:
             - ./frontend/srcs/:/app/
         networks:
             - pong_frontend_network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+            interval: 1m
+            timeout: 10s
+            retries: 3
+            start_period: 40s
 
     reverse_proxy:
         depends_on:
