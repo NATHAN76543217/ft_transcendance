@@ -220,10 +220,12 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
                                         id={relation.user_id}
                                         name={relation.user_name}
                                         role={translatedRole}
+                                        myRole={UserRoleTypes.owner}
                                         banUser={this.banUserFromChannel}
                                         unbanUser={this.unbanUserFromChannel}
                                         setAdmin={this.setAdminFromChannel}
                                         unsetAdmin={this.unsetAdminFromChannel}
+                                        isChannelUserElement
                                     />
                                 </li>
                             )

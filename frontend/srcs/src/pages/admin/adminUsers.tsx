@@ -6,8 +6,7 @@ import AdminUserElement from '../../components/admin/adminUserElement';
 import { UserRoleTypes } from '../../components/users/userRoleTypes';
 
 interface AdminUsersProps {
-    isOwner?: boolean | false;
-    isAdmin?: boolean | false;
+    myRole: UserRoleTypes;
 }
 
 interface AdminUsersStates {
@@ -21,8 +20,8 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
         super(props);
         this.state = {
             list: [],
-            isOwner: this.props.isOwner === undefined ? false : true,
-            isAdmin: this.props.isAdmin === undefined ? false : true,
+            isOwner: this.props.myRole === UserRoleTypes.owner,
+            isAdmin: this.props.myRole === UserRoleTypes.admin,
         }
         this.banUser = this.banUser.bind(this);
         this.unbanUser = this.unbanUser.bind(this);
@@ -132,6 +131,7 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                                                 id={user.id}
                                                 name={user.name}
                                                 role={user.role}
+                                                myRole={this.props.myRole}
                                                 banUser={this.banUser}
                                                 unbanUser={this.unbanUser}
                                                 setAdmin={this.setAdmin}
@@ -160,11 +160,12 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                                                 id={user.id}
                                                 name={user.name}
                                                 role={user.role}
+                                                myRole={this.props.myRole}
                                                 banUser={this.banUser}
                                                 unbanUser={this.unbanUser}
                                                 setAdmin={this.setAdmin}
                                                 unsetAdmin={this.unsetAdmin}
-                                            />
+                                                />
                                         </li>
                                     )
                                 }

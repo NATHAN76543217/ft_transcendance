@@ -8,6 +8,7 @@ import IUserInterface from '../../components/interface/IUserInterface';
 import { UserRelationshipTypes } from '../../components/users/userRelationshipTypes';
 import Popup from 'reactjs-popup';
 import IUserChangeNameFormValues from '../../components/interface/IUserChangeNameFormValues';
+import { UserRoleTypes } from '../../components/users/userRoleTypes';
 
 
 type UserProps = {
@@ -39,6 +40,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 imgPath: "",
                 twoFactorAuth: false,
                 status: "",
+                role: UserRoleTypes.null,
                 channels: [],
                 relationshipType: UserRelationshipTypes.null,
                 idInf: false,

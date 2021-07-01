@@ -11,15 +11,17 @@ type UserElementProps = {
     id: string,
     name: string,
     role: UserRoleTypes,
+    myRole: UserRoleTypes,
     banUser: (id: string) => void,
     unbanUser: (id: string) => void,
     setAdmin: (id: string) => void,
     unsetAdmin: (id: string) => void,
+    isChannelUserElement?: boolean | false,
 }
 
 function displayRole(role: UserRoleTypes) {
 
-    // axios.patch("/api/users/2", { "role": 4 });
+    // axios.patch("/api/users/1", { "role": 2 });
 
     const divClass = "italic text-sm ";
     switch (role) {
@@ -34,10 +36,25 @@ function displayRole(role: UserRoleTypes) {
     }
 }
 
+function isMyRoleAbove(user: UserElementProps) {
+    let myRole = user.myRole;
+    let role = user.role;
+    if (user.isChannelUserElement) {
+        return true;
+    }
+    if (myRole & UserRoleTypes.owner && !(role & UserRoleTypes.owner)) {
+        return true;
+    }
+    if (myRole === UserRoleTypes.admin && role !== UserRoleTypes.owner && role !== UserRoleTypes.admin) {
+        return true;
+    }
+    return false;
+}
+
 function displayBanButton(user: UserElementProps) {
     return (
         <div className="relative inline-block w-24 mt-2 mb-4 ml-8 text-center">
-            {!(user.role & UserRoleTypes.owner) ?
+            {isMyRoleAbove(user) ?
                 (!(user.role & UserRoleTypes.ban) ? <CustomButton
                     content="Ban user"
                     // url="/users/block"
@@ -66,7 +83,7 @@ function displayBanButton(user: UserElementProps) {
 }
 
 function displayAdminButton(user: UserElementProps) {
-    if (!(user.role & UserRoleTypes.ban)) {
+    if (!(user.role & UserRoleTypes.ban) && isMyRoleAbove(user)) {
         return (
             <div className="relative inline-block w-32 mt-2 mb-4 ml-8 text-center">
                 {!(user.role & UserRoleTypes.owner) ?
