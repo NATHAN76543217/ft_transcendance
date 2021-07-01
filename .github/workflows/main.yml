@@ -66,6 +66,7 @@ jobs:
           run: npm run lint
 
       - name: test
+        if: always()
         uses: addnab/docker-run-action@v3
         with:
           image: ${{ matrix.image_tag }}:latest
