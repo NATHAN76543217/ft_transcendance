@@ -40,9 +40,9 @@ services:
         expose:
             - "8080"
         volumes:
-            - './backend/srcs:/app'
             - /app/node_modules
             - /app/dist
+            - './backend/srcs:/app'
         restart: always
         networks: 
             - pong_database_network
@@ -56,9 +56,9 @@ services:
         container_name: pong_front_cnt
         expose:
             - "3000"
-        volumes: 
-            - ./frontend/srcs/:/app/
+        volumes:
             - /app/node_modules
+            - ./frontend/srcs/:/app/
         networks:
             - pong_frontend_network
 

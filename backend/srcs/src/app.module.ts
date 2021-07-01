@@ -10,8 +10,6 @@ import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { PhotosModule } from './photos/photos.module';
-import { join } from 'path';
-import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -33,9 +31,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
     ChannelsModule,
     MessagesModule,
     PhotosModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname,'..','uploads'), renderPath: 'uploads'   // <-- path to the static files
-    }),
   ],
   controllers: [AppController],
   providers: [AppService],

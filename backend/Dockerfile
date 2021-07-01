@@ -1,24 +1,25 @@
 FROM  node:16.2.0-alpine3.13
 
-#REVIEW delete line bellow?  
-RUN     npm update -g npm
-RUN     mkdir -p /app/node_modules
+# Prepare workdir
+COPY    --chown=node:node srcs/package*.json    /app/
 
+RUN     mkdir -p            /app/node_modules   /app/dist   \
+    &&  chown -R node:node  /app/node_modules   /app/dist
+
+USER    node
 WORKDIR /app
-COPY    srcs    .
-# RUN     npm install -g @nestjs/cli
 
+# Install modules
 # If you are building your code for development
 RUN     npm install
 # If you are building your code for production
 # RUN npm ci --only=production
 
-# Fix bcrypt cross-platform module
-RUN     npm uninstall bcrypt && npm install bcrypt
+# Install sources
+COPY    --chown=node:node srcs/                 .
 
 # RUN npm update @nestjs/cli
 
 # RUN npx @nestjs/cli update
 
 CMD     npm run start:dev
-        # npm start
