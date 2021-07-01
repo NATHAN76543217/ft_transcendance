@@ -1,18 +1,9 @@
 import { Link, NavLink, useLocation } from 'react-router-dom';
 
 function DisplayAdminMenu(isAdmin: boolean) {
-	const location = useLocation();
 	if (isAdmin) {
 		return (
-			<li className={"h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/admin' ? ' bg-neutral-dark' : "")}>
-				<i className="z-0 m-auto fas fa-shield-alt fa-2x group-hover:hidden"></i>
-				<i className="hidden pl-4 m-auto fas fa-shield-alt fa-lg group-hover:block"></i>
-				<Link
-					to="/admin"
-					className="absolute w-full h-full pt-3 m-auto opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">
-					Admin
-				</Link>
-			</li>
+			<SideMenuButton name="Admin" href="/admin" icon="fa-shield-alt" />
 		)
 	};
 }
@@ -34,7 +25,7 @@ function SideMenuButton({ name, href, icon, iconStyle }: SideMenuButtonProps) {
 				className="relative flex items-center justify-center h-full text-center hover:bg-gray-300"
 				activeClassName="bg-neutral-dark">
 				<i className={`z-0 fa-2x ${iconStyle} ${icon} group-hover:hidden`}></i>
-				<i className={`hidden w-12 fa-lg ${iconStyle} ${icon} group-hover:inline-block`}></i>
+				<i className={`hidden w-16 fa-lg ${iconStyle} ${icon} group-hover:inline-block`}></i>
 				<div className="absolute w-full font-semibold uppercase opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">{name}</div>
 			</NavLink>
 		</li>
