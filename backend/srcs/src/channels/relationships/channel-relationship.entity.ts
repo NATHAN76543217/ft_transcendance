@@ -1,7 +1,8 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { ChannelRelationshipTypes } from './channelRelationshipTypes'
 
 @Entity()
+@Unique(["channel_id", "user_id"])
 class ChannelRelationship {
     @PrimaryGeneratedColumn()
     public id: number;

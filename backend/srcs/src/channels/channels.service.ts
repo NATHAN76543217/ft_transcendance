@@ -1,9 +1,9 @@
-import {HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
 
 @Injectable()
@@ -11,11 +11,14 @@ export default class ChannelsService {
   constructor(
     @InjectRepository(Channel)
     private channelsRepository: Repository<Channel>
-  ) {}
+  ) { }
 
-  async getAllChannels() {
-    const channels = await this.channelsRepository.find({ relations: ['users']});
-    return channels;
+  async getAllChannels(name: string) {
+    if (name === undefined) {
+      return await this.channelsRepository.find({ relations: ['users'] });
+    }
+    return this.channelsRepository.find({
+      where: { 'name': Like('%' + name + '%') }});
   }
 
   async getChannelById(id: number) {

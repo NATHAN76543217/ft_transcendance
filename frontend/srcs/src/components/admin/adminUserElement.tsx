@@ -53,7 +53,7 @@ function isMyRoleAbove(user: UserElementProps) {
 
 function displayBanButton(user: UserElementProps) {
     return (
-        <div className="relative inline-block w-24 mt-2 mb-4 ml-8 text-center">
+        <div className="relative inline-flex w-24 h-6 text-center items-center justify-center">
             {isMyRoleAbove(user) ?
                 (!(user.role & UserRoleTypes.ban) ? <CustomButton
                     content="Ban user"
@@ -76,7 +76,7 @@ function displayBanButton(user: UserElementProps) {
                         text_size="text-sm"
                     />
                 )
-                : <div />
+                : <div className="relative inline-flex w-32 h-6 text-center items-center justify-center"></div>  
             }
         </div>
     )
@@ -85,7 +85,7 @@ function displayBanButton(user: UserElementProps) {
 function displayAdminButton(user: UserElementProps) {
     if (!(user.role & UserRoleTypes.ban) && isMyRoleAbove(user)) {
         return (
-            <div className="relative inline-block w-32 mt-2 mb-4 ml-8 text-center">
+            <div className="relative inline-flex w-32 h-6 text-center items-center justify-center">
                 {!(user.role & UserRoleTypes.owner) ?
                     (!(user.role & UserRoleTypes.admin) ? <CustomButton
                         content="Set admin"
@@ -113,23 +113,28 @@ function displayAdminButton(user: UserElementProps) {
             </div>
         )
     }
+    else {
+        return (
+            <div className="relative inline-flex w-32 h-6 text-center items-center justify-center"></div>
+        )
+    }
 }
 
 function AdminUserElement(user: UserElementProps) {
 
     return (
-        <div className="items-center inline-block h-auto mt-2 group">
+        <div className="inline-flex h-8 ">
             <div className="flex">
-                <div className="flex items-center justify-center w-24 mr-2">
+                <div className="flex w-24 justify-center">
                     {displayRole(user.role)}
                 </div>
-                <div className="w-48">
-                    <NavLink to={"/users/" + user.id} className="font-bold text-md">
+                <div className="w-44">
+                    <NavLink to={"/users/" + user.id} className="font-bold text-md whitespace-nowrap">
                         {user.name}
                     </NavLink>
                 </div>
             </div>
-            <div className={"hidden w-96 " + (!(user.role & UserRoleTypes.owner) ? "group-hover:block " : " ")}>
+            <div className={"flex w-56" }>
                 {displayAdminButton(user)}
                 {displayBanButton(user)}
             </div>

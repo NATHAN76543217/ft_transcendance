@@ -22,7 +22,7 @@ export default class ChannelRelationshipsService {
   async getAllChannelRelationshipsFromChannelId(id: string) {
     const data =  await this.channelRelationshipsRepository.find({
       where: [
-        { 'channel_id': Number(id)}
+        { 'channel_id': id + ""}
       ]
     });
     return data;

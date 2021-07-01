@@ -81,8 +81,8 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
     displayDestroyButton() {
         if (!this.state.showDestroyValidation) {
             return (
-                <div className="relative inline-block w-auto mt-2 mb-4 ml-8 text-center">
-                    <button className="inline-block w-full px-2 py-1 font-semibold text-gray-900 rounded-md justify-centerw-full bg-unset text-md focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap"
+                <div className="relative inline-block w-auto h-6 text-center">
+                    <button className="inline-block w-full px-2 font-semibold text-gray-900 rounded-md justify-centerw-full bg-unset text-md focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap"
                         onClick={this.changeDestroyValidationButtonState}
                     >
                         Destroy channel
@@ -95,7 +95,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
     displayDestroyValidationButton() {
         if (this.state.showDestroyValidation) {
             return (
-                <div className="relative flex mt-2 mb-4 ml-8 text-center w-96">
+                <div className="rrelative inline-flex w-54 h-6 text-center items-center justify-center">
                     <CustomButton
                         content="Confirm destruction?"
                         // url="/users/block"
@@ -104,7 +104,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
                         bg_color="bg-unset"
                         // bg_hover_color="bg-secondary-dark"
                         dark_text
-                        text_size="text-md"
+                        text_size="text-sm"
                     />
                     <CustomButton
                         content="No"
@@ -114,7 +114,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
                         bg_color="bg-secondary"
                         // bg_hover_color="bg-secondary-dark"
                         dark_text
-                        text_size="text-md"
+                        text_size="text-sm"
                     />
                 </div>
             )
@@ -210,6 +210,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
         if (this.state.showUsersList) {
             return (
                 <div>
+                    <ul className="relative w-auto pt-4 pl-4">
                     {this.state.channelRelationshipsList.map((relation) => {
                         let translatedRole = this.translateRelationTypeToRole(relation.type)
 
@@ -233,6 +234,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
                     }
                     )
                     }
+                    </ul>
                 </div>
             )
         }
@@ -243,9 +245,9 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
 
         return (
             <div>
-                <div className="flex items-center h-auto mt-2 group">
+                <div className="flex items-center h-8 mt-2 group">
                     <div className="flex">
-                        <div className="flex items-center justify-center w-24 mr-2">
+                        <div className="flex  w-24 mr-2 justify-center">
                             {this.displayMode()}
                         </div>
                         <div className="w-48 font-bold text-md" onClick={this.changeUsersListButtonState}>

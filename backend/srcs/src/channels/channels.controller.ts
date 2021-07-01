@@ -23,8 +23,8 @@ export default class ChannelsController {
 
   @Get()
   // @UseGuards(JwtAuthenticationGuard)
-  async getAllChannels() {
-    return this.channelsService.getAllChannels();
+  getChannels(@Query('name') name: string) {
+    return this.channelsService.getAllChannels(name);
   }
 
   @Get(':id')
@@ -78,12 +78,12 @@ export default class ChannelsController {
 	}
 
 	@Patch('update/:id')
-	async updateChannelRelationship(@Param('id') id: FindOneParam, @Body() channelRelationship: UpdateChannelRelationshipDto) {
+	async updateChannelRelationship(@Param('id') id: string, @Body() channelRelationship: UpdateChannelRelationshipDto) {
 		return this.channelRelationshipsService.updateChannelRelationship(Number(id), channelRelationship);
 	}
 
 	@Delete('leave/:id')
-	async deleteChannelRelationship(@Param('id') id: FindOneParam) {
+	async deleteChannelRelationship(@Param('id') id: string) {
 		return this.channelRelationshipsService.deleteChannelRelationship(Number(id));
 	}
 

@@ -6,6 +6,7 @@ import UserSearch from './userSearch';
 import UserCreate from './userCreate';
 import { Route } from 'react-router';
 import UserDelete from './userDelete';
+import ChannelSearch from '../channels/channelSearch';
 
 class User extends React.Component {
     // constructor(props) 
@@ -28,7 +29,7 @@ class User extends React.Component {
                 <Route exact path="/users/:id" component={UserPage} />
 
 
-
+    {/* --------- TEST --------- */}
 
                 <Route exact path='/users/create'>
                     <UserCreate />
@@ -37,6 +38,10 @@ class User extends React.Component {
                 <Route exact path='/users/delete'>
                     <UserDelete />
                 </Route>
+
+
+                <Route exact path="/users/channels" component={ChannelSearch} />
+
 
             </div>
         );

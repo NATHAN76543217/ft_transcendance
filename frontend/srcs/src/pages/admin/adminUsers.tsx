@@ -116,17 +116,17 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                 <h2 className="text-3xl font-bold text-center">
                     Users Administration
                 </h2>
-                <div className="relative flex flex-wrap xl:block">
-                    <section className={sectionClass + ""}>
+                <div className="relative flex flex-wrap">
+                    <section className={sectionClass}>
 
                         <h1 className={h1Class}>
                             Standard users
                         </h1>
-                        <ul className="relative w-full pt-4 pl-4">
+                        <ul className="relative w-auto pt-4 pl-4">
                             {this.state.list.map((user) => {
                                 if (!(user.role & UserRoleTypes.ban)) {
                                     return (
-                                        <li key={user.name} className="">
+                                        <li key={user.name} className="justify-center">
                                             <AdminUserElement
                                                 id={user.id}
                                                 name={user.name}
@@ -151,7 +151,7 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                         <h1 className={h1Class}>
                             Banned users
                         </h1>
-                        <ul className="relative pt-4 pl-4">
+                        <ul className="relative w-auto pt-4 pl-4">
                             {this.state.list.map((user) => {
                                 if (user.role & UserRoleTypes.ban) {
                                     return (

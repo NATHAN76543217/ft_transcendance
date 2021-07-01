@@ -4,7 +4,7 @@ export default class UpdateUserDto {
 	@IsOptional()
     @IsString()
     @IsNotEmpty()
-    @Length(1, 20)
+    @Length(1, 15)
     public name: string;
     
     @IsString()

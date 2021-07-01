@@ -1,8 +1,9 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumberString, IsBoolean, IsNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsOptional, IsNumberString, IsBoolean, IsNumber, Length } from "class-validator";
 
 export default class CreateUserDto {
     @IsString()
     @IsNotEmpty()
+    @Length(1, 15)
     public name : string;
 
     @IsString()

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-function displayAdminMenu(isAdmin: boolean) {
+function DisplayAdminMenu(isAdmin: boolean) {
+	const location = useLocation();
 	if (isAdmin) {
 		return (
 			<li className={"h-12 flex uppercase relative font-semibold text-center" + (location.pathname === '/admin' ? ' bg-neutral-dark' : "")}>
@@ -72,8 +73,8 @@ function SideMenu() {
 						Profile
 					</Link>
 				</li>
-				{displayAdminMenu(true)}				
-				{/* {displayAdminMenu(false)} */}		
+				{DisplayAdminMenu(true)}				
+				{/* {DisplayAdminMenu(false)} */}		
 						{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
 			</ul>
 		</nav>

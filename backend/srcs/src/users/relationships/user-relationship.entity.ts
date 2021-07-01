@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import Channel from '../../channels/channel.entity';
 import { Transform } from 'stream';
@@ -7,6 +7,7 @@ import User from '../user.entity';
 import { UserRelationshipTypes } from './userRelationshipTypes'
 
 @Entity()
+@Unique(["user1_id", "user2_id"])
 class UserRelationship {
     @PrimaryGeneratedColumn()
     public id: number;
