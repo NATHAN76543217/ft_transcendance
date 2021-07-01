@@ -64,8 +64,9 @@ function SideMenu() {
 				</li>
 				<SideMenuButton name="Home" href="/" icon="fa-home" />
 				<SideMenuButton name="Game" href="/game" icon="fa-dice-d6" />
-				<SideMenuButton name="Users" href="/users/find" icon="fa-users" />
-				<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
+				<SideMenuButton name="Users" href="/users" icon="fa-users" />
+				<SideMenuButton name="Profile" href="/profile" icon="fa-address-card" />
+				<SideMenuButton name="Chats" href="/chat" icon="fa-comment-dots" />
 				{DisplayAdminMenu(true)}
 				{/* {DisplayAdminMenu(false)} */}		
 						{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
