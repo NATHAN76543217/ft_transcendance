@@ -7,7 +7,7 @@ interface ILoginFormValues {
 	username: string,
 	password: string,
 }
-
+//TODO actually regiser funcion is the exact same as login function : make it a register function
 export default function Register(props: {})
 {
 	//const [username, password] = useState();

@@ -1,26 +1,27 @@
 import { Redirect, Route } from "react-router-dom";
 
-function OnlyPublicRoute({ isAuth: logged, component: Component, exact, path, setUser} : {
+function PrivateRoute(props : {
     isAuth : boolean,
-    component: any,
+    component?: any,
     exact?: boolean,
     path?: string,
-    setUser?: Function
-
+    children: React.ReactNode | JSX.Element
     }) : JSX.Element
     {
-        console.log("setUser = ", setUser);
         return (
             <Route
-                { ...exact }
-                { ...path }
-                render={ (props) => {
-                    if (logged === true)
-                        return <Redirect to="/" />
+                { ...props.exact }
+                { ...props.path }
+                render={ () => {
+                    if (props.isAuth === true)
+                        return <Redirect to="/"/>
                     else
-                        return <Component {... props} setUser={setUser}/>;
+                        return (
+                        <div>
+                            { props.children }
+                        </div>);
                 }}
             />
         );
     };
-export default OnlyPublicRoute;
+export default PrivateRoute;
