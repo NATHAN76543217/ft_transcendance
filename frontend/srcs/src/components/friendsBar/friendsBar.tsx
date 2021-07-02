@@ -181,7 +181,7 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 
 	render() {
 		return (
-			<aside className=' bg-neutral'>
+			<aside className='w-48 bg-neutral'>
 				<header>
 					<h2 className="py-4 text-2xl text-center first-letter:uppercase bg-secondary">
 						my friendlist

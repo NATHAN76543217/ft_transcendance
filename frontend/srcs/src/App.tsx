@@ -40,7 +40,7 @@ function App() {
 							<div className="flex-none border-r-2 border-gray-700 md:block border-opacity-70">
 								<SideMenu />
 							</div>
-							<div className="flex w-full flex-nowrap">
+							<div className="z-30 flex w-full flex-nowrap">
 								<main className={"flex-grow " + change_bg_color_with_size}>
 									<Switch>
 										<Route exact path='/'>

@@ -38,31 +38,35 @@ SideMenuButton.defaultProps = {
 
 function SideMenu() {
 	return (
-		<nav className="flex flex-col w-16 h-full bg-neutral duration-800 transition-width delay-0 hover:w-64 group lg:w-28 xl:w-32">
-			<ul className="w-full ">
-				<li className="h-40 bg-black xl:h-52 2xl:h-60">
-					<Link to='/'>
-						<header className="table-cell w-16 h-40 text-center text-white align-middle bg-transparent lg:w-28 xl:w-32 group-hover:hidden xl:h-52 2xl:h-60" >
-							<span className="items-center justify-center inline-block h-10 font-bold transform -rotate-90 bg-transparent w-min text-md md:text-md lg:text-2xl 2xl:text-3xl ">
-								ft_pong
+		<div>
+			<nav className="absolute z-50 w-16 h-full delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">
+				<ul className="w-full ">
+					<li className="h-40 bg-black xl:h-52 2xl:h-60">
+						<Link to='/'>
+							<header className="table-cell w-16 h-40 text-center text-white align-middle bg-transparent lg:w-28 xl:w-32 group-hover:hidden xl:h-52 2xl:h-60 " >
+								<span className="items-center justify-center inline-block h-10 font-bold transform -rotate-90 bg-transparent w-min text-md md:text-md lg:text-2xl 2xl:text-3xl ">
+									ft_pong
 							</span>
-						</header>
-						<img
-							src='/logo-menu.jpeg'
-							alt='logo-menu'
-							className="hidden object-cover object-center w-full h-full group-hover:block " />
-					</Link>
-				</li>
-				<SideMenuButton name="Home" href="/" icon="fa-home" />
-				<SideMenuButton name="Game" href="/game" icon="fa-dice-d6" />
-				<SideMenuButton name="Users" href="/users/find" icon="fa-users" />
-				<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
-				<SideMenuButton name="Chats" href="/chat" icon="fa-comment-dots" />
-				{DisplayAdminMenu(true)}
-				{/* {DisplayAdminMenu(false)} */}		
-						{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
-			</ul>
-		</nav>
+							</header>
+							<img
+								src='/logo-menu.jpeg'
+								alt='logo-menu'
+								className="hidden object-cover object-center w-full h-full group-hover:block " />
+						</Link>
+					</li>
+					<SideMenuButton name="Home" href="/" icon="fa-home" />
+					<SideMenuButton name="Game" href="/game" icon="fa-dice-d6" />
+					<SideMenuButton name="Users" href="/users/find" icon="fa-users" />
+					<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
+					<SideMenuButton name="Chats" href="/chat" icon="fa-comment-dots" />
+					{DisplayAdminMenu(true)}
+					{/* {DisplayAdminMenu(false)} */}
+					{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
+				</ul>
+			</nav>
+			<div className="flex flex-col w-16 h-full lg:w-28 xl:w-32"> </div>
+		</div>
 	)
 }
+
 export default SideMenu;
