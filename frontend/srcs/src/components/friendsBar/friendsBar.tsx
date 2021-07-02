@@ -7,7 +7,8 @@ import { UserRelationshipTypes } from '../users/userRelationshipTypes';
 import FriendItem from './friendsItem';
 
 type FriendsBarProps = {
-
+	relationshipsList: IUserInterface[],
+	myId: string,
 }
 
 interface FriendsBarStates {
@@ -25,7 +26,7 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 	constructor(props: FriendsBarProps) {
 		super(props);
 		this.state = {
-			list: [],
+			list: this.props.relationshipsList,
 			displaySection: {
 				pendingRequests: true,
 				inGameFriends: true,
@@ -33,16 +34,42 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 				offlineFriends: true,
 			}
 		}
+
+		console.log(this.state.list);	//////////////
 	}
 
 	componentDidMount() {
-		this.setAllRelationships();
+		// this.setAllRelationships();
 	}
 
-	componentDidUpdate() {
-		// this.setAllRelationships();
-		// console.log("friendsBar didUpdate")
-	}
+
+	
+//////////////////////////////////////////////////////////////////////////////////////////////
+	componentWillReceiveProps(nextProps: FriendsBarProps){
+		console.log("componentWillReceiveProps")
+		if(this.props.relationshipsList !== nextProps.relationshipsList){
+		   this.setState({
+			  list: nextProps.relationshipsList,
+		   })
+		}
+	 }
+
+// 	updateAndNotify() {
+// console.log("updateAndNotify")
+		
+// 		this.setState({
+// 			list: this.props.relationshipsList
+// 		})
+// 	}
+
+// 	componentDidUpdate(prevProps: FriendsBarProps) {
+// 		if (prevProps.relationshipsList !== this.props.relationshipsList) {
+// 			this.updateAndNotify();
+// 		}
+// 	}
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 	changeSectionDisplayStatus(sectionName: string) {
 		switch (sectionName) {
@@ -79,48 +106,34 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 		}
 	}
 
-	// async shouldUpdateRelationships(data: IUserRelationship[]) {
-	// 	if (this.state.list.length != data.length) {
-	// 		return true;
-	// 	}
-	// 	let shouldUpdate = false;
-	// 	data.map((elem) => {
-	// 		let inf = (Number(elem.user1_id) === Number("1"));
-	// 		let relationId = inf ? elem.user2_id : elem.user1_id;
-	// 		if (this.state.list.findIndex((relation) => ( Number(relation.id) === Number(relationId) )) === -1) {
-	// 			shouldUpdate = true;
-	// 		}
-	// 	})
-	// 	return shouldUpdate;
+
+	// async setAllRelationships() {
+	// 	try {
+	// 		const dataRel = await axios.get("/api/users/relationships/" + this.props.myId)	// A CHANGER quand on aura l e bon id
+	// 		// if (this.shouldUpdateRelationships(dataRel.data)) {
+	// 		let a = this.state.list.slice();
+	// 		await dataRel.data.map(async (relation: IUserRelationship) => {
+	// 			let inf = (Number(relation.user1_id) === Number(this.props.myId));
+	// 			let friendId = inf ? relation.user2_id : relation.user1_id;
+	// 			try {
+	// 				let index = a.findIndex((elem) => (Number(elem.id) === Number(friendId)));
+	// 				if (index === -1) {
+	// 					const dataUser = await axios.get("/api/users/" + friendId);	// many api calls
+	// 					index = a.push(dataUser.data);
+	// 					a[index - 1].relationshipType = relation.type;
+	// 					this.setState({ list: a });
+	// 				} else {
+	// 					a[index].relationshipType = relation.type;
+	// 					this.setState({ list: a });
+	// 				}
+	// 			} catch (error) { }
+	// 		})
+	// 		// }
+	// 	} catch (error) { }
 	// }
 
-	async setAllRelationships() {
-		try {
-			const dataRel = await axios.get("/api/users/relationships/" + "1")	// A CHANGER quand on aura l e bon id
-			// if (this.shouldUpdateRelationships(dataRel.data)) {
-			let a = this.state.list.slice();
-			await dataRel.data.map(async (relation: IUserRelationship) => {
-				let inf = (Number(relation.user1_id) === Number("1"));
-				let friendId = inf ? relation.user2_id : relation.user1_id;
-				try {
-					let index = a.findIndex((elem) => (Number(elem.id) === Number(friendId)));
-					if (index === -1) {
-						const dataUser = await axios.get("/api/users/" + friendId);	// many api calls
-						index = a.push(dataUser.data);
-						a[index - 1].relationshipType = relation.type;
-						this.setState({ list: a });
-					} else {
-						a[index].relationshipType = relation.type;
-						this.setState({ list: a });
-					}
-				} catch (error) { }
-			})
-			// }
-		} catch (error) { }
-	}
-
 	displayPendingRequests(relation: IUserInterface) {
-		let inf = (Number("1") < Number(relation.id));
+		let inf = (Number(this.props.myId) < Number(relation.id));
 		if (((inf && (relation.relationshipType & UserRelationshipTypes.pending_second_first)) ||	// a ajuster
 			(!inf && (relation.relationshipType & UserRelationshipTypes.pending_first_second))) &&
 			this.state.displaySection.offlineFriends) {
@@ -143,29 +156,29 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 		else { return (<div></div>) }
 	}
 
-	displayOnlineFriends(relation: IUserInterface) {
-		if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
-			(relation.relationshipType & UserRelationshipTypes.pending_second_first) &&
-			(relation.status === "Connected") &&
-	this.state.displaySection.onlineFriends) {
-			return (
-				<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
-			)
-		}
-		else { return (<div></div>) }
-	}
-
-	// displayOnlineFriends(relation: IUserInterface) {	// FAKE - For Testing
+	// displayOnlineFriends(relation: IUserInterface) {
 	// 	if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
-
+	// 		(relation.relationshipType & UserRelationshipTypes.pending_second_first) &&
 	// 		(relation.status === "Connected") &&
-	// 		this.state.displaySection.onlineFriends) {
+	// this.state.displaySection.onlineFriends) {
 	// 		return (
 	// 			<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
 	// 		)
 	// 	}
 	// 	else { return (<div></div>) }
 	// }
+
+	displayOnlineFriends(relation: IUserInterface) {	// FAKE - For Testing
+		if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
+
+			(relation.status === "Connected") &&
+			this.state.displaySection.onlineFriends) {
+			return (
+				<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
+			)
+		}
+		else { return (<div></div>) }
+	}
 
 	displayofflineFriends(relation: IUserInterface) {
 		if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
@@ -204,9 +217,9 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 					</button>
 					<ul>
 						{this.state.list.map((relation) =>
-						<div key={relation.name}>
-							{this.displayPendingRequests(relation)}
-						</div>
+							<div key={relation.name}>
+								{this.displayPendingRequests(relation)}
+							</div>
 						)}
 					</ul>
 				</section>
@@ -219,9 +232,9 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 					</button>
 					<ul>
 						{this.state.list.map((relation) =>
-						<div key={relation.name}>
-							{this.displayInGameFriends(relation)}
-						</div>
+							<div key={relation.name}>
+								{this.displayInGameFriends(relation)}
+							</div>
 						)}
 					</ul>
 				</section>
@@ -249,9 +262,9 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 					</button>
 					<ul>
 						{this.state.list.map((relation) =>
-						<div key={relation.name}>
-							{this.displayofflineFriends(relation)}
-						</div>
+							<div key={relation.name}>
+								{this.displayofflineFriends(relation)}
+							</div>
 						)}
 					</ul>
 

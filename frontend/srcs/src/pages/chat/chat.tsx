@@ -21,7 +21,9 @@ export default function ChatPage({ match }: RouteComponentProps<ChatPageParams>)
         <div className="flex-col w-full">
             <ChatHeader chat={currentChat} ></ChatHeader>
             <Route exact path='/chat/find'>
-                <ChannelSearch />
+                <ChannelSearch
+                    myId="1"    // a changer
+                />
             </Route>
             <Route exact path='/chat/create'>
                 {/* <ChannelCreate /> */}

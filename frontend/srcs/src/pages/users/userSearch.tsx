@@ -10,8 +10,9 @@ import { UserRelationshipTypes } from '../../components/users/userRelationshipTy
 
 
 interface UserProps {
-    id?: string,
+    myId: string,
     isMe?: boolean | false,
+    updateAllRelationships: () => void,
 }
 
 interface UserStates {
@@ -33,6 +34,14 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         this.unblockUser = this.unblockUser.bind(this);
     }
 
+    componentDidMount() {
+        // this.del(1);
+    }
+
+    async del(id: number) {
+        await axios.delete("/api/users/relationships/" + id)
+    }
+
     componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
         // Typical usage (don't forget to compare props):
         // console.log("Previous list: " + prevStates.list);
@@ -45,7 +54,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     async setFriendAndBlockBoolean(list: IUserInterface[]) {
         list.map(async (user, index) => {
             try {
-                const data = await axios.get("/api/users/relationships/" + user.id + "/" + "1") // A CHANGER a remettre quand ca marchera
+                const data = await axios.get("/api/users/relationships/" + user.id + "/" + this.props.myId) // A CHANGER a remettre quand ca marchera
                 if (data.data.type !== this.state.list[index].relationshipType) {
                     let a = this.state.list.slice()
                     a[index].relationshipType = data.data.type;
@@ -78,9 +87,9 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async addFriend(id: string) {
-        let inf = (Number("1") < Number(id));
+        let inf = (Number(this.props.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.pending_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.pending_second_first)) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -99,7 +108,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
             try {
                 await axios.post("/api/users/relationships", {
                     user1_id: id + "",
-                    user2_id: "1",
+                    user2_id: this.props.myId,
                     type: newType
                 })
                 this.updateRelationshipState(id, newType);
@@ -107,11 +116,12 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 console.log(error);
             }
         }
+        this.props.updateAllRelationships();
     }
 
     async removeFriend(id: string) {
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (currentRel.data.type & UserRelationshipTypes.friends) {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
@@ -125,12 +135,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 } catch (error) { }
             }
         } catch (error) { }
+        this.props.updateAllRelationships();
     }
 
     async blockUser(id: string) {
-        let inf = (Number("1") < Number(id));
+        let inf = (Number(this.props.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.block_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.block_second_first)) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -149,18 +160,19 @@ class UserSearch extends React.Component<UserProps, UserStates> {
             try {
                 await axios.post("/api/users/relationships", {
                     user1_id: id + "",
-                    user2_id: "1",
+                    user2_id: this.props.myId,
                     type: newType
                 })
                 this.updateRelationshipState(id, newType);
             } catch (error) { }
         }
+        this.props.updateAllRelationships();
     }
 
     async unblockUser(id: string) {
-        let inf = (Number("1") < Number(id));
+        let inf = (Number(this.props.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (!(inf && !(currentRel.data.type & UserRelationshipTypes.block_first_second)) &&
                 !(!inf && !(currentRel.data.type & UserRelationshipTypes.block_second_first))) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -178,6 +190,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 } catch (error) { }
             }
         } catch (error) { }
+        this.props.updateAllRelationships();
     }
 
     render() {
@@ -197,7 +210,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                                 nbLoss={user.nbLoss}
                                 imgPath={user.imgPath}
                                 relationshipTypes={user.relationshipType}
-                                idInf={Number("1") < Number(user.id)}
+                                idInf={Number(this.props.myId) < Number(user.id)}
                                 addFriend={this.addFriend}
                                 removeFriend={this.removeFriend}
                                 blockUser={this.blockUser}
@@ -207,13 +220,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                                 // --------------------------------------------------
                                 // --------------------------------------------------
                                 // isBlocked={
-                                //     (Number("1") < Number(user.id) && user.relationshipType === UserRelationshipTypes.block_first_second) ||
-                                //     (Number("1") > Number(user.id) && user.relationshipType === UserRelationshipTypes.block_second_first)
+                                //     (Number(this.props.myId) < Number(user.id) && user.relationshipType === UserRelationshipTypes.block_first_second) ||
+                                //     (Number(this.props.myId) > Number(user.id) && user.relationshipType === UserRelationshipTypes.block_second_first)
                                 // }    // A CHANGER QUAND ON SAURA
                                 // --------------------------------------------------
                                 isInSearch
                                 // --------------------------------------------------
-                                isMe={Number(user.id) === Number("1")} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                isMe={Number(user.id) === Number(this.props.myId)} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             // --------------------------------------------------
                             />
                         </li>

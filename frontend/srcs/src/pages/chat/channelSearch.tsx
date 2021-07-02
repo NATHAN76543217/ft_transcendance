@@ -10,6 +10,7 @@ import ChannelInformation from '../../components/channels/channelInformation';
 
 
 interface ChannelProps {
+    myId: string
 }
 
 interface ChannelStates {
@@ -43,7 +44,7 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             try {
                 const data = await axios.get("/api/channels/relationships/" + channel.id) // A CHANGER a remettre quand ca marchera
 
-                let indexData = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number("1"));
+                let indexData = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(this.props.myId));
                 let a = this.state.list.slice()
 
                 if (indexData !== -1) {
@@ -79,11 +80,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     async joinChannel(id: string) {
         try {
             const data = await axios.get("/api/channels/relationships/" + id)
-            let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number("1"));
+            let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(this.props.myId));
             if (index === -1) {
                 axios.post("/api/channels/join", {
                     channel_id: id + "",
-                    user_id: "1",
+                    user_id: this.props.myId,
                     user_name: "Jean",  // A REMPLACER PAR LE VRAI NOM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     type: ChannelRelationshipTypes.standard
                 })
@@ -95,7 +96,7 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     async leaveChannel(id: string) {
         try {
             const data = await axios.get("/api/channels/relationships/" + id)
-            let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number("1"));
+            let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(this.props.myId));
             if (index !== -1 && data.data[index].type !== ChannelRelationshipTypes.ban) {
                 await axios.delete("/api/channels/leave/" + data.data[index].id)
                 this.updateRelationshipState(id, ChannelRelationshipTypes.null);

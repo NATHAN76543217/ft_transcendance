@@ -11,8 +11,10 @@ import { UserRoleTypes } from '../../components/users/userRoleTypes';
 
 
 type UserProps = {
-    id?: string,
-    isMe?: boolean | false
+    myId: string,
+    // userId: string,
+    isMe?: boolean | false,
+    updateAllRelationships: () => void,
 }
 
 interface UserStates {
@@ -66,10 +68,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
         let userId = this.params.match.params.id;
 
         if (this.params.match.params.id === undefined) {
-            //---------------------------------------------
-            // userId = app.state.userId;                           // A CHANGER a remettre quand ca marchera
-            userId = "1";
-            //---------------------------------------------
+            userId = this.props.myId;
         }
 
         if (this.state.id !== this.params.match.params.id) {
@@ -78,7 +77,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 user: {
                     ...this.state.user,
                     id: userId,
-                    idInf: (userId < "1")              // A CHANGER a remettre quand ca marchera
+                    idInf: (userId < this.props.myId)
                 }
             });
         }
@@ -171,7 +170,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
 
     async setFriendAndBlockBoolean(user: IUserInterface) {
         try {
-            const data = await axios.get("/api/users/relationships/" + user.id + "/" + "1") // A CHANGER a remettre quand ca marchera
+            const data = await axios.get("/api/users/relationships/" + user.id + "/" + this.props.myId)
             if (data.data.type !== this.state.user.relationshipType) {
                 let a = { ...this.state.user }
                 a.relationshipType = data.data.type;
@@ -194,9 +193,9 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     async addFriend(id: string) {
-        let inf = (Number("1") < Number(id));
+        let inf = (Number(this.props.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.pending_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.pending_second_first)) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -215,7 +214,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
             try {
                 await axios.post("/api/users/relationships", {
                     user1_id: id + "",
-                    user2_id: "1",
+                    user2_id: this.props.myId,
                     type: newType
                 })
                 this.updateRelationshipState(newType);
@@ -225,7 +224,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
 
     async removeFriend(id: string) {
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (currentRel.data.type & UserRelationshipTypes.friends) {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
@@ -247,9 +246,9 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     async blockUser(id: string) {
-        let inf = (Number("1") < Number(id));
+        let inf = (Number(this.props.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             console.log("currentRel : " + currentRel.data);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.block_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.block_second_first)) {
@@ -269,7 +268,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
             try {
                 await axios.post("/api/users/relationships", {
                     user1_id: id + "",
-                    user2_id: "1",
+                    user2_id: this.props.myId,
                     type: newType
                 })
                 this.updateRelationshipState(newType);
@@ -278,9 +277,9 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     }
 
     async unblockUser(id: string) {
-        let inf = (Number("1") < Number(id));
+        let inf = (Number(this.props.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + "1");
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
             if (!(inf && !(currentRel.data.type & UserRelationshipTypes.block_first_second)) &&
                 !(!inf && !(currentRel.data.type & UserRelationshipTypes.block_second_first))) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -335,7 +334,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
             return <div className="px-2 py-2 font-bold">This user does not exist</div>
         }
 
-        let isMe = (this.state.id === undefined || Number(this.state.id) === Number("1"));
+        let isMe = (this.state.id === undefined || Number(this.state.id) === Number(this.props.myId));
 
         return (
             <div className="">
@@ -347,11 +346,9 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                         nbWin={this.state.user.nbWin}
                         nbLoss={this.state.user.nbLoss}
                         imgPath={this.state.user.imgPath}
-                        // --------------------------------------------------
-                        isMe={isMe} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                        // --------------------------------------------------
+                        isMe={isMe}
                         relationshipTypes={this.state.user.relationshipType}    // A Gerer au niveau de l'update
-                        idInf={Number("1") < Number(this.state.user.id)}
+                        idInf={Number(this.props.myId) < Number(this.state.user.id)}
                         // isFriend
                         twoFactorAuth={this.state.user.twoFactorAuth}
                         handleClickTwoFactorAuth={this.handleClickTwoFactorAuth}
