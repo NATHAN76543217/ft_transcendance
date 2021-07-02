@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
+
+.tooltip {
+    @apply absolute invisible;
+}
+
+.has-tooltip:hover .tooltip {
+    @apply z-50 visible p-1 text-white bg-black rounded-md;
+}
+
+.has-tooltip:hover .tooltip::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;  /* At the top of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+  }
+
 @tailwind utilities;

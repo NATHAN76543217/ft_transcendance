@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Chat } from "../../models/Chat";
+import { ChatTitle } from "./ChatTitle";
 
 type IconButtonProps = {
     name: string;
@@ -11,7 +12,9 @@ export function IconLinkButton({name, icon, href}: IconButtonProps)
 {
     return (
         <NavLink className="" to={href}>
-            <div className="m-2"><i className={`pr-2 fas ${icon}`}></i>{name}</div>
+            <div className="m-2">
+                <i className={`pr-2 fas ${icon}`}></i>{name}
+            </div>
         </NavLink>
     );
 }
@@ -41,21 +44,6 @@ type ChatBarItemProps = {
     active: boolean;
 }
 
-type ChatTitleProps = {
-    chat: Chat;
-}
-
-export function ChatTitle({ chat }: ChatTitleProps) {
-    const imgPath = "https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg";
-
-    return (
-        <div className="flex items-center">
-            <img className="h-16 sm:h-8" src={imgPath}/>
-            <div className="pl-2">{chat.name}</div>
-        </div>
-    )
-}
-
 type ChatNotificationCounterProps = {
     count: number;
 }
@@ -71,8 +59,6 @@ ChatNotificationCounter.defaultProps = {
 }
 
 export function ChatBarItem({ chat, active }: ChatBarItemProps) {
-    const imgPath = "https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg";
-
     // TODO: Chat image, public chat, user chat
     return (
         <div>
