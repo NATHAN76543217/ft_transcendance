@@ -36,6 +36,11 @@ import HorizontalSinglePlayerLib from "../engine/horizontal/horizontal.singlepla
 import HorizontalMultiPlayerLib from "../engine/horizontal/horizontal.multiplayer"
 import VerticalSinglePlayerLib from "../engine/vertical/vertical.sigleplayer"
 import VerticalMultiPLayerLib from "../engine/vertical/vertical.multiplayer"
+import RoomNotFound from "../exceptions/roomNotFound.exception"
+import NeedMorePlayers from "../exceptions/needMorePlayers.exception"
+import IsSamePlayer from "../exceptions/isSamePlayer.exception"
+import RoomIsFull from "../exceptions/roomIsFull.exception"
+import Unspected from "../exceptions/unspected.exception"
 
 declare interface LibPair<T extends APolimorphicLib>
 {
@@ -81,7 +86,7 @@ function SellectLib(
         case LIB_VERTICAL_MULTI:
             return new VerticalMultiPLayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
         default:
-            throw new Error(); // Unspected Error
+            throw new Unspected("server not able to select a calculation lib");
     }
 }
 
@@ -100,10 +105,15 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
 
     // TO DO: Set up default mode for matchmaking
 
+<<<<<<< HEAD
     // TO DO: Add execptions
 
     // TO DO: Warnign circular reference that trick garbage collector to never free objects !!!
+=======
+    // TO DO: Warning circular reference that trick garbage collector to never free objects !!!
+>>>>>>> pong: commit before rm old version
     // PongSocketServer <-> APolimorphicLib
+    // Update: Normally Map.propotype.delete should solve this
 
     afterInit(server : Server)
     { console.log("DEBUG: Server is launched!"); }
@@ -150,11 +160,11 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         const room : IRoomDto = this.rooms[idRoom];
 
         if (room === undefined)
-            throw new Error(); // No such room
+            throw new RoomNotFound(idRoom); // No such room
         else if (room.isFilled == true)
-            throw new Error(); // Room is already filled
+            throw new RoomIsFull(); // Room is already filled
         else if (room.idPlayerOne == idPlayerTwo)
-            throw new Error(); // Player is already in the room
+            throw new IsSamePlayer(idPlayerTwo); // Player is already in the room
         else
         {
             // Add the second player data to the room
@@ -181,22 +191,18 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         const room : IRoomDto = this.rooms[idRoom];
         if (room === undefined)
-            throw new Error(); // No such room
+            throw new RoomNotFound(idRoom); // No such room
         else if (room.isFilled == false)
-            throw new Error(); // Need more players
+            throw new NeedMorePlayers(); // Need more players
         else
         {
             // TO DO: Start game
-
-            const room : IRoomDto = this.rooms[idRoom];
-            if (room === undefined)
-                throw new Error(); // No such room
 
             room.lib = SellectLib(
                 room.libName,
                 this,
                 room.config,
-                0.1, // TO DO WTF IS THIS SHITY ARCH ?!?!?
+                0.1, // TO DO: WTF IS THIS SHITY ARCH ?!?!?
                 room.mode,
                 room.level
             );
@@ -227,14 +233,16 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idRoom: null,
                 idPlayerOne: this.queue[0].key,
                 idPlayerTwo: null,
-                config: null, // TO DO 
-                lib: null, // TO DO
-                libName: null, // TO DO
+                config: null, // TO DO: default to set
+                lib: null, // TO DO: default to set
+                libName: null, // TO DO: default to set
                 mode: GameMode.MULTI_PLAYER
             });
             this.joinRoom(this.queue[1].socket, idRoom, this.queue[1].key);
             this.queue.splice(0, 2);
         }
+
+        // TO DO: Client should wait until the room is filled
 
         // TO DO: Add a timeout that reset the queue if theres
         // only one player for to long
@@ -248,7 +256,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         const room : IRoomDto = this.rooms[idRoom];
 
         if (room === undefined)
-            throw new Error(); // No such room
+            throw new RoomNotFound(idRoom);
 
         // Leave the room
         client.leave(idRoom);
@@ -278,7 +286,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         const room : IRoomDto = this.rooms[idRoom];
         if (room === undefined)
-            throw new Error(); // No such room
+            throw new RoomNotFound(idRoom);
         else
         {
             // Remove the players to the mouse's pos listener map
@@ -291,7 +299,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 deleted = this.rooms.delete(idRoom);
             
             if (deleted == false)
-                throw new Error(); // Unspected exception
+                throw new Unspected("Standar lib: Map: failed to delete");
         }
     }
 
@@ -300,7 +308,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         const room : IRoomDto = this.rooms[idRoom];
         if (room === undefined)
-            throw new Error(); // No such room
+            throw new RoomNotFound(idRoom);
 
         return calcGameStatus(status, room.lib);
     }
