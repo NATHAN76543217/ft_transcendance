@@ -1,8 +1,4 @@
-import axios from 'axios';
-import React from 'react';
 import { NavLink } from 'react-router-dom';
-import IUserInterface from '../../components/interface/IUserInterface';
-import User from '../../pages/users/user';
 import { UserRoleTypes } from '../users/userRoleTypes';
 import CustomButton from '../utilities/CustomButton';
 
@@ -53,7 +49,7 @@ function isMyRoleAbove(user: UserElementProps) {
 
 function displayBanButton(user: UserElementProps) {
     return (
-        <div className="relative inline-flex w-24 h-6 text-center items-center justify-center">
+        <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
             {isMyRoleAbove(user) ?
                 (!(user.role & UserRoleTypes.ban) ? <CustomButton
                     content="Ban user"
@@ -76,7 +72,7 @@ function displayBanButton(user: UserElementProps) {
                         text_size="text-sm"
                     />
                 )
-                : <div className="relative inline-flex w-32 h-6 text-center items-center justify-center"></div>  
+                : <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>  
             }
         </div>
     )
@@ -85,7 +81,7 @@ function displayBanButton(user: UserElementProps) {
 function displayAdminButton(user: UserElementProps) {
     if (!(user.role & UserRoleTypes.ban) && isMyRoleAbove(user)) {
         return (
-            <div className="relative inline-flex w-32 h-6 text-center items-center justify-center">
+            <div className="relative inline-flex items-center justify-center w-32 h-6 text-center">
                 {!(user.role & UserRoleTypes.owner) ?
                     (!(user.role & UserRoleTypes.admin) ? <CustomButton
                         content="Set admin"
@@ -115,7 +111,7 @@ function displayAdminButton(user: UserElementProps) {
     }
     else {
         return (
-            <div className="relative inline-flex w-32 h-6 text-center items-center justify-center"></div>
+            <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
         )
     }
 }
@@ -125,7 +121,7 @@ function AdminUserElement(user: UserElementProps) {
     return (
         <div className="inline-flex h-8 ">
             <div className="flex">
-                <div className="flex w-24 justify-center">
+                <div className="flex justify-center w-24">
                     {displayRole(user.role)}
                 </div>
                 <div className="w-44">

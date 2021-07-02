@@ -33,7 +33,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
     }
 
     componentDidUpdate() {
-        console.log("AdminUsers component did update")
+        // console.log("Channels AdminUsers component did update")
     }
 
     async getAllUsers() {
@@ -74,7 +74,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
 
     async createChannel(name: string, mode: ChannelModeTypes) {
         try {
-            const data = await axios.post("/api/channels", {
+            await axios.post("/api/channels", {
                 "name": name,
                 "password": "password",
                 "mode": mode,
@@ -108,9 +108,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
 
 
         const sectionClass = "h-auto pt-4 pb-4 mx-4 my-4 bg-gray-200 flex-grow text-center";
-        const h1Class = "text-2xl font-bold text-center";
         return (
-
             <div className="w-auto">
                 <h2 className="text-3xl font-bold text-center">
                     Channels Administration
@@ -120,7 +118,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
                         <ul className="relative w-auto pt-4 pl-4">
                             {this.state.list.map((channel) => {
                                 return (
-                                    <li key={channel.name} className="">
+                                    <li key={channel.id} className="">
                                         <AdminChannelElement
                                             id={channel.id}
                                             name={channel.name}
@@ -134,7 +132,6 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
                             )
                             }
                         </ul>
-
                     </section>
                 </div>
 

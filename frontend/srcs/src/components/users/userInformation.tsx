@@ -1,13 +1,8 @@
 import CustomButton from '../utilities/CustomButton';
 import { NavLink } from 'react-router-dom';
 import { UserRelationshipTypes } from './userRelationshipTypes';
-import React from 'react';
-import { TextInput } from '../utilities/TextInput';
-import { useForm } from 'react-hook-form';
 import ChangeNameUserForm from '../Forms/userChangeNameForm';
 import IUserChangeNameFormValues from '../interface/IUserChangeNameFormValues';
-import Popup from 'reactjs-popup';
-import Alert from 'react-bootstrap/Alert'
 
 type UserProps = {
     id: string,        // optional ?
@@ -21,6 +16,7 @@ type UserProps = {
     relationshipTypes: UserRelationshipTypes,
     idInf: boolean,
     isInSearch?: boolean | false,
+    showWrongUsernameMessage?: boolean | false,
     handleClickTwoFactorAuth?: () => void,
     handleClickProfilePicture?: () => void,
     onFileChange?: (fileChangeEvent: any) => void,
@@ -223,6 +219,17 @@ function DisplayChangeNameField(user: UserProps) {
 }
 
 
+function displayWrongUsernameMessage(user: UserProps) {
+    if (user.showWrongUsernameMessage) {
+        return (
+            <div className="absolute bottom-0 w-48 font-bold text-red-600">
+                Wrong Username
+            </div>
+        )
+    }
+}
+
+
 function UserInformation(user: UserProps) {
 
     return (
@@ -240,6 +247,7 @@ function UserInformation(user: UserProps) {
                     <h1 className={"relative font-bold " + getStatusColor(user.status)}>
                         {user.status}
                     </h1>
+                    {displayWrongUsernameMessage(user)}
                 </div>
 
                 <div>

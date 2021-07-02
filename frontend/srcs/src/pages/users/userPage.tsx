@@ -6,7 +6,6 @@ import { RouteComponentProps } from 'react-router-dom';
 import axios from 'axios';
 import IUserInterface from '../../components/interface/IUserInterface';
 import { UserRelationshipTypes } from '../../components/users/userRelationshipTypes';
-import Popup from 'reactjs-popup';
 import IUserChangeNameFormValues from '../../components/interface/IUserChangeNameFormValues';
 import { UserRoleTypes } from '../../components/users/userRoleTypes';
 
@@ -20,6 +19,7 @@ interface UserStates {
     id: string,
     doesUserExist: boolean,
     user: IUserInterface,
+    showWrongUsernameMessage: boolean,
 }
 
 class UserPage extends React.Component<UserProps & RouteComponentProps, UserStates> {
@@ -44,7 +44,8 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 channels: [],
                 relationshipType: UserRelationshipTypes.null,
                 idInf: false,
-            }
+            },
+            showWrongUsernameMessage: false
         };
         this.handleClickTwoFactorAuth = this.handleClickTwoFactorAuth.bind(this);
         this.onLoad = this.onLoad.bind(this);
@@ -306,11 +307,14 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 user: {
                     ...this.state.user,
                     name: values.username
-                }
+                },
+                showWrongUsernameMessage: false
             });
             return true;
         } catch (error) {
-            return false;
+            this.setState({
+                showWrongUsernameMessage: true
+            });
         }
 
     };
@@ -358,6 +362,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                         blockUser={this.blockUser}
                         unblockUser={this.unblockUser}
                         changeUsername={this.onSubmitChangeUsername}
+                        showWrongUsernameMessage={this.state.showWrongUsernameMessage}
                     />
                 </section>
                 <div className="relative flex flex-wrap justify-center w-full">

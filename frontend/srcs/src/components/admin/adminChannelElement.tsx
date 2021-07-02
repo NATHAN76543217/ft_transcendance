@@ -197,7 +197,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
 
                         if (!(relation.type & ChannelRelationshipTypes.null)) {
                             return (
-                                <li key={relation.user_name} className="">
+                                <li key={relation.id} className="">
                                     <AdminUserElement
                                         id={relation.user_id}
                                         name={relation.user_name}
@@ -211,6 +211,11 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
                                     />
                                 </li>
                             )
+                        } else {
+                            return (
+                                <li key={relation.id} className="">
+                                    <div></div>
+                                </li>)
                         }
                     }
                     )

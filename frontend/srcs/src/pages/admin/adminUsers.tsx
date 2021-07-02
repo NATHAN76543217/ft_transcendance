@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useReducer } from 'react';
+import React from 'react';
 
 import IUserInterface from '../../components/interface/IUserInterface';
 import AdminUserElement from '../../components/admin/adminUserElement';
@@ -104,7 +104,7 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                             {this.state.list.map((user) => {
                                 if (!(user.role & UserRoleTypes.ban)) {
                                     return (
-                                        <li key={user.name} className="justify-center">
+                                        <li key={user.id} className="justify-center">
                                             <AdminUserElement
                                                 id={user.id}
                                                 name={user.name}
@@ -115,6 +115,12 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                                                 setAdmin={this.setAdmin}
                                                 unsetAdmin={this.unsetAdmin}
                                             />
+                                        </li>
+                                    )
+                                } else {
+                                    return (
+                                        <li key={user.id} className="">
+                                            <div></div>
                                         </li>
                                     )
                                 }
@@ -133,7 +139,7 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                             {this.state.list.map((user) => {
                                 if (user.role & UserRoleTypes.ban) {
                                     return (
-                                        <li key={user.name} className="">
+                                        <li key={user.id} className="">
                                             <AdminUserElement
                                                 id={user.id}
                                                 name={user.name}
@@ -143,7 +149,13 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
                                                 unbanUser={this.unbanUser}
                                                 setAdmin={this.setAdmin}
                                                 unsetAdmin={this.unsetAdmin}
-                                                />
+                                            />
+                                        </li>
+                                    )
+                                } else {
+                                    return (
+                                        <li key={user.id} className="">
+                                            <div></div>
                                         </li>
                                     )
                                 }

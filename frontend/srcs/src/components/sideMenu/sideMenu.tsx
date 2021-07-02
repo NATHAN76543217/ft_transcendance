@@ -1,4 +1,4 @@
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 function DisplayAdminMenu(isAdmin: boolean) {
 	if (isAdmin) {
