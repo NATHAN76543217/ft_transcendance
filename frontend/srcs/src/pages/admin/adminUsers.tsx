@@ -43,69 +43,47 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
             let a = dataUsers.data.slice();
             a.sort((user1: IUserInterface, user2: IUserInterface) => user1.name.localeCompare(user2.name))
             this.setState({ list: a });
-        } catch (error) {
-
-        }
+        } catch (error) { }
     }
 
     async banUser(id: string) {
         try {
-            const data = await axios.patch("/api/users/" + id, { "role": UserRoleTypes.ban });
+            await axios.patch("/api/users/" + id, { "role": UserRoleTypes.ban });
             let a = this.state.list.slice();
             let index = a.findIndex((userId) => Number(userId.id) === Number(id))
             a[index].role = UserRoleTypes.ban;
             this.setState({ list: a });
-            
-            // const dataTry = await axios.get("/api/users/" + id);
-            // console.log(dataTry.data)
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async unbanUser(id: string) {
         try {
-            const data = await axios.patch("/api/users/" + id, { "role": UserRoleTypes.null });
+            await axios.patch("/api/users/" + id, { "role": UserRoleTypes.null });
             let a = this.state.list.slice();
             let index = a.findIndex((userId) => Number(userId.id) === Number(id))
             a[index].role = UserRoleTypes.null;
             this.setState({ list: a });
-            
-            // const dataTry = await axios.get("/api/users/" + id);
-            // console.log(dataTry.data)
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async setAdmin(id: string) {
         try {
-            const data = await axios.patch("/api/users/" + id, { "role": UserRoleTypes.admin });
+            await axios.patch("/api/users/" + id, { "role": UserRoleTypes.admin });
             let a = this.state.list.slice();
             let index = a.findIndex((userId) => Number(userId.id) === Number(id))
             a[index].role = UserRoleTypes.admin;
             this.setState({ list: a });
-            
-            // const dataTry = await axios.get("/api/users/" + id);
-            // console.log(dataTry.data)
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async unsetAdmin(id: string) {
         try {
-            const data = await axios.patch("/api/users/" + id, { "role": UserRoleTypes.null });
+            await axios.patch("/api/users/" + id, { "role": UserRoleTypes.null });
             let a = this.state.list.slice();
             let index = a.findIndex((userId) => Number(userId.id) === Number(id))
             a[index].role = UserRoleTypes.null;
             this.setState({ list: a });
-            
-            // const dataTry = await axios.get("/api/users/" + id);
-            // console.log(dataTry.data)
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     render() {

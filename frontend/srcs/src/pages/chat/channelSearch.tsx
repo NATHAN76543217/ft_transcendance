@@ -54,36 +54,19 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
                 // if (this.state.list[index].type !== a[index].type) {
                     this.setState({ list: a });
                 // }
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { }
         })
     }
 
     onSubmit = async (values: IChannelSearchFormValues) => {
-
-        // try {
-        //     const data = await axios.post("/api/users", { name: values.username });
-        //     console.log(data);
-        // } catch (error) {
-        //     console.log(error);
-        // }
-
         try {
             const data = await axios.get("/api/channels?name=" + values.channelName);
-            // const data = await axios.get("/api/channels");
             let a = data.data.slice()
             a.sort((channel1: IChannelInterface, channel2: IChannelInterface) => channel1.name.localeCompare(channel2.name))
             this.setJoinBoolean(a);
             this.setState({ list: a });
-
-            // this.setState({ list: data.data });
-        } catch (error) {
-            console.log(error);
-        }
-
+        } catch (error) { }
         this.setState({ channelName: values.channelName });
-
     };
 
     updateRelationshipState(id: string, newType: ChannelRelationshipTypes) {
@@ -98,14 +81,13 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             const data = await axios.get("/api/channels/relationships/" + id)
             let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number("1"));
             if (index === -1) {
-                const dataCreate = await axios.post("/api/channels/join", {
+                axios.post("/api/channels/join", {
                     channel_id: id + "",
                     user_id: "1",
                     user_name: "Jean",  // A REMPLACER PAR LE VRAI NOM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     type: ChannelRelationshipTypes.standard
                 })
                 this.updateRelationshipState(id, ChannelRelationshipTypes.standard);
-                // console.log(dataCreate)
             }
         } catch (error) { }
     }
@@ -115,9 +97,8 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             const data = await axios.get("/api/channels/relationships/" + id)
             let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number("1"));
             if (index !== -1 && data.data[index].type !== ChannelRelationshipTypes.ban) {
-                const dataDelete = await axios.delete("/api/channels/leave/" + data.data[index].id)
+                await axios.delete("/api/channels/leave/" + data.data[index].id)
                 this.updateRelationshipState(id, ChannelRelationshipTypes.null);
-                // console.log(dataCreate)
             }
         } catch (error) { }
     }
@@ -127,11 +108,10 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             const data = await axios.get("/api/channels/relationships/" + channel_id)
             let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(user_id));
             if (index !== -1) {
-                const dataCreate = await axios.patch("/api/channels/update" + channel_id, {
+                await axios.patch("/api/channels/update" + channel_id, {
                     type: ChannelRelationshipTypes.ban
                 })
                 this.updateRelationshipState(channel_id, ChannelRelationshipTypes.ban);
-                // console.log(dataCreate)
             }
         } catch (error) { }
     }
@@ -141,11 +121,10 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             const data = await axios.get("/api/channels/relationships/" + channel_id)
             let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(user_id));
             if (index !== -1) {
-                const dataCreate = await axios.patch("/api/channels/update" + channel_id, {
+                await axios.patch("/api/channels/update" + channel_id, {
                     type: ChannelRelationshipTypes.standard
                 })
                 this.updateRelationshipState(channel_id, ChannelRelationshipTypes.standard);
-                // console.log(dataCreate)
             }
         } catch (error) { }
     }
@@ -156,11 +135,10 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             const data = await axios.get("/api/channels/relationships/" + channel_id)
             let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(user_id));
             if (index !== -1) {
-                const dataCreate = await axios.patch("/api/channels/update" + channel_id, {
+                await axios.patch("/api/channels/update" + channel_id, {
                     type: ChannelRelationshipTypes.admin
                 })
                 this.updateRelationshipState(channel_id, ChannelRelationshipTypes.admin);
-                // console.log(dataCreate)
             }
         } catch (error) { }
     }
@@ -170,11 +148,10 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
             const data = await axios.get("/api/channels/relationships/" + channel_id)
             let index = data.data.findIndex((channelRelation: any) => Number(channelRelation.user_id) === Number(user_id));
             if (index !== -1) {
-                const dataCreate = await axios.patch("/api/channels/update" + channel_id, {
+               await axios.patch("/api/channels/update" + channel_id, {
                     type: ChannelRelationshipTypes.standard
                 })
                 this.updateRelationshipState(channel_id, ChannelRelationshipTypes.standard);
-                // console.log(dataCreate)
             }
         } catch (error) { }
     }

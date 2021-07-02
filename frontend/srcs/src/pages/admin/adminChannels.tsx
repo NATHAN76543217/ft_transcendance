@@ -1,9 +1,7 @@
 import axios from 'axios';
-import React, { useReducer } from 'react';
+import React from 'react';
 
 import IChannelInterface from '../../components/interface/IChannelInterface';
-import AdminUserElement from '../../components/admin/adminUserElement';
-import { UserRoleTypes } from '../../components/users/userRoleTypes';
 import IUserInterface from '../../components/interface/IUserInterface';
 import AdminChannelElement from '../../components/admin/adminChannelElement';
 import { ChannelModeTypes } from '../../components/channels/channelModeTypes';
@@ -17,8 +15,6 @@ interface AdminChannelProps {
 
 interface AdminChannelStates {
     list: IChannelInterface[];
-    // isOwner: boolean;
-    // isAdmin: boolean;
 }
 
 
@@ -27,8 +23,6 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
         super(props);
         this.state = {
             list: [],
-            // isOwner: this.props.isOwner === undefined ? false : true,
-            // isAdmin: this.props.isAdmin === undefined ? false : true,
         }
         this.destroyChannel = this.destroyChannel.bind(this);
         this.setAllChannels = this.setAllChannels.bind(this);
@@ -48,9 +42,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
             let a = dataUsers.data.slice();
             a.sort((user1: IUserInterface, user2: IUserInterface) => user1.name.localeCompare(user2.name))
             this.setState({ list: a });
-        } catch (error) {
-
-        }
+        } catch (error) { }
     }
 
     async setAllChannels() {
@@ -59,26 +51,26 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
             let a = dataUsers.data.slice();
             a.sort((user1: IChannelInterface, user2: IChannelInterface) => user1.name.localeCompare(user2.name))
             this.setState({ list: a });
-        } catch (error) {
+        } catch (error) { }
+    }
 
-        }
+
+    async deleteChannelRelationship(id: number) {
+        try {
+            await axios.delete("/api/channels/leave/" + id);
+        } catch (error) { }
     }
 
     async destroyChannel(id: string) {
         try {
             const dataRelations = await axios.get("/api/channels/relationships/" + id)
             dataRelations.data.map(async (relation: IChannelRelationship) => {
-                try {
-                    await axios.delete("/api/channels/leave/" + relation.id);
-                } catch (error) {}
+                this.deleteChannelRelationship(relation.id);
             })
             await axios.delete("/api/channels/" + id);
         } catch (error) {}
         this.setAllChannels();
     }
-
-
-
 
     async createChannel(name: string, mode: ChannelModeTypes) {
         try {
@@ -87,45 +79,20 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
                 "password": "password",
                 "mode": mode,
             })
-            console.log(data.data);
-        } catch (error) {
-
-        }
+        } catch (error) { }
     }
 
     async createChannelRelationship(channel_id: string, user_id: string, type: ChannelRelationshipTypes) {
         try {
             const dataUser = await axios.get("/api/users/" + user_id);
             const user_name = dataUser.data.name;
-            const data = await axios.post("/api/channels/join", {
+            await axios.post("/api/channels/join", {
                 "channel_id": channel_id,
                 "user_id": user_id,
                 "user_name": user_name,
                 "type": type
             })
-            console.log(data.data);
-        } catch (error) {
-
-        }
-    }
-
-    async deleteChannelRelationship(id: string) {
-        try {
-
-            const data = await axios.delete("/api/channels/leave/" + id);
         } catch (error) { }
-    }
-
-    async displayChannelsData() {
-        try {
-
-            const data = await axios.get("/api/channels");
-            console.log(data.data);
-            // const relations = await axios.get("/api/channels/relationships")
-            // console.log(relations.data);
-        } catch (error) {
-            console.log(error)
-        }
     }
 
     render() {

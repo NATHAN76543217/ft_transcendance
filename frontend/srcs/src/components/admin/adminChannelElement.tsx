@@ -1,9 +1,6 @@
 
 import axios from 'axios';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import IUserInterface from '../../components/interface/IUserInterface';
-import User from '../../pages/users/user';
 import { ChannelModeTypes } from '../channels/channelModeTypes';
 import { ChannelRelationshipTypes } from '../channels/channelRelationshipTypes';
 import IChannelRelationship from '../interface/IChannelRelationshipInterface';
@@ -144,16 +141,11 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
             let index = a.findIndex((relation) => Number(relation.user_id) === Number(id))
             if (index !== -1) {
                 let relationId = a[index].id;
-                const data = await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.ban });
+                await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.ban });
                 a[index].type = ChannelRelationshipTypes.ban;
                 this.setState({ channelRelationshipsList: a });
-
-                // const dataTry = await axios.get("/api/users/" + id);
-                // console.log(dataTry.data)
             }
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async unbanUserFromChannel(id: string) {
@@ -162,16 +154,11 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
             let index = a.findIndex((relation) => Number(relation.user_id) === Number(id))
             if (index !== -1) {
                 let relationId = a[index].id;
-                const data = await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.standard });
+                await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.standard });
                 a[index].type = ChannelRelationshipTypes.standard;
                 this.setState({ channelRelationshipsList: a });
-
-                // const dataTry = await axios.get("/api/users/" + id);
-                // console.log(dataTry.data)
             }
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async setAdminFromChannel(id: string) {
@@ -180,16 +167,11 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
             let index = a.findIndex((relation) => Number(relation.user_id) === Number(id))
             if (index !== -1) {
                 let relationId = a[index].id;
-                const data = await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.admin });
+                await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.admin });
                 a[index].type = ChannelRelationshipTypes.admin;
                 this.setState({ channelRelationshipsList: a });
-
-                // const dataTry = await axios.get("/api/users/" + id);
-                // console.log(dataTry.data)
             }
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async unsetAdminFromChannel(id: string) {
@@ -198,16 +180,11 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
             let index = a.findIndex((relation) => Number(relation.user_id) === Number(id))
             if (index !== -1) {
                 let relationId = a[index].id;
-                const data = await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.standard });
+                await axios.patch("/api/channels/update/" + relationId, { "type": ChannelRelationshipTypes.standard });
                 a[index].type = ChannelRelationshipTypes.standard;
                 this.setState({ channelRelationshipsList: a });
-
-                // const dataTry = await axios.get("/api/users/" + id);
-                // console.log(dataTry.data)
             }
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     displayUsersList() {

@@ -15,11 +15,6 @@ interface UserStates {
     username: string
 }
 
-// interface UserCreateFormData {
-//     username: string,
-// }
-
-
 class UserDelete extends React.Component<UserProps, UserStates> {
 
     constructor(props: UserProps) {
@@ -30,34 +25,12 @@ class UserDelete extends React.Component<UserProps, UserStates> {
         };
     }
 
-    // componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
-    //     // Typical usage (don't forget to compare props):
-    //     console.log("Previous list: " + prevStates.list);
-    //     console.log("Current list: " + this.state.list);
-    // }
-
     onSubmit = async (values: IUserDeleteFormValues) => {
-
-        // try {
-        //     const data = await axios.post("/api/users", { name: values.username });
-        //     console.log(data);
-        // } catch (error) {
-        //     console.log(error);
-        // }
-
         try {
             const data = await axios.delete("/api/users/" + values.id);
             console.log(data);
-            // this.setState({ list: data.data });
-        } catch (error) {
-            console.log(error);
-        }
-
-        // this.setState({ username: values.username });
-
+        } catch (error) { }
     };
-
-
 
     render() {
         return (

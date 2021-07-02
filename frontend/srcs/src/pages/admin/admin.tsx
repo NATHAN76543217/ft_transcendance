@@ -16,11 +16,9 @@ class Admin extends React.Component {
         if (myRole & (UserRoleTypes.owner + UserRoleTypes.admin)) {
             return (
                 <div>
-
                     <AdminChannels
 
                     />
-
                     <AdminUsers
                         myRole={myRole}
                     />

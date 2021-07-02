@@ -98,7 +98,6 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
         try {
             if (!isNaN(Number(userId))) {
                 const data = await axios.get("/api/users/" + this.state.user.id);
-                console.log(data);
                 this.setState({
                     doesUserExist: true,
                     user: data.data
@@ -112,7 +111,6 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
             }
         } catch (error) {
             this.setState({ doesUserExist: false })
-            console.log(error);
         }
     };
 
@@ -120,7 +118,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
     async handleClickTwoFactorAuth() {
         let newTwoFactorAuth = !this.state.user.twoFactorAuth;
         try {
-            const data = await axios.patch("/api/users/" + this.state.user.id, { "twoFactorAuth": newTwoFactorAuth })
+            await axios.patch("/api/users/" + this.state.user.id, { "twoFactorAuth": newTwoFactorAuth })
             console.log("two factor auth changed to: " + !this.state.user.twoFactorAuth)
             this.setState({
                 user: {
@@ -128,42 +126,21 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     twoFactorAuth: newTwoFactorAuth
                 }
             });
-            console.log(data);
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     async handleClickProfilePicture() {
-        // try {
-        //     const data = await axios.patch("/api/users/" + this.state.user.id, { "twoFactorAuth": newTwoFactorAuth })
-        //     console.log("two factor auth changed to: " + !this.state.user.twoFactorAuth)
-        //     this.setState({
-        //         user: {
-        //             ...this.state.user,
-        //             twoFactorAuth: newTwoFactorAuth
-        //         }
-        //     });
-        //     console.log(data);
-        // } catch (error) {
-        //     console.log(error);
-        // }
     }
 
 
     async getProfilePicture(pictureId: string) {
         try {
             const data = await axios.get("/uploads/" + pictureId)
-            console.log(data);
             return data.request.responseURL
-
-        } catch (error) {
-            console.log(error);
-        }
+        } catch (error) { }
     }
 
     onFileChange(fileChangeEvent: any) {
-        // values.current.file = fileChangeEvent.target.files[0];
         this.submitForm(fileChangeEvent.target.files[0]);
     }
 
@@ -186,11 +163,9 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     imgPath: newImgPath
                 }
             })
-            const dataPatch = await axios.patch("/api/users/" + this.state.user.id, { "imgPath": newImgPath })
-            const dataDelete = await axios.delete("/api/photos/" + oldImgPath);
-        } catch (error) {
-            console.log(error);
-        }
+            await axios.patch("/api/users/" + this.state.user.id, { "imgPath": newImgPath })
+            await axios.delete("/api/photos/" + oldImgPath);
+        } catch (error) { }
     }
 
     async setFriendAndBlockBoolean(user: IUserInterface) {
@@ -228,8 +203,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     UserRelationshipTypes.pending_first_second :
                     UserRelationshipTypes.pending_second_first
                 try {
-                    const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                    console.log(dataUpdate);
+                    await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                     this.updateRelationshipState(newType);
                 } catch (error) { }
             }
@@ -238,16 +212,13 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 UserRelationshipTypes.pending_first_second :
                 UserRelationshipTypes.pending_second_first
             try {
-                const dataCreate = await axios.post("/api/users/relationships", {
+                await axios.post("/api/users/relationships", {
                     user1_id: id + "",
                     user2_id: "1",
                     type: newType
                 })
-                console.log(dataCreate)
                 this.updateRelationshipState(newType);
-            } catch (error) {
-                console.log(error);
-            }
+            } catch (error) { }
         }
     }
 
@@ -258,8 +229,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
                     if (newType === UserRelationshipTypes.null) {
-                        const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
-                        console.log(dataDelete);
+                        await axios.delete("/api/users/relationships/" + currentRel.data.id)
                         this.setState({
                             user: {
                                 ...this.state.user,
@@ -267,8 +237,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                             }
                         })
                     } else {
-                        const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                        console.log(dataUpdate);
+                        await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                         this.updateRelationshipState(newType);
                     }
                 } catch (error) { }
@@ -288,8 +257,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     UserRelationshipTypes.block_first_second :
                     UserRelationshipTypes.block_second_first
                 try {
-                    const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                    console.log(dataUpdate);
+                    await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                     this.updateRelationshipState(newType);
                 } catch (error) { }
             }
@@ -298,16 +266,13 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                 UserRelationshipTypes.block_first_second :
                 UserRelationshipTypes.block_second_first
             try {
-                const dataCreate = await axios.post("/api/users/relationships", {
+                await axios.post("/api/users/relationships", {
                     user1_id: id + "",
                     user2_id: "1",
                     type: newType
                 })
-                console.log(dataCreate)
                 this.updateRelationshipState(newType);
-            } catch (error) {
-                console.log(error);
-            }
+            } catch (error) { }
         }
     }
 
@@ -323,12 +288,10 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                     ~UserRelationshipTypes.block_second_first
                 try {
                     if (newType === UserRelationshipTypes.null) {
-                        const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
-                        console.log(dataDelete);
+                        await axios.delete("/api/users/relationships/" + currentRel.data.id)
                         this.updateRelationshipState(newType);
                     } else {
-                        const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                        console.log(dataUpdate);
+                        await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                         this.updateRelationshipState(newType);
                     }
                 } catch (error) { }
@@ -381,7 +344,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
                         nbLoss={this.state.user.nbLoss}
                         imgPath={this.state.user.imgPath}
                         // --------------------------------------------------
-                        isMe={this.state.id === undefined || Number(this.state.id) === Number("1")} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        isMe={isMe} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                         // --------------------------------------------------
                         relationshipTypes={this.state.user.relationshipType}    // A Gerer au niveau de l'update
                         idInf={Number("1") < Number(this.state.user.id)}

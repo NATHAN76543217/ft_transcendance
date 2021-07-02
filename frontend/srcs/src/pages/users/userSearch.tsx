@@ -60,29 +60,14 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     onSubmit = async (values: IUserSearchFormValues) => {
-
-        // try {
-        //     const data = await axios.post("/api/users", { name: values.username });
-        //     console.log(data);
-        // } catch (error) {
-        //     console.log(error);
-        // }
-
         try {
             const data = await axios.get("/api/users?name=" + values.username);
             let a = data.data.slice()
             a.sort((user1: IUserInterface, user2: IUserInterface) => user1.name.localeCompare(user2.name))
             this.setFriendAndBlockBoolean(a);
             this.setState({ list: a });
-
-
-            // this.setState({ list: data.data });
-        } catch (error) {
-            console.log(error);
-        }
-
+        } catch (error) { }
         this.setState({ username: values.username });
-
     };
 
     updateRelationshipState(id: string, newType: UserRelationshipTypes) {
@@ -103,8 +88,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                     UserRelationshipTypes.pending_first_second :
                     UserRelationshipTypes.pending_second_first
                 try {
-                    const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                    console.log(dataUpdate);
+                    await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                     this.updateRelationshipState(id, newType);
                 } catch (error) { }
             }
@@ -113,12 +97,11 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 UserRelationshipTypes.pending_first_second :
                 UserRelationshipTypes.pending_second_first
             try {
-                const dataCreate = await axios.post("/api/users/relationships", {
+                await axios.post("/api/users/relationships", {
                     user1_id: id + "",
                     user2_id: "1",
                     type: newType
                 })
-                console.log(dataCreate)
                 this.updateRelationshipState(id, newType);
             } catch (error) {
                 console.log(error);
@@ -133,12 +116,10 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
                     if (newType === UserRelationshipTypes.null) {
-                        const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
-                        console.log(dataDelete);
+                        await axios.delete("/api/users/relationships/" + currentRel.data.id)
                         this.updateRelationshipState(id, newType);
                     } else {
-                        const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                        console.log(dataUpdate);
+                        await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                         this.updateRelationshipState(id, newType);
                     }
                 } catch (error) { }
@@ -157,8 +138,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                     UserRelationshipTypes.block_first_second :
                     UserRelationshipTypes.block_second_first
                 try {
-                    const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                    console.log(dataUpdate);
+                    await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                     this.updateRelationshipState(id, newType);
                 } catch (error) { }
             }
@@ -167,16 +147,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 UserRelationshipTypes.block_first_second :
                 UserRelationshipTypes.block_second_first
             try {
-                const dataCreate = await axios.post("/api/users/relationships", {
+                await axios.post("/api/users/relationships", {
                     user1_id: id + "",
                     user2_id: "1",
                     type: newType
                 })
-                console.log(dataCreate)
                 this.updateRelationshipState(id, newType);
-            } catch (error) {
-                console.log(error);
-            }
+            } catch (error) { }
         }
     }
 
@@ -192,12 +169,10 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                     ~UserRelationshipTypes.block_second_first
                 try {
                     if (newType === UserRelationshipTypes.null) {
-                        const dataDelete = await axios.delete("/api/users/relationships/" + currentRel.data.id)
-                        console.log(dataDelete);
+                        await axios.delete("/api/users/relationships/" + currentRel.data.id)
                         this.updateRelationshipState(id, newType);
                     } else {
-                        const dataUpdate = await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
-                        console.log(dataUpdate);
+                        await axios.patch("/api/users/relationships/" + currentRel.data.id, { type: newType })
                         this.updateRelationshipState(id, newType);
                     }
                 } catch (error) { }
@@ -243,14 +218,6 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                             />
                         </li>
                     ))}
-
-                    {/* <li className="relative w-full">
-                        <UserInformation
-                            name="Login"
-                            status="Connected"
-                            isFriend
-                        />
-                    </li> */}
                 </ul>
             </div>
         );
