@@ -1,4 +1,4 @@
-import { Body, Req, Controller, HttpCode, Post, UseGuards, Res, Get, Redirect } from '@nestjs/common';
+import { Req, Controller, HttpCode, UseGuards, Res, Get } from '@nestjs/common';
 import { AuthenticationService } from '../authentication.service';
 import RequestWithUser from '../requestWithUser.interface';
 import { Response } from 'express';
@@ -13,17 +13,19 @@ export class Oauth2Controller {
   @Get('school42/callback')
   @UseGuards(School42AuthenticationGuard)
   @HttpCode(200)
-  async school42Callback(@Req() request: RequestWithUser, @Res() response: Response) {
-    const cookie = this.authenticationService.getCookieWithJwtToken(request.user.id);
-    response.setHeader('Set-Cookie', cookie);
-    response.setHeader('Access-Control-Allow-Origin', "https://localhost/");
+  async school42Callback(@Req() request: any, @Res() response: Response) {
     const { user } = request;
+    // const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
+    //TODO make a proper implementation of cookies
+    // response.setHeader('Set-Cookie', cookie);
+    const jwt = this.authenticationService.getJwtToken(user.id);
+    response.cookie('Authentication', jwt);
+    // response.setHeader('Access-Control-Allow-Origin', "https://localhost/, https://api.intra.42.fr");
     user.password = undefined;
-    return response.send(user);
-    // if (cookie)
-    //     response.redirect('https://localhost/login/success/');
-    // else 
-    //     response.redirect('https://localhost/login/failure');
+    if (jwt)
+      response.redirect('https://localhost/login/success/');
+    else 
+      response.redirect('https://localhost/login/failure');
   }
 
   @Get('school42')
@@ -37,10 +39,13 @@ export class Oauth2Controller {
   @HttpCode(200)
   async googleCallback(@Req() req: any, @Res() res:any) {
     console.log("callback google")
-    const jwt: string = req.user.jwt;
+    const { user } = req;
+    const jwt = this.authenticationService.getJwtToken(user.id);
+    res.cookie('Authentication', jwt);
+    user.password = undefined;
     console.log(jwt);
         if (jwt)
-            res.redirect('https://localhost/login/success/' + jwt + req.user.name);
+            res.redirect('https://localhost/login/success');
         else 
             res.redirect('https://localhost/login/failure');
   }

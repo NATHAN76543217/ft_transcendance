@@ -1,9 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Patch, SerializeOptions, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Patch, SerializeOptions, Query, UseGuards } from '@nestjs/common';
 import UsersService from './users.service';
 import CreateUserDto from './dto/CreateUser.dto';
 import UpdateUserDto from './dto/UpdateUser.dto';
 import { FindOneParam } from './utils/findOneParams';
-import User from './user.entity';
 
 @Controller('users')
 @SerializeOptions({
@@ -19,6 +18,8 @@ export default class UsersController {
 	}
 
 	@Get(':id')
+	// TODO see if bellow comment is needed
+	// @UseGuards(JwtAuthenticationGuard)
 	getUserById(@Param('id') id: FindOneParam) {
 		return this.usersService.getUserById(Number(id));
 	}
