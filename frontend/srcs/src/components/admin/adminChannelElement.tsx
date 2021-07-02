@@ -35,6 +35,10 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
         }
         this.changeDestroyValidationButtonState = this.changeDestroyValidationButtonState.bind(this);
         this.changeUsersListButtonState = this.changeUsersListButtonState.bind(this);
+        this.banUserFromChannel = this.banUserFromChannel.bind(this);
+        this.unbanUserFromChannel = this.unbanUserFromChannel.bind(this);
+        this.setAdminFromChannel = this.setAdminFromChannel.bind(this);
+        this.unsetAdminFromChannel = this.unsetAdminFromChannel.bind(this);
     }
 
     componentDidMount() {
@@ -95,7 +99,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
     displayDestroyValidationButton() {
         if (this.state.showDestroyValidation) {
             return (
-                <div className="rrelative inline-flex w-54 h-6 text-center items-center justify-center">
+                <div className="inline-flex items-center justify-center h-6 text-center rrelative w-54">
                     <CustomButton
                         content="Confirm destruction?"
                         // url="/users/block"
@@ -247,7 +251,7 @@ class AdminChannelElement extends React.Component<ChannelElementProps, ChannelEl
             <div>
                 <div className="flex items-center h-8 mt-2 group">
                     <div className="flex">
-                        <div className="flex  w-24 mr-2 justify-center">
+                        <div className="flex justify-center w-24 mr-2">
                             {this.displayMode()}
                         </div>
                         <div className="w-48 font-bold text-md" onClick={this.changeUsersListButtonState}>

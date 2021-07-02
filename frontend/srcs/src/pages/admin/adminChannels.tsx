@@ -8,6 +8,7 @@ import IUserInterface from '../../components/interface/IUserInterface';
 import AdminChannelElement from '../../components/admin/adminChannelElement';
 import { ChannelModeTypes } from '../../components/channels/channelModeTypes';
 import { ChannelRelationshipTypes } from '../../components/channels/channelRelationshipTypes';
+import IChannelRelationship from '../../components/interface/IChannelRelationshipInterface';
 
 interface AdminChannelProps {
     isOwner?: boolean | false;
@@ -30,14 +31,15 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
             // isAdmin: this.props.isAdmin === undefined ? false : true,
         }
         this.destroyChannel = this.destroyChannel.bind(this);
+        this.setAllChannels = this.setAllChannels.bind(this);
     }
 
     componentDidMount() {
-        this.getAllChannels();
+        this.setAllChannels();
     }
 
     componentDidUpdate() {
-        // console.log("AdminUsers component did update")
+        console.log("AdminUsers component did update")
     }
 
     async getAllUsers() {
@@ -51,7 +53,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
         }
     }
 
-    async getAllChannels() {
+    async setAllChannels() {
         try {
             const dataUsers = await axios.get("/api/channels");
             let a = dataUsers.data.slice();
@@ -63,7 +65,16 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
     }
 
     async destroyChannel(id: string) {
-        // A CODER
+        try {
+            const dataRelations = await axios.get("/api/channels/relationships/" + id)
+            dataRelations.data.map(async (relation: IChannelRelationship) => {
+                try {
+                    await axios.delete("/api/channels/leave/" + relation.id);
+                } catch (error) {}
+            })
+            await axios.delete("/api/channels/" + id);
+        } catch (error) {}
+        this.setAllChannels();
     }
 
 
@@ -119,7 +130,7 @@ class AdminChannels extends React.Component<AdminChannelProps, AdminChannelState
 
     render() {
         // this.displayChannelsData();
-        // this.createChannel("my chan 9012345", ChannelModeTypes.protected);
+        // this.createChannel("my chan4", ChannelModeTypes.public);
         // this.createChannelRelationship(
         //     "17",
         //     "1",

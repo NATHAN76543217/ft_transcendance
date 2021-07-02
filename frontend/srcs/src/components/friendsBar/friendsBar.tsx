@@ -143,29 +143,29 @@ class FriendsBar extends React.Component<FriendsBarProps, FriendsBarStates> {
 		else { return (<div></div>) }
 	}
 
-	// displayOnlineFriends(relation: IUserInterface) {
-	// 	if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
-	// 		(relation.relationshipType & UserRelationshipTypes.pending_second_first) &&
-	// 		(relation.status === "Connected") &&
-	// this.state.displaySection.onlineFriends) {
-	// 		return (
-	// 			<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
-	// 		)
-	// 	}
-	// 	else { return (<div></div>) }
-	// }
-
-	displayOnlineFriends(relation: IUserInterface) {	// FAKE !!!!!!!!!!
+	displayOnlineFriends(relation: IUserInterface) {
 		if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
-
+			(relation.relationshipType & UserRelationshipTypes.pending_second_first) &&
 			(relation.status === "Connected") &&
-			this.state.displaySection.onlineFriends) {
+	this.state.displaySection.onlineFriends) {
 			return (
 				<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
 			)
 		}
 		else { return (<div></div>) }
 	}
+
+	// displayOnlineFriends(relation: IUserInterface) {	// FAKE - For Testing
+	// 	if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
+
+	// 		(relation.status === "Connected") &&
+	// 		this.state.displaySection.onlineFriends) {
+	// 		return (
+	// 			<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
+	// 		)
+	// 	}
+	// 	else { return (<div></div>) }
+	// }
 
 	displayofflineFriends(relation: IUserInterface) {
 		if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
