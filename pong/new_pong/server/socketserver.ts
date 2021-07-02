@@ -5,7 +5,6 @@ import {
     OnGatewayInit,
     OnGatewayConnection,
     OnGatewayDisconnect,
-    MessageBody
 } from '@nestjs/websockets'
 import {
     Server,
@@ -27,6 +26,16 @@ import calcGameStatus from "../engine/calculations"
 import {
     GameMode
 } from "../engine/polimorphiclib"
+import {
+    LIB_VERTICAL_SINGLE,
+    LIB_VERTICAL_MULTI,
+    LIB_HORIZONTAL_SINGLE,
+    LIB_HORIZONTAL_MULTI
+} from "../engine/lib.names"
+import HorizontalSinglePlayerLib from "../engine/horizontal/horizontal.singleplayer"
+import HorizontalMultiPlayerLib from "../engine/horizontal/horizontal.multiplayer"
+import VerticalSinglePlayerLib from "../engine/vertical/vertical.sigleplayer"
+import VerticalMultiPLayerLib from "../engine/vertical/vertical.multiplayer"
 
 declare interface LibPair<T extends APolimorphicLib>
 {
@@ -40,6 +49,10 @@ export declare interface IRoomDto
     idPlayerOne : string;
     idPlayerTwo : string;
     config : IStaticDto;
+    lib : APolimorphicLib;
+    libName : string;
+    mode : GameMode;
+    level? : number;
 }
 
 declare interface MousePosDto
@@ -48,25 +61,44 @@ declare interface MousePosDto
     y : number;
 }
 
+function SellectLib(
+    name : string,
+    sockServ : PongSocketServer,
+    gameConfig : IStaticDto,
+    ballSpeedIncrememnt : number,
+    mode : GameMode,
+    level? : number
+) : APolimorphicLib
+{
+    switch(name)
+    {
+        case LIB_HORIZONTAL_SINGLE:
+            return new HorizontalSinglePlayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
+        case LIB_HORIZONTAL_MULTI:
+            return new HorizontalMultiPlayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
+        case LIB_VERTICAL_SINGLE:
+            return new VerticalSinglePlayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
+        case LIB_VERTICAL_MULTI:
+            return new VerticalMultiPLayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
+        default:
+            throw new Error(); // Unspected Error
+    }
+}
+
 @WebSocketGateway()
 export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
     @WebSocketServer()
     public server : Server;
-    public rooms : Map <string, IRoomDto> // Map< roomId, RoomPlayersIds >
-    public mousesPos : Map<string, IMousePosDto> // Map< playerId, mousePos >
-    public libs : Map<string, APolimorphicLib> = {
-        // TO DO: INIT THE MAP
-        // TO DO: Think about single player multiplayer
-        // Map of map ?
-    }
+    public rooms : Map <string, IRoomDto>; // Map< roomId, RoomPlayersIds >
+    public mousesPos : Map<string, IMousePosDto>; // Map< playerId, mousePos >
     public queue : Array<{key: string, socket: Socket}>
 
     // TO DO: Think a join for spectators
 
     // TO DO: Broadcast msg are bad
 
-    // TO DO: Set up defult mode for matchmaking
+    // TO DO: Set up default mode for matchmaking
 
     // TO DO: Add execptions
 
@@ -155,6 +187,23 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         else
         {
             // TO DO: Start game
+
+            const room : IRoomDto = this.rooms[idRoom];
+            if (room === undefined)
+                throw new Error(); // No such room
+
+            room.lib = SellectLib(
+                room.libName,
+                this,
+                room.config,
+                0.1, // TO DO WTF IS THIS SHITY ARCH ?!?!?
+                room.mode,
+                room.level
+            );
+
+            // TO DO: Perhabs need more actions here
+
+            this.rooms[idRoom] = room;
         }
     }
 
@@ -179,6 +228,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idPlayerOne: this.queue[0].key,
                 idPlayerTwo: null,
                 config: null, // TO DO 
+                lib: null, // TO DO
                 libName: null, // TO DO
                 mode: GameMode.MULTI_PLAYER
             });
@@ -246,11 +296,17 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     }
 
     @SubscribeMessage('calcGameStatus')
-    calcPongStatus(keyOfLibs : string, status : IDynamicDto)
-    { return calcGameStatus(status, this.libs[keyOfLibs]); }
+    calcPongStatus(client : Socket, idRoom : string, status : IDynamicDto)
+    {
+        const room : IRoomDto = this.rooms[idRoom];
+        if (room === undefined)
+            throw new Error(); // No such room
+
+        return calcGameStatus(status, room.lib);
+    }
 
     @SubscribeMessage('mouseEvent')
-    updateMousePosClient(idPlayer : string, mousePos : IMousePosDto)
+    updateMousePosClient(client : Socket, idPlayer : string, mousePos : IMousePosDto)
     {
         // Can only update if player has joined a match
         if (idPlayer in this.mousesPos == true)

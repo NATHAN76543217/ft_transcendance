@@ -11,7 +11,8 @@ export default class PolimorphicEngine
 {
     constructor(
         public gameStatus : GameStatus,
-        public socket : Socket
+        public socket : Socket,
+        public roomId : string
     )
     { }
 
@@ -26,8 +27,8 @@ export default class PolimorphicEngine
 
 
         setInterval(() : void => {
-            // this.socket.emit('mouseEvent', ) to do
-            this.gameStatus = this.socket.emit('calcGameStatus', this.gameStatus);
+            this.gameStatus = this.socket.emit('calcGameStatus',
+                this.roomId, this.gameStatus);
             renderGameStatus(this.gameStatus);
         }, 1000 / fps);
     }
