@@ -1,26 +1,22 @@
 import React from 'react';
+import AppContext from '../../AppContext';
 import { UserRoleTypes } from '../../components/users/userRoleTypes';
 import AdminChannels from './adminChannels';
 import AdminUsers from './adminUsers';
 
 class Admin extends React.Component {
 
-    getRole() {
-        return (UserRoleTypes.owner) // A CORRIGER AVEC LE VRAI ROLE
-        // return (UserRoleTypes.admin)
-        // return (UserRoleTypes.null)
-    }
+    static contextType = AppContext;
 
     render() {
-        let myRole = this.getRole();
-        if (myRole & (UserRoleTypes.owner + UserRoleTypes.admin)) {
+        const contextValue = this.context;
+        if (contextValue.myRole & (UserRoleTypes.owner + UserRoleTypes.admin)) {
             return (
                 <div>
                     <AdminChannels
-
                     />
                     <AdminUsers
-                        myRole={myRole}
+                        myRole={contextValue.myRole}
                     />
                 </div>
             )

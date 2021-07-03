@@ -8,7 +8,6 @@ import { Route } from 'react-router';
 import UserDelete from './userDelete';
 
 interface UserProps {
-    updateAllRelationships: () => void,
     myId: string,
 }
 
@@ -28,25 +27,10 @@ class User extends React.Component<UserProps, UserStates> {
         return (
             <div className="">
                 <Route exact path='/users/find'>
-                    <UserSearch
-                        updateAllRelationships={this.props.updateAllRelationships}
-                        myId={this.props.myId}
-                    />
+                    <UserSearch/>
                 </Route>
-
-                {/* <Route exact path="/users" component={UserPage}/> */}
-                <Route exact path="/users" render={(props) => <UserPage
-                            myId={this.props.myId}
-                            updateAllRelationships={this.props.updateAllRelationships}
-                            {...props} />
-                        } />
-
-                {/* <Route exact path="/users/:id" component={UserPage} /> */}
-                <Route exact path="/users/:id" render={(props) => <UserPage
-                            myId={this.props.myId}
-                            updateAllRelationships={this.props.updateAllRelationships}
-                            {...props} />
-                        } />
+                <Route exact path="/users" component={UserPage}/>
+                <Route exact path="/users/:id" component={UserPage} />
 
 
 

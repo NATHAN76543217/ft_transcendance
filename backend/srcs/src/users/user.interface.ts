@@ -1,4 +1,5 @@
 import Channel from '../channels/channel.entity';
+import { UserRoleTypes } from './utils/userRoleTypes';
 
 export default interface User {
     id: number;
@@ -10,5 +11,6 @@ export default interface User {
     imgPath: string;
     twoFactorAuth: boolean;
     status: string;
+    role: UserRoleTypes;
     channels: Channel[];
 }

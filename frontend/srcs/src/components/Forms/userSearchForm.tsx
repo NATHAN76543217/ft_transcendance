@@ -1,17 +1,19 @@
-import { TextInput } from "../../components/utilities/TextInput";
+import { TextInput } from "../utilities/TextInput";
 
 import { useForm } from "react-hook-form";
-import IUserSearchFormValues from '../../components/interface/IUserSearchFormValues';
+import IUserSearchFormValues from '../interface/IUserSearchFormValues';
 
 
 type UserSearchProps = {
     onSubmit: (values: IUserSearchFormValues) => void  // define function type
+
 }
 
 export default function SearchUser(props: UserSearchProps) {
     //const [username, password] = useState();
 
     const { register, handleSubmit, formState: { errors } } = useForm<IUserSearchFormValues>();
+
 
     return (
         <section className="flex flex-col max-w-sm p-4 m-auto mt-32 bg-neutral">
