@@ -9,7 +9,7 @@ import { Request } from "express";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
-      private readonly configService: ConfigService,
+      readonly configService: ConfigService,
       private readonly userService: UsersService,
     ) {
       super({
@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           console.log("jwt= ", request?.cookies?.Authentication)
           return request?.cookies?.Authentication;
         }]),
-        secretOrKey: configService.get('JWT_SECRET')
+        secretOrKey: configService.get('JWT_SECRET'),
       });
     }
 

@@ -29,6 +29,7 @@ import { Oauth2Controller } from './oauth2/oauth2.controller';
     }),
   ],
   providers: [AuthenticationService, LocalStrategy, JwtStrategy, School42Strategy, GoogleStrategy],
-  controllers: [AuthenticationController, Oauth2Controller]
+  controllers: [AuthenticationController, Oauth2Controller],
+  exports: [AuthenticationService],
 })
 export class AuthenticationModule { }

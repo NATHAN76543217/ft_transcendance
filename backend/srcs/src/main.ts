@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import * as serveStatic from 'serve-static';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SocketIoAdapter } from './socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,7 +26,9 @@ async function bootstrap() {
     resave: false,
     saveUninitialized: true,
     secret: "secret"
-  }))
+  }));
+
+  app.useWebSocketAdapter(new SocketIoAdapter(app));
 
   const config = new DocumentBuilder()
     .addServer('https://localhost/api', 'Development server.')

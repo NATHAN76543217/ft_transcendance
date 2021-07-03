@@ -8,15 +8,15 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import TokenPayload from "./tokenPayload.interface";
 import bcrypt from "bcrypt";
-// import * as bcryptjs from 'bcryptjs'; // for unit tests
+
 @Injectable()
 export class AuthenticationService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
-  
+  ) { }
+
   public async registerWithPassword(registrationData: RegisterWithPasswordDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     try {
@@ -32,12 +32,12 @@ export class AuthenticationService {
       }
       throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-}
+  }
 
   public async verifyPassword(plainTextPassword: string, hashedPassword: string) {
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
-      hashedPassword
+      hashedPassword,
     );
     if (!isPasswordMatching) {
       throw new WrongCredentialsException();
@@ -47,7 +47,7 @@ export class AuthenticationService {
   public async getAuthenticatedUserWithPassword(name: string, plainTextPassword: string) {
     try {
       const user = await this.usersService.getUserByName(name);
-      
+
       await this.verifyPassword(plainTextPassword, user.password);
       user.password = undefined;
       return user;
@@ -56,6 +56,13 @@ export class AuthenticationService {
     }
   }
 
+  public async getUserFromAuthenticationToken(token: string) {
+    const payload: TokenPayload = this.jwtService.verify(token, { secret: this.configService.get('JWT_SECRET') });
+    
+    if (payload.userId) {
+      return this.usersService.getUserById(payload.userId);
+    }
+  }
 
   public getCookieWithJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
@@ -63,12 +70,14 @@ export class AuthenticationService {
     const token = this.jwtService.sign(payload);
 	  return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}; SameSite=None; Secure`;
   }
+
   public getJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
     console.log("payload = ", payload);
     const token = this.jwtService.sign(payload);
     return token;
   }
+
   public getCookieForLogOut() {
 	  return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
