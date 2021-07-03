@@ -4,7 +4,7 @@ import { Socket, Server } from 'socket.io';
 import { Logger } from "@nestjs/common";
 import { SocketWithUser } from "src/authentication/socketWithUser.interface";
 
-@WebSocketGateway()
+@WebSocketGateway(undefined, {namespace: "/channels"})
 export class ChannelsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	private logger: Logger = new Logger('ChannelsGateway');
 	
