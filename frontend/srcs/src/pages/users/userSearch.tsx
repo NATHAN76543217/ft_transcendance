@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useDebugValue } from 'react';
 
 // import Button from '../../components/utilities/Button';
 import UserInformation from '../../components/users/userInformation';
@@ -7,12 +7,10 @@ import IUserSearchFormValues from '../../components/interface/IUserSearchFormVal
 import axios from 'axios';
 import IUserInterface from '../../components/interface/IUserInterface';
 import { UserRelationshipTypes } from '../../components/users/userRelationshipTypes';
+import AppContext from '../../AppContext';
 
 
 interface UserProps {
-    myId: string,
-    isMe?: boolean | false,
-    updateAllRelationships: () => void,
 }
 
 interface UserStates {
@@ -21,6 +19,8 @@ interface UserStates {
 }
 
 class UserSearch extends React.Component<UserProps, UserStates> {
+
+    static contextType = AppContext
 
     constructor(props: UserProps) {
         super(props);
@@ -32,6 +32,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         this.removeFriend = this.removeFriend.bind(this);
         this.blockUser = this.blockUser.bind(this);
         this.unblockUser = this.unblockUser.bind(this);
+        this.updateRelationshipState = this.updateRelationshipState.bind(this);
     }
 
     componentDidMount() {
@@ -52,9 +53,10 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async setFriendAndBlockBoolean(list: IUserInterface[]) {
+        const contextValue = this.context;
         list.map(async (user, index) => {
             try {
-                const data = await axios.get("/api/users/relationships/" + user.id + "/" + this.props.myId) // A CHANGER a remettre quand ca marchera
+                const data = await axios.get("/api/users/relationships/" + user.id + "/" + contextValue.myId) // A CHANGER a remettre quand ca marchera
                 if (data.data.type !== this.state.list[index].relationshipType) {
                     let a = this.state.list.slice()
                     a[index].relationshipType = data.data.type;
@@ -87,9 +89,10 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
 
     async addFriend(id: string) {
-        let inf = (Number(this.props.myId) < Number(id));
+        const contextValue = this.context;
+        let inf = (Number(contextValue.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + contextValue.myId);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.pending_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.pending_second_first)) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -108,7 +111,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
             try {
                 await axios.post("/api/users/relationships", {
                     user1_id: id + "",
-                    user2_id: this.props.myId,
+                    user2_id: contextValue.myId,
                     type: newType
                 })
                 this.updateRelationshipState(id, newType);
@@ -116,12 +119,12 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 console.log(error);
             }
         }
-        this.props.updateAllRelationships();
     }
 
     async removeFriend(id: string) {
+        const contextValue = this.context;
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + contextValue.myId);
             if (currentRel.data.type & UserRelationshipTypes.friends) {
                 let newType: UserRelationshipTypes = currentRel.data.type & ~UserRelationshipTypes.friends;
                 try {
@@ -135,13 +138,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 } catch (error) { }
             }
         } catch (error) { }
-        this.props.updateAllRelationships();
     }
 
     async blockUser(id: string) {
-        let inf = (Number(this.props.myId) < Number(id));
+        const contextValue = this.context;
+        let inf = (Number(contextValue.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + contextValue.myId);
             if (!(inf && currentRel.data.type & UserRelationshipTypes.block_first_second) &&
                 !(!inf && currentRel.data.type & UserRelationshipTypes.block_second_first)) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -160,19 +163,19 @@ class UserSearch extends React.Component<UserProps, UserStates> {
             try {
                 await axios.post("/api/users/relationships", {
                     user1_id: id + "",
-                    user2_id: this.props.myId,
+                    user2_id: contextValue.myId,
                     type: newType
                 })
                 this.updateRelationshipState(id, newType);
             } catch (error) { }
         }
-        this.props.updateAllRelationships();
     }
 
     async unblockUser(id: string) {
-        let inf = (Number(this.props.myId) < Number(id));
+        const contextValue = this.context;
+        let inf = (Number(contextValue.myId) < Number(id));
         try {
-            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + this.props.myId);
+            const currentRel = await axios.get("/api/users/relationships/" + id + "/" + contextValue.myId);
             if (!(inf && !(currentRel.data.type & UserRelationshipTypes.block_first_second)) &&
                 !(!inf && !(currentRel.data.type & UserRelationshipTypes.block_second_first))) {
                 let newType: UserRelationshipTypes = currentRel.data.type;
@@ -190,10 +193,11 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 } catch (error) { }
             }
         } catch (error) { }
-        this.props.updateAllRelationships();
     }
 
     render() {
+        const contextValue = this.context;
+
         return (
             <div className="">
                 <UserSearchForm onSubmit={this.onSubmit} />
@@ -210,24 +214,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                                 nbLoss={user.nbLoss}
                                 imgPath={user.imgPath}
                                 relationshipTypes={user.relationshipType}
-                                idInf={Number(this.props.myId) < Number(user.id)}
+                                idInf={Number(contextValue.myId) < Number(user.id)}
                                 addFriend={this.addFriend}
                                 removeFriend={this.removeFriend}
                                 blockUser={this.blockUser}
                                 unblockUser={this.unblockUser}
-                                // --------------------------------------------------
-                                // isFriend={user.relationshipType === UserRelationshipTypes.friends}    // A CHANGER QUAND ON SAURA
-                                // --------------------------------------------------
-                                // --------------------------------------------------
-                                // isBlocked={
-                                //     (Number(this.props.myId) < Number(user.id) && user.relationshipType === UserRelationshipTypes.block_first_second) ||
-                                //     (Number(this.props.myId) > Number(user.id) && user.relationshipType === UserRelationshipTypes.block_second_first)
-                                // }    // A CHANGER QUAND ON SAURA
-                                // --------------------------------------------------
                                 isInSearch
-                                // --------------------------------------------------
-                                isMe={Number(user.id) === Number(this.props.myId)} // A CHANGER AVEC app.state.user.id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                            // --------------------------------------------------
+                                isMe={Number(user.id) === Number(contextValue.myId)}
                             />
                         </li>
                     ))}

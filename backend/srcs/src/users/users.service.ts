@@ -17,9 +17,13 @@ export default class UsersService {
     private usersRepository: Repository<User>
   ) { }
 
+
   async getAllUsers(name: string) {
     if (name === undefined) {
-      return await this.usersRepository.find({ relations: ['channels'] });
+      return await this.usersRepository.find({
+          relations: ['channels'],
+          order: {'name': 'ASC'}
+      });
     }
     return this.usersRepository.find({
       where: { 'name': Like('%' + name + '%') }});

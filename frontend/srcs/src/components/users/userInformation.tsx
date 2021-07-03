@@ -3,6 +3,9 @@ import { NavLink } from 'react-router-dom';
 import { UserRelationshipTypes } from './userRelationshipTypes';
 import ChangeNameUserForm from '../Forms/userChangeNameForm';
 import IUserChangeNameFormValues from '../interface/IUserChangeNameFormValues';
+import App from '../../App';
+import React from 'react';
+import AppContext from '../../AppContext';
 
 type UserProps = {
     id: string,        // optional ?
@@ -26,6 +29,7 @@ type UserProps = {
     unblockUser: (id: string) => void,
     changeUsername?: (values: IUserChangeNameFormValues) => void,
 }
+
 
 function getStatusColor(param: string) {
     switch (param) {
@@ -93,7 +97,17 @@ function displayFileChange(user: UserProps) {
     }
 }
 
-function displayFriendButton(user: UserProps) {
+function displayFriendButton(user: UserProps, updateAllRelationships: any) {
+   const addFriend = async (id: string) => {
+        await user.addFriend(id)
+        await updateAllRelationships();
+    }
+
+    const removeFriend = async (id: string) => {
+        await user.removeFriend(id)
+        await updateAllRelationships();
+    }
+
     let isPending = user.idInf ?
         user.relationshipTypes & UserRelationshipTypes.pending_first_second :
         user.relationshipTypes & UserRelationshipTypes.pending_second_first;
@@ -109,7 +123,7 @@ function displayFriendButton(user: UserProps) {
                     <CustomButton
                         content="Remove friend"
                         // url="/users/unfriend"
-                        onClickFunctionId={user.removeFriend}
+                        onClickFunctionId={removeFriend}
                         argId={user.id}
 
                         bg_color="bg-unset"
@@ -120,7 +134,7 @@ function displayFriendButton(user: UserProps) {
                         <CustomButton
                             content="Pending request"
                             // url="/users/pending"
-                            onClickFunctionId={user.removeFriend}
+                            onClickFunctionId={removeFriend}
                             argId={user.id}
 
                             bg_color="bg-pending"
@@ -132,7 +146,7 @@ function displayFriendButton(user: UserProps) {
                             <CustomButton
                                 content="Accept friend request"
                                 // url="/users/friend"
-                                onClickFunctionId={user.addFriend}
+                                onClickFunctionId={addFriend}
                                 argId={user.id}
 
                                 bg_color="bg-accept"
@@ -143,7 +157,7 @@ function displayFriendButton(user: UserProps) {
                             <CustomButton
                                 content="Add friend"
                                 // url="/users/friend"
-                                onClickFunctionId={user.addFriend}
+                                onClickFunctionId={addFriend}
                                 argId={user.id}
 
                                 bg_color="bg-secondary"
@@ -159,7 +173,17 @@ function displayFriendButton(user: UserProps) {
     )
 }
 
-function displayBlockButton(user: UserProps) {
+function displayBlockButton(user: UserProps, updateAllRelationships: any) {
+    const blockUser = async (id: string) => {
+        await user.blockUser(id)
+        await updateAllRelationships();
+    }
+
+    const unblockUser = async (id: string) => {
+        await user.unblockUser(id)
+        await updateAllRelationships();
+    }
+
     let isBlock = user.idInf ?
         user.relationshipTypes & UserRelationshipTypes.block_first_second :
         user.relationshipTypes & UserRelationshipTypes.block_second_first
@@ -170,7 +194,7 @@ function displayBlockButton(user: UserProps) {
                 (!isBlock ? <CustomButton
                     content="Block user"
                     // url="/users/block"
-                    onClickFunctionId={user.blockUser}
+                    onClickFunctionId={blockUser}
                     argId={user.id}
                     bg_color="bg-unset"
                     // bg_hover_color="bg-secondary-dark"
@@ -179,7 +203,7 @@ function displayBlockButton(user: UserProps) {
                     <CustomButton
                         content="Unblock user"
                         // url="/users/unblock"
-                        onClickFunctionId={user.unblockUser}
+                        onClickFunctionId={unblockUser}
                         argId={user.id}
                         bg_color="bg-secondary"
                         // bg_hover_color="bg-unset-dark"
@@ -208,7 +232,7 @@ function displayTwoFactorAuth(user: UserProps) {
 }
 
 
-function DisplayChangeNameField(user: UserProps) {
+function displayChangeNameField(user: UserProps) {
     if (user.isMe && !user.isInSearch && user.changeUsername !== undefined) {
         return (
             <ChangeNameUserForm onSubmit={user.changeUsername} />
@@ -217,7 +241,6 @@ function DisplayChangeNameField(user: UserProps) {
         return <div></div>
     }
 }
-
 
 function displayWrongUsernameMessage(user: UserProps) {
     if (user.showWrongUsernameMessage) {
@@ -229,8 +252,9 @@ function displayWrongUsernameMessage(user: UserProps) {
     }
 }
 
-
 function UserInformation(user: UserProps) {
+    // const contextValue = React.useContext(App.appContext);
+    const contextValue = React.useContext(AppContext);
 
     return (
         <div className="py-4 h-42">
@@ -254,13 +278,13 @@ function UserInformation(user: UserProps) {
                     {displayWinAndLose(user)}
                 </div>
                 <div>
-                    {displayFriendButton(user)}
-                    {displayBlockButton(user)}
+                    {displayFriendButton(user, contextValue.updateAllRelationships)}
+                    {displayBlockButton(user, contextValue.updateAllRelationships)}
                 </div>
 
 
             </section>
-            {DisplayChangeNameField(user)}
+            {displayChangeNameField(user)}
             {displayTwoFactorAuth(user)}
         </div>
     );
