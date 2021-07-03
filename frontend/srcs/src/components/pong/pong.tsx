@@ -37,6 +37,13 @@ export {}
 
 
 
+// Exemple with a form pages/user/userSearch.tsx
+
+// 1 only socket
+// 1 room per game
+// client socket are in the room
+// 
+
 // TO DO: Responsive canvas
 // Mouse pos scraper form the client
 
