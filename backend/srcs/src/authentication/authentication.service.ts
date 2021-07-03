@@ -8,9 +8,9 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import TokenPayload from "./tokenPayload.interface";
 import axios from 'axios';
-import * as bcryptjs from 'bcryptjs';
+// import * as bcryptjs from 'bcryptjs';
 
-// import bcrypt from "bcrypt";
+import bcrypt from "bcrypt";
 // import * as bcryptjs from 'bcryptjs'; // for unit tests
 
 
@@ -22,7 +22,7 @@ export class AuthenticationService {
   ) {}
   
   public async registerWithPassword(registrationData: RegisterWithPasswordDto) {
-    const hashedPassword = await bcryptjs.hash(registrationData.password, 10);
+    const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     try {
       const createdUser = await this.usersService.createUser({
         ...registrationData,
@@ -39,7 +39,7 @@ export class AuthenticationService {
 }
 
   public async verifyPassword(plainTextPassword: string, hashedPassword: string) {
-	const isPasswordMatching = await bcryptjs.compare(
+	const isPasswordMatching = await bcrypt.compare(
 	  plainTextPassword,
 	  hashedPassword
 	);

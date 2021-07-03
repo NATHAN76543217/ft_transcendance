@@ -12,6 +12,9 @@ WORKDIR /app
 # Install modules
 # If you are building your code for development
 RUN     npm install
+
+RUN     npm uninstall bcrypt && npm install bcrypt
+
 # If you are building your code for production
 # RUN npm ci --only=production
 
