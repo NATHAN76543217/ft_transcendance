@@ -15,8 +15,10 @@ export class School42Strategy extends PassportStrategy(Strategy, 'school42') {
 			tokenURL        :	"https://api.intra.42.fr/oauth/token",
 			clientID        :	process.env.OAUTH_42_UID,
 			clientSecret    :	process.env.OAUTH_42_SECRET,
-			callbackURL     :	"http://localhost:8080/authentication/oauth2/school42/callback",
+			callbackURL     :	"https://localhost/api/authentication/oauth2/school42/callback",
 			scope           :	'public',
+			proxy			:	true
+			
 			//TODO add state to 42 request
 			// state			:	'unguesableString'
 		});
@@ -30,10 +32,8 @@ export class School42Strategy extends PassportStrategy(Strategy, 'school42') {
 	}
 
     async validate(accessToken: string, refreshToken: string, profile:any, done: Function): Promise<any> {
-		const jwt = "jwt placeholder";
 			try {
 				let user = await this.usersService.getUserBy42Id(profile.id);
-				user.jwt = jwt;
 				console.log(user);
 				done(null, user);
 			}
@@ -41,13 +41,12 @@ export class School42Strategy extends PassportStrategy(Strategy, 'school42') {
 			{
 				if (error instanceof UserOauthIdNotFoundException )
 				{
-					console.log("Create user account for: ", profile.login);
+					console.log("Create user account for: ", profile.login, "(school42)");
 					let user = await this.usersService.createUser({
 						name: profile.login,
 						password: profile.password,
 						school42id: profile.id
 					});
-					user.jwt = jwt;
 					user.password = undefined;
 					done(null, user);
 				}

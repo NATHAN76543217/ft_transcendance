@@ -1,3 +1,4 @@
+import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 function DisplayAdminMenu(isAdmin: boolean) {
@@ -36,7 +37,7 @@ SideMenuButton.defaultProps = {
 	iconStyle: "fas",
 }
 
-function SideMenu() {
+function SideMenu(props : {logged :boolean}) {
 	return (
 		<div>
 			<nav className="absolute z-50 w-16 h-full delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">
@@ -56,9 +57,13 @@ function SideMenu() {
 					</li>
 					<SideMenuButton name="Home" href="/" icon="fa-home" />
 					<SideMenuButton name="Game" href="/game" icon="fa-dice-d6" />
-					<SideMenuButton name="Users" href="/users/find" icon="fa-users" />
-					<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
 					<SideMenuButton name="Chats" href="/chat" icon="fa-comment-dots" />
+					{ props.logged && 
+						<React.Fragment>
+							<SideMenuButton name="Users" href="/users/find" icon="fa-users" />
+							<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
+						</React.Fragment>
+					}
 					{DisplayAdminMenu(true)}
 					{/* {DisplayAdminMenu(false)} */}
 					{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}

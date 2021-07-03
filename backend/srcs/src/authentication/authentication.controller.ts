@@ -32,7 +32,8 @@ export class AuthenticationController {
   @HttpCode(200)
   @UseGuards(JwtAuthenticationGuard)
   async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
-    response.setHeader('Set-Cookie', this.authenticationService.getCookieForLogOut());
+    // TODO see if bellow is needed (don't think so cause but maybe need with setcookie)
+    // response.setHeader('Set-Cookie', this.authenticationService.getCookieForLogOut());
     return response.send();
   }
 

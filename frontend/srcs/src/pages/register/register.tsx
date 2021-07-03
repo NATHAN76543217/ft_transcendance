@@ -11,8 +11,6 @@ interface IRegisterFormValues {
 
 export default function Register(props: {})
 {
-    //const [username, password] = useState();
-
     const { register, handleSubmit, setError, formState: { errors } } = useForm<IRegisterFormValues>();
 
     const onSubmit = async (values: IRegisterFormValues) => {
@@ -53,9 +51,16 @@ export default function Register(props: {})
                 <input type='submit' value="Register" className={"rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary"}></input>
             </form>
 
-            <Button content="Register with 42" url="https://localhost/api/authentication/oauth2/school42"/>
-
-            <Button content="Register with google" url="https://localhost/api/authentication/oauth2/google"/>
+			<Button
+				content="Login with 42"
+				url="https://localhost/api/authentication/oauth2/school42"
+				className=""
+				/>
+			<Button
+				content="Login with google"
+				url="https://localhost/api/authentication/oauth2/google"
+				className=""
+				/>
         </section>
     );
 }

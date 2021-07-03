@@ -3,12 +3,15 @@ import ReactDOM from 'react-dom';
 import './css/main.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+// import { CookiesProvider } from "react-cookie";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+	<React.StrictMode>
+		{/* <CookiesProvider> */}
+			<App />
+		{/* </CookiesProvider> */}
+	</React.StrictMode>,
+	document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function

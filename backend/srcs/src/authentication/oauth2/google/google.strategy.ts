@@ -17,18 +17,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.OAUTH_GOOGLE_UID,
       clientSecret: process.env.OAUTH_GOOGLE_SECRET,
-      callbackURL: 'http://localhost:8080/authentication/oauth2/google/callback',
-    //   callbackURL: 'https://localhost/api/authentication/oauth2/google/callback',
+      callbackURL: 'https://localhost/api/authentication/oauth2/google/callback',
       scope: ['email', 'profile'],
       prompt: 'select_account',
     });
   }
 
   async validate (accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
-    const jwt = "jwt placeholder";
     try {
       let user = await this.usersService.getUserByGoogleId(profile.id);
-      user.jwt = jwt;
       console.log(user);
       done(null, user);
     }
@@ -44,7 +41,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
           password: profile.password,
           googleid: profile.id
         });
-        user.jwt = jwt;
         user.password = undefined;
         done(null, user);
       }
