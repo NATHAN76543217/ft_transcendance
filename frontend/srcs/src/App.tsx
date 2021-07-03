@@ -99,7 +99,7 @@ class App extends React.Component< {}, appState> {
 					<Header logged={ this.state.logged } user={this.state.user} setUser={this.setUser} />
 					<div className="flex h-full">
 						<div className="flex-none">
-							<SideMenu/>
+							<SideMenu logged={ this.state.logged } />
 						</div>
 						<div className="flex w-full flex-nowrap">
 							<main className={"flex-grow " + change_bg_color_with_size}>
