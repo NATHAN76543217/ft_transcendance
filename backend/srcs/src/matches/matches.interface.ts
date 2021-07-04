@@ -1,6 +1,6 @@
 export default interface Match
 {
-    idMatch : number;
+    idMatch : string;
     idPlayerOne : string;
     idPlayerTwo : string;
     scorePlayerOne : number;

@@ -26,7 +26,7 @@ export default class MatchesService
         return (matches);
     }
 
-    public async getMatchById(id : number) : Promise<Match>
+    public async getMatchById(id : string) : Promise<Match>
     {
         const match = await this.matchesRepository.findOne(id);
         if (match)
@@ -85,7 +85,7 @@ export default class MatchesService
         throw new CurrMatchesNotFound();
     }
 
-    public async getCurrentMatchesById(id : number)
+    public async getCurrentMatchesById(id : string)
     {
         const currMatches = this.getCurrentMaches();
         const match = (await currMatches).find(currMatches => currMatches.id == id);
@@ -94,7 +94,7 @@ export default class MatchesService
         throw new MatchNotFound(id);
     }
 
-    public async updateMatchElement(id : number, key : string, value : unknown)
+    public async updateMatchElement(id : string, key : string, value : unknown)
     {
         // TO DO: This implementation seems nice but breaks constness
         //let match = this.getMatchById(id);
@@ -111,7 +111,7 @@ export default class MatchesService
         }
     }
 
-    public async updateMatch(id : number, match : UpdateMatchesDto)
+    public async updateMatch(id : string, match : UpdateMatchesDto)
     {
         await this.matchesRepository.update(id, match);
         const updatedMatch = this.getMatchById(id);
@@ -127,7 +127,7 @@ export default class MatchesService
         return (newMatch);
     }
 
-    public async deleteMatch(id : number)
+    public async deleteMatch(id : string)
     {
         const deleteResponse = await this.matchesRepository.delete(id);
         if (!deleteResponse.affected)

@@ -8,9 +8,9 @@ import {
 
 export default class CreateMatchesDto
 {
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    public readonly idMatch : number;
+    public readonly idMatch : string;
 
     @IsString()
     @IsNotEmpty()

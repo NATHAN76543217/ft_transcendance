@@ -8,7 +8,7 @@ import {
 export default class Match
 {
     @PrimaryGeneratedColumn()
-    public id : number;
+    public id : string;
 
     @Column({unique: true})
     public readonly idPlayerOne : string;
