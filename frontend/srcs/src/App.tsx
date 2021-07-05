@@ -21,7 +21,7 @@ import IUserRelationship from './components/interface/IUserRelationshipInterface
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
 import Cookies from 'js-cookie';
-import Jwt from 'jwt-decode';
+import jwt_decode from 'jwt-decode';
 
 import { AppStates } from './AppStates'
 import { IAppContext } from './IAppContext';
@@ -34,13 +34,10 @@ interface AppProps {
 
 }
 
-interface AppStates {
-	relationshipsList: IUserInterface[],
-	myId: string,
-	user: any,
-	logged: boolean,
-}
-
+interface MyJwtToken {
+	userId: number;
+  }
+  
 
 class App extends React.Component<AppProps, AppStates> {
 
@@ -48,7 +45,6 @@ class App extends React.Component<AppProps, AppStates> {
 		super(props)
 		this.state = {
 			relationshipsList: [],
-			myId: "1",				// A remplacer par le vrai id // a supprimer: id in user
 			user: undefined,
 			myRole: UserRoleTypes.owner,	// A remplacer par le vrai role
 			logged: false
@@ -56,13 +52,12 @@ class App extends React.Component<AppProps, AppStates> {
 		this.updateAllRelationships = this.updateAllRelationships.bind(this)
 		this.setUser = this.setUser.bind(this);
 	}
-
 	setUser(user: {})
 	{
 		let logged = false;
 		if (user)
 			logged = true;
-		console.log('set state:', logged, user)
+		console.log('set user:', logged, user)
 		this.setState({
 			user: user,
 			logged: logged,
@@ -72,8 +67,10 @@ class App extends React.Component<AppProps, AppStates> {
 	GetLoggedProfile = () : JSX.Element =>
 	{
 		const jwt = Cookies.get("Authentication");
-		const userid = Jwt(jwt).userId; // decode your token here
-		console.log('userid=', userid);
+		if (!jwt)
+			return (<p>Cookies not found</p>);
+		const userid = jwt_decode<MyJwtToken>(jwt).userId;
+
 		axios.get("/api/users/" + userid).then((res) => {
 			const user = res.data;
 			console.log("user = ", user);
@@ -121,13 +118,13 @@ class App extends React.Component<AppProps, AppStates> {
 
 	async updateAllRelationships() {
 		try {
-			const dataRel = await axios.get("/api/users/relationships/" + this.state.myId)
+			const dataRel = await axios.get("/api/users/relationships/" + this.state.user?.id)
 			let a: IUserInterface[] = [];
 			if (!dataRel.data.length) {
 				this.setState({ relationshipsList: a });
 			} else {
 				await dataRel.data.map(async (relation: IUserRelationship) => {
-					let inf = (Number(relation.user1_id) === Number(this.state.myId));
+					let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
 					let friendId = inf ? relation.user2_id : relation.user1_id;
 					try {
 						let index;
@@ -156,7 +153,7 @@ class App extends React.Component<AppProps, AppStates> {
 		this.getOldState();
 		let contextValue: IAppContext = {
 			relationshipsList: this.state.relationshipsList,
-			myId: this.state.myId,
+			myId: this.state.user?.id,
 			myRole: this.state.myRole,
 			updateAllRelationships: this.updateAllRelationships
 		}
@@ -189,8 +186,7 @@ class App extends React.Component<AppProps, AppStates> {
 												</PrivateRoute>
 												<PrivateRoute isAuth={ this.state.logged } exact path="/users">
 													<User
-														updateAllRelationships={this.updateAllRelationships}
-														myId={this.state.myId}
+														myId={this.state.user?.id}
 													/>
 												</PrivateRoute>
 												<Route path="/chat/:id?" component={ChatPage} />
@@ -215,9 +211,8 @@ class App extends React.Component<AppProps, AppStates> {
 										</main>
 										<div className="flex-none hidden md:block">
 											<FriendsBar
-												relationshipsList={this.state.relationshipsList}
-												myId={this.state.myId}
 											/>
+										</div>
 									</div>
 								</div>
 								<Footer />

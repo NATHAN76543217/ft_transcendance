@@ -96,6 +96,7 @@ class UserPage extends React.Component<UserProps & RouteComponentProps, UserStat
 
     onLoad = async (userId: string) => {
         try {
+            // REVIEW redondance with userId && this.state.user.id
             if (!isNaN(Number(userId))) {
                 const data = await axios.get("/api/users/" + this.state.user.id);
                 this.setState({

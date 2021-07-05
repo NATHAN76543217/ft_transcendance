@@ -11,7 +11,6 @@ const headerPropType = {
 
 function Header( { logged, user , setUser}: InferProps<typeof headerPropType> ) {
 		//TODO replace logout button redirection by a query to /apip/authentication/api
-		console.log("header - logged=", logged);
 		return (
 			<header className="relative z-30 flex flex-row justify-between w-full bg-primary ">
 				<span className="block px-4 py-2 text-4xl font-bold">

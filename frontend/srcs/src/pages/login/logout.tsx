@@ -18,8 +18,6 @@ type ChildProps = {
 }
 
 export default function Logout({setUser} : ChildProps) {
-
-    console.log("setuser: ", setUser)
 	const { handleSubmit, setError, formState: { errors } } = useForm<ILoginFormValues>();
 
 	const onSubmit = async () => {
