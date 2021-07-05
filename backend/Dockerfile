@@ -21,7 +21,7 @@ RUN     npm uninstall bcrypt && npm install bcrypt
 # Install sources
 COPY    --chown=node:node srcs/                 .
 
-# RUN npm update @nestjs/cli
+# RUN npm update --save @nestjs/cli
 
 # RUN npx @nestjs/cli update
 

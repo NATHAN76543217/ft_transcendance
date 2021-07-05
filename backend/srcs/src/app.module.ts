@@ -31,6 +31,7 @@ import { PhotosModule } from './photos/photos.module';
     ChannelsModule,
     MessagesModule,
     PhotosModule,
+    
   ],
   controllers: [AppController],
   providers: [AppService],

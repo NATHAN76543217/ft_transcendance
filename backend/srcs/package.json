@@ -14,6 +14,8 @@
     "start:debug": "npx @nestjs/cli start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
+    "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -62,6 +64,7 @@
     "@types/cookie-parser": "^1.4.2",
     "@types/express": "^4.17.12",
     "@types/express-session": "^1.17.3",
+    "@types/faker": "^5.5.6",
     "@types/hapi__joi": "^17.1.6",
     "@types/jest": "^26.0.22",
     "@types/node": "^14.14.36",
@@ -82,6 +85,7 @@
     "ts-loader": "^8.0.18",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
+    "typeorm-seeding": "^1.6.1",
     "typescript": "^4.2.3"
   },
   "jest": {
