@@ -1,7 +1,7 @@
 import { Request } from 'express';
- 
+
 interface RequestWithOauthCode extends Request {
-  code: string
+  code: string;
 }
- 
+
 export default RequestWithOauthCode;
