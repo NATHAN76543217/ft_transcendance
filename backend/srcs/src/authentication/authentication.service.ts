@@ -1,13 +1,13 @@
-import UsersService from "src/users/users.service";
-import { HttpException, HttpStatus, Injectable, Redirect } from "@nestjs/common";
-import { PostgresErrorCode } from "../database/postgresErrorCodes";
-import RegisterWithPasswordDto from "./dto/registerWithPassword.dto";
-import UserNameAlreadyExistsException from "./exception/UserNameAlreadyExists.exception";
-import WrongCredentialsException from "./exception/WrongCredentials.exception";
-import { JwtService } from "@nestjs/jwt";
-import { ConfigService } from "@nestjs/config";
-import TokenPayload from "./tokenPayload.interface";
-import bcrypt from "bcrypt";
+import UsersService from 'src/users/users.service';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { PostgresErrorCode } from '../database/postgresErrorCodes';
+import RegisterWithPasswordDto from './dto/registerWithPassword.dto';
+import UserNameAlreadyExistsException from './exception/UserNameAlreadyExists.exception';
+import WrongCredentialsException from './exception/WrongCredentials.exception';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import TokenPayload from './tokenPayload.interface';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthenticationService {
@@ -15,14 +15,14 @@ export class AuthenticationService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   public async registerWithPassword(registrationData: RegisterWithPasswordDto) {
     const hashedPassword = await bcrypt.hash(registrationData.password, 10);
     try {
       const createdUser = await this.usersService.createUser({
         ...registrationData,
-        password: hashedPassword
+        password: hashedPassword,
       });
       createdUser.password = undefined;
       return createdUser;
@@ -30,11 +30,17 @@ export class AuthenticationService {
       if (error?.code === PostgresErrorCode.UniqueViolation) {
         throw new UserNameAlreadyExistsException(registrationData.name);
       }
-      throw new HttpException('Something went wrong', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Something went wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  public async verifyPassword(plainTextPassword: string, hashedPassword: string) {
+  public async verifyPassword(
+    plainTextPassword: string,
+    hashedPassword: string,
+  ) {
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
       hashedPassword,
@@ -44,7 +50,10 @@ export class AuthenticationService {
     }
   }
 
-  public async getAuthenticatedUserWithPassword(name: string, plainTextPassword: string) {
+  public async getAuthenticatedUserWithPassword(
+    name: string,
+    plainTextPassword: string,
+  ) {
     try {
       const user = await this.usersService.getUserByName(name);
 
@@ -57,8 +66,10 @@ export class AuthenticationService {
   }
 
   public async getUserFromAuthenticationToken(token: string) {
-    const payload: TokenPayload = this.jwtService.verify(token, { secret: this.configService.get('JWT_SECRET') });
-    
+    const payload: TokenPayload = this.jwtService.verify(token, {
+      secret: this.configService.get('JWT_SECRET'),
+    });
+
     if (payload.userId) {
       return this.usersService.getUserById(payload.userId);
     }
@@ -66,19 +77,21 @@ export class AuthenticationService {
 
   public getCookieWithJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    console.log("payload = ", payload);
+    Logger.debug(`payload = ${userId.toFixed()}`);
     const token = this.jwtService.sign(payload);
-	  return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_EXPIRATION_TIME')}; SameSite=None; Secure`;
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_EXPIRATION_TIME',
+    )}; SameSite=None; Secure`;
   }
 
   public getJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    console.log("payload = ", payload);
+    Logger.debug(`payload = ${userId.toFixed()}`);
     const token = this.jwtService.sign(payload);
     return token;
   }
 
   public getCookieForLogOut() {
-	  return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 }
