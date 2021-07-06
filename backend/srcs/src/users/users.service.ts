@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import CreateUserDto from './dto/CreateUser.dto';
 import User from './user.entity';
 import UpdateUserDto from './dto/UpdateUser.dto';
@@ -6,77 +6,81 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
-import axios from 'axios';
 import UserRelationshipsService from './relationships/user-relationships.service';
-import { FindOneParam } from './utils/findOneParams';
 
 @Injectable()
 export default class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>
-  ) { }
-
+    private usersRepository: Repository<User>,
+  ) {}
 
   async getAllUsers(name: string) {
     if (name === undefined) {
       return await this.usersRepository.find({
-          relations: ['channels'],
-          order: {'name': 'ASC'}
+        relations: ['channels'],
+        order: { name: 'ASC' },
       });
     }
     return this.usersRepository.find({
-      where: { 'name': Like('%' + name + '%') }});
+      where: { name: Like('%' + name + '%') },
+    });
   }
 
   async getUserById(id: number) {
-    const user = await this.usersRepository.findOne(id, { relations: ['channels'] });
+    const user = await this.usersRepository.findOne(id);
     if (user) {
+      Logger.debug(`User with id ${id} found!`);
       return user;
     }
+    Logger.debug(`User with id ${id} not found!`);
     throw new UserNotFound(id);
   }
 
   async getUserByName(name: string) {
-    if (name !== undefined)
+    // This should never be false
+    //if (name !== undefined)
     // const user = await this.usersRepository.findOne(name, { relations: ['channels'] });
-    return this.usersRepository.findOne(name, { relations: ['channels']});
+    return this.usersRepository.findOne({
+      where: {
+        name: name,
+      },
+      relations: ['channels'],
+    });
   }
 
-
   async getUsersFiltertByName(name: string) {
-    let results = this.usersRepository.find({
-      where: { 'name': Like('%' + name + '%') }});
-      return results;
+    const results = this.usersRepository.find({
+      where: { name: Like('%' + name + '%') },
+    });
+    return results;
   }
 
   async getUserBy42Id(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ 
-      where: { 
-        school42id: id
-      }, 
+    const user = await this.usersRepository.findOne({
+      where: {
+        school42id: id,
+      },
     });
-    if (user)
-      return user;
-    else
-      throw new UserOauthIdNotFound(id);
+    if (user) return user;
+    else throw new UserOauthIdNotFound(id);
   }
 
   async getUserByGoogleId(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ 
-      where: { 
-        googleid: id
-      }, 
+    const user = await this.usersRepository.findOne({
+      where: {
+        googleid: id,
+      },
     });
-    if (user)
-      return user;
-    else
-      throw new UserOauthIdNotFound(id);
+    if (user) return user;
+    else throw new UserOauthIdNotFound(id);
   }
 
   async updateUser(id: number, user: UpdateUserDto) {
     await this.usersRepository.update(id, user);
-    const updatedUser = this.usersRepository.findOne(id, { relations: ['channels'] });
+    const updatedUser = this.usersRepository.findOne(id, {
+      relations: ['channels'],
+    });
     if (updatedUser) {
       return updatedUser;
     }
@@ -89,14 +93,17 @@ export default class UsersService {
     return newUser;
   }
 
-  async deleteUser(id: string, userRelationshipsService: UserRelationshipsService) {
-
+  async deleteUser(
+    id: string,
+    userRelationshipsService: UserRelationshipsService,
+  ) {
     try {
-      const dataRel = await userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
+      const dataRel =
+        await userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
       if (dataRel) {
         dataRel.map((relation) => {
-          userRelationshipsService.deleteUserRelationship(Number(relation.id))
-        })
+          userRelationshipsService.deleteUserRelationship(Number(relation.id));
+        });
       }
     } catch (error) {}
 
@@ -105,5 +112,4 @@ export default class UsersService {
       throw new UserNotFound(Number(id));
     }
   }
-
 }

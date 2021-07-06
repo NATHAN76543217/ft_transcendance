@@ -1,26 +1,21 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, JoinColumn, ManyToOne, Unique } from 'typeorm';
-import { Exclude } from 'class-transformer';
-import Channel from '../../channels/channel.entity';
-import { Transform } from 'stream';
-import UsersController from '../users.controller';
-import User from '../user.entity';
-import { UserRelationshipTypes } from './userRelationshipTypes'
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { UserRelationshipTypes } from './userRelationshipTypes';
 
 @Entity()
-@Unique(["user1_id", "user2_id"])
+@Unique(['user1_id', 'user2_id'])
 class UserRelationship {
-    @PrimaryGeneratedColumn()
-    public id: number;
+  @PrimaryGeneratedColumn()
+  public id: number;
 
-    @Column({default: UserRelationshipTypes.null })
-    public type: UserRelationshipTypes;
+  @Column({ default: UserRelationshipTypes.null })
+  public type: UserRelationshipTypes;
 
-    @Column({nullable: true})
-    // @ManyToOne(() => User, user => user.userRelationship1)
-    public user1_id: string;
-    
-    @Column({nullable: true})
-    // @ManyToOne(() => User, user => user.userRelationship2)
-    public user2_id: string;
+  @Column({ nullable: true })
+  // @ManyToOne(() => User, user => user.userRelationship1)
+  public user1_id: string;
+
+  @Column({ nullable: true })
+  // @ManyToOne(() => User, user => user.userRelationship2)
+  public user2_id: string;
 }
 export default UserRelationship;

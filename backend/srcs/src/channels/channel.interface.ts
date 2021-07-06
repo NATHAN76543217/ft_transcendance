@@ -1,13 +1,13 @@
 export default interface Channel {
-    id: number;
+  id: number;
 
-    name: string;
+  name: string;
 
-    password: string;
+  password: string;
 
-    mode: string;
+  mode: string;
 
-    // messages: Message[];
+  // messages: Message[];
 
-    // users: User[];
+  // users: User[];
 }
