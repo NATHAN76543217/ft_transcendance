@@ -23,7 +23,7 @@ import { PhotosModule } from './photos/photos.module';
         PORT: Joi.number(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.string().required(),
-      })
+      }),
     }),
     DatabaseModule,
     AuthenticationModule,
