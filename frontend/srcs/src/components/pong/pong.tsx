@@ -1,11 +1,5 @@
-// import PongGenerator from "../../../../../pong/new_pong/engine/engine"
-// import {
-//     Socket,
-// } from "ngx-socket-io"
+import PongGenerator from "../../../../../pong/engine/engine"
 
-// export default function Pong(socketServ : Socket, pongEngine : PongGenerator)
-// {
-//     const socket : Socket = socketServ;
 import {
     Socket,
 } from "ngx-socket-io"
@@ -60,4 +54,15 @@ export {}
 - 6) When the game end redirect back the user(s)
 
 NOTE: Step 1 is a post
+
+// 6/07/2021
+
+1) Make a form that init the game
+2) Depends if is matchmaking or customizing mode -> The room is init
+3) The room is joined (for not matchmaking)
+4) The game can run -> {push game to the database}, {other players can join as spectators}
+5) At the end "revenge" or "go back" -> {update score in the database and endtime}
+
+// Set up a default game for matchmaking games ? Yes is easier.
+
 */
