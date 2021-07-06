@@ -10,9 +10,7 @@ import { SocketIoAdapter } from './socket-io.adapter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(
-    app.get(Reflector)
-  ));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.use(cookieParser());
 
   app.use('/uploads', serveStatic(__dirname + '/../uploads'));
@@ -22,11 +20,13 @@ async function bootstrap() {
   //   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   //   next();
   // });
-  app.use(session({
-    resave: false,
-    saveUninitialized: true,
-    secret: "secret"
-  }));
+  app.use(
+    session({
+      resave: false,
+      saveUninitialized: true,
+      secret: 'secret',
+    }),
+  );
 
   app.useWebSocketAdapter(new SocketIoAdapter(app));
 
@@ -36,6 +36,7 @@ async function bootstrap() {
     .setDescription('Transcendance API documentation.')
     .setVersion('1.0')
     .addTag('transcendance')
+    .addCookieAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/', app, document);

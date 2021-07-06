@@ -15,6 +15,7 @@ import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import LoginWithPasswordDto from './dto/loginWithPassword.dto';
+import { ApiBearerAuth, ApiCookieAuth, ApiHeader } from '@nestjs/swagger';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -50,6 +51,7 @@ export class AuthenticationController {
 
   @Get()
   @UseGuards(JwtAuthenticationGuard)
+  @ApiCookieAuth()
   authenticate(@Req() request: RequestWithUser) {
     const { user } = request;
     user.password = undefined;
