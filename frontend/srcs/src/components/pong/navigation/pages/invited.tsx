@@ -5,7 +5,7 @@
 
 import React from "react"
 
-import ContinousSlider from "./continuousSlider"
+import ContinousSlider from "../../components/continuousSlider"
 import {
     Socket,
     SocketIoConfig
