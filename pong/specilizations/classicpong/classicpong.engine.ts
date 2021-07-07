@@ -1,19 +1,15 @@
 import {
-    GameMode
-} from "../../../engine";
-import {
     GameStatus
 } from "../../game/status"
-import {
-    LIB_HORIZONTAL
-} from "../../engine/lib.names"
+
 import ClassicPongGameConfig from "./customization/classicpong.gameconfig"
-import PongGenerator from "../../engine/engine"
+import PongClient from "../../engine/engine"
+import SettingsLimits from "../classicpong/customization/classicpong.settings"
 import {
     Socket
 } from "ngx-socket-io"
 
-export default class ClassicPong extends PongGenerator
+export default class ClassicPong extends PongClient
 {
     constructor(
         idRoom : string,
@@ -24,6 +20,7 @@ export default class ClassicPong extends PongGenerator
     {
         super(
             new ClassicPongGameConfig(idPlayerOne, idPlayerTwo),
+            new SettingsLimits(),
             socket,
             idRoom
         );

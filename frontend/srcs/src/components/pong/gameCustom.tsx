@@ -25,8 +25,14 @@ import  ClassicPong from "../../../../../pong/specilizations/classicpong/classic
 import {
     IRoomDto
 } from "../../../../../pong/server/socketserver"
+import {
+    RangeSlider,
+    IRangeSliderDto
+} from "../../../../../pong/settings/dto/rangeslider"
+import {
+    Range
+} from "../../../../../pong/settings/dto/range"
 
-// TO DO if i can create a socket like that
 import {
     Socket,
     SocketIoConfig
@@ -141,12 +147,14 @@ export default class GameCustom extends React.Component
         // limitsConfig of the sellected engine
         // NOTE: I think is implemented but not in the PongGenerator yet
 
+        const pong : PongGenerator = this.pongFinals[this.index];
+
         for (let i of this.gameConfig)
         {
             switch(i.name)
             {
                 // TO DO: Like that for each one
-                case "test": this.pongFinals[this.index].gameStatus.ball.style.data = "";
+                case "playerOneColor": this.pongFinals[this.index].gameStatus.player1Color = new RangeSlider(pong.settingsLimits.colorLimit, i.value);
             }
         }
     }

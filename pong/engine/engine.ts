@@ -6,11 +6,13 @@ import {
 } from "ngx-socket-io"
 
 import  renderGameStatus from "../render/render"
+import SettingsLimits from "../settings/limits"
 
 export default class PolimorphicEngine
 {
     constructor(
         public gameStatus : GameStatus,
+        public settingsLimits : SettingsLimits,
         public socket : Socket,
         public roomId : string
     )
