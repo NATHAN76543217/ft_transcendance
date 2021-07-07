@@ -12,13 +12,7 @@
 
 import React from 'react'
 
-// Need to install this
-import Slider from '@material-ui/core/Slider'
-import Typography from '@material-ui/core/Typography'
-import {
-    makeStyles
-} from '@material-ui/core/styles';
-// https://material-ui.com/es/components/slider/
+import ContinousSlider from "./continuousSlider"
 
 import {
     GameMode
@@ -28,59 +22,15 @@ import {
 } from "../../../../../pong/game/status"
 import PongGenerator from ".././../../../../pong/engine/engine"
 import  ClassicPong from "../../../../../pong/specilizations/classicpong/classicpong.engine"
+import {
+    IRoomDto
+} from "../../../../../pong/server/socketserver"
 
 // TO DO if i can create a socket like that
 import {
     Socket,
     SocketIoConfig
 } from "ngx-socket-io"
-
-class ContinousSlider extends React.Component
-{
-    // TO DO: Perform this using tailwind
-    public classes = makeStyles({
-        root: {
-            width: 200,
-        },
-    });
-    private wrappedValue : number;
-    private setValue : React.Dispatch<React.SetStateAction<number>>;
-
-    constructor(
-        public name : string,
-        defaultValue : number,
-        props : Readonly<{}>
-    )
-    {
-        super(props);
-
-        this.handleChange = this.handleChange.bind(this);
-
-        [this.wrappedValue, this.setValue] = React.useState<number>(defaultValue);
-    }
-
-    get value() { return this.wrappedValue; }
-
-    private handleChange(event: any, newValue: number | number[])
-    { this.setValue(newValue as number);}
-
-    public render()
-    {
-        return (
-            <div className={this.classes.root}>
-
-                {/* Element slidered name */}
-                <Typography id="continuous-slider" gutterBottom>
-                    {this.name}
-                </Typography>
-
-                {/* Slider that changes the value of the propertie */}
-                <Slider value={this.value} onChange={this.handleChange} aria-labelledby="continuous-slider"/>
-
-            </div>
-        );
-    }
-}
 
 export default class GameCustom extends React.Component
 {
@@ -89,7 +39,7 @@ export default class GameCustom extends React.Component
     public socket : Socket = new Socket({
         url: 'http://localhost',
         options: {}
-    } as SocketIoConfig)
+    } as SocketIoConfig);
     public pongStyles : Array<string> = [
         "Classic Pong",
         //"Vertical Pong"
@@ -121,7 +71,16 @@ export default class GameCustom extends React.Component
     {
         super(props);
 
-        // TO DO: Create the room;
+        this.socket.emit("createRoom", {
+            isFilled: false,
+            idRoom: idRoom,
+            idPlayerOne: idRoom,
+            idPlayerTwo: String(),
+            config: { },
+            lib: { },
+            libName: String(),
+            mode: this.gameMode,
+        } as IRoomDto)
 
         this.onPrevPongStyle = this.onPrevPongStyle.bind(this);
         this.onNextPongStyle = this.onNextPongStyle.bind(this);
@@ -129,6 +88,7 @@ export default class GameCustom extends React.Component
         this.onMultiplayer = this.onMultiplayer.bind(this);
         this.onInvite = this.onInvite.bind(this);
         this.summitGameConfig = this.summitGameConfig.bind(this);
+        this.onQuit = this.onQuit.bind(this);
     }
 
     public onNextPongStyle()
@@ -165,9 +125,10 @@ export default class GameCustom extends React.Component
         // There is a timeout, the game starts and this.summitGameConfig is called
 
 
-        // at the end:
+        // at the end: (if both player clicked in the button and waited the time ...)
         this.summitGameConfig();
-        // Launch game
+        // TO DO: Launch the game in react
+        this.socket.emit("launchGame", this.pongFinals[this.index].roomId);
     }
 
     // TO DO: Call this function
@@ -188,6 +149,12 @@ export default class GameCustom extends React.Component
                 case "test": this.pongFinals[this.index].gameStatus.ball.style.data = "";
             }
         }
+    }
+
+    public onQuit()
+    {
+        this.socket.emit("leaveRoom", this.pongFinals[this.index].roomId);
+        // TO DO: Redirect back in React
     }
 
     public render()
@@ -256,6 +223,8 @@ export default class GameCustom extends React.Component
                     <div className="">
                         {this.gameConfig[7]}
                     </div>
+                    {/* TO DO: If game is single payer store the bot difficulty
+                    And a user is able to customie all the game */}
                 </div>
 
                 {/* Readdy to play button */}
@@ -264,6 +233,13 @@ export default class GameCustom extends React.Component
                     <button className="" onClick={this.readyToPlay}>
                         Readdy
                     </button> : 0}
+                </div>
+
+                {/* Leave the room button */}
+                <div className="">
+                    <button className="" onClick={this.onQuit}>
+                        Quit
+                    </button>
                 </div>
 
             </div>
