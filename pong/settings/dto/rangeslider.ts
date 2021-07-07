@@ -2,22 +2,23 @@ import {
     AStyle
 } from "../../render/style"
 import {
-    IRangeDto
+    IRange
 } from "./range";
 
 export interface IRangeSliderDto
 {
-    limits : IRangeDto;
+    limits : IRange;
     value : number;
 }
 
 export class RangeSlider implements IRangeSliderDto
 {
     constructor(
-		public readonly limits : IRangeDto,
+		public readonly limits : IRange,
 		public readonly value : number
-    ) { }
-    
+	)
+	{ }
+
     public static RangeSliderValue(rangeSlider : IRangeSliderDto) : number
 	{
 		const distance : number = rangeSlider.limits.max - rangeSlider.limits.min;

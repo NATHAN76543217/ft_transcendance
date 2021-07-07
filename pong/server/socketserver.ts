@@ -42,6 +42,9 @@ import IsSamePlayer from "../exceptions/isSamePlayer.exception"
 import RoomIsFull from "../exceptions/roomIsFull.exception"
 import Unspected from "../exceptions/unspected.exception"
 
+import MatchesService from "../matches.service"
+
+
 declare interface LibPair<T extends APolimorphicLib>
 {
     [key : string] : T;
@@ -99,6 +102,11 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     public mousesPos : Map<string, IMousePosDto>; // Map< playerId, mousePos >
     public queue : Array<{key: string, socket: Socket}>
 
+    constructor(
+        private readonly matchesServices : MatchesService
+    )
+    { }
+
     // TO DO: Think a join for spectators
 
     // TO DO: Broadcast msg are bad
@@ -125,15 +133,10 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     handleDisconnexion(client : Socket)
     { console.log(`DEBUG: Disconnextion from: ${client.id}`); }
 
-
     @SubscribeMessage('createRoom')
     createRoom(client : Socket, roomData : IRoomDto)
     {
-        let idRoom : string;
-
-        // Create an unique room id
-        do idRoom = randomBytes(16).toString("hex");
-        while (idRoom in this.rooms);
+        const idRoom : string = roomData.idPlayerOne;
 
         roomData.idRoom = idRoom;
 
@@ -174,6 +177,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             room.isFilled = true;
 
             // Add a mouse's pos listener for the player
+            // TO DO: Perhabs to it in launchGame instead
             this.mousesPos[idPlayerTwo] = {};
 
             // Push the room
@@ -317,7 +321,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     updateMousePosClient(client : Socket, idPlayer : string, mousePos : IMousePosDto)
     {
         // Can only update if player has joined a match
-        if (idPlayer in this.mousesPos == true)
+        if (idPlayer in this.mousesPos)
             this.mousesPos[idPlayer] = mousePos;
     }
 

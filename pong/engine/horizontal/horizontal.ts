@@ -33,7 +33,7 @@ export default abstract class AHorizontalLib extends APolimorphicLib
 
     updatePlayerOnePos(playerOne : IVector2D)
     {
-
+        // to do
     }
 
     isBallOnLeftSide(ball : IDynamicBallDto)
