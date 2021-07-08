@@ -50,7 +50,7 @@ export default class Pong extends React.Component
 
         pongEngine.run();
 
-        // TO DO: How to end a game ?
+        // TO DO: How to end the game ?
     }
 
     public render()

@@ -26,6 +26,7 @@ export default class PongSlyleSelector extends React.Component
         props : Readonly<{}>,
         public selectorClassName : string,
         public data : ISelector,
+        public updateGameConfig : Function,
         buttonPrevDivClassName? : string,
         buttonPrevClassName? : string,
         buttonNexDivClassName? : string,
@@ -54,10 +55,16 @@ export default class PongSlyleSelector extends React.Component
     }
 
     private onNextPongStyle()
-    { this.data.data.index = (this.data.data.index + 1) % this.data.pongStyles.length; }
+    {
+        this.data.data.index = (this.data.data.index + 1) % this.data.pongStyles.length;
+        this.updateGameConfig();
+    }
 
     private onPrevPongStyle()
-    { this.data.data.index = (this.data.data.index - 1) % this.data.pongStyles.length; }
+    { 
+        this.data.data.index = (this.data.data.index - 1) % this.data.pongStyles.length;
+        this.updateGameConfig();
+    }
 
     public render()
     {

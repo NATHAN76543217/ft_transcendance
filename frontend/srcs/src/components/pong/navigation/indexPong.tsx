@@ -72,6 +72,7 @@ export default class IndexPong extends React.Component
 
     public render()
     {
+        // TO DO: Invited playerTwo already has a socket !
         return (
             <div className="">
             {

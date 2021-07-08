@@ -10,6 +10,8 @@ import {
     Socket,
     SocketIoConfig
 } from "ngx-socket-io"
+import Text from "../../components/text"
+import ButtonPong from "../../components/button";
 
 export default class InvitedToGame extends React.Component
 {
@@ -17,12 +19,8 @@ export default class InvitedToGame extends React.Component
         url: 'http://localhost',
         options: {}
     } as SocketIoConfig);
-    public gameConfig : Array<ContinousSlider> = [
-        new ContinousSlider("test", 0, this.props),
-        new ContinousSlider("test1", 0, this.props),
-        new ContinousSlider("test2", 0, this.props),
-        new ContinousSlider("test3", 0, this.props),
-    ];
+
+    public color : ContinousSlider = new ContinousSlider("Color", 0, this.props);
 
     constructor(
         public roomId : string,
@@ -67,43 +65,35 @@ export default class InvitedToGame extends React.Component
     {
         return(
             <div className="">
-                
-                {/* Some informative data about the game*/}
+                {
+                    new Text(
+                        this.props,
+                        this.gameInfo,
+                        "",
+                        ""
+                    )
+                }
                 <div className="">
-                    <text className="">
-                        {this.gameInfo}
-                    </text>
+                    {this.color}
                 </div>
-
-                {/* Some custimizable game features */}
-                <div className="">
-                    {this.gameConfig[0]}
-                </div>
-                <div className="">
-                    {this.gameConfig[1]}
-                </div>
-                <div className="">
-                    {this.gameConfig[2]}
-                </div>
-                <div className="">
-                    {this.gameConfig[3]}
-                </div>
-
-                {/* Ready button */}
-                <div className="">
-                    <button className="" onClick={this.readyToPlay}>
-                        Ready
-                    </button>
-                </div>
-
-                {/* Quit button */}
-                <div className="">
-                    <button className="" onClick={this.onQuit}>
-                        Quit
-                    </button>
-                </div>
-
-
+                {
+                    new ButtonPong(
+                        this.props,
+                        "Ready",
+                        "",
+                        "",
+                        this.readyToPlay
+                    )
+                }
+                {
+                    new ButtonPong(
+                        this.props,
+                        "Quit",
+                        "",
+                        "",
+                        this.onQuit
+                    )
+                }
             </div>
         );
     }
