@@ -1,15 +1,15 @@
-import React from 'react'
-import { UserRoleTypes } from './components/users/userRoleTypes'
-import { IAppContext } from './IAppContext'
+import React from "react";
+import IUser from "./components/interface/IUserInterface";
+import { IAppContext } from "./IAppContext";
 
 const AppContext = React.createContext<IAppContext>({
-	relationshipsList: [],
-	myId: "",
-	myRole: UserRoleTypes.null,
-	updateAllRelationships: () => {}
-})
+  user: undefined,
+  relationshipsList: [],
+  updateAllRelationships: () => {},
+  setUser: (user?: IUser) => {},
+});
 
-export const AppProvider = AppContext.Provider
-export const AppConsumer = AppContext.Consumer
+export const AppProvider = AppContext.Provider;
+export const AppConsumer = AppContext.Consumer;
 
-export default AppContext
+export default AppContext;
