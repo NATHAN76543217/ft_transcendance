@@ -36,8 +36,8 @@ interface AppProps {
 
 interface MyJwtToken {
 	userId: number;
-  }
-  
+}
+
 
 class App extends React.Component<AppProps, AppStates> {
 
@@ -52,8 +52,7 @@ class App extends React.Component<AppProps, AppStates> {
 		this.updateAllRelationships = this.updateAllRelationships.bind(this)
 		this.setUser = this.setUser.bind(this);
 	}
-	setUser(user: {})
-	{
+	setUser(user: {}) {
 		let logged = false;
 		if (user)
 			logged = true;
@@ -64,8 +63,7 @@ class App extends React.Component<AppProps, AppStates> {
 		})
 	}
 
-	GetLoggedProfile = () : JSX.Element =>
-	{
+	GetLoggedProfile = (): JSX.Element => {
 		const jwt = Cookies.get("Authentication");
 		if (!jwt)
 			return (<p>Cookies not found</p>);
@@ -74,22 +72,19 @@ class App extends React.Component<AppProps, AppStates> {
 		axios.get("/api/users/" + userid).then((res) => {
 			const user = res.data;
 			console.log("user = ", user);
-			if (this.state.logged === false)
-			{
+			if (this.state.logged === false) {
 				this.setUser(user);
 				localStorage.setItem("user", JSON.stringify(user))
 			}
-			window.location.href ='/';
+			window.location.href = '/';
 		});
 		return (
 			<p>You will be redirect soon</p>
 		)
 	}
 
-	getOldState()
-	{
-		if (this.state.user == null)
-		{
+	getOldState() {
+		if (this.state.user == null) {
 			const user = localStorage.getItem('user');
 			if (user === null)
 				return false;
@@ -106,7 +101,7 @@ class App extends React.Component<AppProps, AppStates> {
 	async sortRelationshipsList() {
 		let a = this.state.relationshipsList.slice();
 		a.sort((user1: IUserInterface, user2: IUserInterface) => user1.name.localeCompare(user2.name));
-		this.setState({relationshipsList: a});
+		this.setState({ relationshipsList: a });
 	}
 
 	componentDidUpdate(prevProps: AppProps, prevState: AppStates) {
@@ -169,20 +164,20 @@ class App extends React.Component<AppProps, AppStates> {
 								<h3>App is healthy!</h3>
 							</Route>
 							<Route>
-								<Header logged={ this.state.logged } user={this.state.user} setUser={this.setUser} />
+								<Header logged={this.state.logged} user={this.state.user} setUser={this.setUser} />
 								<div className="flex h-full border-t-2 border-gray-700 border-opacity-70">
 									<div className="flex-none border-r-2 border-gray-700 md:block border-opacity-70">
-										<SideMenu logged={ this.state.logged } />
+										<SideMenu logged={this.state.logged} />
 									</div>
 									<div className="z-30 flex w-full flex-nowrap">
 										<main className={"flex-grow " + change_bg_color_with_size}>
 											<Switch>
-												
+
 												<Route exact path='/'>
 													<Home />
 												</Route>
-												<PrivateRoute isAuth={ this.state.logged } path='/game'>
-													<Game/>
+												<PrivateRoute isAuth={this.state.logged} path='/game'>
+													<Game />
 												</PrivateRoute>
 												<PrivateRoute isAuth={ this.state.logged } path="/users">
 													<User
@@ -193,12 +188,9 @@ class App extends React.Component<AppProps, AppStates> {
 												<Route exact path='/login/success'>
 													<this.GetLoggedProfile />
 												</Route>
-												<OnlyPublic isAuth={ this.state.logged } path='/login'>
-													<Login/>
-													{/* <Login setUser={ this.setUser }/> */}
-												</OnlyPublic>
-												<OnlyPublic isAuth={ this.state.logged } path='/register'>
-													<Register/>
+												<OnlyPublic isAuth={this.state.logged} path='/login/:redirPath?' component={Login}></OnlyPublic>
+												<OnlyPublic isAuth={this.state.logged} path='/register'>
+													<Register />
 												</OnlyPublic>
 												{/* <Route exact path="/chat/:id" render={(props) => <ChatPage
 													myId={this.state.myId}
