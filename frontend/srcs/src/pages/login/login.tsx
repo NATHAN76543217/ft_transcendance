@@ -2,38 +2,49 @@ import { TextInput } from "../../components/utilities/TextInput";
 import Button from "../../components/utilities/Button";
 
 import axios from "axios";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
+import urljoin from "url-join";
 interface ILoginFormValues {
 	username: string,
 	password: string,
 }
 
-export default function Login(props: {}) {
+type LoginPageParams = {
+	redirPath?: string;
+}
 
-    const { register, handleSubmit, setError, formState: { errors } } = useForm<ILoginFormValues>();
+type LoginPageProps = RouteComponentProps<LoginPageParams>;
+
+// TODO: Add optional redirection path parameter
+export default function Login({ match }: LoginPageProps) {
+	const history = useHistory();
+	const { register, handleSubmit, setError, formState: { errors } } = useForm<ILoginFormValues>();
+
 	const onSubmit = async (values: ILoginFormValues) => {
 		try {
-			const data = await axios.post("/api/authentication/login", { name: values.username, password: values.password });
+			const data = await axios.post("/api/authentication/login", { name: values.username, password: values.password }, { withCredentials: true });
 			console.log(data);
+
+			const url = match.params.redirPath ? urljoin("/", match.params.redirPath) : "/";
+			console.log(`Redirecting to ${url}...`);
+			history.push(url);
 		}
 		catch (error) {
-			if (axios.isAxiosError(error))
-			{
-				if (error.response?.status === 400)
-				{
-					const details = error.response.data as {statusCode: number, message: string};
-					setError("password" , {message: details.message}, {shouldFocus: true});
+			if (axios.isAxiosError(error)) {
+				if (error.response?.status === 400) {
+					const details = error.response.data as { statusCode: number, message: string };
+					setError("password", { message: details.message }, { shouldFocus: true });
 				}
 				else
-					setError("password" , {message: error.message}, {shouldFocus: true});
+					setError("password", { message: error.message }, { shouldFocus: true });
 			}
-			else
-			{
-				setError("password", {message: "Please try again later."}, {shouldFocus: false})
+			else {
+				console.error(error);
+				setError("password", { message: "Please try again later." }, { shouldFocus: false })
 			}
 		}
-
 	};
 
 	return (
@@ -54,12 +65,12 @@ export default function Login(props: {}) {
 				content="Login with 42"
 				url="https://localhost/api/authentication/oauth2/school42"
 				className=""
-				/>
+			/>
 			<Button
 				content="Login with google"
 				url="https://localhost/api/authentication/oauth2/google"
 				className=""
-				/>
+			/>
 		</section>
 	);
 }
