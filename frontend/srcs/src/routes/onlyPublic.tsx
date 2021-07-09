@@ -1,24 +1,25 @@
 import { Redirect, Route } from "react-router-dom";
 
-function PrivateRoute(props: {
-    isAuth: boolean,
-    component?: any,
-    exact?: boolean,
-    path?: string,
-    children?: React.ReactNode | JSX.Element
+function OnlyPublic(props: {
+  isAuth: boolean;
+  component?: any;
+  exact?: boolean;
+  path?: string;
+  children?: React.ReactNode | JSX.Element;
 }): JSX.Element {
-    return (
-        <Route
-            exact={props.exact}
-            path={props.path}
-            component={props.component}
-            render={() => {
-                if (props.isAuth === true)
-                    return <Redirect to="/" />
-                else
-                    return <div>props.children</div>;
-            }}
-        />
-    );
-};
-export default PrivateRoute;
+  console.log("isAuthenticated:", props.isAuth);
+
+  const shouldRender = !props.isAuth;
+
+  return (
+    <Route
+      exact={props.exact}
+      path={props.path}
+      component={shouldRender ? props.component : undefined}
+      render={shouldRender ? undefined : () => <Redirect to="/" />}
+    >
+      {props.children}
+    </Route>
+  );
+}
+export default OnlyPublic;

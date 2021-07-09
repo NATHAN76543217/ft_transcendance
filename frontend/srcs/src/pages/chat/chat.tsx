@@ -1,28 +1,36 @@
+import Cookies from "js-cookie";
 import React from "react";
+import { useContext } from "react";
 import { RouteComponentProps } from "react-router";
 import { io, Socket } from "socket.io-client";
+import AppContext from "../../AppContext";
 
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
-import { Chat, ChatType } from "../../models/Chat";
+import Channel from "../../components/interface/IChannelInterface";
 //import ChannelSearch from "./channelSearch";
 
 const getSocket = () => {
-  const token = "TODO"; // get jwt token from local storage or cookie
+  const token = Cookies.get("Authentication"); // get jwt token from local storage or cookie
+
+  console.debug("Authentication:", token);
+
+  if (token === undefined) return undefined;
 
   console.log("Initiating socket connection...");
+
   return io("", {
     path: "/api/socket.io/channels",
     extraHeaders: { token },
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // This disables certificate authority verification
   }).on("authenticated", () => {
     console.log("Socket connection authenticated!");
   });
 };
 
 type ChatPageContextProps = {
-  chats: Chat[];
-  currentChat?: Chat;
+  chats: Channel[];
+  currentChat?: Channel;
   socket?: Socket;
 };
 
@@ -39,12 +47,8 @@ type ChatPageParams = {
 export default function ChatPage({
   match,
 }: RouteComponentProps<ChatPageParams>) {
-  const chats: Chat[] = [
-    { name: "Chat 1", id: 0, type: ChatType.PUBLIC },
-    { name: "Chat 2", id: 1, type: ChatType.PUBLIC },
-    { name: "Chat 3", id: 2, type: ChatType.PUBLIC },
-    { name: "Chat 4", id: 3, type: ChatType.PUBLIC },
-  ];
+  const { user } = useContext(AppContext);
+  const chats = user?.channels || [];
 
   const chatId = Number(match.params.id);
 
