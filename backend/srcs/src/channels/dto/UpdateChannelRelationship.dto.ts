@@ -1,8 +1,8 @@
-import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber, IsBoolean } from "class-validator";
-import { ChannelRelationshipTypes } from '../relationships/channelRelationshipTypes'
+import { IsOptional, IsNumber } from 'class-validator';
+import { ChannelRelationshipType } from '../relationships/channel-relationship.type';
 
 export default class UpdateChannelRelationshipDto {
-	@IsOptional()
-    @IsNumber()
-    public type: ChannelRelationshipTypes;
+  @IsOptional()
+  @IsNumber()
+  public type: ChannelRelationshipType;
 }
