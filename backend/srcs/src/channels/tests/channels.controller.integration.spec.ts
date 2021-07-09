@@ -7,11 +7,8 @@ import { mockedChannel, mockedChannel2 } from './channel.mock';
 
 import * as request from 'supertest';
 
-import { plainToClass } from 'class-transformer';
-
 import { ClassSerializerInterceptor, INestApplication, Patch, ValidationPipe } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { number } from '@hapi/joi';
 import { UpdateChannelDto } from '../dto/updateChannel.dto';
 import { CreateChannelDto } from '../dto/createChannel.dto';
 
