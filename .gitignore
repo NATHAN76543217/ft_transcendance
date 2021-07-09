@@ -14,7 +14,8 @@ dist
 
 # misc
 .DS_Store
-.vscode
+.vscode/*
+!.vscode/project.code-workspace
 # .env
 # .env.local
 # .env.development.local

@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "../"
+    },
+    {
+      "name": "frontend",
+      "path": "../frontend/srcs"
+    },
+    {
+      "name": "backend",
+      "path": "../backend/srcs"
+    },
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "node_modules/": true,
+    }
+  }
+}
