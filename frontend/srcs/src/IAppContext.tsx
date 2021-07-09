@@ -1,11 +1,12 @@
+import IUser from "./components/interface/IUserInterface";
 import IUserInterface from "./components/interface/IUserInterface";
-import { UserRoleTypes } from "./components/users/userRoleTypes";
 
 export interface IAppContext {
-	relationshipsList: IUserInterface[],
-	myId: string,
-	myRole: UserRoleTypes,
-	updateAllRelationships: () => void
+  relationshipsList: IUserInterface[];
+  // This should be provided by user now
+  //	myId: string,
+  //	myRole: UserRoleTypes,
+  user?: IUser;
+  setUser: (user?: IUser) => void;
+  updateAllRelationships: () => void;
 }
-
-

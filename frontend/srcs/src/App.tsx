@@ -22,6 +22,7 @@ import jwt_decode from "jwt-decode";
 import { AppStates } from "./AppStates";
 import { IAppContext } from "./IAppContext";
 import AppContext from "./AppContext";
+import IUser from "./components/interface/IUserInterface";
 import { UserRoleTypes } from "./components/users/userRoleTypes";
 
 let change_bg_color_with_size =
@@ -29,7 +30,7 @@ let change_bg_color_with_size =
 
 interface AppProps {}
 
-interface MyJwtToken {
+interface TokenPayload {
   userId: number;
 }
 
@@ -39,33 +40,39 @@ class App extends React.Component<AppProps, AppStates> {
     this.state = {
       relationshipsList: [],
       user: undefined,
-      myRole: UserRoleTypes.owner, // A remplacer par le vrai role
-      logged: false,
+      //myRole: UserRoleTypes.owner, // A remplacer par le vrai role
+      //logged: false,
     };
     this.updateAllRelationships = this.updateAllRelationships.bind(this);
-    this.setUser = this.setUser.bind(this);
-  }
-  setUser(user: {}) {
-    let logged = false;
-    if (user) logged = true;
-    console.log("set user:", logged, user);
-    this.setState({
-      user: user,
-      logged: logged,
-    });
+    // TODO: What does this line do?
+    //this.setUser = this.setUser.bind(this);
   }
 
+  // We do not need to bind when using the equal form
+  setUser = (user?: IUser) => {
+    // if the user is undefined, he is not logged
+    const logged = user !== undefined;
+
+    console.debug(`setting user (logged = ${logged}): `, user);
+
+    if (!logged) localStorage.removeItem("user");
+    else localStorage.setItem("user", JSON.stringify(user));
+    this.setState({ user });
+  };
+
+  // Get logged profile for OAuth users
   GetLoggedProfile = (): JSX.Element => {
     const jwt = Cookies.get("Authentication");
     if (!jwt) return <p>Cookies not found</p>;
-    const userid = jwt_decode<MyJwtToken>(jwt).userId;
+    const userid = jwt_decode<TokenPayload>(jwt).userId;
 
-    axios.get("/api/users/" + userid).then((res) => {
-      const user = res.data;
+    axios.get(`/api/users/${userid}`, { withCredentials: true }).then((res) => {
+      const user: IUser = res.data;
+
       console.log("user = ", user);
-      if (this.state.logged === false) {
+      if (this.state.user === undefined) {
+        // If the user is not logged
         this.setUser(user);
-        localStorage.setItem("user", JSON.stringify(user));
       }
       window.location.href = "/";
     });
@@ -82,6 +89,7 @@ class App extends React.Component<AppProps, AppStates> {
   }
 
   componentDidMount() {
+    this.getOldState();
     this.updateAllRelationships();
   }
 
@@ -138,11 +146,10 @@ class App extends React.Component<AppProps, AppStates> {
   }
 
   render() {
-    this.getOldState();
     let contextValue: IAppContext = {
       relationshipsList: this.state.relationshipsList,
-      myId: this.state.user?.id,
-      myRole: this.state.myRole,
+      user: this.state.user,
+      setUser: this.setUser,
       updateAllRelationships: this.updateAllRelationships,
     };
 
@@ -155,14 +162,10 @@ class App extends React.Component<AppProps, AppStates> {
                 <h3>App is healthy!</h3>
               </Route>
               <Route>
-                <Header
-                  logged={this.state.logged}
-                  user={this.state.user}
-                  setUser={this.setUser}
-                />
+                <Header />
                 <div className="flex h-full border-t-2 border-gray-700 border-opacity-70">
                   <div className="flex-none border-r-2 border-gray-700 md:block border-opacity-70">
-                    <SideMenu logged={this.state.logged} />
+                    <SideMenu logged={this.state.user !== undefined} />
                   </div>
                   <div className="z-30 flex w-full flex-nowrap">
                     <main className={"flex-grow " + change_bg_color_with_size}>
@@ -170,31 +173,37 @@ class App extends React.Component<AppProps, AppStates> {
                         <Route exact path="/">
                           <Home />
                         </Route>
-                        <PrivateRoute isAuth={this.state.logged} path="/game">
+                        <PrivateRoute
+                          isAuth={this.state.user !== undefined}
+                          path="/game"
+                        >
                           <Game />
                         </PrivateRoute>
-                        <PrivateRoute isAuth={this.state.logged} path="/users">
-                          <User myId={this.state.user?.id} />
+                        <PrivateRoute
+                          isAuth={this.state.user !== undefined}
+                          exact
+                          path="/users"
+                        >
+                          <User myId={this.state.user?.id || ""} />
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
                           <this.GetLoggedProfile />
                         </Route>
                         <OnlyPublic
-                          isAuth={this.state.logged}
+                          isAuth={this.state.user !== undefined}
                           path="/login/:redirPath?"
                           component={Login}
                         ></OnlyPublic>
-                        <OnlyPublic isAuth={this.state.logged} path="/register">
+                        <OnlyPublic
+                          isAuth={this.state.user !== undefined}
+                          path="/register"
+                        >
                           <Register />
                         </OnlyPublic>
-                        {/* <Route exact path="/chat/:id" render={(props) => <ChatPage
-													myId={this.state.myId}
-													{...props} />
-												} /> */}
-                        {this.displayAdminRoute(true)}
-                        {/* {displayAdminRoute(false)} */}
-                        {/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
+                        {this.displayAdminRoute(
+                          this.state.user?.role === UserRoleTypes.admin
+                        )}
                       </Switch>
                     </main>
                     <div className="flex-none hidden md:block">
