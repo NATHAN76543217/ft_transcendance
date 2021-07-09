@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsNumberString, IsNumber } from 'class-validator';
-import { ChannelRelationshipTypes } from '../relationships/channelRelationshipTypes';
+import { ChannelRelationshipType } from '../relationships/channel-relationship.type';
 
 export default class CreateChannelRelationshipDto {
   // This should be fetched on creation after checking that the creating user
@@ -20,5 +20,5 @@ export default class CreateChannelRelationshipDto {
 
   // @IsOptional()
   @IsNumber()
-  public type: ChannelRelationshipTypes;
+  public type: ChannelRelationshipType;
 }
