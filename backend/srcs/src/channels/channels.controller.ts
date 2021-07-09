@@ -7,7 +7,6 @@ import {
   Param,
   Query,
   Body,
-  SerializeOptions,
   UseGuards,
   Req,
   HttpException,
@@ -15,13 +14,15 @@ import {
 import ChannelsService from './channels.service';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
-import { FindOneParam } from '../utils/findOneParams';
 import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
 
-import ChannelRelationshipsService from './relationships/channel-relationships.service';
 import UpdateChannelRelationshipDto from './dto/UpdateChannelRelationship.dto';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
-import { ChannelRelationshipTypes } from './relationships/channelRelationshipTypes';
+import { ChannelRelationshipType } from './relationships/channel-relationship.type';
+import {
+  ChannelAction,
+  ChannelCaslAbilityFactory,
+} from './channel-casl-ability.factory';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthenticationGuard)
@@ -32,20 +33,31 @@ import { ChannelRelationshipTypes } from './relationships/channelRelationshipTyp
 export default class ChannelsController {
   constructor(
     private readonly channelsService: ChannelsService,
-    private readonly channelRelationshipsService: ChannelRelationshipsService,
+    private readonly abilityFactory: ChannelCaslAbilityFactory,
   ) {}
 
   // TODO: Nobody should be able to read all channels besides admin
   // Maybe this should only get channels with CASL read permissions
   @Get()
+  //@UseGuards(PoliciesGuard)
+  //@CheckPolicies(new ReadChannelPolicyHandler())
   getChannels(@Query('name') name: string) {
     return this.channelsService.getAllChannels(name);
   }
 
   // TODO: Check if user has a positive relation and CASL read permission
   @Get(':id')
-  async getChannelById(@Param() { id }: FindOneParam) {
-    return this.channelsService.getChannelById(Number(id));
+  async getChannelById(
+    @Req() req: RequestWithUser,
+    @Param('id') channelId: string,
+  ) {
+    const channel = await this.channelsService.getChannelById(
+      Number(channelId),
+    );
+    const abilities = this.abilityFactory.createForUser(req.user);
+
+    if (abilities.can(ChannelAction.Read, channel)) return channel;
+    throw new HttpException('TODO: Unauthorized read', 400);
   }
 
   // @Get()
@@ -64,7 +76,7 @@ export default class ChannelsController {
     await this.channelsService.createChannelRelationship(
       channel.id,
       req.user.id,
-      ChannelRelationshipTypes.owner,
+      ChannelRelationshipType.owner,
     );
     return channel;
   }
@@ -72,17 +84,34 @@ export default class ChannelsController {
   @Patch(':id')
   // TODO: Check if user has CASL update permission (owner should be able)
   async updateChannel(
-    @Param() { id }: FindOneParam,
-    @Body() channel: UpdateChannelDto,
+    @Req() req: RequestWithUser,
+    @Param('id') channelId: string,
+    @Body() channelData: UpdateChannelDto,
   ) {
-    return this.channelsService.updateChannel(Number(id), channel);
+    const channel = await this.channelsService.getChannelById(
+      Number(channelId),
+    );
+    const abilities = this.abilityFactory.createForUser(req.user);
+
+    if (abilities.can(ChannelAction.Update, channel))
+      return this.channelsService.updateChannel(Number(channelId), channelData);
+    throw new HttpException('TODO: Unauthorized patch', 400);
   }
 
   @Delete(':id')
   // TODO: Check if user has CASL delete permission
-  async deleteChannel(@Param() { id }: FindOneParam) {
-    // return this.channelsService.deleteChannel(id);
-    return this.channelsService.deleteChannel(Number(id));
+  async deleteChannel(
+    @Req() req: RequestWithUser,
+    @Param('id') channelId: string,
+  ) {
+    const channel = await this.channelsService.getChannelById(
+      Number(channelId),
+    );
+    const abilities = this.abilityFactory.createForUser(req.user);
+
+    if (abilities.can(ChannelAction.Update, channel))
+      return this.channelsService.deleteChannel(Number(channelId));
+    throw new HttpException('TODO: Unauthorized delete', 400);
   }
 
   // -----------------------------------
@@ -113,13 +142,13 @@ export default class ChannelsController {
       // we have already joined or are banned from the channel
 
       // TODO: Improve exception
-      throw new HttpException('Relationship already exists!', 400);
+      throw new HttpException('TODO: Relationship already exists!', 400);
     }
 
     await this.channelsService.createChannelRelationship(
       Number(channelId),
       req.user.id,
-      ChannelRelationshipTypes.standard,
+      ChannelRelationshipType.member,
     );
   }
 
@@ -128,6 +157,21 @@ export default class ChannelsController {
     @Req() req: RequestWithUser,
     @Param('id') channelId: string,
   ) {
+    const relationship = await this.channelsService.getChannelRelationship(
+      Number(channelId),
+      req.user.id,
+    );
+    const sanction = relationship.type & ChannelRelationshipType.sanctioned;
+
+    if (sanction) {
+      // A sanctioned user is not deleted from relationships
+      return this.channelsService.updateChannelRelationship(
+        Number(channelId),
+        req.user.id,
+        sanction,
+      );
+    }
+
     return this.channelsService.deleteChannelRelationship(
       Number(channelId),
       req.user.id,
@@ -141,19 +185,22 @@ export default class ChannelsController {
   // TODO: Check if user has CASL update permission, and if target is owner
   @Patch(':channelId/update/:userId')
   async updateChannelRelationship(
+    @Req() req: RequestWithUser,
     @Param('channelId') channelId: string,
     @Param('userId') userId: string,
     @Body() channelRelationship: UpdateChannelRelationshipDto,
   ) {
-    return this.channelsService.updateChannelRelationship(
+    const channel = await this.channelsService.getChannelById(
       Number(channelId),
-      Number(userId),
-      channelRelationship.type,
     );
+    const abilities = this.abilityFactory.createForUser(req.user);
 
-    /* return this.channelRelationshipsService.updateChannelRelationship(
-      Number(id),
-      channelRelationship,
-    ); */
+    if (abilities.can(ChannelAction.Update, channel))
+      return this.channelsService.updateChannelRelationship(
+        channel.id,
+        Number(userId),
+        channelRelationship.type,
+      );
+    throw new HttpException('TODO: Unauthorized update', 400);
   }
 }

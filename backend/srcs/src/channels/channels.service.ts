@@ -8,7 +8,7 @@ import ChannelNotFound from './exception/ChannelNotFound.exception';
 import { Socket } from 'socket.io';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { WsException } from '@nestjs/websockets';
-import { ChannelRelationshipTypes } from './relationships/channelRelationshipTypes';
+import { ChannelRelationshipType } from './relationships/channel-relationship.type';
 import User from 'src/users/user.entity';
 import ChannelRelationship from './relationships/channel-relationship.entity';
 
@@ -81,7 +81,7 @@ export default class ChannelsService {
   async createChannelRelationship(
     channelId: number,
     userId: number,
-    type: ChannelRelationshipTypes,
+    type: ChannelRelationshipType,
   ) {
     // This should link user and channel to relation
     const relationship = this.channelRelationshipRepository.create({
@@ -111,7 +111,7 @@ export default class ChannelsService {
   async updateChannelRelationship(
     channelId: number,
     userId: number,
-    type: ChannelRelationshipTypes,
+    type: ChannelRelationshipType,
   ) {
     await this.channelRelationshipRepository
       .createQueryBuilder('channelRelationship')

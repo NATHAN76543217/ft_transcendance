@@ -1,7 +1,7 @@
 import User from 'src/users/user.entity';
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import Channel from '../channel.entity';
-import { ChannelRelationshipTypes } from './channelRelationshipTypes';
+import { ChannelRelationshipType } from './channel-relationship.type';
 
 @Entity()
 // This should be infered by primary keys @Unique(['channel_id', 'user_id'])
@@ -28,16 +28,17 @@ class ChannelRelationship {
   // TODO: Maybe use cascades on creation and update too
   // Provides channel id
   // The onDelete: 'CASCADE' attribute ensures deletion in foreign entities
-  @ManyToOne(() => Channel, (channel) => channel.users)
+  @ManyToOne(() => Channel, (channel) => channel.users, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'channel_id' })
   public channel: Channel;
 
   // Provides user name and id
   @ManyToOne(() => User, (user) => user.channels, { onDelete: 'CASCADE' })
-  //@JoinColumn([{ referencedColumnName: 'id' }])
+  @JoinColumn({ name: 'user_id' })
   public user: User;
 
-  @Column({ default: ChannelRelationshipTypes.null })
-  public type: ChannelRelationshipTypes;
+  @Column({ default: ChannelRelationshipType.null })
+  public type: ChannelRelationshipType;
 
   // Maybe useful later
   //@CreateDateColumn()
