@@ -1,8 +1,5 @@
-
-// 2nd layer: User has clicked on "fast game"
-// Just need to do something while the user is searching for a match
-
 import React from "react"
+
 import ButtonPong from "../../components/button";
 import Text from "../../components/text"
 
@@ -13,9 +10,16 @@ export default class GameFast extends React.Component
         public goBack : React.MouseEventHandler<HTMLButtonElement>,
         public goToPong : React.MouseEventHandler<HTMLButtonElement>
     )
-    { super(props); }
+    {
+        super(props);
 
-    // I know i must do things here but not sure about what exactly
+        // TO DO: Call find game in the server
+        // TO DO: NEED TO KNOW WHEN A GAME IS FOUND, THEN GO TO GAME (launchGame on the server)
+        //      THIS GAME NEED TO HAVE A DEFAULT CONFIG
+        // TO DO: Call endGame in the server when the game is end
+
+    }
+
     render()
     {
         return(

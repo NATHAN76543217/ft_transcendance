@@ -32,4 +32,7 @@ export class RangeSlider implements IRangeSliderDto
 	/// Changes the texture of the given AStyle using a range slider
 	public static ISetTexture(rangeSlider : IRangeSliderDto, style : AStyle) : void
 	{ console.log("Textures are not avalaible yet."); }
+
+	public static toRange(limits : IRange, value : number)
+	{ return (value / (limits.min - limits.max)) * 100;  }
 }

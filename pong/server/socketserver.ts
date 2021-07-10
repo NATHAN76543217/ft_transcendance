@@ -43,7 +43,7 @@ import RoomIsFull from "../exceptions/roomIsFull.exception"
 import Unspected from "../exceptions/unspected.exception"
 
 import MatchesService from "../matches.service"
-
+import { Socket, Socket, Socket } from '../../node_modules/socket.io/dist/socket'
 
 declare interface LibPair<T extends APolimorphicLib>
 {
@@ -93,6 +93,9 @@ function SellectLib(
     }
 }
 
+const PLAYER_ONE_READY : number = 1 << 0;
+const PLAYER_TWO_READY : number = 1 << 1;
+
 @WebSocketGateway()
 export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -101,6 +104,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     public rooms : Map <string, IRoomDto>; // Map< roomId, RoomPlayersIds >
     public mousesPos : Map<string, IMousePosDto>; // Map< playerId, mousePos >
     public queue : Array<{key: string, socket: Socket}>
+    public ready : Map<string, number> // Map< roomId, playerAreReady >
 
     constructor(
         private readonly matchesServices : MatchesService
@@ -108,10 +112,9 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     { }
 
     // TO DO: Think a join for spectators
-
-    // TO DO: Broadcast msg are bad
-
     // TO DO: Set up default mode for matchmaking
+    // TO DO: Call endGame in the client
+    // TO DO: Send the libName in the client
 
 <<<<<<< HEAD
     // TO DO: Add execptions
@@ -142,16 +145,14 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
 
         // Define if the game can start
         roomData.isFilled = roomData.mode == GameMode.SINGLE_PLAYER;
-        
-        // Add client to mouse's pos listener map
-        this.mousesPos[roomData.idPlayerOne] = {}; // or socket.id can be used as player identifier
 
+        this.ready[idRoom] = 0;
+        
         // Push the room
         this.rooms[idRoom] = roomData;
         client.join(idRoom);
 
         // Notify the client that the room was successfuly created
-        // TO DO
         client.to(idRoom).emit('room', `Player: ${roomData.idPlayerOne} has joined the room (${idRoom})`);
 
         return idRoom;
@@ -175,33 +176,26 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
 
             // Now, the game can start
             room.isFilled = true;
-
-            // Add a mouse's pos listener for the player
-            // TO DO: Perhabs to it in launchGame instead
-            this.mousesPos[idPlayerTwo] = {};
-
+            
             // Push the room
             this.rooms[idRoom] = room;
             client.join(idRoom);
 
             // Notify other members that a player has joined the room
-            // TO DO
             client.to(idRoom).emit('room', `Player: ${room.idPlayerTwo} has joined the room (${idRoom})`);
         }
     }
 
     @SubscribeMessage('launchGame')
-    launchGame(client : Socket, idRoom : string)
+    async launchGame(client : Socket, idRoom : string)
     {
         const room : IRoomDto = this.rooms[idRoom];
         if (room === undefined)
-            throw new RoomNotFound(idRoom); // No such room
+            throw new RoomNotFound(idRoom);
         else if (room.isFilled == false)
-            throw new NeedMorePlayers(); // Need more players
+            throw new NeedMorePlayers();
         else
         {
-            // TO DO: Start game
-
             room.lib = SellectLib(
                 room.libName,
                 this,
@@ -211,9 +205,60 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 room.level
             );
 
-            // TO DO: Perhabs need more actions here
+            this.mousesPos[room.idPlayerOne] = {};
+            this.mousesPos[room.idPlayerTwo] = {};
 
             this.rooms[idRoom] = room;
+
+            await this.matchesServices.createMatch({
+                idMatch: idRoom,
+                idPlayerOne: room.idPlayerOne,
+                idPlaterTwo: room.idPlayerTwo,
+                startTime: new Date()
+            });
+        }
+    }
+
+    @SubscribeMessage('playerIsReady')
+    playerIsReady(client : Socket, idRoom : string, idPlayer : string)
+    {  
+        const room : IRoomDto = this.rooms[idRoom];
+
+        if (room === undefined)
+            throw new RoomNotFound(idRoom);
+        else
+        {
+            this.ready[idRoom] |= room.idPlayerOne == idPlayer
+            ? PLAYER_ONE_READY : PLAYER_TWO_READY;
+        }
+    }
+
+    @SubscribeMessage('playerIsNotReady')
+    playerIsNotReady(client : Socket, idRoom : string, idPlayer : string)
+    {
+        const room : IRoomDto = this.rooms[idRoom];
+
+        if (room === undefined)
+            throw new RoomNotFound(idRoom);
+        else
+        {
+            this.ready[idRoom] &= room.idPlayerOne == idPlayer
+            ? ~PLAYER_ONE_READY : ~PLAYER_TWO_READY;
+        }
+    }
+
+    @SubscribeMessage('arePlayersReady')
+    arePlayersReady(client : Socket, idRoom : string)
+    {
+        const room : IRoomDto = this.rooms[idRoom];
+        if (room === undefined)
+            throw new RoomNotFound(idRoom);
+        else
+        {
+            return room.mode == GameMode.MULTI_PLAYER
+                ? this.ready[idRoom] & PLAYER_ONE_READY
+                && this.ready[idRoom] & PLAYER_TWO_READY
+                : this.ready[idRoom] & PLAYER_ONE_READY;
         }
     }
 
@@ -238,7 +283,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idPlayerOne: this.queue[0].key,
                 idPlayerTwo: null,
                 config: null, // TO DO: default to set
-                lib: null, // TO DO: default to set
+                lib: null,
                 libName: null, // TO DO: default to set
                 mode: GameMode.MULTI_PLAYER
             });
@@ -266,7 +311,6 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         client.leave(idRoom);
 
         // Notify it
-        // TO DO
         client.to(idRoom).emit('room', `Player ${idPlayer} has quit the room ${idRoom}`);
 
         // Destroy the room when is empty
@@ -304,6 +348,26 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             
             if (deleted == false)
                 throw new Unspected("Standar lib: Map: failed to delete");
+        }
+    }
+
+    @SubscribeMessage('endGame')
+    async endGame(client : Socket, idRoom : string)
+    {
+        const room : IRoomDto = this.rooms[idRoom];
+        if (room === undefined)
+            throw new RoomNotFound(idRoom);
+        else
+        {
+            await this.matchesServices.updateMatch(idRoom, {
+                idMatch: idRoom,
+                idPlayerOne: room.idPlayerOne,
+                idPlayerTwo: room.idPlayerTwo,
+                scorePlayerOne: room.config.playerOne.score,
+                scorePlayerTwo: room.config.playerTwo.score,
+                startTime: await this.matchesServices.getCurrentMatchesById(idRoom).startTime,
+                endTime: new Date()
+            });
         }
     }
 

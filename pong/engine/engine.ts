@@ -22,6 +22,10 @@ export default class PolimorphicEngine
     // Parse mouse mov
     // Disconect clients
 
+    // request info room broadcast to all
+    // request next animation frame for calculation in the server
+    // Use "requesNextAnimationFrame" instead setInterval
+
     public readonly run = () => {
 
         const fps : number = 50;
@@ -30,7 +34,7 @@ export default class PolimorphicEngine
 
         setInterval(() : void => {
             this.gameStatus = this.socket.emit('calcGameStatus',
-                this.roomId, this.gameStatus);
+            this.roomId, this.gameStatus);
             renderGameStatus(this.gameStatus);
         }, 1000 / fps);
     }
