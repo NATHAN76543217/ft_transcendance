@@ -1,5 +1,4 @@
 import { useContext } from "react"
-import { Chat } from "../../models/Chat"
 import { ChatPageContext } from "../../pages/chat/chat"
 import { ChatTitle } from "./ChatTitle"
 

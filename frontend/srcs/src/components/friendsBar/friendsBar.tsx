@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import App from '../../App';
 import AppContext from '../../AppContext';
 import IUserInterface from '../interface/IUserInterface';
 import { UserRelationshipTypes } from '../users/userRelationshipTypes';

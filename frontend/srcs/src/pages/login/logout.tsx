@@ -1,11 +1,7 @@
-import { TextInput } from "../../components/utilities/TextInput";
-import Button from "../../components/utilities/Button";
-
 import axios from "axios";
 import { useForm } from "react-hook-form";
 
 import React from "react";
-import { Redirect } from "react-router-dom";
 import Cookies from 'js-cookie';
 
 
@@ -18,18 +14,18 @@ type ChildProps = {
 }
 
 export default function Logout({setUser} : ChildProps) {
-	const { handleSubmit, setError, formState: { errors } } = useForm<ILoginFormValues>();
+	const { handleSubmit } = useForm<ILoginFormValues>();
 
 	const onSubmit = async () => {
 
 		try {
-			const data = await axios.post("/api/authentication/logout", {withCredentials: true});
-            console.log("Logout");
+			await axios.post("/api/authentication/logout", {withCredentials: true});
+            console.log("Logout");//TODO to remove
 		}
 		catch (error) {
 			if (axios.isAxiosError(error))
 			{
-                console.log("logout error ", error)
+                console.log("logout error ", error);
             }
 		}
         finally

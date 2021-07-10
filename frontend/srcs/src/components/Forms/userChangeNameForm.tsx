@@ -10,7 +10,7 @@ type UserChangeNameSearchProps = {
 export default function ChangeNameUser(props: UserChangeNameSearchProps) {
     //const [username, password] = useState();
 
-    const { register, handleSubmit, formState: { errors } } = useForm<IUserChangeNameFormValues>();
+    const { register, handleSubmit } = useForm<IUserChangeNameFormValues>();
 
     return (
 

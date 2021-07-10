@@ -16,12 +16,11 @@ interface UserStates {
 }
 
 class User extends React.Component<UserProps, UserStates> {
-    constructor(props: UserProps)
-    {
-        super(props);
-    }
-
-    // const isMe: boolean;
+    // TODO useless constructor 
+    // constructor(props: UserProps)
+    // {
+    //     super(props);
+    // }
 
     render() {
         return (

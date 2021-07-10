@@ -12,7 +12,7 @@ type UserSearchProps = {
 export default function SearchUser(props: UserSearchProps) {
     //const [username, password] = useState();
 
-    const { register, handleSubmit, formState: { errors } } = useForm<IUserSearchFormValues>();
+    const { register, handleSubmit } = useForm<IUserSearchFormValues>();
 
 
     return (

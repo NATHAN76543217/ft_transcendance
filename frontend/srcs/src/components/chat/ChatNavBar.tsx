@@ -29,15 +29,20 @@ type ImageButtonProps = {
 }
 
 export function ImageLinkButton({className, name, imagePath, href}: ImageButtonProps) {
-    return (<div className={className}><img src={imagePath}></img><a href={href}>{name}</a></div>);
+    return (
+        <div className={className}>
+            <a href={href}>{name}
+                <img src={imagePath} alt=""/>
+            </a>
+        </div>);
 }
 
 ImageLinkButton.defaultProps = {
     className: "",
 }
-
-type ChatBarProps = {
-}
+// REVIEW useless ?
+// type ChatBarProps = {
+// }
 
 type ChatBarItemProps = {
     chat: Chat;
@@ -50,7 +55,10 @@ type ChatNotificationCounterProps = {
 export function ChatNotificationCounter( { count }: ChatNotificationCounterProps) {
     if (count === 0)
         return (<div></div>);
-    return (<div className="absolute h-auto px-2 text-center text-white bg-red-600 rounded-full ring-2 ring-white top-2 right-2">{count}</div>)
+    return (
+        <div className="absolute h-auto px-2 text-center text-white bg-red-600 rounded-full ring-2 ring-white top-2 right-2">
+            {count}
+        </div>)
 }
 
 ChatNotificationCounter.defaultProps = {
@@ -63,12 +71,13 @@ export function ChatBarItem({ chat }: ChatBarItemProps) {
         <NavLink className="relative flex bg-gray-200 border-l-4 hover:border-blue-400"
                 activeClassName="border-red-500 hover:border-red-500 text-red-500" to={`/chat/${chat.id}`}>
                 <ChatNotificationCounter count={5} />
-                <ChatTitle chat={chat}></ChatTitle>
+                <ChatTitle chat={chat}/>
         </NavLink>
     );
 }
-
-export function ChatNavBar({ }: ChatBarProps) {
+// REVIEW useless?
+// export function ChatNavBar(props : ChatBarProps) {
+export function ChatNavBar() {
 	const chatContext = useContext(ChatPageContext);
 
     return (
@@ -78,7 +87,10 @@ export function ChatNavBar({ }: ChatBarProps) {
                 <IconLinkButton name="Create..." icon="fa-plus-circle" href="/chat/create"/>
             </div>
             <ul>
-                {chatContext.chats.map((c) => <li key={c.name}>{ChatBarItem({ chat: c })}</li>)}
+                {chatContext.chats.map((c) => 
+                    <li key={c.name}>
+                        {ChatBarItem({ chat: c })}
+                    </li>)}
             </ul>
         </nav>
     );

@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { ChatHeader } from "../../components/chat/ChatHeader";
-import { Chat } from "../../models/Chat";
 import { ChatPageContext } from "../../pages/chat/chat";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
 

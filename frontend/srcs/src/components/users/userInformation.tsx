@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { UserRelationshipTypes } from './userRelationshipTypes';
 import ChangeNameUserForm from '../Forms/userChangeNameForm';
 import IUserChangeNameFormValues from '../interface/IUserChangeNameFormValues';
-import App from '../../App';
 import React from 'react';
 import AppContext from '../../AppContext';
 
