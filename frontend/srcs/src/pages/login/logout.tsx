@@ -40,7 +40,12 @@ export default function Logout({setUser} : ChildProps) {
 
 	return (
 			<form onSubmit={handleSubmit(onSubmit)}>
-				<input type='submit' value="Logout" className={"rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary"}></input>
+				<input
+					type='submit'
+					value="Logout"
+					// className={"rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary"
+					className="inline-block p-4 mx-2 text-lg font-semibold rounded-xl text-neutral bg-secondary" 
+					/>
 			</form>
 	);
 }
