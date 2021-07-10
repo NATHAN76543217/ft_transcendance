@@ -12,6 +12,7 @@ export interface IStaticPlayerDto
     height : number;
     limitLeft : IVector2D;
     limitRight : IVector2D;
+    score: number
 }
 
 export interface IStaticBallDto

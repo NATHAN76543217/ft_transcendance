@@ -1,16 +1,16 @@
 import {
-    IRangeDto
+    IRange
 } from "./dto/range"
 
 export default class SettingsLimits
 {
     constructor(
-        public readonly colorLimit : IRangeDto,
-        public readonly playerOneWidth : IRangeDto,
-        public readonly playerOneHeight : IRangeDto,
-        public readonly playerTwoWidth : IRangeDto,
-        public readonly playerTwoHeight : IRangeDto,
-        public readonly ballSpeed : IRangeDto
+        public readonly colorLimit : IRange,
+        public readonly playerOneWidth : IRange,
+        public readonly playerOneHeight : IRange,
+        public readonly playerTwoWidth : IRange,
+        public readonly playerTwoHeight : IRange,
+        public readonly ballSpeed : IRange
     )
     { }
 }

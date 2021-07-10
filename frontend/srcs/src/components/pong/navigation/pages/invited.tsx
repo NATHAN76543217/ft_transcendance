@@ -1,8 +1,3 @@
-
-// Should contain some information about the game
-// Then some ranges sliders config
-// Then button Readdy and Quit
-
 import React from "react"
 
 import ContinousSlider from "../../components/continuousSlider"
@@ -35,6 +30,11 @@ export default class InvitedToGame extends React.Component
 
         this.readyToPlay = this.readyToPlay.bind(this);
         this.onQuit = this.onQuit.bind(this);
+
+        // TO DO: On quit like customGame
+        // TO DO: ReadyToPlay like customGame
+        // TO DO: Connect to the index (indexPong.tsx)
+        // TO DO: Merge configs
     }
 
     public readyToPlay()

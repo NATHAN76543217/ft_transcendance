@@ -1,15 +1,3 @@
-
-// 2nd layer: user clicked on "custom game"
-// Has 2 buttons that enable to sellect the pong style (go next, go back throght a list of pong styles)
-// Has 2 buttons that select if the game is MULTI or SINGLE
-// Has some range slider that enables user to customize the game
-// Has an optional button (invite) that is visible only if the "multiplayer option is eanbled"
-//  Obiouslly if a player is invited and the gamemode changes the single player, the invited player is kicked out
-
-// Here some details:
-// Single player: User can customize all
-// Mutiplayer: Host can only customze it side and the shared objects, invited one only it side
-
 import React from 'react'
 
 import ContinousSlider from "../../components/continuousSlider"
@@ -63,8 +51,7 @@ export default class GameCustom extends React.Component
         //"Vertical Pong"
     ];
 
-
-    // TO DO: I can calc the default values using the selected game engine
+    public isReady : boolean = false;
     public gameConfig : Array<ContinousSlider> = [];
 
     constructor(
@@ -73,7 +60,7 @@ export default class GameCustom extends React.Component
         public socket : Socket,
         public data : IPongGame,
         public goBack : React.MouseEventHandler<HTMLButtonElement>,
-        public goToPong : React.MouseEventHandler<HTMLButtonElement>
+        public goToPong : Function
     )
     {
         super(props);
@@ -97,6 +84,11 @@ export default class GameCustom extends React.Component
         this.onQuit = this.onQuit.bind(this);
 
         this.updateGameConfig();
+
+        // TO DO: Merge both player config
+        // TO DO: Send pong lib to the server
+        // TO DO: Finish a game and call server's endGame
+        // TO DO: toNumber method in style for customization
     }
 
     private updateGameConfig() : void
@@ -196,34 +188,37 @@ export default class GameCustom extends React.Component
 
     public readyToPlay()
     {
-        // Shoud send to the server a "Readdy to play" message
-        // If both players sent it in a specific time duration
-        // There is a timeout, the game starts and this.summitGameConfig is called
+        const idRoom : string = this.data.pongFinals[this.data.index].roomId;
 
+        if (this.isReady == false)
+        {
+            // If idRoom == idPlayerOne ... both args are idRoom
+            this.socket.emit("playerIsReady", idRoom, idRoom);
+            this.isReady = true;
+        }
+        else
+        {
+            // If idRoom == idPlayerOne ... both args are idRoom
+            this.socket.emit("playerIsNotReady", idRoom, idRoom);
+            this.isReady = false;
+        }
 
-        // at the end: (if both player clicked in the button and waited the time ...)
-        this.summitGameConfig();
-        // TO DO: Launch the game in react
-        this.socket.emit("launchGame", this.data.pongFinals[this.data.index].roomId);
+        if (this.socket.emit("arePlayersReady", idRoom))
+        {
+            this.summitGameConfig(); // TO DO: Merge both players configs
+            this.socket.emit("launchGame", idRoom);
+            this.goToPong();
+        }
     }
 
-    // TO DO: Call this function
     public summitGameConfig()
     {
-        // TO DO: Must be called before start the game
-        // When is 100% sure that the game will start
-
-        // TO DO: Should denormalize the values using the
-        // limitsConfig of the sellected engine
-        // NOTE: I think is implemented but not in the PongGenerator yet
-
         const pong : PongGenerator = this.data.pongFinals[this.data.index];
 
         for (let i of this.gameConfig)
         {
             switch(i.name)
             {
-                // TO DO: Like that for each one
                 case BALL_SPEED: this.data.pongFinals[this.data.index].gameStatus.ballSpeed = new RangeSlider(pong.settingsLimits.ballSpeed, i.value); break ;
                 case BALL_COLOR: this.data.pongFinals[this.data.index].gameStatus.ballColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
                 case COURT_COLOR: this.data.pongFinals[this.data.index].gameStatus.courtColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
@@ -265,7 +260,7 @@ export default class GameCustom extends React.Component
     public onQuit()
     {
         this.socket.emit("leaveRoom", this.data.pongFinals[this.data.index].roomId);
-        // TO DO: Redirect back in React
+        // TO DO: Redirect back in React (where should user go after this ?)
     }
 
     public render()

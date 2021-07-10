@@ -23,7 +23,7 @@ export default class Match
     public scorePlayerTwo : number;
 
     // Should be nullable or not ?
-    @Column({nullable: true, default: new Date()})
+    @Column({nullable: true, default: new Date()}) // TO DO: add timeout: @timestemp
     public readonly startTime : Date;
 
     @Column({nullable: true, default: undefined})

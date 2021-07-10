@@ -24,15 +24,16 @@ export default class MatchesControler
 {
     constructor(
         private readonly matchesServices : MatchesService
-    ) { }
+	)
+	{ }
 
     @Get()
     public async getAllMatches()
     { return this.matchesServices.getAllMatches(); }
 
     @Get(':id')
-    public async getMatchById(@Param('id') id : FindOneParam )
-	{ return this.matchesServices.getMatchById(Number(id)); }
+    public async getMatchById(@Param('id') id : string )
+	{ return this.matchesServices.getMatchById(id); }
 
 	@Get("current")
 	public async getCurrentMatches()
@@ -40,7 +41,7 @@ export default class MatchesControler
 
 	@Get("current/:id")
 	public async getCurrentMatchesById(@Param('id') id : string)
-	{ return this.matchesServices.getCurrentMatchesById(Number(id)); }
+	{ return this.matchesServices.getCurrentMatchesById(id); }
 
 	@Get("current/user/:id")
 	public async getCurrentMatchesByPlayerId(@Param('id') id : string)
@@ -59,10 +60,10 @@ export default class MatchesControler
 	// { return this.matchesServices.updateMatchElement(Number(id), key, value); }
 
 	@Patch(':id')
-	public async updateMatch(id : number, match : UpdateMatchesDto)
+	public async updateMatch(id : string, match : UpdateMatchesDto)
 	{ return this.matchesServices.updateMatch(id, match); }
 
 	@Delete(':id')
-	async deleteMatch(@Param('id') id : FindOneParam)
-	{ return this.matchesServices.deleteMatch(Number(id)); }
+	async deleteMatch(@Param('id') id : string)
+	{ return this.matchesServices.deleteMatch(id); }
 }

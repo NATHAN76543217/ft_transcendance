@@ -56,6 +56,8 @@ export default class IndexPong extends React.Component
         this.goToCustomGame = this.goToCustomGame.bind(this);
         this.goToSelection = this.goToSelection.bind(this);
         this.goToPongGame = this.goToPongGame.bind(this);
+
+        // TO DO: Insert invited
     }
 
     public goToFastGame()

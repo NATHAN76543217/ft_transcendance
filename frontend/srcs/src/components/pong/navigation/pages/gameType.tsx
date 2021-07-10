@@ -1,7 +1,3 @@
-
-// 1 st layer: 2 button: "Fast Game" & "Custom Game"
-// On click calls other components
-
 import React from 'react';
 
 import Button from "../../components/button"
