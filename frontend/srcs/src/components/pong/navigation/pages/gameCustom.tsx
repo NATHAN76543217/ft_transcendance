@@ -41,6 +41,10 @@ import {
     LIB_HORIZONTAL_SINGLE,
     LIB_HORIZONTAL_MULTI
 } from "../../../../../../../pong/engine/lib.names"
+import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
+import {
+    ICustomGame
+} from "../.../../../../../../../../pong/server/socketserver"
 
 export interface IPongGame
 {
@@ -59,6 +63,7 @@ export default class GameCustom extends React.Component
 
     public isReady : boolean = false;
     public gameConfig : Array<ContinousSlider> = [];
+    public slidersInfo : ICustomGame;
 
     constructor(
         props : Readonly<{}>,
@@ -81,6 +86,7 @@ export default class GameCustom extends React.Component
             libName: String(),
             mode: this.gameMode,
             customization: { },
+            info: { },
             flags: 0
         } as IRoomDto);
 
@@ -93,8 +99,24 @@ export default class GameCustom extends React.Component
 
         this.updateGameConfig();
 
+        this.slidersInfo = {
+            ballSpeed: this.data.pongFinals[this.data.index].gameStatus.ball.speed,
+            ballColor: this.data.pongFinals[this.data.index].gameStatus.ball.style.data,
+            courtColor: this.data.pongFinals[this.data.index].gameStatus.court.style.data,
+            netColor: this.data.pongFinals[this.data.index].gameStatus.net.style.data,
+            playerOneWidth: this.data.pongFinals[this.data.index].gameStatus.playerOne.width,
+            playerOneHeight: this.data.pongFinals[this.data.index].gameStatus.playerOne.height,
+            playerOneColor: this.data.pongFinals[this.data.index].gameStatus.playerOne.style.data,
+            playerTwoWidth: this.data.pongFinals[this.data.index].gameStatus.playerTwo.width,
+            playerTwoHeight: this.data.pongFinals[this.data.index].gameStatus.playerTwo.height,
+            playerTwoColor: String(),
+            gameBrief: `Pong Style: ${this.pongStyles[this.data.index]}`
+        }
+
+        this.slidersInfo = this.socket.emit("updateInfo", this.idRoom, this.idRoom, this.slidersInfo);
+
         // TO DO: Finish a game and call server's endGame
-        // TO DO: Check if bot level is well connected in all the layers
+        // TO DO: Check invite.tsx for TO DOs for this file too
     }
 
     private updateGameConfig() : void
@@ -169,6 +191,11 @@ export default class GameCustom extends React.Component
                 this.props
             )
         ];
+    }
+
+    private updateInfo()
+    {
+        // TO DO
     }
 
     public onSinglePlayer()
@@ -279,7 +306,7 @@ export default class GameCustom extends React.Component
                         }));
                     break ;
 
-                default: throw new Error(); // Unspected Exception
+                default: throw new Unspected("Unspected exception in summitGameConfig"); // Unspected Exception
             }
         }
     

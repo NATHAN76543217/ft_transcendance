@@ -3,29 +3,42 @@ import React from "react"
 import ContinousSlider from "../../components/continuousSlider"
 import {
     Socket,
-    SocketIoConfig
 } from "ngx-socket-io"
 import {
     RangeSlider,
-    IRangeSliderDto
 } from "../../../../../../../pong/settings/dto/rangeslider"
 import Text from "../../components/text"
 import ButtonPong from "../../components/button";
+import {
+    IPongGame
+} from "./gameCustom"
+
+import {
+    LIB_VERTICAL_MULTI,
+    LIB_HORIZONTAL_MULTI
+} from "../../../../../../../pong/engine/lib.names"
+import {
+    AStyle
+} from "../../../../../../../pong/render/style"
+import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
+import {
+    ICustomGame
+} from "../.../../../../../../../../pong/server/socketserver"
+
+const DEFAULT_COLOR_SLIDER : number = 42;
 
 export default class InvitedToGame extends React.Component
 {
-    public socket : Socket = new Socket({
-        url: 'http://localhost',
-        options: {}
-    } as SocketIoConfig);
-
-    public color : ContinousSlider = new ContinousSlider("Color", 0, this.props);
+    public color : ContinousSlider = new ContinousSlider("Color", DEFAULT_COLOR_SLIDER, this.props);
     public isReady : boolean = false;
+    public slidersInfo : ICustomGame;
 
     constructor(
         public roomId : string,
         public idPlayer : string,
-        public gameInfo : string,
+        public socket : Socket,
+        public data : IPongGame,
+        public goBack : Function,
         public goToPong : Function,
         props : Readonly<{}>
     )
@@ -34,12 +47,43 @@ export default class InvitedToGame extends React.Component
 
         this.socket.emit("joinRoom", this.idPlayer);
 
+        this.slidersInfo = this.socket.emit("updateInfo", this.roomId, this.idPlayer, {
+            ballSpeed: Number(),
+            ballColor: String(),
+            courtColor: String(),
+            netColor: String(),
+            playerOneWidth: Number(),
+            playerOneHeight: Number(),
+            playerOneColor: String(),
+            playerTwoWidth: Number(),
+            playerTwoHeight: Number(),
+            playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+                limits: {
+                    min: 0x00000000,
+                    max: 0x00FFFFFF,
+                },
+                value: DEFAULT_COLOR_SLIDER
+            }))
+        });
+
         this.readyToPlay = this.readyToPlay.bind(this);
         this.onQuit = this.onQuit.bind(this);
 
-        // TO DO: On quit like customGame
-        // TO DO: Connect to the index (indexPong.tsx)
-        // TO DO: syncCustomisation TO DOs
+        // TO DO:
+        // Info:
+        // - Customization info: both player see the customization sliders
+        //          - the other player slider are disabled but the values updates real time
+        // - A brief about the pong game: style , and more ? (updated real time too)
+        // Brief: "Pong style: ${PONG_STYLE}"
+
+        // -> updateInfo in customGame
+        // -> replace init in the constructor by updateInfo (CustomGame)
+        // -> be sure the customGame is well sync
+        // -> upgrade the slider an add a disable feature
+        // -> insert missing slider
+        // -> update them with the shared data
+        // -> end ?
+
     }
 
     public readyToPlay()
@@ -77,19 +121,25 @@ export default class InvitedToGame extends React.Component
             playerOneColor: String(),
             playerTwoWidth: Number(),
             playerTwoHeight: Number(),
-            playerTwoColor: RangeSlider.RangeSliderValue({
+            playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
                 limits: {
                     min: 0x00000000,
                     max: 0x00FFFFFF
                 },
                 value: this.color.value
-            }),
+            })),
         });
 
-        // TO DO: Use libname in IRoomDto to know the needed pong
-        // TO DO: Need a config to edit and a pong engine to launch
-        // TO DO: [COMPLEXITY] The pong engine need to change if playerOne change it (use the server to achieve this)
-        //      That means change info too.
+        const libsNames : Array<string> = [
+            LIB_HORIZONTAL_MULTI,
+            LIB_VERTICAL_MULTI
+        ];
+
+        const data : string = this.socket.emit("getGameStyle", this.roomId);
+        const index : number = libsNames.findIndex(elem => elem == data);
+
+        if (index === undefined)
+            throw new Unspected("Unspected error in syncCustomisation");
 
         let syncCustomization;
 
@@ -97,31 +147,57 @@ export default class InvitedToGame extends React.Component
         while ((syncCustomization = this.socket.emit("importCustomization", this.roomId)) == null)
             ;
 
-        // TO DO: Syncronize the config of the pong engine here
-        // TO DO: Add to the engine (in the front) the playerOne id
+        this.data.pongFinals[index].gameStatus.playerOne.id = this.socket.emit("getOtherPlayerId", this.roomId, this.idPlayer);
+        this.data.pongFinals[index].gameStatus.playerTwo.id = this.idPlayer;
+        this.data.pongFinals[index].gameStatus.ball.speed = syncCustomization.ballSpeed;
+        this.data.pongFinals[index].gameStatus.ball.style.data = syncCustomization.ballColor;
+        this.data.pongFinals[index].gameStatus.court.style.data = syncCustomization.courtColor;
+        this.data.pongFinals[index].gameStatus.net.style.data = syncCustomization.netColor;
+        this.data.pongFinals[index].gameStatus.playerOne.width = syncCustomization.playerOneWidth;
+        this.data.pongFinals[index].gameStatus.playerOne.height = syncCustomization.playerOneHeight;
+        this.data.pongFinals[index].gameStatus.playerOne.style.data = syncCustomization.playerOneColor;
+        this.data.pongFinals[index].gameStatus.playerTwo.width = syncCustomization.playerTwoWidth;
+        this.data.pongFinals[index].gameStatus.playerTwo.height = syncCustomization.playerTwoHeight;
+        this.data.pongFinals[index].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+            limits: {
+                min: 0x00000000,
+                max: 0x00FFFFFF
+            },
+            value: this.color.value
+        }))
 
-        // TO DO: Add in the client the other's player id
+        this.data.index = index;
     }
 
     public onQuit()
     {
         this.socket.emit("leaveRoom", this.roomId, this.idPlayer);
-        // Quit in the front too
+        this.goBack();
+    }
 
-        // TO DO: If playerOne (the host) leaves and playerTwo
-        // remains in the room there are 2 options:
-        //  -1) The room is destroyed (easy way)
-        //  -2) PlayerTwo become playerOne in the front and the back
+    public updateInfo()
+    {
+        this.slidersInfo.playerTwoColor = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+            limits: {
+                min: 0x00000000,
+                max: 0x00FFFFFF
+            },
+            value: this.color.value
+            }),
+        );
+        this.slidersInfo = this.socket.emit("updateInfo", this.roomId, this.idPlayer, this.slidersInfo);
     }
 
     public render()
     {
+        this.updateInfo();
+
         return(
             <div className="">
                 {
                     new Text(
                         this.props,
-                        this.gameInfo,
+                        this.slidersInfo.gameBrief ? this.slidersInfo.gameBrief : "UNSPECTED ERROR",
                         "",
                         ""
                     )

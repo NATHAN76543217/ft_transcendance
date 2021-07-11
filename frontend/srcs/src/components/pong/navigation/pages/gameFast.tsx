@@ -2,26 +2,42 @@ import React from "react"
 
 import ButtonPong from "../../components/button";
 import Text from "../../components/text"
+import {
+    Socket
+} from "ngx-socket-io"
 
 export default class GameFast extends React.Component
 {
+    public idRoom? : string = undefined;
+
     constructor(
         props : Readonly<{}>,
-        public goBack : React.MouseEventHandler<HTMLButtonElement>,
-        public goToPong : React.MouseEventHandler<HTMLButtonElement>
+        public playerId : string,
+        public socket : Socket,
+        public goBack : Function,
+        public goToPong : Function
     )
     {
         super(props);
 
-        // TO DO: Call find game in the server
-        // TO DO: NEED TO KNOW WHEN A GAME IS FOUND, THEN GO TO GAME (launchGame on the server)
-        //      THIS GAME NEED TO HAVE A DEFAULT CONFIG
         // TO DO: Call endGame in the server when the game is end
-
     }
 
-    render()
+    public cancelQueue()
     {
+        this.socket.emit("cancelQueue", this.playerId, this.idRoom);
+        this.goBack();
+    }
+
+    public render()
+    {
+        // TO DO: This will work if react call iterativaly render()
+        this.idRoom = this.socket.emit("FindGame", this.playerId);
+
+        // Same
+        if (this.socket.emit("isInQueue", "", "") == false)
+            this.goToPong();
+
         return(
             <div className="">
                {
@@ -38,7 +54,7 @@ export default class GameFast extends React.Component
                         "Cancel",
                         "",
                         "",
-                        this.goBack
+                        this.cancelQueue
                    )
                }
             </div>

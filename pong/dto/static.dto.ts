@@ -4,6 +4,7 @@ import {
 import {
     IDefaultBall
 } from "../game/ball"
+import { Score } from "../game/score"
 
 export interface IStaticPlayerDto
 {
@@ -12,7 +13,7 @@ export interface IStaticPlayerDto
     height : number;
     limitLeft : IVector2D;
     limitRight : IVector2D;
-    score: number
+    score: number | Score
 }
 
 export interface IStaticBallDto

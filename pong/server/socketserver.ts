@@ -43,7 +43,7 @@ import RoomIsFull from "../exceptions/roomIsFull.exception"
 import Unspected from "../exceptions/unspected.exception"
 
 import MatchesService from "../matches.service"
-import { Socket, Socket, Socket, Socket } from '../../node_modules/socket.io/dist/socket'
+import ClassicPongGameConfig from "../specilizations/classicpong/customization/classicpong.gameconfig"
 
 export interface ICustomGame
 {
@@ -57,6 +57,7 @@ export interface ICustomGame
     playerTwoWidth : number;
     playerTwoHeight : number;
     playerTwoColor : string;
+    gameBrief? : string;
 }
 
 export declare interface IRoomDto
@@ -70,6 +71,7 @@ export declare interface IRoomDto
     libName : string;
     mode : GameMode;
     customization : ICustomGame;
+    info : ICustomGame;
     flags : number;
     level? : number;
 }
@@ -117,7 +119,6 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     public rooms : Map <string, IRoomDto>; // Map< roomId, RoomPlayersIds >
     public mousesPos : Map<string, IMousePosDto>; // Map< playerId, mousePos >
     public queue : Array<{key: string, socket: Socket}>
-    //public ready : Map<string, number> // Map< roomId, playerAreReady >
 
     constructor(
         private readonly matchesServices : MatchesService
@@ -125,9 +126,15 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     { }
 
     // TO DO: Think a join for spectators
-    // TO DO: Set up default mode for matchmaking
     // TO DO: Call endGame in the client
-    // TO DO: Send the libName in the client
+
+    // TO DO: Spectator.tsx preload the engine
+    // TO DO: Spectator.tsx -> indexPong.tsx -> pong.tsx
+
+    // TO DO: leave game changes the ownser of the room
+    // Makes intived player perform invitations in the room
+    // This is complicate to handle, better destroy just the room
+    // THINK ABOUT IT
 
 <<<<<<< HEAD
     // TO DO: Add execptions
@@ -278,7 +285,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     @SubscribeMessage('findGame')
     findGame(client : Socket, idPlayer : string)
     {
-        // For matchmaking games
+        let idRoom : string = undefined;
 
         // Add to the client queue
         if (!(idPlayer in this.queue))
@@ -290,26 +297,60 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         // Once a room is filled, remove clients form the queue
         if (this.queue.length >= 2)
         {
-            const idRoom = this.createRoom(this.queue[0].socket, {
+            idRoom = this.createRoom(this.queue[0].socket, {
                 isFilled: false,
                 idRoom: null,
                 idPlayerOne: this.queue[0].key,
                 idPlayerTwo: null,
-                config: null, // TO DO: default to set
+                config: new ClassicPongGameConfig(this.queue[0].key, null),
                 lib: null,
-                libName: null, // TO DO: default to set
+                libName: LIB_HORIZONTAL_MULTI,
                 customization: null,
+                info: null,
                 flags: 0,
                 mode: GameMode.MULTI_PLAYER
             });
             this.joinRoom(this.queue[1].socket, idRoom, this.queue[1].key);
+
+            const room : IRoomDto = this.getRoom(idRoom);
+            room.config.playerTwo.id = this.queue[1].key;
+
             this.queue.splice(0, 2);
+
+            this.launchGame(client, idRoom);
+
+
         }
+        // TO DO: Some timeout that stops the queue
+        //  usefull per exemple if there are only one 1 player online 
+        //  (no game is possible)
 
-        // TO DO: Client should wait until the room is filled
+        return (idRoom);
+    }
 
-        // TO DO: Add a timeout that reset the queue if theres
-        // only one player for to long
+    // NOTE: If idRoom param is filled the room already exists and both player joined it
+    @SubscribeMessage('cancelQueue')
+    cancelQueue(client : Socket, idPlayer : string, idRoom? : string)
+    {
+        if (idRoom !== undefined)
+            this.queue.filter(room => room.key != idPlayer);
+        else
+        {
+            // TO DO: A can let this or just if you joined a game you can't quit (you were to slow !)
+            //this.leaveRoom(client, idRoom, idPlayer);
+            // If i let this i shoud quit both clients and destroy the room
+        }
+    }
+
+    @SubscribeMessage('isInQueue')
+    isInQueue(client : Socket, idRoom : string, idPlayer : string)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        for (const i in this.queue)
+            if (i == idPlayer)
+                return (true);
+        return (false);
     }
 
     @SubscribeMessage('leaveRoom')
@@ -383,6 +424,14 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         this.rooms[idRoom] = room;
     }
 
+    @SubscribeMessage('getGameStyle')
+    getGameStyle(client : Socket, idRoom : string)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        return room.libName;
+    }
+
     @SubscribeMessage('calcGameStatus')
     calcPongStatus(client : Socket, idRoom : string, status : IDynamicDto)
     { return calcGameStatus(status, this.getRoom(idRoom).lib); }
@@ -416,7 +465,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
         }
         else
-            throw new Error(); // Some error 
+            throw new Unspected("Unspected error on exportCustomization"); 
 
         this.rooms[idRoom] = room;
     }
@@ -450,5 +499,24 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             return (room.idPlayerOne);
         else
             throw new Unspected("Unspected error in socketserver: getOtherPlayerId");
+    }
+
+    @SubscribeMessage('updateInfo')
+    updateSharedClientsData(client : Socket, idRoom : string, idPlayer : string, data : ICustomGame)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        if (idPlayer == room.idPlayerOne)
+        {
+            const rememberColor : string = room.info.playerTwoColor;
+            room.info = data;
+            room.info.playerTwoColor = rememberColor;
+        }
+        else if (idPlayer == room.idPlayerTwo)
+            room.info.playerTwoColor = data.playerTwoColor;
+        else
+            throw new Unspected("Unspected error in updateSharedClientsData");
+        this.rooms[idPlayer] = room;
+        return (room.info);
     }
 }
