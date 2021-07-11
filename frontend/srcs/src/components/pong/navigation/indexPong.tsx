@@ -3,7 +3,7 @@ import React from "react"
 import SelectGameStyle from "./pages/gameType"
 import GameCustom from "./pages/gameCustom"
 import GameFast from "./pages/gameFast"
-import Invited from "./pages/invited"
+import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
 import PongGenerator from "../../../../../../pong/engine/engine"
 import  ClassicPong from "../../../../../../pong/specilizations/classicpong/classicpong.engine"
@@ -45,6 +45,7 @@ export default class IndexPong extends React.Component
         props : Readonly<{}>,
         public playerId : string,
         public isInvited : boolean,
+        public roomId? : string
     )
     {
         super(props);
@@ -87,6 +88,8 @@ export default class IndexPong extends React.Component
                 : this.currentPage == Pages.FAST_GAME
                 ? new GameFast(
                     this.props,
+                    this.playerId,
+                    this.socket,
                     this.goToSelection,
                     this.goToPongGame
                 )
@@ -104,6 +107,16 @@ export default class IndexPong extends React.Component
                     this.props,
                     this.socket,
                     this.pongFinals[this.index]
+                )
+                : this.currentPage == Pages.INVITED
+                ? new InvitedToGame(
+                    this.roomId ? this.roomId : "ERROR THIS NEVER SHOULD BE CALLED",
+                    this.playerId,
+                    this.socket,
+                    this,
+                    this.goToSelection,
+                    this.goToPongGame,
+                    this.props
                 )
                 : 0
             }
