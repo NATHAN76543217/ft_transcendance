@@ -6,19 +6,27 @@ import {
   OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import ChannelsService from './channels.service';
 import { Socket, Server } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { SocketWithUser } from 'src/authentication/socketWithUser.interface';
 
+@Injectable()
 @WebSocketGateway(undefined, { namespace: '/channels' })
 export class ChannelsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+  @WebSocketServer()
+  server: Server;
+
   private logger: Logger = new Logger('ChannelsGateway');
 
-  constructor(private readonly channelsService: ChannelsService) {}
+  constructor(
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelsService: ChannelsService,
+  ) {}
 
   afterInit(server: Server) {
     this.logger.debug(`Listening at ${server.path()}`);
@@ -84,5 +92,17 @@ export class ChannelsGateway
     // TODO: Save messages to repository
 
     this.logger.debug(`${author.name}: ${data}`);
+  }
+
+  async closeChannel(id: number) {
+    const roomName = id.toFixed();
+
+    this.server.to(roomName).emit('leave');
+    const socketIds = await this.server.in(roomName).allSockets();
+
+    // Force all sockets to leave the deleted room
+    socketIds.forEach((socketId) => {
+      this.server.sockets.sockets.get(socketId).leave(roomName);
+    });
   }
 }

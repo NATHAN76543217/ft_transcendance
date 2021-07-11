@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
@@ -11,15 +11,18 @@ import { WsException } from '@nestjs/websockets';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
 import User from 'src/users/user.entity';
 import ChannelRelationship from './relationships/channel-relationship.entity';
+import { ChannelsGateway } from './channels.gateway';
 
 @Injectable()
 export default class ChannelsService {
   constructor(
     private readonly authenticationService: AuthenticationService,
     @InjectRepository(Channel)
-    private channelsRepository: Repository<Channel>,
+    private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(ChannelRelationship)
-    private channelRelationshipRepository: Repository<ChannelRelationship>,
+    private readonly channelRelationshipRepository: Repository<ChannelRelationship>,
+    @Inject(forwardRef(() => ChannelsGateway))
+    private readonly channelsGateway: ChannelsGateway,
   ) {}
 
   async getUserFromSocket(socket: Socket): Promise<User> {
@@ -148,8 +151,13 @@ export default class ChannelsService {
 
   async deleteChannel(id: number) {
     const deleteResponse = await this.channelsRepository.delete(id);
+
+    // TODO: Dispatch leave event on corresponding gateway room
+
     if (!deleteResponse.affected) {
       throw new ChannelNotFound(id);
     }
+
+    await this.channelsGateway.closeChannel(id);
   }
 }
