@@ -15,7 +15,7 @@ import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import LoginWithPasswordDto from './dto/loginWithPassword.dto';
-import { ApiBearerAuth, ApiCookieAuth, ApiHeader } from '@nestjs/swagger';
+import { ApiCookieAuth } from '@nestjs/swagger';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -43,9 +43,12 @@ export class AuthenticationController {
   @Post('logout')
   @HttpCode(200)
   @UseGuards(JwtAuthenticationGuard)
-  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
-    // TODO see if bellow is needed (don't think so cause but maybe need with setcookie)
-    // response.setHeader('Set-Cookie', this.authenticationService.getCookieForLogOut());
+  async logOut(@Res() response: Response) {
+    // It doesn't hurt to reset cookies
+    response.setHeader(
+      'Set-Cookie',
+      this.authenticationService.getCookieForLogOut(),
+    );
     response.send();
   }
 

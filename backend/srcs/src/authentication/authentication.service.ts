@@ -55,7 +55,7 @@ export class AuthenticationService {
     plainTextPassword: string,
   ) {
     try {
-      const user = await this.usersService.getUserByName(name);
+      const user = await this.usersService.getUserByName(name, true, true);
 
       await this.verifyPassword(plainTextPassword, user.password);
       user.password = undefined;
