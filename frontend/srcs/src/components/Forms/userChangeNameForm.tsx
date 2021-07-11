@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import IUserChangeNameFormValues from "../interface/IUserChangeNameFormValues";
+import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 
 type UserChangeNameSearchProps = {
   onSubmit: (values: IUserChangeNameFormValues) => void; // define function type
