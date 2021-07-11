@@ -82,16 +82,16 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     this.setState({ username: values.username });
   };
 
-  updateRelationshipState(id: string, newType: UserRelationshipType) {
+  updateRelationshipState(id: number, newType: UserRelationshipType) {
     let a = this.state.list.slice();
     let index = a.findIndex((userId) => userId.id === id);
     a[index].relationshipType = newType;
     this.setState({ list: a });
   }
 
-  async addFriend(id: string) {
+  async addFriend(id: number) {
     const contextValue = this.context;
-    let inf = Number(contextValue.myId) < Number(id);
+    let inf = contextValue.myId < id;
     try {
       const currentRel = await axios.get(
         "/api/users/relationships/" + id + "/" + contextValue.myId
@@ -134,7 +134,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
   }
 
-  async removeFriend(id: string) {
+  async removeFriend(id: number) {
     const contextValue = this.context;
     try {
       const currentRel = await axios.get(
@@ -161,9 +161,9 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     } catch (error) {}
   }
 
-  async blockUser(id: string) {
+  async blockUser(id: number) {
     const contextValue = this.context;
-    let inf = Number(contextValue.myId) < Number(id);
+    let inf = contextValue.myId < id;
     try {
       const currentRel = await axios.get(
         "/api/users/relationships/" + id + "/" + contextValue.myId
@@ -202,9 +202,9 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     }
   }
 
-  async unblockUser(id: string) {
+  async unblockUser(id: number) {
     const contextValue = this.context;
-    let inf = Number(contextValue.myId) < Number(id);
+    let inf = contextValue.myId < id;
     try {
       const currentRel = await axios.get(
         "/api/users/relationships/" + id + "/" + contextValue.myId
@@ -259,13 +259,13 @@ class UserSearch extends React.Component<UserProps, UserStates> {
                 nbLoss={user.nbLoss}
                 imgPath={user.imgPath}
                 relationshipTypes={user.relationshipType}
-                idInf={Number(contextValue.myId) < Number(user.id)}
+                idInf={contextValue.myId < user.id}
                 addFriend={this.addFriend}
                 removeFriend={this.removeFriend}
                 blockUser={this.blockUser}
                 unblockUser={this.unblockUser}
                 isInSearch
-                isMe={Number(user.id) === Number(contextValue.myId)}
+                isMe={user.id === contextValue.myId}
               />
             </li>
           ))}

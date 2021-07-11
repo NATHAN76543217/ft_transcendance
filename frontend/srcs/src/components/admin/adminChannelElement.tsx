@@ -13,7 +13,7 @@ type ChannelElementProps = {
   id: number;
   name: string;
   mode: ChannelMode;
-  destroyChannel: (id: string) => void;
+  destroyChannel: (id: number) => void;
 };
 
 type ChannelElementStates = {
@@ -33,14 +33,6 @@ class AdminChannelElement extends React.Component<
       showDestroyValidation: false,
       showUsersList: false,
     };
-    this.changeDestroyValidationButtonState =
-      this.changeDestroyValidationButtonState.bind(this);
-    this.changeUsersListButtonState =
-      this.changeUsersListButtonState.bind(this);
-    this.banUserFromChannel = this.banUserFromChannel.bind(this);
-    this.unbanUserFromChannel = this.unbanUserFromChannel.bind(this);
-    this.setAdminFromChannel = this.setAdminFromChannel.bind(this);
-    this.unsetAdminFromChannel = this.unsetAdminFromChannel.bind(this);
   }
 
   componentDidMount() {
@@ -76,13 +68,13 @@ class AdminChannelElement extends React.Component<
     }
   }
 
-  changeDestroyValidationButtonState() {
+  changeDestroyValidationButtonState = () => {
     this.setState({ showDestroyValidation: !this.state.showDestroyValidation });
-  }
+  };
 
-  changeUsersListButtonState() {
+  changeUsersListButtonState = () => {
     this.setState({ showUsersList: !this.state.showUsersList });
-  }
+  };
 
   displayDestroyButton() {
     if (!this.state.showDestroyValidation) {
@@ -107,7 +99,7 @@ class AdminChannelElement extends React.Component<
             content="Confirm destruction?"
             // url="/users/block"
             onClickFunctionId={this.props.destroyChannel}
-            argId={this.props.id.toFixed()}
+            argId={this.props.id}
             bg_color="bg-unset"
             // bg_hover_color="bg-secondary-dark"
             dark_text
@@ -117,7 +109,7 @@ class AdminChannelElement extends React.Component<
             content="No"
             // url="/users/block"
             onClickFunctionId={this.changeDestroyValidationButtonState}
-            argId={this.props.id.toFixed()}
+            argId={this.props.id}
             bg_color="bg-secondary"
             // bg_hover_color="bg-secondary-dark"
             dark_text
@@ -141,73 +133,35 @@ class AdminChannelElement extends React.Component<
     }
   }
 
-  async banUserFromChannel(id: string) {
+  private async setChannelUserRelationship(
+    id: number,
+    type: ChannelRelationshipType
+  ) {
     try {
       let a = this.state.channelRelationshipsList.slice();
-      let index = a.findIndex(
-        (relation) => Number(relation.user_id) === Number(id)
-      );
+      let index = a.findIndex((relation) => relation.user_id === id);
       if (index !== -1) {
-        let relationId = a[index].id;
+        let relationId = a[index].user_id;
         await axios.patch("/api/channels/update/" + relationId, {
-          type: ChannelRelationshipType.ban,
+          type: type,
         });
-        a[index].type = ChannelRelationshipType.ban;
+        a[index].type = type;
         this.setState({ channelRelationshipsList: a });
       }
     } catch (error) {}
   }
 
-  async unbanUserFromChannel(id: string) {
-    try {
-      let a = this.state.channelRelationshipsList.slice();
-      let index = a.findIndex(
-        (relation) => Number(relation.user_id) === Number(id)
-      );
-      if (index !== -1) {
-        let relationId = a[index].id;
-        await axios.patch("/api/channels/update/" + relationId, {
-          type: ChannelRelationshipType.standard,
-        });
-        a[index].type = ChannelRelationshipType.standard;
-        this.setState({ channelRelationshipsList: a });
-      }
-    } catch (error) {}
-  }
+  banUserFromChannel = async (id: number) =>
+    this.setChannelUserRelationship(id, ChannelRelationshipType.ban);
 
-  async setAdminFromChannel(id: string) {
-    try {
-      let a = this.state.channelRelationshipsList.slice();
-      let index = a.findIndex(
-        (relation) => Number(relation.user_id) === Number(id)
-      );
-      if (index !== -1) {
-        let relationId = a[index].id;
-        await axios.patch("/api/channels/update/" + relationId, {
-          type: ChannelRelationshipType.admin,
-        });
-        a[index].type = ChannelRelationshipType.admin;
-        this.setState({ channelRelationshipsList: a });
-      }
-    } catch (error) {}
-  }
+  unbanUserFromChannel = async (id: number) =>
+    this.setChannelUserRelationship(id, ChannelRelationshipType.standard);
 
-  async unsetAdminFromChannel(id: string) {
-    try {
-      let a = this.state.channelRelationshipsList.slice();
-      let index = a.findIndex(
-        (relation) => Number(relation.user_id) === Number(id)
-      );
-      if (index !== -1) {
-        let relationId = a[index].id;
-        await axios.patch("/api/channels/update/" + relationId, {
-          type: ChannelRelationshipType.standard,
-        });
-        a[index].type = ChannelRelationshipType.standard;
-        this.setState({ channelRelationshipsList: a });
-      }
-    } catch (error) {}
-  }
+  setAdminFromChannel = async (id: number) =>
+    this.setChannelUserRelationship(id, ChannelRelationshipType.admin);
+
+  unsetAdminFromChannel = async (id: number) =>
+    this.setChannelUserRelationship(id, ChannelRelationshipType.standard);
 
   displayUsersList() {
     if (this.state.showUsersList) {
@@ -221,7 +175,7 @@ class AdminChannelElement extends React.Component<
 
               if (!(relation.type & ChannelRelationshipType.null)) {
                 return (
-                  <li key={relation.id} className="">
+                  <li key={relation.user_id.toFixed()} className="">
                     <AdminUserElement
                       id={relation.user_id}
                       name={relation.user_name}
@@ -237,7 +191,7 @@ class AdminChannelElement extends React.Component<
                 );
               } else {
                 return (
-                  <li key={relation.id} className="">
+                  <li key={relation.user_id} className="">
                     <div></div>
                   </li>
                 );

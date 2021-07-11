@@ -4,10 +4,7 @@ import React from "react";
 import { Channel, ChannelMode } from "../../models/channel/Channel";
 import { IUser } from "../../models/user/IUser";
 import AdminChannelElement from "../../components/admin/adminChannelElement";
-import {
-  ChannelRelationship,
-  ChannelRelationshipType,
-} from "../../models/channel/ChannelRelationship";
+import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 
 interface AdminChannelProps {
   isOwner?: boolean | false;
@@ -27,8 +24,6 @@ class AdminChannels extends React.Component<
     this.state = {
       list: [],
     };
-    this.destroyChannel = this.destroyChannel.bind(this);
-    this.setAllChannels = this.setAllChannels.bind(this);
   }
 
   componentDidMount() {
@@ -41,7 +36,9 @@ class AdminChannels extends React.Component<
 
   async getAllUsers() {
     try {
-      const dataUsers = await axios.get("/api/users");
+      const dataUsers = await axios.get("/api/users", {
+        withCredentials: true,
+      });
       let a = dataUsers.data.slice();
       a.sort((user1: IUser, user2: IUser) =>
         user1.name.localeCompare(user2.name)
@@ -50,43 +47,54 @@ class AdminChannels extends React.Component<
     } catch (error) {}
   }
 
-  async setAllChannels() {
+  setAllChannels = async () => {
     try {
-      const dataUsers = await axios.get("/api/channels");
+      const dataUsers = await axios.get("/api/channels", {
+        withCredentials: true,
+      });
       let a = dataUsers.data.slice();
       a.sort((user1: Channel, user2: Channel) =>
         user1.name.localeCompare(user2.name)
       );
       this.setState({ list: a });
     } catch (error) {}
-  }
+  };
 
   async deleteChannelRelationship(id: number) {
     try {
-      await axios.delete("/api/channels/leave/" + id);
+      await axios.delete(`/api/channels/leave/${id}`, {
+        withCredentials: true,
+      });
     } catch (error) {}
   }
 
-  async destroyChannel(id: string) {
+  destroyChannel = async (id: number) => {
     try {
-      const dataRelations = await axios.get(
-        "/api/channels/relationships/" + id
+      // TODO: This should be handled on the backend directly
+      /* const dataRelations = await axios.get(
+        `/api/channels/${id}/`,
+        { withCredentials: true }
       );
       dataRelations.data.map(async (relation: ChannelRelationship) => {
-        this.deleteChannelRelationship(relation.id);
-      });
-      await axios.delete("/api/channels/" + id);
+        this.deleteChannelRelationship(relation.user_id);
+      }); */
+      console.log("Deleting channel " + id);
+      await axios.delete(`/api/channels/${id}`, { withCredentials: true });
     } catch (error) {}
     this.setAllChannels();
-  }
+  };
 
   async createChannel(name: string, mode: ChannelMode) {
     try {
-      await axios.post("/api/channels", {
-        name: name,
-        password: "password",
-        mode: mode,
-      });
+      await axios.post(
+        "/api/channels",
+        {
+          name: name,
+          password: "password",
+          mode: mode,
+        },
+        { withCredentials: true }
+      );
     } catch (error) {}
   }
 
@@ -96,14 +104,20 @@ class AdminChannels extends React.Component<
     type: ChannelRelationshipType
   ) {
     try {
-      const dataUser = await axios.get("/api/users/" + user_id);
-      const user_name = dataUser.data.name;
-      await axios.post("/api/channels/join", {
-        channel_id: channel_id,
-        user_id: user_id,
-        user_name: user_name,
-        type: type,
+      const dataUser = await axios.get("/api/users/" + user_id, {
+        withCredentials: true,
       });
+      const user_name = dataUser.data.name;
+      await axios.post(
+        "/api/channels/join",
+        {
+          channel_id: channel_id,
+          user_id: user_id,
+          user_name: user_name,
+          type: type,
+        },
+        { withCredentials: true }
+      );
     } catch (error) {}
   }
 

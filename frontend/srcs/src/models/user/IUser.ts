@@ -22,7 +22,7 @@ export type UserChannelRelationship =
     };
 
 export type IUser = {
-  id: string;
+  id: number;
   name: string;
   password: string;
   nbWin: number;

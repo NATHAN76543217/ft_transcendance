@@ -12,7 +12,7 @@ import { UserRelationshipType } from "../../models/user/UserRelationship";
 type UserProps = {};
 
 interface UserStates {
-  id: string;
+  id: number;
   doesUserExist: boolean;
   user: IUser;
   showWrongUsernameMessage: boolean;
@@ -27,10 +27,10 @@ class UserPage extends React.Component<
   constructor(props: UserProps & RouteComponentProps) {
     super(props);
     this.state = {
-      id: "",
+      id: 0,
       doesUserExist: true,
       user: {
-        id: "",
+        id: 0,
         name: "",
         password: "",
         nbWin: 0,
@@ -46,6 +46,7 @@ class UserPage extends React.Component<
       },
       showWrongUsernameMessage: false,
     };
+    // TODO: Replace this with arrow functions
     this.handleClickTwoFactorAuth = this.handleClickTwoFactorAuth.bind(this);
     this.onLoad = this.onLoad.bind(this);
     this.onFileChange = this.onFileChange.bind(this);
@@ -94,10 +95,10 @@ class UserPage extends React.Component<
 
   componentWillUnmount() {}
 
-  onLoad = async (userId: string) => {
+  onLoad = async (userId: number) => {
     try {
       // REVIEW redondance with userId && this.state.user.id
-      if (!isNaN(Number(userId))) {
+      if (!isNaN(userId)) {
         const data = await axios.get("/api/users/" + this.state.user.id);
         this.setState({
           doesUserExist: true,
@@ -134,7 +135,7 @@ class UserPage extends React.Component<
 
   async handleClickProfilePicture() {}
 
-  async getProfilePicture(pictureId: string) {
+  async getProfilePicture(pictureId: number) {
     try {
       const data = await axios.get("/uploads/" + pictureId);
       return data.request.responseURL;
@@ -198,12 +199,12 @@ class UserPage extends React.Component<
     });
   }
 
-  async addFriend(id: string) {
+  async addFriend(id: number) {
     const contextValue = this.context;
-    let inf = Number(contextValue.myId) < Number(id);
+    let inf = contextValue.myId < id;
     try {
       const currentRel = await axios.get(
-        "/api/users/relationships/" + id + "/" + contextValue.myId
+        `/api/users/relationships/${id}/${contextValue.myId}`
       );
       if (
         !(
@@ -241,7 +242,7 @@ class UserPage extends React.Component<
     }
   }
 
-  async removeFriend(id: string) {
+  async removeFriend(id: number) {
     const contextValue = this.context;
     try {
       const currentRel = await axios.get(
@@ -273,9 +274,9 @@ class UserPage extends React.Component<
     } catch (error) {}
   }
 
-  async blockUser(id: string) {
+  async blockUser(id: number) {
     const contextValue = this.context;
-    let inf = Number(contextValue.myId) < Number(id);
+    let inf = contextValue.myId < id;
     try {
       const currentRel = await axios.get(
         "/api/users/relationships/" + id + "/" + contextValue.myId
@@ -315,9 +316,9 @@ class UserPage extends React.Component<
     }
   }
 
-  async unblockUser(id: string) {
+  async unblockUser(id: number) {
     const contextValue = this.context;
-    let inf = Number(contextValue.myId) < Number(id);
+    let inf = contextValue.myId < id;
     try {
       const currentRel = await axios.get(
         "/api/users/relationships/" + id + "/" + contextValue.myId
@@ -394,8 +395,7 @@ class UserPage extends React.Component<
     }
 
     let isMe =
-      this.state.id === undefined ||
-      Number(this.state.id) === Number(contextValue.myId);
+      this.state.id === undefined || this.state.id === contextValue.myId;
 
     return (
       <div className="">
@@ -409,7 +409,7 @@ class UserPage extends React.Component<
             imgPath={this.state.user.imgPath}
             isMe={isMe}
             relationshipTypes={this.state.user.relationshipType} // A Gerer au niveau de l'update
-            idInf={Number(contextValue.myId) < Number(this.state.user.id)}
+            idInf={contextValue.myId < this.state.user.id}
             // isFriend
             twoFactorAuth={this.state.user.twoFactorAuth}
             handleClickTwoFactorAuth={this.handleClickTwoFactorAuth}

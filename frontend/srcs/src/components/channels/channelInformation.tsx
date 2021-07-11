@@ -4,14 +4,14 @@ import { ChannelMode } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 
 type ChannelProps = {
-  id: string; // optional ?
+  id: number; // optional ?
   name: string;
   mode: ChannelMode;
   imgPath?: string;
   relationshipTypes: ChannelRelationshipType;
   isInSearch?: boolean | false;
-  joinChannel: (id: string) => void;
-  leaveChannel: (id: string) => void;
+  joinChannel: (id: number) => void;
+  leaveChannel: (id: number) => void;
 };
 
 function getModeColor(mode: ChannelMode) {
