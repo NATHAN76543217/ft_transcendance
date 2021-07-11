@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Exclude } from 'class-transformer';
+//import { Exclude } from 'class-transformer';
 import Message from '../messages/message.entity';
 import { ChannelModeTypes } from './utils/channelModeTypes';
 import ChannelRelationship from './relationships/channel-relationship.entity';
@@ -12,8 +12,9 @@ class Channel {
   @Column({ unique: true })
   public name: string;
 
-  @Column()
-  @Exclude({ toPlainOnly: true })
+  @Column({ select: false })
+  // TODO: Check if this is still needed
+  //@Exclude({ toPlainOnly: true })
   public password: string; // public ?
 
   @Column({ default: ChannelModeTypes.public })

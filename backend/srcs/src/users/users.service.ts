@@ -1,12 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import CreateUserDto from './dto/CreateUser.dto';
 import User from './user.entity';
 import UpdateUserDto from './dto/UpdateUser.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository, SelectQueryBuilder } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 import UserRelationshipsService from './relationships/user-relationships.service';
+import UserNameNotFoundException from './exception/UserNameNotFound.exception';
 
 @Injectable()
 export default class UsersService {
@@ -28,33 +29,49 @@ export default class UsersService {
   }
 
   async getUserById(id: number, withChannels = false) {
-    const relations: string[] = withChannels
-      ? ['channels', 'channels.channel'] // TODO: Add users to relations (using querybuilder)
-      : [];
+    const query = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.id = :id', { id }); // Select user with id
 
-    // TODO: Filter banned relations
-    const user = await this.usersRepository.findOne(id, {
-      relations,
-    });
-    if (user) {
-      Logger.debug(`User with id ${id} found!`);
-      return user;
-    }
+    if (withChannels) this.joinChannels(query);
+    const user = await query.getOne();
 
-    Logger.debug(`User with id ${id} not found!`);
+    if (user) return user;
+
     throw new UserNotFound(id);
   }
 
-  async getUserByName(name: string) {
+  private joinChannels(query: SelectQueryBuilder<User>): void {
+    query
+      .leftJoin('user.channels', 'channelRelation')
+      .addSelect('channelRelation.type')
+      .leftJoinAndSelect('channelRelation.channel', 'channel')
+      .leftJoin('channel.users', 'channelUserRelation')
+      .addSelect('channelUserRelation.type')
+      .leftJoin('channelUserRelation.user', 'channelUser')
+      .addSelect(['channelUser.id', 'channelUser.name', 'channelUser.imgPath']);
+  }
+
+  async getUserByName(
+    name: string,
+    withPassword = false,
+    withChannels = false,
+  ) {
     // This should never be false
     //if (name !== undefined)
     // const user = await this.usersRepository.findOne(name, { relations: ['channels'] });
-    return this.usersRepository.findOne({
-      where: {
-        name: name,
-      },
-      relations: ['channels', 'channels.channel'],
-    });
+    const query = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.name = :name', { name });
+
+    if (withPassword) query.addSelect('user.password');
+    if (withChannels) this.joinChannels(query);
+
+    const user = await query.getOne();
+
+    if (user) return user;
+
+    throw new UserNameNotFoundException(name);
   }
 
   async getUsersFiltertByName(name: string) {
