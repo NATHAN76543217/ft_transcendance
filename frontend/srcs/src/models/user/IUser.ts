@@ -1,4 +1,8 @@
-import { ChannelRelationship } from "../channel/ChannelRelationship";
+import { Channel } from "../channel/Channel";
+import {
+  ChannelRelationship,
+  ChannelRelationshipType,
+} from "../channel/ChannelRelationship";
 import { UserRelationshipType } from "./UserRelationship";
 
 export enum UserRole {
@@ -9,6 +13,13 @@ export enum UserRole {
 
   ban = 4,
 }
+
+export type UserChannelRelationship =
+  | ChannelRelationship
+  | {
+      type: ChannelRelationshipType;
+      channel: Channel;
+    };
 
 export type IUser = {
   id: string;
@@ -25,7 +36,7 @@ export type IUser = {
   // We should also map channel relationships to user information the other way around
   channels: ChannelRelationship[];
 
-  // TODO: I do not think that this belongs here
+  // TODO: This should be in the parent UserRelation object
   relationshipType: UserRelationshipType;
   idInf: boolean;
   //isBlock: boolean;
