@@ -5,11 +5,11 @@ import {
   Get,
   Param,
   Post,
-  Put,
   Patch,
   SerializeOptions,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import UsersService from './users.service';
 import CreateUserDto from './dto/CreateUser.dto';
@@ -18,11 +18,14 @@ import { FindOneParam } from './utils/findOneParams';
 import UserRelationshipsService from './relationships/user-relationships.service';
 import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
 import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
+import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
+import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 @Controller('users')
 @SerializeOptions({
   strategy: 'exposeAll',
 })
+@UseGuards(JwtAuthenticationGuard)
 export default class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -35,10 +38,10 @@ export default class UsersController {
   }
 
   @Get(':id')
-  // TODO see if bellow comment is needed
-  // @UseGuards(JwtAuthenticationGuard)
-  getUserById(@Param('id') id: FindOneParam) {
-    return this.usersService.getUserById(Number(id));
+  getUserById(@Req() req: RequestWithUser, @Param('id') id: FindOneParam) {
+    const withChannels = req.user.id === Number(id);
+
+    return this.usersService.getUserById(Number(id), withChannels);
   }
 
   @Post()
