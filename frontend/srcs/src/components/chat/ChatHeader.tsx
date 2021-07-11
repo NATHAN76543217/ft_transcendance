@@ -9,9 +9,11 @@ type ChatHeaderProps = {
 export function ChatHeader({ children }: ChatHeaderProps) {
   const chatContext = useContext(ChatPageContext);
 
-  if (chatContext.currentChatId) {
-    const currentChat = chatContext.chats[chatContext.currentChatId];
+  const currentChat = chatContext.currentChatId
+    ? chatContext.channels.get(chatContext.currentChatId)
+    : undefined;
 
+  if (currentChat) {
     return (
       <header className="flex justify-between w-full h-10 p-2 bg-gray-200">
         <ChatTitle chat={currentChat}></ChatTitle>

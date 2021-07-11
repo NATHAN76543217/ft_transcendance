@@ -48,45 +48,23 @@ class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
     } catch (error) {}
   }
 
-  async banUser(id: string) {
+  setRole = async (id: number, role: UserRole) => {
     try {
-      await axios.patch("/api/users/" + id, { role: UserRole.ban });
+      await axios.patch(`/api/users/${id}`, { role });
       let a = this.state.list.slice();
-      let index = a.findIndex((userId) => Number(userId.id) === Number(id));
+      let index = a.findIndex((userId) => userId.id === id);
       a[index].role = UserRole.ban;
       this.setState({ list: a });
     } catch (error) {}
-  }
+  };
 
-  async unbanUser(id: string) {
-    try {
-      await axios.patch("/api/users/" + id, { role: UserRole.null });
-      let a = this.state.list.slice();
-      let index = a.findIndex((userId) => Number(userId.id) === Number(id));
-      a[index].role = UserRole.null;
-      this.setState({ list: a });
-    } catch (error) {}
-  }
+  banUser = async (id: number) => this.setRole(id, UserRole.ban);
 
-  async setAdmin(id: string) {
-    try {
-      await axios.patch("/api/users/" + id, { role: UserRole.admin });
-      let a = this.state.list.slice();
-      let index = a.findIndex((userId) => Number(userId.id) === Number(id));
-      a[index].role = UserRole.admin;
-      this.setState({ list: a });
-    } catch (error) {}
-  }
+  unbanUser = async (id: number) => this.setRole(id, UserRole.null);
 
-  async unsetAdmin(id: string) {
-    try {
-      await axios.patch("/api/users/" + id, { role: UserRole.null });
-      let a = this.state.list.slice();
-      let index = a.findIndex((userId) => Number(userId.id) === Number(id));
-      a[index].role = UserRole.null;
-      this.setState({ list: a });
-    } catch (error) {}
-  }
+  setAdmin = async (id: number) => this.setRole(id, UserRole.admin);
+
+  unsetAdmin = async (id: number) => this.setRole(id, UserRole.null);
 
   render() {
     const sectionClass =

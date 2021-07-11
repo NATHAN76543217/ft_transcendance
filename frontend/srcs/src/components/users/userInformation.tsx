@@ -7,7 +7,7 @@ import React from "react";
 import AppContext from "../../AppContext";
 
 type UserProps = {
-  id: string; // optional ?
+  id: number; // optional ?
   name: string;
   status: string;
   nbWin?: number;
@@ -22,10 +22,10 @@ type UserProps = {
   handleClickTwoFactorAuth?: () => void;
   handleClickProfilePicture?: () => void;
   onFileChange?: (fileChangeEvent: any) => void;
-  addFriend: (id: string) => void;
-  removeFriend: (id: string) => void;
-  blockUser: (id: string) => void;
-  unblockUser: (id: string) => void;
+  addFriend: (id: number) => void;
+  removeFriend: (id: number) => void;
+  blockUser: (id: number) => void;
+  unblockUser: (id: number) => void;
   changeUsername?: (values: IUserChangeNameFormValues) => void;
 };
 
@@ -104,12 +104,12 @@ function displayFileChange(user: UserProps) {
 }
 
 function displayFriendButton(user: UserProps, updateAllRelationships: any) {
-  const addFriend = async (id: string) => {
+  const addFriend = async (id: number) => {
     await user.addFriend(id);
     await updateAllRelationships();
   };
 
-  const removeFriend = async (id: string) => {
+  const removeFriend = async (id: number) => {
     await user.removeFriend(id);
     await updateAllRelationships();
   };
@@ -173,12 +173,12 @@ function displayFriendButton(user: UserProps, updateAllRelationships: any) {
 }
 
 function displayBlockButton(user: UserProps, updateAllRelationships: any) {
-  const blockUser = async (id: string) => {
+  const blockUser = async (id: number) => {
     await user.blockUser(id);
     await updateAllRelationships();
   };
 
-  const unblockUser = async (id: string) => {
+  const unblockUser = async (id: number) => {
     await user.unblockUser(id);
     await updateAllRelationships();
   };

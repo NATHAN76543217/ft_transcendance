@@ -7,13 +7,7 @@ import UserCreate from "./userCreate";
 import { Route } from "react-router";
 import UserDelete from "./userDelete";
 
-interface UserProps {
-  myId: string;
-}
-
-interface UserStates {}
-
-class User extends React.Component<UserProps, UserStates> {
+class User extends React.Component {
   render() {
     return (
       <div className="">

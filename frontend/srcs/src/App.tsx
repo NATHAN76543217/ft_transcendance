@@ -11,7 +11,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser, UserRole } from "./models/user/IUser";
+import { IUser } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -119,7 +119,7 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({ relationshipsList: a });
       } else {
         await dataRel.data.map(async (relation: UserRelationship) => {
-          let inf = Number(relation.user1_id) === Number(this.state.user?.id);
+          let inf = relation.user1_id === this.state.user?.id;
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
             let index;
@@ -182,7 +182,7 @@ class App extends React.Component<AppProps, AppState> {
                           exact
                           path="/users"
                         >
-                          <User myId={this.state.user?.id || ""} />
+                          <User />
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
@@ -200,7 +200,7 @@ class App extends React.Component<AppProps, AppState> {
                           <Register />
                         </OnlyPublic>
                         {this.displayAdminRoute(
-                          this.state.user?.role === UserRole.admin
+                          true //this.state.user?.role === UserRole.admin
                         )}
                       </Switch>
                     </main>

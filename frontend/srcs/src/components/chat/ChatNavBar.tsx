@@ -101,7 +101,7 @@ export function ChatNavBar() {
         />
       </div>
       <ul>
-        {chatContext.chats.map((c) => (
+        {Array.from(chatContext.channels.values()).map((c) => (
           <li key={c.id}>{ChatBarItem({ chat: c })}</li>
         ))}
       </ul>
