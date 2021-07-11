@@ -28,19 +28,13 @@ export interface IGameStatus
 export class GameStatus implements IGameStatus
 {
     constructor(
-        private wrappedCourt : Court,
-        private wrappedPlayerOne : Player,
-        private wrappedPlayerTwo : Player,
-        private wrappedBall : Ball,
-        private wrappedNet : Net
+        public court : Court,
+        public playerOne : Player,
+        public playerTwo : Player,
+        public ball : Ball,
+        public net : Net
     )
     { this.sanitize(); }
-
-    get court() { return this.wrappedCourt; }
-    get playerOne() { return this.wrappedPlayerOne; }
-    get playerTwo() { return this.wrappedPlayerTwo; }
-    get ball() { return this.wrappedBall; }
-    get net() { return this.wrappedNet; }
 
     private sanitize() : void
 	{

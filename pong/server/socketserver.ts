@@ -43,11 +43,20 @@ import RoomIsFull from "../exceptions/roomIsFull.exception"
 import Unspected from "../exceptions/unspected.exception"
 
 import MatchesService from "../matches.service"
-import { Socket, Socket, Socket } from '../../node_modules/socket.io/dist/socket'
+import { Socket, Socket, Socket, Socket } from '../../node_modules/socket.io/dist/socket'
 
-declare interface LibPair<T extends APolimorphicLib>
+export interface ICustomGame
 {
-    [key : string] : T;
+    ballSpeed : number;
+    ballColor : string;
+    courtColor : string;
+    netColor : string;
+    playerOneWidth : number;
+    playerOneHeight : number;
+    playerOneColor : string;
+    playerTwoWidth : number;
+    playerTwoHeight : number;
+    playerTwoColor : string;
 }
 
 export declare interface IRoomDto
@@ -60,6 +69,8 @@ export declare interface IRoomDto
     lib : APolimorphicLib;
     libName : string;
     mode : GameMode;
+    customization : ICustomGame;
+    flags : number;
     level? : number;
 }
 
@@ -95,6 +106,8 @@ function SellectLib(
 
 const PLAYER_ONE_READY : number = 1 << 0;
 const PLAYER_TWO_READY : number = 1 << 1;
+const PLAYER_ONE_EXPORTED_CONFIG : number = 1 << 2;
+const PLAYER_TWO_EXPORTED_CONFIG : number = 1 << 3;
 
 @WebSocketGateway()
 export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -104,7 +117,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     public rooms : Map <string, IRoomDto>; // Map< roomId, RoomPlayersIds >
     public mousesPos : Map<string, IMousePosDto>; // Map< playerId, mousePos >
     public queue : Array<{key: string, socket: Socket}>
-    public ready : Map<string, number> // Map< roomId, playerAreReady >
+    //public ready : Map<string, number> // Map< roomId, playerAreReady >
 
     constructor(
         private readonly matchesServices : MatchesService
@@ -126,6 +139,15 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     // PongSocketServer <-> APolimorphicLib
     // Update: Normally Map.propotype.delete should solve this
 
+    private getRoom(idRoom : string)
+    {
+        const room : IRoomDto = this.rooms[idRoom];
+
+        if (room === undefined)
+            throw new RoomNotFound(idRoom);
+        return (room);
+    }
+
     afterInit(server : Server)
     { console.log("DEBUG: Server is launched!"); }
 
@@ -146,7 +168,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         // Define if the game can start
         roomData.isFilled = roomData.mode == GameMode.SINGLE_PLAYER;
 
-        this.ready[idRoom] = 0;
+        roomData.flags = 0;
         
         // Push the room
         this.rooms[idRoom] = roomData;
@@ -161,14 +183,12 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     @SubscribeMessage('joinRoom')
     joinRoom(client : Socket, idRoom : string, idPlayerTwo : string)
     {
-        const room : IRoomDto = this.rooms[idRoom];
+        const room : IRoomDto = this.getRoom(idRoom);
 
-        if (room === undefined)
-            throw new RoomNotFound(idRoom); // No such room
-        else if (room.isFilled == true)
-            throw new RoomIsFull(); // Room is already filled
+        if (room.isFilled == true)
+            throw new RoomIsFull();
         else if (room.idPlayerOne == idPlayerTwo)
-            throw new IsSamePlayer(idPlayerTwo); // Player is already in the room
+            throw new IsSamePlayer(idPlayerTwo);
         else
         {
             // Add the second player data to the room
@@ -189,10 +209,9 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     @SubscribeMessage('launchGame')
     async launchGame(client : Socket, idRoom : string)
     {
-        const room : IRoomDto = this.rooms[idRoom];
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-        else if (room.isFilled == false)
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        if (room.isFilled == false)
             throw new NeedMorePlayers();
         else
         {
@@ -219,47 +238,41 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         }
     }
 
+    @SubscribeMessage('updateConfig')
+    updateConfig(client : Socket, idRoom : string, config : IStaticDto)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+        room.config = config;
+        this.rooms[idRoom] = room;
+    }
+
     @SubscribeMessage('playerIsReady')
     playerIsReady(client : Socket, idRoom : string, idPlayer : string)
     {  
-        const room : IRoomDto = this.rooms[idRoom];
+        const room : IRoomDto = this.getRoom(idRoom);
 
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-        else
-        {
-            this.ready[idRoom] |= room.idPlayerOne == idPlayer
+        room.flags |= room.idPlayerOne == idPlayer
             ? PLAYER_ONE_READY : PLAYER_TWO_READY;
-        }
     }
 
     @SubscribeMessage('playerIsNotReady')
     playerIsNotReady(client : Socket, idRoom : string, idPlayer : string)
     {
-        const room : IRoomDto = this.rooms[idRoom];
+        const room : IRoomDto = this.getRoom(idRoom)
 
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-        else
-        {
-            this.ready[idRoom] &= room.idPlayerOne == idPlayer
+        room.flags &= room.idPlayerOne == idPlayer
             ? ~PLAYER_ONE_READY : ~PLAYER_TWO_READY;
-        }
     }
 
     @SubscribeMessage('arePlayersReady')
     arePlayersReady(client : Socket, idRoom : string)
     {
-        const room : IRoomDto = this.rooms[idRoom];
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-        else
-        {
-            return room.mode == GameMode.MULTI_PLAYER
-                ? this.ready[idRoom] & PLAYER_ONE_READY
-                && this.ready[idRoom] & PLAYER_TWO_READY
-                : this.ready[idRoom] & PLAYER_ONE_READY;
-        }
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        return room.mode == GameMode.MULTI_PLAYER
+            ? room.flags & PLAYER_ONE_READY
+            && room.flags & PLAYER_TWO_READY
+            : room.flags & PLAYER_ONE_READY;
     }
 
     @SubscribeMessage('findGame')
@@ -285,6 +298,8 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 config: null, // TO DO: default to set
                 lib: null,
                 libName: null, // TO DO: default to set
+                customization: null,
+                flags: 0,
                 mode: GameMode.MULTI_PLAYER
             });
             this.joinRoom(this.queue[1].socket, idRoom, this.queue[1].key);
@@ -302,10 +317,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         // When a clients leaves a room
 
-        const room : IRoomDto = this.rooms[idRoom];
-
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
+        const room : IRoomDto = this.getRoom(idRoom);
 
         // Leave the room
         client.leave(idRoom);
@@ -332,54 +344,48 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     @SubscribeMessage('destroyRoom')
     destroyRoom(client : Socket, idRoom : string)
     {
-        const room : IRoomDto = this.rooms[idRoom];
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-        else
-        {
-            // Remove the players to the mouse's pos listener map
-            let deleted : boolean = this.mousesPos.delete(room.idPlayerOne);
-            if (deleted)
-                deleted = this.mousesPos.delete(room.idPlayerTwo);
+        const room : IRoomDto = this.getRoom(idRoom);
 
-            // Remove the room from the rooms map
-            if (deleted)
-                deleted = this.rooms.delete(idRoom);
-            
-            if (deleted == false)
-                throw new Unspected("Standar lib: Map: failed to delete");
-        }
+        // Remove the players to the mouse's pos listener map
+        let deleted : boolean = this.mousesPos.delete(room.idPlayerOne);
+        if (deleted)
+            deleted = this.mousesPos.delete(room.idPlayerTwo);
+
+        // Remove the room from the rooms map
+        if (deleted)
+            deleted = this.rooms.delete(idRoom);
+        
+        if (deleted == false)
+            throw new Unspected("Standar lib: Map: failed to delete");
     }
 
     @SubscribeMessage('endGame')
     async endGame(client : Socket, idRoom : string)
     {
-        const room : IRoomDto = this.rooms[idRoom];
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-        else
-        {
-            await this.matchesServices.updateMatch(idRoom, {
-                idMatch: idRoom,
-                idPlayerOne: room.idPlayerOne,
-                idPlayerTwo: room.idPlayerTwo,
-                scorePlayerOne: room.config.playerOne.score,
-                scorePlayerTwo: room.config.playerTwo.score,
-                startTime: await this.matchesServices.getCurrentMatchesById(idRoom).startTime,
-                endTime: new Date()
-            });
-        }
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        await this.matchesServices.updateMatch(idRoom, {
+            idMatch: idRoom,
+            idPlayerOne: room.idPlayerOne,
+            idPlayerTwo: room.idPlayerTwo,
+            scorePlayerOne: room.config.playerOne.score,
+            scorePlayerTwo: room.config.playerTwo.score,
+            startTime: await this.matchesServices.getCurrentMatchesById(idRoom).startTime,
+            endTime: new Date()
+        });
+    }
+
+    @SubscribeMessage('setUpGameStyle')
+    setUpGameStyle(client : Socket, idRoom : string, libName : string)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+        room.libName = libName;
+        this.rooms[idRoom] = room;
     }
 
     @SubscribeMessage('calcGameStatus')
     calcPongStatus(client : Socket, idRoom : string, status : IDynamicDto)
-    {
-        const room : IRoomDto = this.rooms[idRoom];
-        if (room === undefined)
-            throw new RoomNotFound(idRoom);
-
-        return calcGameStatus(status, room.lib);
-    }
+    { return calcGameStatus(status, this.getRoom(idRoom).lib); }
 
     @SubscribeMessage('mouseEvent')
     updateMousePosClient(client : Socket, idPlayer : string, mousePos : IMousePosDto)
@@ -391,4 +397,58 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
 
     getMousePosClient(idPlayer : string)
     { return this.mousesPos[idPlayer]; }
+
+    @SubscribeMessage('exportCustomization')
+    exportCustomization(client : Socket, idRoom : string, idPlayer : string, customization : ICustomGame)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        if (room.idPlayerOne == idPlayer)
+        {
+            const saveProp : string = room.customization.playerTwoColor;
+            room.customization = customization;
+            room.customization.playerTwoColor = saveProp;
+            room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
+        }
+        else if (room.idPlayerTwo == idPlayer)
+        {
+            room.customization.playerTwoColor = customization.playerTwoColor;
+            room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
+        }
+        else
+            throw new Error(); // Some error 
+
+        this.rooms[idRoom] = room;
+    }
+
+    @SubscribeMessage('importCustomization')
+    importCustomization(client : Socket, idRoom : string)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        return room.flags & PLAYER_ONE_EXPORTED_CONFIG
+            && room.flags & PLAYER_TWO_EXPORTED_CONFIG
+            ? room.customization : null;
+    }
+
+    @SubscribeMessage('setUpBotLevel')
+    setUpBotLevel(client : Socket, idRoom : string, botLevel : number)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+        room.level = botLevel;
+        this.rooms[idRoom] = room;
+    }
+
+    @SubscribeMessage('getOtherPlayerId')
+    getOtherPlayerId(client : Socket, idRoom : string, playerId : string)
+    {
+        const room : IRoomDto = this.getRoom(idRoom);
+
+        if (room.idPlayerOne == playerId)
+            return (room.idPlayerTwo);
+        else if (room.idPlayerTwo == playerId)
+            return (room.idPlayerOne);
+        else
+            throw new Unspected("Unspected error in socketserver: getOtherPlayerId");
+    }
 }

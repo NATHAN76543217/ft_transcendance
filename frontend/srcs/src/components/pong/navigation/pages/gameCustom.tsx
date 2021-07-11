@@ -35,6 +35,12 @@ import {
     PLAYER_TWO_COLOR,
     BOT_LEVEL
 } from '../../components/customization'
+import {
+    LIB_VERTICAL_SINGLE,
+    LIB_VERTICAL_MULTI,
+    LIB_HORIZONTAL_SINGLE,
+    LIB_HORIZONTAL_MULTI
+} from "../../../../../../../pong/engine/lib.names"
 
 export interface IPongGame
 {
@@ -74,7 +80,9 @@ export default class GameCustom extends React.Component
             lib: { },
             libName: String(),
             mode: this.gameMode,
-        } as IRoomDto)
+            customization: { },
+            flags: 0
+        } as IRoomDto);
 
         this.updateGameConfig = this.updateGameConfig.bind(this);
         this.onSinglePlayer = this.onSinglePlayer.bind(this);
@@ -85,10 +93,8 @@ export default class GameCustom extends React.Component
 
         this.updateGameConfig();
 
-        // TO DO: Merge both player config
-        // TO DO: Send pong lib to the server
         // TO DO: Finish a game and call server's endGame
-        // TO DO: toNumber method in style for customization
+        // TO DO: Check if bot level is well connected in all the layers
     }
 
     private updateGameConfig() : void
@@ -188,7 +194,7 @@ export default class GameCustom extends React.Component
 
     public readyToPlay()
     {
-        const idRoom : string = this.data.pongFinals[this.data.index].roomId;
+        const idRoom : string = this.idRoom;
 
         if (this.isReady == false)
         {
@@ -205,10 +211,25 @@ export default class GameCustom extends React.Component
 
         if (this.socket.emit("arePlayersReady", idRoom))
         {
-            this.summitGameConfig(); // TO DO: Merge both players configs
+            this.summitGameStyle();
+            this.summitGameConfig();
+            if (this.gameMode == GameMode.MULTI_PLAYER)
+                this.data.pongFinals[this.data.index].gameStatus.playerTwo.id = this.socket.emit("getOtherPlayerId", this.idRoom, this.idRoom);
+            this.socket.emit("updateConfig", this.data.pongFinals[this.data.index].gameStatus);
             this.socket.emit("launchGame", idRoom);
             this.goToPong();
         }
+    }
+
+    public summitGameStyle()
+    {
+        // just need sames indexes as pong styles
+        const libs : Array<[string, string]> = [
+            [LIB_HORIZONTAL_SINGLE, LIB_HORIZONTAL_MULTI],
+            [LIB_VERTICAL_SINGLE, LIB_VERTICAL_MULTI]
+        ];
+
+        this.socket.emit("setUpGameStyle", libs[this.data.index][Number(this.gameMode == GameMode.MULTI_PLAYER)]);
     }
 
     public summitGameConfig()
@@ -248,13 +269,39 @@ export default class GameCustom extends React.Component
                         ; // TO DO: Color will be the one selected by the invited playerTwo
                     break ;
                 case BOT_LEVEL:
-                    //if (this.gameMode == GameMode.SINGLE_PLAYER)
-                    //  this.data.pongFinals[this.data.index] // TO DO: emit to the server the bot level
+                    if (this.gameMode == GameMode.SINGLE_PLAYER)
+                        this.socket.emit("setUpBotLevel", this.idRoom, RangeSlider.RangeSliderValue({
+                            limits: {
+                                min: 0,
+                                max: 1 // TO DO: Probally wrong limits
+                            },
+                            value: i.value
+                        }));
                     break ;
 
                 default: throw new Error(); // Unspected Exception
             }
         }
+    
+        this.socket.emit("exportCustomization", this.idRoom, this.idRoom, {
+            ballSpeed: this.data.pongFinals[this.data.index].gameStatus.ball.speed,
+            ballColor: this.data.pongFinals[this.data.index].gameStatus.ball.style.data,
+            courtColor: this.data.pongFinals[this.data.index].gameStatus.court.style.data,
+            netColor: this.data.pongFinals[this.data.index].gameStatus.net.style.data,
+            playerOneWidth: this.data.pongFinals[this.data.index].gameStatus.playerOne.width,
+            playerOneHeight: this.data.pongFinals[this.data.index].gameStatus.playerOne.height,
+            playerOneColor: this.data.pongFinals[this.data.index].gameStatus.playerOne.style.data,
+            playerTwoWidth: this.data.pongFinals[this.data.index].gameStatus.playerTwo.width,
+            playerTwoHeight: this.data.pongFinals[this.data.index].gameStatus.playerTwo.height,
+            playerTwoColor: String()
+        });
+
+        let syncCustomization;
+
+        // Stop until both sides has sent their customization
+        while ((syncCustomization = this.socket.emit("importCustomization", this.idRoom)) == null)
+            ;
+        this.data.pongFinals[this.data.index].gameStatus.playerTwo.style.data = syncCustomization.playerTwoColor;
     }
 
     public onQuit()

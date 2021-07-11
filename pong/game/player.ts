@@ -49,7 +49,7 @@ export declare class IPlayer implements Partial<IPaddle>
 export class Player extends Paddle implements IPlayer
 {
     public readonly score : Score
-    public readonly id : string
+    public id : string
 
     constructor(pos : IVector2D, width : number, height : number, style : AStyle,
         limitLeft : IVector2D, limitRight : IVector2D, score : Score, id : string);
