@@ -1,6 +1,9 @@
 import Cookies from "js-cookie";
 import React from "react";
-import { Route, RouteComponentProps } from "react-router";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useContext } from "react";
+import { RouteComponentProps } from "react-router";
 import { io, Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
 
@@ -31,15 +34,15 @@ const getSocket = () => {
 };
 
 type ChatPageContextProps = {
-  chats: Channel[];
+  channels: Map<number, Channel>;
   currentChatId?: number;
   socket?: Socket;
 };
 
 export const ChatPageContext = React.createContext<ChatPageContextProps>({
-  chats: [], // TODO: Use local storage
+  channels: new Map(), // TODO: Use local storage
   currentChatId: undefined, // TODO: Replace with currentChat id
-  socket: getSocket(), // TODO: Disconnect on logout, connect on login
+  socket: undefined, // TODO: Disconnect on logout, connect on login
 });
 
 type ChatPageParams = {
@@ -50,22 +53,29 @@ export default function ChatPage({
   match,
 }: RouteComponentProps<ChatPageParams>) {
   const { user } = useContext(AppContext);
-  const chats = user?.channels.map((c) => c.channel) || [];
+
+  const [channels, setChannels] = useState(
+    new Map(user?.channels.map((c) => [c.channel_id, c.channel]))
+  );
 
   const chatId = Number(match.params.id);
 
-  // TODO: Ensure that currentChat exists before using its value
-  const currentChat = isNaN(chatId)
-    ? undefined
-    : chats[Number(match.params.id)];
+  useEffect(() => {
+    setChannels(new Map(user?.channels.map((c) => [c.channel_id, c.channel])));
+  }, [user?.channels]);
 
-  console.log("Current chat " + match.params.id);
+  // TODO: Ensure that currentChat exists before using its value
+  const currentChat: Channel | undefined =
+    isNaN(chatId) || !channels.has(chatId) ? undefined : channels.get(chatId);
+
+  console.log(`Current chat id: ${match.params.id}`);
 
   return (
     <ChatPageContext.Provider
       value={{
-        chats: chats,
+        channels: channels,
         currentChatId: currentChat?.id,
+        socket: getSocket(),
       }}
     >
       <div className="flex h-full">

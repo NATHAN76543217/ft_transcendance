@@ -39,9 +39,10 @@ function changeSectionDisplayStatus(
 function displayPendingRequests(
   displaySection: any,
   relation: IUser,
-  myId: string
+  myId: number
 ) {
-  let inf = Number(myId) < Number(relation.id);
+  // TODO: This will be relation.user_id
+  let inf = myId < relation.id;
   if (
     ((inf &&
       relation.relationshipType & UserRelationshipType.pending_second_first) || // a ajuster

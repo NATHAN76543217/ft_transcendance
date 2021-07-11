@@ -3,14 +3,14 @@ import { UserRole } from "../../models/user/IUser";
 import CustomButton from "../utilities/CustomButton";
 
 type UserElementProps = {
-  id: string;
+  id: number;
   name: string;
   role: UserRole;
   myRole: UserRole;
-  banUser: (id: string) => void;
-  unbanUser: (id: string) => void;
-  setAdmin: (id: string) => void;
-  unsetAdmin: (id: string) => void;
+  banUser: (id: number) => void;
+  unbanUser: (id: number) => void;
+  setAdmin: (id: number) => void;
+  unsetAdmin: (id: number) => void;
   isChannelUserElement?: boolean | false;
 };
 

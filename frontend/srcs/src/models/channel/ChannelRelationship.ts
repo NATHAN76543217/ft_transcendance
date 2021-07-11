@@ -13,10 +13,9 @@ export enum ChannelRelationshipType {
 }
 
 export type ChannelRelationship = {
-  id: number;
+  channel_id: number;
+  user_id: number;
   type: ChannelRelationshipType;
-  channel_id: string;
-  user_id: string;
   user_name: string;
   channel: Channel;
   user: IUser;

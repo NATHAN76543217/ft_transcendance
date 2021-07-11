@@ -11,7 +11,7 @@ import {
 } from "../../models/channel/ChannelRelationship";
 
 interface ChannelProps {
-  myId: string;
+  myId: number;
 }
 
 interface ChannelStates {
@@ -43,12 +43,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     list.map(async (channel, index) => {
       try {
         const data = await axios.get(
-          `/api/channels/relationships/${channel.id}`
-        ); // A CHANGER a remettre quand ca marchera
+          `/api/channels/${channel.channel_id}/relationships/${channel.user_id}`
+        ); // TODO: A CHANGER a remettre quand ca marchera
 
         let indexData = data.data.findIndex(
-          (channelRelation: any) =>
-            Number(channelRelation.user_id) === Number(this.props.myId)
+          (channelRelation: any) => channelRelation.user_id === this.props.myId
         );
         let a = this.state.list.slice();
 
@@ -77,19 +76,18 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     this.setState({ channelName: values.channelName });
   };
 
-  updateRelationshipState(id: string, newType: ChannelRelationshipType) {
+  updateRelationshipState(id: number, newType: ChannelRelationshipType) {
     let a = this.state.list.slice();
     let index = a.findIndex((channel) => channel.channel_id === id);
     a[index].type = newType;
     this.setState({ list: a });
   }
 
-  async joinChannel(id: string) {
+  async joinChannel(id: number) {
     try {
       const data = await axios.get("/api/channels/relationships/" + id);
       let index = data.data.findIndex(
-        (channelRelation: any) =>
-          Number(channelRelation.user_id) === Number(this.props.myId)
+        (channelRelation: any) => channelRelation.user_id === this.props.myId
       );
       if (index === -1) {
         axios.post("/api/channels/join", {
@@ -103,12 +101,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     } catch (error) {}
   }
 
-  async leaveChannel(id: string) {
+  async leaveChannel(id: number) {
     try {
       const data = await axios.get("/api/channels/relationships/" + id);
       let index = data.data.findIndex(
-        (channelRelation: any) =>
-          Number(channelRelation.user_id) === Number(this.props.myId)
+        (channelRelation: any) => channelRelation.user_id === this.props.myId
       );
       if (
         index !== -1 &&
@@ -120,12 +117,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     } catch (error) {}
   }
 
-  async banUserFromChannel(channel_id: string, user_id: string) {
+  async banUserFromChannel(channel_id: number, user_id: number) {
     try {
       const data = await axios.get("/api/channels/relationships/" + channel_id);
       let index = data.data.findIndex(
-        (channelRelation: any) =>
-          Number(channelRelation.user_id) === Number(user_id)
+        (channelRelation: any) => channelRelation.user_id === user_id
       );
       if (index !== -1) {
         await axios.patch("/api/channels/update" + channel_id, {
@@ -136,12 +132,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     } catch (error) {}
   }
 
-  async unbanUserFromChannel(channel_id: string, user_id: string) {
+  async unbanUserFromChannel(channel_id: number, user_id: number) {
     try {
       const data = await axios.get("/api/channels/relationships/" + channel_id);
       let index = data.data.findIndex(
-        (channelRelation: any) =>
-          Number(channelRelation.user_id) === Number(user_id)
+        (channelRelation: any) => channelRelation.user_id === user_id
       );
       if (index !== -1) {
         await axios.patch("/api/channels/update" + channel_id, {
@@ -155,12 +150,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     } catch (error) {}
   }
 
-  async setAdminUserFromChannel(channel_id: string, user_id: string) {
+  async setAdminUserFromChannel(channel_id: number, user_id: number) {
     try {
       const data = await axios.get("/api/channels/relationships/" + channel_id);
       let index = data.data.findIndex(
-        (channelRelation: any) =>
-          Number(channelRelation.user_id) === Number(user_id)
+        (channelRelation: any) => channelRelation.user_id === user_id
       );
       if (index !== -1) {
         await axios.patch("/api/channels/update" + channel_id, {
@@ -171,12 +165,11 @@ class ChannelSearch extends React.Component<ChannelProps, ChannelStates> {
     } catch (error) {}
   }
 
-  async unsetAdminUserFromChannel(channel_id: string, user_id: string) {
+  async unsetAdminUserFromChannel(channel_id: number, user_id: number) {
     try {
       const data = await axios.get("/api/channels/relationships/" + channel_id);
       let index = data.data.findIndex(
-        (channelRelation: any) =>
-          Number(channelRelation.user_id) === Number(user_id)
+        (channelRelation: any) => channelRelation.user_id === user_id
       );
       if (index !== -1) {
         await axios.patch("/api/channels/update" + channel_id, {
