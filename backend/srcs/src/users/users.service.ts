@@ -18,7 +18,7 @@ export default class UsersService {
   async getAllUsers(name: string) {
     if (name === undefined) {
       return await this.usersRepository.find({
-        relations: ['channels'],
+        relations: ['channels', 'channels.channel'],
         order: { name: 'ASC' },
       });
     }
@@ -27,12 +27,20 @@ export default class UsersService {
     });
   }
 
-  async getUserById(id: number) {
-    const user = await this.usersRepository.findOne(id);
+  async getUserById(id: number, withChannels = false) {
+    const relations: string[] = withChannels
+      ? ['channels', 'channels.channel'] // TODO: Add users to relations (using querybuilder)
+      : [];
+
+    // TODO: Filter banned relations
+    const user = await this.usersRepository.findOne(id, {
+      relations,
+    });
     if (user) {
       Logger.debug(`User with id ${id} found!`);
       return user;
     }
+
     Logger.debug(`User with id ${id} not found!`);
     throw new UserNotFound(id);
   }
@@ -45,7 +53,7 @@ export default class UsersService {
       where: {
         name: name,
       },
-      relations: ['channels'],
+      relations: ['channels', 'channels.channel'],
     });
   }
 
@@ -79,7 +87,7 @@ export default class UsersService {
   async updateUser(id: number, user: UpdateUserDto) {
     await this.usersRepository.update(id, user);
     const updatedUser = this.usersRepository.findOne(id, {
-      relations: ['channels'],
+      relations: ['channels', 'channels.channel'],
     });
     if (updatedUser) {
       return updatedUser;
