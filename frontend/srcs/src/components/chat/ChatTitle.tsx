@@ -1,4 +1,4 @@
-import Channel from "../interface/IChannelInterface";
+import { Channel } from "../../models/channel/Channel";
 
 type ChatTitleProps = {
   chat: Channel;

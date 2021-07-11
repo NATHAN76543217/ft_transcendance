@@ -1,7 +1,7 @@
 import { TextInput } from "../utilities/TextInput";
 
 import { useForm } from "react-hook-form";
-import IUserSearchFormValues from "../interface/IUserSearchFormValues";
+import IUserSearchFormValues from "../../models/user/SearchUser.dto";
 
 type UserSearchProps = {
   onSubmit: (values: IUserSearchFormValues) => void; // define function type

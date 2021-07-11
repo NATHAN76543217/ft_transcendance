@@ -11,19 +11,18 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import IUserInterface from "./components/interface/IUserInterface";
+import { IUser, UserRole } from "./models/user/IUser";
 import axios from "axios";
-import IUserRelationship from "./components/interface/IUserRelationshipInterface";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 
-import { AppStates } from "./AppStates";
+import { AppState } from "./AppState";
 import { IAppContext } from "./IAppContext";
 import AppContext from "./AppContext";
-import IUser from "./components/interface/IUserInterface";
-import { UserRoleTypes } from "./components/users/userRoleTypes";
+import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
+import UserRelationship from "./models/user/UserRelationship";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -34,7 +33,7 @@ interface TokenPayload {
   userId: number;
 }
 
-class App extends React.Component<AppProps, AppStates> {
+class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
     this.state = {
@@ -44,12 +43,11 @@ class App extends React.Component<AppProps, AppStates> {
       //logged: false,
     };
     this.updateAllRelationships = this.updateAllRelationships.bind(this);
-    // TODO: What does this line do?
     //this.setUser = this.setUser.bind(this);
   }
 
   // We do not need to bind when using the equal form
-  setUser = (user?: IUser) => {
+  setUser = (user?: AuthenticatedUser) => {
     // if the user is undefined, he is not logged
     const logged = user !== undefined;
 
@@ -67,7 +65,7 @@ class App extends React.Component<AppProps, AppStates> {
     const userid = jwt_decode<TokenPayload>(jwt).userId;
 
     axios.get(`/api/users/${userid}`, { withCredentials: true }).then((res) => {
-      const user: IUser = res.data;
+      const user: AuthenticatedUser = res.data;
 
       console.log("user = ", user);
       if (this.state.user === undefined) {
@@ -95,13 +93,13 @@ class App extends React.Component<AppProps, AppStates> {
 
   async sortRelationshipsList() {
     let a = this.state.relationshipsList.slice();
-    a.sort((user1: IUserInterface, user2: IUserInterface) =>
+    a.sort((user1: IUser, user2: IUser) =>
       user1.name.localeCompare(user2.name)
     );
     this.setState({ relationshipsList: a });
   }
 
-  componentDidUpdate(prevProps: AppProps, prevState: AppStates) {
+  componentDidUpdate(prevProps: AppProps, prevState: AppState) {
     if (
       prevState.relationshipsList.toString() !==
       this.state.relationshipsList.toString()
@@ -116,11 +114,11 @@ class App extends React.Component<AppProps, AppStates> {
       const dataRel = await axios.get(
         "/api/users/relationships/" + this.state.user?.id
       );
-      let a: IUserInterface[] = [];
+      let a: IUser[] = [];
       if (!dataRel.data.length) {
         this.setState({ relationshipsList: a });
       } else {
-        await dataRel.data.map(async (relation: IUserRelationship) => {
+        await dataRel.data.map(async (relation: UserRelationship) => {
           let inf = Number(relation.user1_id) === Number(this.state.user?.id);
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
@@ -202,7 +200,7 @@ class App extends React.Component<AppProps, AppStates> {
                           <Register />
                         </OnlyPublic>
                         {this.displayAdminRoute(
-                          this.state.user?.role === UserRoleTypes.admin
+                          this.state.user?.role === UserRole.admin
                         )}
                       </Switch>
                     </main>

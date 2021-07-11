@@ -8,7 +8,7 @@ import urljoin from "url-join";
 import { useContext } from "react";
 import AppContext from "../../AppContext";
 import axios from "axios";
-import IUser from "../../components/interface/IUserInterface";
+import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
 interface ILoginFormValues {
   username: string;
   password: string;
@@ -33,7 +33,7 @@ export default function Login({ match }: LoginPageProps) {
 
   const onSubmit = async (values: ILoginFormValues) => {
     try {
-      const { data } = await axios.post<IUser>(
+      const { data } = await axios.post<AuthenticatedUser>(
         "/api/authentication/login",
         { name: values.username, password: values.password },
         { withCredentials: true }

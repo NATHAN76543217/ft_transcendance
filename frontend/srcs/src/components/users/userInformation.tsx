@@ -1,8 +1,8 @@
 import CustomButton from "../utilities/CustomButton";
 import { NavLink } from "react-router-dom";
-import { UserRelationshipTypes } from "./userRelationshipTypes";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 import ChangeNameUserForm from "../Forms/userChangeNameForm";
-import IUserChangeNameFormValues from "../interface/IUserChangeNameFormValues";
+import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import React from "react";
 import AppContext from "../../AppContext";
 
@@ -15,7 +15,7 @@ type UserProps = {
   imgPath: string;
   twoFactorAuth?: boolean | false;
   isMe?: boolean | false;
-  relationshipTypes: UserRelationshipTypes;
+  relationshipTypes: UserRelationshipType;
   idInf: boolean;
   isInSearch?: boolean | false;
   showWrongUsernameMessage?: boolean | false;
@@ -115,14 +115,14 @@ function displayFriendButton(user: UserProps, updateAllRelationships: any) {
   };
 
   let isPending = user.idInf
-    ? user.relationshipTypes & UserRelationshipTypes.pending_first_second
-    : user.relationshipTypes & UserRelationshipTypes.pending_second_first;
+    ? user.relationshipTypes & UserRelationshipType.pending_first_second
+    : user.relationshipTypes & UserRelationshipType.pending_second_first;
   let isFriend =
-    user.relationshipTypes & UserRelationshipTypes.pending_first_second &&
-    user.relationshipTypes & UserRelationshipTypes.pending_second_first;
+    user.relationshipTypes & UserRelationshipType.pending_first_second &&
+    user.relationshipTypes & UserRelationshipType.pending_second_first;
   let isAccept = user.idInf
-    ? user.relationshipTypes & UserRelationshipTypes.pending_second_first
-    : user.relationshipTypes & UserRelationshipTypes.pending_first_second;
+    ? user.relationshipTypes & UserRelationshipType.pending_second_first
+    : user.relationshipTypes & UserRelationshipType.pending_first_second;
   return (
     <div className="w-48 my-4 text-center">
       {!user.isMe ? (
@@ -184,8 +184,8 @@ function displayBlockButton(user: UserProps, updateAllRelationships: any) {
   };
 
   let isBlock = user.idInf
-    ? user.relationshipTypes & UserRelationshipTypes.block_first_second
-    : user.relationshipTypes & UserRelationshipTypes.block_second_first;
+    ? user.relationshipTypes & UserRelationshipType.block_first_second
+    : user.relationshipTypes & UserRelationshipType.block_second_first;
 
   return (
     <div className="w-48 my-4 text-center">

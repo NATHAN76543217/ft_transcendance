@@ -1,12 +1,12 @@
 import React from "react";
-import IUser from "./components/interface/IUserInterface";
+import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
 import { IAppContext } from "./IAppContext";
 
 const AppContext = React.createContext<IAppContext>({
   user: undefined,
   relationshipsList: [],
   updateAllRelationships: () => {},
-  setUser: (user?: IUser) => {},
+  setUser: (user?: AuthenticatedUser) => {},
 });
 
 export const AppProvider = AppContext.Provider;
