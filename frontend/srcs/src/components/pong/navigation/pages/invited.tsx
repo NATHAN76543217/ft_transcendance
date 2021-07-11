@@ -5,6 +5,10 @@ import {
     Socket,
     SocketIoConfig
 } from "ngx-socket-io"
+import {
+    RangeSlider,
+    IRangeSliderDto
+} from "../../../../../../../pong/settings/dto/rangeslider"
 import Text from "../../components/text"
 import ButtonPong from "../../components/button";
 
@@ -16,11 +20,13 @@ export default class InvitedToGame extends React.Component
     } as SocketIoConfig);
 
     public color : ContinousSlider = new ContinousSlider("Color", 0, this.props);
+    public isReady : boolean = false;
 
     constructor(
         public roomId : string,
         public idPlayer : string,
         public gameInfo : string,
+        public goToPong : Function,
         props : Readonly<{}>
     )
     {
@@ -32,22 +38,69 @@ export default class InvitedToGame extends React.Component
         this.onQuit = this.onQuit.bind(this);
 
         // TO DO: On quit like customGame
-        // TO DO: ReadyToPlay like customGame
         // TO DO: Connect to the index (indexPong.tsx)
-        // TO DO: Merge configs
+        // TO DO: syncCustomisation TO DOs
     }
 
     public readyToPlay()
     {
-        // Shoud send to the server a "Readdy to play" message
-        // If both players sent it in a specific time duration
-        // There is a timeout, the game starts and this.summitGameConfig is called
+        const idRoom : string = this.roomId;
 
+        if (this.isReady == false)
+        {
+            this.socket.emit("playerIsReady", idRoom, this.idPlayer);
+            this.isReady = true;
+        }
+        else
+        {
+            this.socket.emit("playerIsNotReady", idRoom, this.idPlayer);
+            this.isReady = false;
+        }
 
-        // at the end: (if both player clicked in the button and waited the time ...)
-        // this.summitGameConfig(); -> send custom data to host1
-        // TO DO: Launch the game in react
-        // Launch game for invited -> should just load the game/id canvas
+        if (this.socket.emit("arePlayersReady", idRoom))
+        {
+            this.syncCustomisation();
+            this.socket.emit("launchGame", idRoom);
+            this.goToPong();
+        }
+    }
+
+    public syncCustomisation()
+    {
+        this.socket.emit("exportCustomization", this.roomId, this.idPlayer, {
+            ballSpeed: Number(),
+            ballColor: String(),
+            courtColor: String(),
+            netColor: String(),
+            playerOneWidth: Number(),
+            playerOneHeight: Number(),
+            playerOneColor: String(),
+            playerTwoWidth: Number(),
+            playerTwoHeight: Number(),
+            playerTwoColor: RangeSlider.RangeSliderValue({
+                limits: {
+                    min: 0x00000000,
+                    max: 0x00FFFFFF
+                },
+                value: this.color.value
+            }),
+        });
+
+        // TO DO: Use libname in IRoomDto to know the needed pong
+        // TO DO: Need a config to edit and a pong engine to launch
+        // TO DO: [COMPLEXITY] The pong engine need to change if playerOne change it (use the server to achieve this)
+        //      That means change info too.
+
+        let syncCustomization;
+
+        // Stop until both sides has sent their customization
+        while ((syncCustomization = this.socket.emit("importCustomization", this.roomId)) == null)
+            ;
+
+        // TO DO: Syncronize the config of the pong engine here
+        // TO DO: Add to the engine (in the front) the playerOne id
+
+        // TO DO: Add in the client the other's player id
     }
 
     public onQuit()

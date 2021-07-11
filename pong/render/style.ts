@@ -7,7 +7,7 @@ export abstract class AStyle
 	public abstract apply(ctx : any) : void;
 
 	public toNumber()
-	{ return 0xFFF; /* TO DO */ }
+	{ return parseInt(this.data, 16); }
 
 	public static NumbertoHexStr(numeric : number) : string
 	{ return "#"+ ('000000' + ((numeric)>>>0).toString(16)).slice(-6); }
