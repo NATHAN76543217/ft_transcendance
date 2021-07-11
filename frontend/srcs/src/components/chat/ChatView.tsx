@@ -13,7 +13,7 @@ type ChatViewProps = {
 
 export function ChatView({ className }: ChatViewProps) {
   const chatContext = useContext(ChatPageContext);
-  const currentChatId = chatContext.currentChat?.id;
+  const currentChatId = chatContext.currentChatId;
 
   return (
     <div className={className}>
@@ -23,13 +23,13 @@ export function ChatView({ className }: ChatViewProps) {
           tooltip="Invite"
           icon="fa-user-plus"
           href={`/chat/${currentChatId}/invite`}
-        ></TooltipIconButton>
+        />
         <TooltipIconButton
           tooltip="Settings"
           icon="fa-cog"
           href={`/chat/${currentChatId}/settings`}
-        ></TooltipIconButton>
-        <ChatMessageList></ChatMessageList>
+        />
+        <ChatMessageList />
       </ChatHeader>
       <ChatMessageList />
     </div>

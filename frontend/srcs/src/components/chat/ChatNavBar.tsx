@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { ChatPageContext } from "../../pages/chat/chat";
-import Channel from "../interface/IChannelInterface";
+import { Channel } from "../../models/channel/Channel";
 import { ChatTitle } from "./ChatTitle";
 
 type IconButtonProps = {
@@ -102,7 +102,7 @@ export function ChatNavBar() {
       </div>
       <ul>
         {chatContext.chats.map((c) => (
-          <li key={c.name}>{ChatBarItem({ chat: c })}</li>
+          <li key={c.id}>{ChatBarItem({ chat: c })}</li>
         ))}
       </ul>
     </nav>

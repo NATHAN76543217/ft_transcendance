@@ -3,16 +3,16 @@ import React from "react";
 // import Button from '../../components/utilities/Button';
 import UserInformation from "../../components/users/userInformation";
 import UserSearchForm from "../../components/Forms/userSearchForm";
-import IUserSearchFormValues from "../../components/interface/IUserSearchFormValues";
+import IUserSearchFormValues from "../../models/user/SearchUser.dto";
 import axios from "axios";
-import IUserInterface from "../../components/interface/IUserInterface";
-import { UserRelationshipTypes } from "../../components/users/userRelationshipTypes";
+import { IUser } from "../../models/user/IUser";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 import AppContext from "../../AppContext";
 
 interface UserProps {}
 
 interface UserStates {
-  list: IUserInterface[];
+  list: IUser[];
   username: string;
 }
 
@@ -49,7 +49,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     // }
   }
 
-  async setFriendAndBlockBoolean(list: IUserInterface[]) {
+  async setFriendAndBlockBoolean(list: IUser[]) {
     const contextValue = this.context;
     list.map(async (user, index) => {
       try {
@@ -63,7 +63,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         }
       } catch (error) {
         let a = this.state.list.slice();
-        a[index].relationshipType = UserRelationshipTypes.null;
+        a[index].relationshipType = UserRelationshipType.null;
         this.setState({ list: a });
       }
     });
@@ -73,7 +73,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     try {
       const data = await axios.get("/api/users?name=" + values.username);
       let a = data.data.slice();
-      a.sort((user1: IUserInterface, user2: IUserInterface) =>
+      a.sort((user1: IUser, user2: IUser) =>
         user1.name.localeCompare(user2.name)
       );
       this.setFriendAndBlockBoolean(a);
@@ -82,7 +82,7 @@ class UserSearch extends React.Component<UserProps, UserStates> {
     this.setState({ username: values.username });
   };
 
-  updateRelationshipState(id: string, newType: UserRelationshipTypes) {
+  updateRelationshipState(id: string, newType: UserRelationshipType) {
     let a = this.state.list.slice();
     let index = a.findIndex((userId) => userId.id === id);
     a[index].relationshipType = newType;
@@ -99,17 +99,17 @@ class UserSearch extends React.Component<UserProps, UserStates> {
       if (
         !(
           inf &&
-          currentRel.data.type & UserRelationshipTypes.pending_first_second
+          currentRel.data.type & UserRelationshipType.pending_first_second
         ) &&
         !(
           !inf &&
-          currentRel.data.type & UserRelationshipTypes.pending_second_first
+          currentRel.data.type & UserRelationshipType.pending_second_first
         )
       ) {
-        let newType: UserRelationshipTypes = currentRel.data.type;
+        let newType: UserRelationshipType = currentRel.data.type;
         newType |= inf
-          ? UserRelationshipTypes.pending_first_second
-          : UserRelationshipTypes.pending_second_first;
+          ? UserRelationshipType.pending_first_second
+          : UserRelationshipType.pending_second_first;
         try {
           await axios.patch("/api/users/relationships/" + currentRel.data.id, {
             type: newType,
@@ -118,9 +118,9 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         } catch (error) {}
       }
     } catch (error) {
-      let newType: UserRelationshipTypes = inf
-        ? UserRelationshipTypes.pending_first_second
-        : UserRelationshipTypes.pending_second_first;
+      let newType: UserRelationshipType = inf
+        ? UserRelationshipType.pending_first_second
+        : UserRelationshipType.pending_second_first;
       try {
         await axios.post("/api/users/relationships", {
           user1_id: id + "",
@@ -140,11 +140,11 @@ class UserSearch extends React.Component<UserProps, UserStates> {
       const currentRel = await axios.get(
         "/api/users/relationships/" + id + "/" + contextValue.myId
       );
-      if (currentRel.data.type & UserRelationshipTypes.friends) {
-        let newType: UserRelationshipTypes =
-          currentRel.data.type & ~UserRelationshipTypes.friends;
+      if (currentRel.data.type & UserRelationshipType.friends) {
+        let newType: UserRelationshipType =
+          currentRel.data.type & ~UserRelationshipType.friends;
         try {
-          if (newType === UserRelationshipTypes.null) {
+          if (newType === UserRelationshipType.null) {
             await axios.delete(
               "/api/users/relationships/" + currentRel.data.id
             );
@@ -170,17 +170,16 @@ class UserSearch extends React.Component<UserProps, UserStates> {
       );
       if (
         !(
-          inf && currentRel.data.type & UserRelationshipTypes.block_first_second
+          inf && currentRel.data.type & UserRelationshipType.block_first_second
         ) &&
         !(
-          !inf &&
-          currentRel.data.type & UserRelationshipTypes.block_second_first
+          !inf && currentRel.data.type & UserRelationshipType.block_second_first
         )
       ) {
-        let newType: UserRelationshipTypes = currentRel.data.type;
+        let newType: UserRelationshipType = currentRel.data.type;
         newType |= inf
-          ? UserRelationshipTypes.block_first_second
-          : UserRelationshipTypes.block_second_first;
+          ? UserRelationshipType.block_first_second
+          : UserRelationshipType.block_second_first;
         try {
           await axios.patch("/api/users/relationships/" + currentRel.data.id, {
             type: newType,
@@ -189,9 +188,9 @@ class UserSearch extends React.Component<UserProps, UserStates> {
         } catch (error) {}
       }
     } catch (error) {
-      let newType: UserRelationshipTypes = inf
-        ? UserRelationshipTypes.block_first_second
-        : UserRelationshipTypes.block_second_first;
+      let newType: UserRelationshipType = inf
+        ? UserRelationshipType.block_first_second
+        : UserRelationshipType.block_second_first;
       try {
         await axios.post("/api/users/relationships", {
           user1_id: id + "",
@@ -213,19 +212,19 @@ class UserSearch extends React.Component<UserProps, UserStates> {
       if (
         !(
           inf &&
-          !(currentRel.data.type & UserRelationshipTypes.block_first_second)
+          !(currentRel.data.type & UserRelationshipType.block_first_second)
         ) &&
         !(
           !inf &&
-          !(currentRel.data.type & UserRelationshipTypes.block_second_first)
+          !(currentRel.data.type & UserRelationshipType.block_second_first)
         )
       ) {
-        let newType: UserRelationshipTypes = currentRel.data.type;
+        let newType: UserRelationshipType = currentRel.data.type;
         newType &= inf
-          ? ~UserRelationshipTypes.block_first_second
-          : ~UserRelationshipTypes.block_second_first;
+          ? ~UserRelationshipType.block_first_second
+          : ~UserRelationshipType.block_second_first;
         try {
-          if (newType === UserRelationshipTypes.null) {
+          if (newType === UserRelationshipType.null) {
             await axios.delete(
               "/api/users/relationships/" + currentRel.data.id
             );

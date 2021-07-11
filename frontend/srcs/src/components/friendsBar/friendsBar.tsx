@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import AppContext from "../../AppContext";
-import IUserInterface from "../interface/IUserInterface";
-import { UserRelationshipTypes } from "../users/userRelationshipTypes";
+import { IUser } from "../../models/user/IUser";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 import FriendItem from "./friendsItem";
 
 function changeSectionDisplayStatus(
@@ -38,16 +38,16 @@ function changeSectionDisplayStatus(
 
 function displayPendingRequests(
   displaySection: any,
-  relation: IUserInterface,
+  relation: IUser,
   myId: string
 ) {
   let inf = Number(myId) < Number(relation.id);
   if (
     ((inf &&
-      relation.relationshipType & UserRelationshipTypes.pending_second_first) || // a ajuster
+      relation.relationshipType & UserRelationshipType.pending_second_first) || // a ajuster
       (!inf &&
         relation.relationshipType &
-          UserRelationshipTypes.pending_first_second)) &&
+          UserRelationshipType.pending_first_second)) &&
     displaySection.offlineFriends
   ) {
     return (
@@ -62,10 +62,10 @@ function displayPendingRequests(
   }
 }
 
-function displayInGameFriends(displaySection: any, relation: IUserInterface) {
+function displayInGameFriends(displaySection: any, relation: IUser) {
   if (
-    relation.relationshipType & UserRelationshipTypes.pending_first_second && // a ajuster
-    relation.relationshipType & UserRelationshipTypes.pending_second_first &&
+    relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
+    relation.relationshipType & UserRelationshipType.pending_second_first &&
     relation.status === "In game" &&
     displaySection.inGameFriends
   ) {
@@ -81,7 +81,7 @@ function displayInGameFriends(displaySection: any, relation: IUserInterface) {
   }
 }
 
-// function displayOnlineFriends(displaySection: any, relation: IUserInterface) {
+// function displayOnlineFriends(displaySection: any, relation: IUser) {
 // 	if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
 // 		(relation.relationshipType & UserRelationshipTypes.pending_second_first) &&
 // 		(relation.status === "Connected") &&
@@ -93,10 +93,10 @@ function displayInGameFriends(displaySection: any, relation: IUserInterface) {
 // 	else { return (<div></div>) }
 // }
 
-function displayOnlineFriends(displaySection: any, relation: IUserInterface) {
+function displayOnlineFriends(displaySection: any, relation: IUser) {
   // FAKE - For Testing
   if (
-    relation.relationshipType & UserRelationshipTypes.pending_first_second && // a ajuster
+    relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
     relation.status === "Connected" &&
     displaySection.onlineFriends
   ) {
@@ -112,10 +112,10 @@ function displayOnlineFriends(displaySection: any, relation: IUserInterface) {
   }
 }
 
-function displayofflineFriends(displaySection: any, relation: IUserInterface) {
+function displayofflineFriends(displaySection: any, relation: IUser) {
   if (
-    relation.relationshipType & UserRelationshipTypes.pending_first_second && // a ajuster
-    relation.relationshipType & UserRelationshipTypes.pending_second_first &&
+    relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
+    relation.relationshipType & UserRelationshipType.pending_second_first &&
     relation.status === "Offline" &&
     displaySection.offlineFriends
   ) {

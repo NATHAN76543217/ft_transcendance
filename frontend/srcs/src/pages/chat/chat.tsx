@@ -7,7 +7,7 @@ import AppContext from "../../AppContext";
 
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
-import Channel from "../../components/interface/IChannelInterface";
+import { Channel } from "../../models/channel/Channel";
 //import ChannelSearch from "./channelSearch";
 
 const getSocket = () => {
@@ -30,14 +30,14 @@ const getSocket = () => {
 
 type ChatPageContextProps = {
   chats: Channel[];
-  currentChat?: Channel;
+  currentChatId?: number;
   socket?: Socket;
 };
 
 export const ChatPageContext = React.createContext<ChatPageContextProps>({
-  chats: [],
-  currentChat: undefined,
-  socket: getSocket(),
+  chats: [], // TODO: Use local storage
+  currentChatId: undefined, // TODO: Replace with currentChat id
+  socket: getSocket(), // TODO: Disconnect on logout, connect on login
 });
 
 type ChatPageParams = {
@@ -48,10 +48,11 @@ export default function ChatPage({
   match,
 }: RouteComponentProps<ChatPageParams>) {
   const { user } = useContext(AppContext);
-  const chats = user?.channels || [];
+  const chats = user?.channels.map((c) => c.channel) || [];
 
   const chatId = Number(match.params.id);
 
+  // TODO: Ensure that currentChat exists before using its value
   const currentChat = isNaN(chatId)
     ? undefined
     : chats[Number(match.params.id)];
@@ -62,7 +63,7 @@ export default function ChatPage({
     <ChatPageContext.Provider
       value={{
         chats: chats,
-        currentChat: currentChat,
+        currentChatId: currentChat?.id,
       }}
     >
       <div className="flex h-full">
