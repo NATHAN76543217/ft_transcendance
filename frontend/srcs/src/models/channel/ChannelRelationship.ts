@@ -1,3 +1,4 @@
+import { IUser } from "../user/IUser";
 import { Channel } from "./Channel";
 
 export enum ChannelRelationshipType {
@@ -18,4 +19,5 @@ export type ChannelRelationship = {
   user_id: string;
   user_name: string;
   channel: Channel;
+  user: IUser;
 };
