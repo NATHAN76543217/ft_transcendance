@@ -1,10 +1,4 @@
-import {
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  Unique,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { UserRoleTypes } from './utils/userRoleTypes';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 
@@ -17,7 +11,7 @@ class User {
   @Column({ unique: true })
   public name: string;
 
-  @Column({ nullable: true, default: '' })
+  @Column({ nullable: true, default: '', select: false })
   // @Exclude()
   public password: string;
 
