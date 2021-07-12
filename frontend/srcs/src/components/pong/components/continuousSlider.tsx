@@ -8,49 +8,46 @@ import {
 } from '@material-ui/core/styles';
 // https://material-ui.com/es/components/slider/
 
-export default class ContinousSlider extends React.Component
+type IContiniousSlyderProps = {
+    name : string;
+    defaultValue: number;
+    disabled? : true;
+}
+
+type IContiniousSlyderState = {
+
+}
+
+// TO DO: Correct this all over the code ...
+
+export default function ContinousSlider({ name , defaultValue, disabled } : IContiniousSlyderProps)
 {
-    // TO DO: Perform this using tailwind
-    public classes = makeStyles({
+    const classes = makeStyles({
         root: {
             width: 200,
         },
     });
-    private wrappedValue : number;
-    private setValue : React.Dispatch<React.SetStateAction<number>>;
 
-    constructor(
-        public name : string,
-        defaultValue : number,
-        props : Readonly<{}>
-    )
-    {
-        super(props);
+    let value : number;
+    let setValue : React.Dispatch<React.SetStateAction<number>>;
 
-        this.handleChange = this.handleChange.bind(this);
+    [value, setValue] = React.useState<number>(defaultValue);
 
-        [this.wrappedValue, this.setValue] = React.useState<number>(defaultValue);
-    }
+    const handleChange : Function = (event: any, newValue: number | number[]) => {
+        setValue(newValue as number)
+    };
 
-    get value() { return this.wrappedValue; }
+    return (
+        <div className={classes.root}>
 
-    private handleChange(event: any, newValue: number | number[])
-    { this.setValue(newValue as number);}
+        {/* Element slidered name */}
+        <Typography id="continuous-slider" gutterBottom>
+            {name}
+        </Typography>
 
-    public render()
-    {
-        return (
-            <div className={this.classes.root}>
+        {/* Slider that changes the value of the propertie */}
+        <Slider {...disabled} value={value} onChange={handleChange} aria-labelledby="continuous-slider"/>
 
-                {/* Element slidered name */}
-                <Typography id="continuous-slider" gutterBottom>
-                    {this.name}
-                </Typography>
-
-                {/* Slider that changes the value of the propertie */}
-                <Slider value={this.value} onChange={this.handleChange} aria-labelledby="continuous-slider"/>
-
-            </div>
-        );
-    }
+        </div>
+    );
 }
