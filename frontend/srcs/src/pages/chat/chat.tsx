@@ -1,12 +1,10 @@
 import React from "react";
-import { Route, RouteComponentProps } from "react-router";
+import { RouteComponentProps } from "react-router";
 import { io, Socket } from "socket.io-client";
 
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
 import { Chat, ChatType } from "../../models/Chat";
-import ChannelCreate from "./channelCreate";
-import ChannelSearch from "./channelSearch";
 //import ChannelSearch from "./channelSearch";
 
 const getSocket = () => {
@@ -64,23 +62,18 @@ export default function ChatPage({
       }}
     >
       <div className="flex h-full">
-
-          <ChatNavBar></ChatNavBar>
-
-        <div className="flex-col w-full">
-          <ChatView className="flex-1"></ChatView>
-
-          <Route exact path='/chat/find'>
-            <ChannelSearch
-              myId="1"    // a changer
-            />
+        {/*<Route exact path='/chat/find'>
+              <ChannelSearch
+                  myId="1"    // a changer
+              />
           </Route>
           <Route exact path='/chat/create'>
-            <ChannelCreate />
-            {/* <div>Channel Create</div> */}
+              { <ChannelCreate /> }
+                  <div>Channel Create</div>
           </Route>
-
-        </div>
+          */}
+        <ChatNavBar></ChatNavBar>
+        <ChatView className="flex-1"></ChatView>
       </div>
     </ChatPageContext.Provider>
   );
