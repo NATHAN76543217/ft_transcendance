@@ -3,7 +3,7 @@ import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createQueryBuilder, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
 import { Socket } from 'socket.io';
 import { AuthenticationService } from 'src/authentication/authentication.service';
@@ -18,6 +18,7 @@ import ChannelAlreadyExist from './exception/ChannelAlreadyExist.exception';
 import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
 import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
+import Message from 'src/messages/message.entity';
 
 @Injectable()
 export default class ChannelsService {
@@ -27,6 +28,8 @@ export default class ChannelsService {
     private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(ChannelRelationship)
     private readonly channelRelationshipRepository: Repository<ChannelRelationship>,
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
     @Inject(forwardRef(() => ChannelsGateway))
     private readonly channelsGateway: ChannelsGateway,
   ) {}
@@ -117,6 +120,18 @@ export default class ChannelsService {
     if (!isPasswordMatching) {
       throw new ChannelWrongPassword();
     }
+  }
+  async getMessagesById(channelId: number, beforeId?: number, afterId?: number) {
+    const maxCount = 20;
+
+    return this.messageRepository.createQueryBuilder('message')
+      .where('message.channel_id = :channelId', {channelId})
+      .andWhere('message.id > :afterId', {afterId})
+      .where('message.id < :beforeId', {beforeId})
+      .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
+      .take(maxCount)
+      .getMany();
+      // TODO: Get messages with message gt afterId
   }
 
   // TODO: Rename all functions to exclude service name and provide uesful info

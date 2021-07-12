@@ -7,10 +7,10 @@ export default class Message {
     public id: number;
     
     @Column()
-    public id_sender: number;
+    public sender_id: number;
 
-    @Column({ nullable: true })
-    public id_chan: number;
+    @Column()
+    public channel_id: number;
 
     @CreateDateColumn()
     public created_at: Date;
@@ -18,11 +18,9 @@ export default class Message {
     @UpdateDateColumn()
     public updated_at: Date;
 
-    // TODO: Check if this can be empty
     @Column()
     public text: string;
 
     @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
     public channel: Channel;
-    // should we keep the 'id_chan' above ? I don't think so
 }

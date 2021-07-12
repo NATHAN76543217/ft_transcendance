@@ -1,7 +1,7 @@
 export default interface Message {
     id: number;
-    id_sender: number;
-    id_chat: number;
+    sender_id: number;
+    channel_id: number;
     created_at: Date;
     updated_at: Date;
     text: string;

@@ -11,7 +11,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser, UserRole, UserStatus } from "./models/user/IUser";
+import { UserRole, UserStatus } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -28,7 +28,6 @@ import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import Test from "./pages/test/test";
 import Loading from "./components/loading/loading";
-import { getAllByPlaceholderText } from "@testing-library/react";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -42,12 +41,12 @@ interface TokenPayload {
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
-    let userVar = localStorage.getItem("user")
+    //const userData = localStorage.getItem("user") JSON.parse();
+    
     this.state = {
       relationshipsList: [],
-      // user: undefined,
-      user: userVar ? JSON.parse(userVar) : undefined,
-      socket: undefined,
+      socket: undefined
+      //user: ,
       //myRole: UserRoleTypes.owner, // A remplacer par le vrai role
       //logged: false,
     };

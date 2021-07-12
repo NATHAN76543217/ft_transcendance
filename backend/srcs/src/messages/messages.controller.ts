@@ -5,25 +5,27 @@ import CreateMessageDto from './dto/createMessage.dto';
 import UpdateMessageDto from './dto/updateMessage.dto';
 import JwtAuthenticationGuard from "src/authentication/jwt-authentication.guard";
 
+// TODO: Message CASL
 @Controller('messages')
+@UseGuards(JwtAuthenticationGuard)
 export default class MessagesController {
     constructor(
         private readonly messageService: MessagesService
     ) { }
 
-    @Get()
+   /*  @Get()
     @UseGuards(JwtAuthenticationGuard)
     getAllMessages() {
         return this.messageService.getAllMessages();
     }
-    
+    */
+    /* 
     @Get(':id')
     getMessageById(@Param('id') id: string) {
         return this.messageService.getMessageById(Number(id));
-    }
+    } */
 
     @Post()
-    @UseGuards(JwtAuthenticationGuard)
     async createMessage(@Body() message: CreateMessageDto) {
         return this.messageService.createMessage(message);
     }

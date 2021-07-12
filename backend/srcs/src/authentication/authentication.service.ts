@@ -81,11 +81,11 @@ export class AuthenticationService {
 
   public getCookieWithJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    Logger.debug(`payload = ${userId.toFixed()}`);
+    const expirationTime = this.configService.get('JWT_EXPIRATION_TIME');
+
+    Logger.debug(`payload = ${userId.toFixed()}, expiration time = ${expirationTime}`);
     const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
-    )}; SameSite=None; Secure`;
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${expirationTime}; SameSite=None; Secure`;
   }
 
   public getJwtToken(userId: number) {

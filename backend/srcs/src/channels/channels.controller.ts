@@ -65,6 +65,25 @@ export default class ChannelsController {
     throw new HttpException('TODO: Unauthorized read', 400);
   }
 
+  @Get(':id/messages')
+  async getMessagesById(
+    @Req() req: RequestWithUser,
+    @Param('id') channelId: string,
+  ) {
+    const channel = await this.channelsService.getChannelById(
+      Number(channelId),
+    );
+    const abilities = this.abilityFactory.createForUser(req.user);
+
+    if (abilities.can(ChannelAction.Read, channel))
+      return this.channelsService.getMessagesById(
+        channel.id,
+        Number(req.params['beforeId']),
+        Number(req.params['afterId']),
+      );
+    throw new HttpException('TODO: Unauthorized read', 400);
+  }
+
   // @Get()
   // async getChannelByName(@Query() name: string) {
   //   return this.channelsService.getChannelByName(name);

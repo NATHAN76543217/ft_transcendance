@@ -37,6 +37,11 @@ export default class UsersController {
     return this.usersService.getAllUsers(name);
   }
 
+  @Get('me')
+  getUserHimself(@Req() req: RequestWithUser) {
+    return this.usersService.getUserById(req.user.id, true);
+  }
+
   @Get(':id')
   getUserById(@Req() req: RequestWithUser, @Param('id') id: FindOneParam) {
     const withChannels = req.user.id === Number(id);

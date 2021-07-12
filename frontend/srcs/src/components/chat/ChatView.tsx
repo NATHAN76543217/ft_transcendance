@@ -1,11 +1,8 @@
 import { useContext } from "react";
+import { ChatMessageList } from "../../components/chat/ChatMessageList";
 import { ChatHeader } from "../../components/chat/ChatHeader";
 import { ChatPageContext } from "../../pages/chat/chat";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
-
-export function ChatMessageList() {
-  return <div></div>;
-}
 
 type ChatViewProps = {
   className: string;
@@ -29,7 +26,6 @@ export function ChatView({ className }: ChatViewProps) {
           icon="fa-cog"
           href={`/chat/${currentChatId}/settings`}
         />
-        <ChatMessageList />
       </ChatHeader>
       <ChatMessageList />
     </div>

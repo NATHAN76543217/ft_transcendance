@@ -40,6 +40,7 @@ class ChannelRelationship {
   @Column({ default: ChannelRelationshipType.null, nullable: true })
   public type: ChannelRelationshipType;
 
+  public last_read_message_id: number;
   // Maybe useful later
   //@CreateDateColumn()
   //created_at: Date;

@@ -1,3 +1,4 @@
+import axios from "axios";
 import Cookies from "js-cookie";
 import React from "react";
 import { useState } from "react";
@@ -9,7 +10,6 @@ import AppContext from "../../AppContext";
 
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
-import ChannelCreate from "./channelCreate";
 import ChannelSearch from "./channelSearch";
 import { Channel } from "../../models/channel/Channel";
 import ChannelSettings from "./channelSettings";
@@ -49,56 +49,63 @@ type ChatPageParams = {
   id: string;
 };
 
+async function fetchChannelMessages(chat: Channel) {
+  //localStorage.getItem(`chat-meta`);
+  //if (chat)
+}
+
 export default function ChatPage({
   match,
 }: RouteComponentProps<ChatPageParams>) {
   const { user } = useContext(AppContext);
 
   const [channels, setChannels] = useState(
-    new Map(user?.channels.map((c) => [c.channel_id, c.channel]))
+    new Map(user?.channels.map((c) => [c.channel.id, c.channel]))
   );
 
-  const chatId = Number(match.params.id);
+  const chatIdParam = Number(match.params.id);
+
+  const [currentChatId, setCurrentChatId] = useState<number | undefined>(
+    !channels.get(chatIdParam) ? undefined : chatIdParam
+  );
 
   useEffect(() => {
-    setChannels(new Map(user?.channels.map((c) => [c.channel_id, c.channel])));
+    // TODO: Add before after and iterate over all channel relations
+    axios.get(`/api/channels/`, )
+  });
+
+  useEffect(() => {
+    console.log("Setting new channels:", user?.channels);
+    setChannels(new Map(user?.channels.map((c) => [c.channel.id, c.channel])));
   }, [user?.channels]);
 
-  // TODO: Ensure that currentChat exists before using its value
-  const currentChat: Channel | undefined =
-    isNaN(chatId) || !channels.has(chatId) ? undefined : channels.get(chatId);
+  useEffect(() => {
+    if (!isNaN(chatIdParam))
+      setCurrentChatId(!channels.get(chatIdParam) ? NaN : chatIdParam);
+  }, [channels, chatIdParam]);
 
-  console.log(`Current chat id: ${match.params.id}`);
+  // TODO: Redirect or 404 for invalid id
 
   return (
     <ChatPageContext.Provider
       value={{
         channels: channels,
-        currentChatId: currentChat?.id,
-        socket: undefined,
-        // socket: getSocket(),
+        currentChatId: currentChatId,
+        //socket: getSocket(),
       }}
     >
       <div className="flex h-full">
-
-          <ChatNavBar></ChatNavBar>
-
+        <ChatNavBar></ChatNavBar>
         <div className="flex-col w-full">
           <ChatView className="flex-1"></ChatView>
-
           <Route exact path='/chat/find'>
             <ChannelSearch/>
-            {/* <div>Channel Search</div> */}
-          </Route>
-          <Route exact path='/chat/create'>
-            <ChannelCreate />
-            {/* <div>Channel Create</div> */}
           </Route>
           <Route path="/chat/:id/settings" component={ChannelSettings} />
+          <ChatNavBar></ChatNavBar>
+          <ChatView className="flex-1"></ChatView>
         </div>
-        {/* <ChatNavBar></ChatNavBar> */}
-        {/* <ChatView className="flex-1"></ChatView> */}
-      </div>
+    </div>
     </ChatPageContext.Provider>
   );
 }

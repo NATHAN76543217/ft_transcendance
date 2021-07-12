@@ -63,6 +63,7 @@ export class ChannelsGateway
 
       socket.join(channel);
       // TODO: Check which data to send on join
+      // TODO: Use a status event and set connected as its value
       socket.to(channel).emit('connected', { username: socket.user.name });
     });
 
