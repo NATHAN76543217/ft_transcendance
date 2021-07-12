@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import UserInformation from "../../components/users/userInformation";
 import UserStats from "../../components/users/userStats";
 import MatchHistory from "../../components/matchHistory/matchHistory";
@@ -8,435 +8,426 @@ import { IUser, UserRole } from "../../models/user/IUser";
 import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import AppContext from "../../AppContext";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
+import UserPageState from "../../models/user/UserPageState";
 
-type UserProps = {};
 
-interface UserStates {
-  id: number;
-  doesUserExist: boolean;
-  user: IUser;
-  showWrongUsernameMessage: boolean;
-}
 
-class UserPage extends React.Component<
-  UserProps & RouteComponentProps,
-  UserStates
-> {
-  private params: any;
+const onLoad = async (userId: number, userInfo: UserPageState, setUserInfo: any, contextValue: any) => {
+  try {
+    // REVIEW redondance with userId && this.state.user.id
+    if (!isNaN(userId)) {
+      const data = await axios.get("/api/users/" + userId);
 
-  constructor(props: UserProps & RouteComponentProps) {
-    super(props);
-    this.state = {
-      id: 0,
-      doesUserExist: true,
-      user: {
-        id: 0,
-        name: "",
-        password: "",
-        nbWin: 0,
-        nbLoss: 0,
-        stats: 0,
-        imgPath: "",
-        twoFactorAuth: false,
-        status: "",
-        role: UserRole.null,
-        channels: [],
-        relationshipType: UserRelationshipType.null,
-        idInf: false,
-      },
-      showWrongUsernameMessage: false,
-    };
-    // TODO: Replace this with arrow functions
-    this.handleClickTwoFactorAuth = this.handleClickTwoFactorAuth.bind(this);
-    this.onLoad = this.onLoad.bind(this);
-    this.onFileChange = this.onFileChange.bind(this);
-    this.addFriend = this.addFriend.bind(this);
-    this.removeFriend = this.removeFriend.bind(this);
-    this.blockUser = this.blockUser.bind(this);
-    this.unblockUser = this.unblockUser.bind(this);
-    this.onSubmitChangeUsername = this.onSubmitChangeUsername.bind(this);
-    this.updateRelationshipState = this.updateRelationshipState.bind(this);
-  }
-
-  static contextType = AppContext;
-
-  componentDidMount() {
-    this.getParams();
-  }
-
-  getParams = () => {
-    const contextValue = this.context;
-    this.params = this.props;
-    let userId = this.params.match.params.id;
-
-    if (this.params.match.params.id === undefined) {
-      userId = contextValue.myId;
-    }
-
-    if (this.state.id !== this.params.match.params.id) {
-      this.setState({
-        id: this.params.match.params.id,
-        user: {
-          ...this.state.user,
-          id: userId,
-          idInf: userId < contextValue.myId,
-        },
-      });
-    }
-  };
-
-  componentDidUpdate(prevProps: UserProps, prevStates: UserStates) {
-    this.getParams();
-
-    if (prevStates.id !== this.state.id) {
-      this.onLoad(this.state.user.id);
-    }
-  }
-
-  componentWillUnmount() {}
-
-  onLoad = async (userId: number) => {
-    try {
-      // REVIEW redondance with userId && this.state.user.id
-      if (!isNaN(userId)) {
-        const data = await axios.get("/api/users/" + this.state.user.id);
-        this.setState({
+      if (JSON.stringify(userInfo.user) !== JSON.stringify(data.data)) {
+        setUserInfo({
+          ...userInfo,
           doesUserExist: true,
           user: data.data,
         });
-        if (this.state.id !== undefined) {
-          this.setFriendAndBlockBoolean(this.state.user);
-        }
-      } else {
-        this.setState({ doesUserExist: false });
       }
-    } catch (error) {
-      this.setState({ doesUserExist: false });
-    }
-  };
 
-  async handleClickTwoFactorAuth() {
-    let newTwoFactorAuth = !this.state.user.twoFactorAuth;
-    try {
-      await axios.patch("/api/users/" + this.state.user.id, {
-        twoFactorAuth: newTwoFactorAuth,
-      });
-      console.log(
-        "two factor auth changed to: " + !this.state.user.twoFactorAuth
-      );
-      this.setState({
-        user: {
-          ...this.state.user,
-          twoFactorAuth: newTwoFactorAuth,
-        },
-      });
-    } catch (error) {}
-  }
-
-  async handleClickProfilePicture() {}
-
-  async getProfilePicture(pictureId: number) {
-    try {
-      const data = await axios.get("/uploads/" + pictureId);
-      return data.request.responseURL;
-    } catch (error) {}
-  }
-
-  onFileChange(fileChangeEvent: any) {
-    this.submitForm(fileChangeEvent.target.files[0]);
-  }
-
-  async submitForm(valuesCurrentFile: any) {
-    if (!valuesCurrentFile) {
-      return false;
-    }
-
-    let formData = new FormData();
-
-    formData.append("photo", valuesCurrentFile, valuesCurrentFile.name);
-
-    try {
-      const data = await axios.post("/api/photos/upload", formData);
-      let oldImgPath = this.state.user.imgPath;
-      let newImgPath = data.data.path.replace("uploads/", "");
-      this.setState({
-        user: {
-          ...this.state.user,
-          imgPath: newImgPath,
-        },
-      });
-      await axios.patch("/api/users/" + this.state.user.id, {
-        imgPath: newImgPath,
-      });
-      await axios.delete("/api/photos/" + oldImgPath);
-    } catch (error) {}
-  }
-
-  async setFriendAndBlockBoolean(user: IUser) {
-    const contextValue = this.context;
-    try {
-      const data = await axios.get(
-        "/api/users/relationships/" + user.id + "/" + contextValue.myId
-      );
-      if (data.data.type !== this.state.user.relationshipType) {
-        let a = { ...this.state.user };
-        a.relationshipType = data.data.type;
-        this.setState({ user: a });
+      // setFriendAndBlockBoolean(userInfo, setUserInfo, contextValue);
+      if (userInfo.user.id !== 0) {
+        await setFriendAndBlockBoolean(userInfo, setUserInfo, contextValue);
       }
-    } catch (error) {
-      let a = { ...this.state.user };
-      a.relationshipType = UserRelationshipType.null;
-      this.setState({ user: a });
+    } else {
+      // setUserInfo({
+      //   ...userInfo,
+      //    doesUserExist: false
+      //  });
     }
+  } catch (error) {
+    // setUserInfo({
+    //   ...userInfo,
+    //    doesUserExist: false
+    //  });
   }
+};
 
-  updateRelationshipState(newType: UserRelationshipType) {
-    this.setState({
+const handleClickTwoFactorAuth = async (userInfo: UserPageState, setUserInfo: any) => {
+  let newTwoFactorAuth = !userInfo.user.twoFactorAuth;
+  try {
+    await axios.patch("/api/users/" + userInfo.user.id, {
+      twoFactorAuth: newTwoFactorAuth,
+    });
+    console.log(
+      "two factor auth changed to: " + !userInfo.user.twoFactorAuth
+    );
+    setUserInfo({
+      ...userInfo,
       user: {
-        ...this.state.user,
-        relationshipType: newType,
+        ...userInfo.user,
+        twoFactorAuth: newTwoFactorAuth,
+      }
+    });
+  } catch (error) { }
+}
+
+const handleClickProfilePicture = async () => { }
+
+const getProfilePicture = async (pictureId: number) => {
+  try {
+    const data = await axios.get("/uploads/" + pictureId);
+    return data.request.responseURL;
+  } catch (error) { }
+}
+
+const onFileChange = async (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any) => {
+  submitForm(fileChangeEvent.target.files[0], userInfo, setUserInfo);
+}
+
+const submitForm = async (valuesCurrentFile: any, userInfo: UserPageState, setUserInfo: any) => {
+  if (!valuesCurrentFile) {
+    return false;
+  }
+
+  let formData = new FormData();
+
+  formData.append("photo", valuesCurrentFile, valuesCurrentFile.name);
+
+  try {
+    const data = await axios.post("/api/photos/upload", formData);
+    let oldImgPath = userInfo.user.imgPath;
+    let newImgPath = data.data.path.replace("uploads/", "");
+    setUserInfo({
+      ...userInfo,
+      user: {
+        ...userInfo.user,
+        imgPath: newImgPath,
       },
     });
-  }
+    await axios.patch("/api/users/" + userInfo.user.id, {
+      imgPath: newImgPath,
+    });
+    await axios.delete("/api/photos/" + oldImgPath);
+  } catch (error) { }
+}
 
-  async addFriend(id: number) {
-    const contextValue = this.context;
-    let inf = contextValue.myId < id;
-    try {
-      const currentRel = await axios.get(
-        `/api/users/relationships/${id}/${contextValue.myId}`
+const setFriendAndBlockBoolean = async (userInfo: UserPageState, setUserInfo: any, contextValue: any) => {
+
+  let idInf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(userInfo.user.id));
+  try {
+    let request = idInf ?
+      "/api/users/relationships/" + contextValue.user?.id + "/" + userInfo.user.id :
+      "/api/users/relationships/" + userInfo.user.id + "/" + contextValue.user?.id
+
+    const data = await axios.get(request);
+
+    if (Number(data.data.type) !== Number(userInfo.relationshipType)) {
+      let a = { ...userInfo };
+      a.relationshipType = data.data.type;
+      setUserInfo(
+        a
       );
-      if (
-        !(
-          inf &&
-          currentRel.data.type & UserRelationshipType.pending_first_second
-        ) &&
-        !(
-          !inf &&
-          currentRel.data.type & UserRelationshipType.pending_second_first
-        )
-      ) {
-        let newType: UserRelationshipType = currentRel.data.type;
-        newType |= inf
-          ? UserRelationshipType.pending_first_second
-          : UserRelationshipType.pending_second_first;
-        try {
-          await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-            type: newType,
-          });
-          this.updateRelationshipState(newType);
-        } catch (error) {}
-      }
-    } catch (error) {
-      let newType: UserRelationshipType = inf
+    }
+  } catch (error) {
+    if (userInfo.relationshipType !== UserRelationshipType.null) {
+      let a = { ...userInfo };
+      a.relationshipType = UserRelationshipType.null;
+      setUserInfo(
+        a
+      );
+    }
+  }
+}
+
+const updateRelationshipState = async (newType: UserRelationshipType, userInfo: UserPageState, setUserInfo: any) => {
+  setUserInfo({
+    ...userInfo,
+    relationshipType: newType,
+  });
+}
+
+const addFriend = async (id: number, userInfo: UserPageState, setUserInfo: any, contextValue: any) => {
+  // const contextValue = React.useContext(AppContext);
+  let inf = contextValue.user ? (contextValue.user.id < id) : false;
+  try {
+    let request = inf ?
+      `/api/users/relationships/${contextValue.user?.id}/${id}` :
+      `/api/users/relationships/${id}/${contextValue.user?.id}`
+    const currentRel = await axios.get(request);
+    if (
+      !(
+        inf &&
+        currentRel.data.type & UserRelationshipType.pending_first_second
+      ) &&
+      !(
+        !inf &&
+        currentRel.data.type & UserRelationshipType.pending_second_first
+      )
+    ) {
+      let newType: UserRelationshipType = currentRel.data.type;
+      newType |= inf
         ? UserRelationshipType.pending_first_second
         : UserRelationshipType.pending_second_first;
       try {
-        await axios.post("/api/users/relationships", {
-          user1_id: id + "",
-          user2_id: contextValue.myId,
+        await axios.patch("/api/users/relationships/" + currentRel.data.id, {
           type: newType,
         });
-        this.updateRelationshipState(newType);
-      } catch (error) {}
+        updateRelationshipState(newType, userInfo, setUserInfo);
+      } catch (error) { }
     }
-  }
-
-  async removeFriend(id: number) {
-    const contextValue = this.context;
+  } catch (error) {
+    let newType: UserRelationshipType = inf
+      ? UserRelationshipType.pending_first_second
+      : UserRelationshipType.pending_second_first;
     try {
-      const currentRel = await axios.get(
-        "/api/users/relationships/" + id + "/" + contextValue.myId
-      );
-      if (currentRel.data.type & UserRelationshipType.friends) {
-        let newType: UserRelationshipType =
-          currentRel.data.type & ~UserRelationshipType.friends;
-        try {
-          if (newType === UserRelationshipType.null) {
-            await axios.delete(
-              "/api/users/relationships/" + currentRel.data.id
-            );
-            this.setState({
-              user: {
-                ...this.state.user,
-                relationshipType: newType,
-              },
-            });
-          } else {
-            await axios.patch(
-              "/api/users/relationships/" + currentRel.data.id,
-              { type: newType }
-            );
-            this.updateRelationshipState(newType);
-          }
-        } catch (error) {}
-      }
-    } catch (error) {}
+      await axios.post("/api/users/relationships", {
+        user1_id: id + "",
+        user2_id: contextValue.user?.id + "",
+        type: newType,
+      });
+      updateRelationshipState(newType, userInfo, setUserInfo);
+    } catch (error) { }
   }
+}
 
-  async blockUser(id: number) {
-    const contextValue = this.context;
-    let inf = contextValue.myId < id;
-    try {
-      const currentRel = await axios.get(
-        "/api/users/relationships/" + id + "/" + contextValue.myId
-      );
-      console.log("currentRel : " + currentRel.data);
-      if (
-        !(
-          inf && currentRel.data.type & UserRelationshipType.block_first_second
-        ) &&
-        !(
-          !inf && currentRel.data.type & UserRelationshipType.block_second_first
-        )
-      ) {
-        let newType: UserRelationshipType = currentRel.data.type;
-        newType |= inf
-          ? UserRelationshipType.block_first_second
-          : UserRelationshipType.block_second_first;
-        try {
-          await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-            type: newType,
+const removeFriend = async (id: number, userInfo: UserPageState, setUserInfo: any, contextValue: any) => {
+  // const contextValue = React.useContext(AppContext);
+  let inf = contextValue.user ? (contextValue.user.id < id) : false;
+  try {
+    let request = inf ?
+      `/api/users/relationships/${contextValue.user?.id}/${id}` :
+      `/api/users/relationships/${id}/${contextValue.user?.id}`
+    const currentRel = await axios.get(request);
+    if (currentRel.data.type & UserRelationshipType.friends) {
+      let newType: UserRelationshipType =
+        currentRel.data.type & ~UserRelationshipType.friends;
+      try {
+        if (newType === UserRelationshipType.null) {
+          await axios.delete(
+            "/api/users/relationships/" + currentRel.data.id
+          );
+          setUserInfo({
+            ...userInfo,
+            user: {
+              ...userInfo.user,
+              relationshipType: newType,
+            },
           });
-          this.updateRelationshipState(newType);
-        } catch (error) {}
-      }
-    } catch (error) {
-      let newType: UserRelationshipType = inf
+        } else {
+          await axios.patch(
+            "/api/users/relationships/" + currentRel.data.id,
+            { type: newType }
+          );
+          updateRelationshipState(newType, userInfo, setUserInfo);
+        }
+      } catch (error) { }
+    }
+  } catch (error) { }
+}
+
+const blockUser = async (id: number, userInfo: UserPageState, setUserInfo: any, contextValue: any) => {
+  // const contextValue = React.useContext(AppContext);
+  let inf = contextValue.user ? (contextValue.user.id < id) : false;
+  try {
+    let request = inf ?
+      `/api/users/relationships/${contextValue.user?.id}/${id}` :
+      `/api/users/relationships/${id}/${contextValue.user?.id}`
+    const currentRel = await axios.get(request);
+    console.log("currentRel : " + currentRel.data);
+    if (
+      !(
+        inf && currentRel.data.type & UserRelationshipType.block_first_second
+      ) &&
+      !(
+        !inf && currentRel.data.type & UserRelationshipType.block_second_first
+      )
+    ) {
+      let newType: UserRelationshipType = currentRel.data.type;
+      newType |= inf
         ? UserRelationshipType.block_first_second
         : UserRelationshipType.block_second_first;
       try {
-        await axios.post("/api/users/relationships", {
-          user1_id: id + "",
-          user2_id: contextValue.myId,
+        await axios.patch("/api/users/relationships/" + currentRel.data.id, {
           type: newType,
         });
-        this.updateRelationshipState(newType);
-      } catch (error) {}
+        updateRelationshipState(newType, userInfo, setUserInfo);
+      } catch (error) { }
     }
-  }
-
-  async unblockUser(id: number) {
-    const contextValue = this.context;
-    let inf = contextValue.myId < id;
+  } catch (error) {
+    let newType: UserRelationshipType = inf
+      ? UserRelationshipType.block_first_second
+      : UserRelationshipType.block_second_first;
     try {
-      const currentRel = await axios.get(
-        "/api/users/relationships/" + id + "/" + contextValue.myId
-      );
-      if (
-        !(
-          inf &&
-          !(currentRel.data.type & UserRelationshipType.block_first_second)
-        ) &&
-        !(
-          !inf &&
-          !(currentRel.data.type & UserRelationshipType.block_second_first)
-        )
-      ) {
-        let newType: UserRelationshipType = currentRel.data.type;
-        newType &= inf
-          ? ~UserRelationshipType.block_first_second
-          : ~UserRelationshipType.block_second_first;
-        try {
-          if (newType === UserRelationshipType.null) {
-            await axios.delete(
-              "/api/users/relationships/" + currentRel.data.id
-            );
-            this.updateRelationshipState(newType);
-          } else {
-            await axios.patch(
-              "/api/users/relationships/" + currentRel.data.id,
-              { type: newType }
-            );
-            this.updateRelationshipState(newType);
-          }
-        } catch (error) {}
-      }
-    } catch (error) {}
-  }
-
-  onSubmitChangeUsername = async (values: IUserChangeNameFormValues) => {
-    try {
-      await axios.patch("/api/users/" + this.state.user.id, {
-        name: values.username,
+      await axios.post("/api/users/relationships", {
+        user1_id: id + "",
+        user2_id: contextValue.user?.id,
+        type: newType,
       });
-      this.setState({
-        user: {
-          ...this.state.user,
-          name: values.username,
-        },
-        showWrongUsernameMessage: false,
-      });
-      return true;
-    } catch (error) {
-      this.setState({
-        showWrongUsernameMessage: true,
-      });
-    }
-  };
-
-  render() {
-    const contextValue = this.context;
-
-    this.params = this.props;
-
-    if (this.params.match.params.id === "find") {
-      return <div></div>;
-    }
-
-    if (this.params.match.params.id === "create") {
-      return <div></div>;
-    }
-
-    if (!this.state.doesUserExist) {
-      return (
-        <div className="px-2 py-2 font-bold">This user does not exist</div>
-      );
-    }
-
-    let isMe =
-      this.state.id === undefined || this.state.id === contextValue.myId;
-
-    return (
-      <div className="">
-        <section className="relative w-full">
-          <UserInformation
-            id={this.state.user.id}
-            name={this.state.user.name}
-            status={this.state.user.status}
-            nbWin={this.state.user.nbWin}
-            nbLoss={this.state.user.nbLoss}
-            imgPath={this.state.user.imgPath}
-            isMe={isMe}
-            relationshipTypes={this.state.user.relationshipType} // A Gerer au niveau de l'update
-            idInf={contextValue.myId < this.state.user.id}
-            // isFriend
-            twoFactorAuth={this.state.user.twoFactorAuth}
-            handleClickTwoFactorAuth={this.handleClickTwoFactorAuth}
-            handleClickProfilePicture={this.handleClickProfilePicture}
-            onFileChange={this.onFileChange}
-            addFriend={this.addFriend}
-            removeFriend={this.removeFriend}
-            blockUser={this.blockUser}
-            unblockUser={this.unblockUser}
-            changeUsername={this.onSubmitChangeUsername}
-            showWrongUsernameMessage={this.state.showWrongUsernameMessage}
-          />
-        </section>
-        <div className="relative flex flex-wrap justify-center w-full">
-          <section className="relative">
-            <UserStats
-              nbWin={this.state.user.nbWin}
-              nbLoss={this.state.user.nbLoss}
-            />
-          </section>
-          <section className="relative">
-            <MatchHistory />
-          </section>
-        </div>
-      </div>
-    );
+      updateRelationshipState(newType, userInfo, setUserInfo);
+    } catch (error) { }
   }
 }
+
+const unblockUser = async (id: number, userInfo: UserPageState, setUserInfo: any, contextValue: any) => {
+  // const contextValue = React.useContext(AppContext);
+  let inf = contextValue.user ? (contextValue.user.id < id) : false;
+  try {
+    let request = inf ?
+      `/api/users/relationships/${contextValue.user?.id}/${id}` :
+      `/api/users/relationships/${id}/${contextValue.user?.id}`
+    const currentRel = await axios.get(request);
+    if (
+      !(
+        inf &&
+        !(currentRel.data.type & UserRelationshipType.block_first_second)
+      ) &&
+      !(
+        !inf &&
+        !(currentRel.data.type & UserRelationshipType.block_second_first)
+      )
+    ) {
+      let newType: UserRelationshipType = currentRel.data.type;
+      newType &= inf
+        ? ~UserRelationshipType.block_first_second
+        : ~UserRelationshipType.block_second_first;
+      try {
+        if (newType === UserRelationshipType.null) {
+          await axios.delete(
+            "/api/users/relationships/" + currentRel.data.id
+          );
+          updateRelationshipState(newType, userInfo, setUserInfo);
+        } else {
+          await axios.patch(
+            "/api/users/relationships/" + currentRel.data.id,
+            { type: newType }
+          );
+          updateRelationshipState(newType, userInfo, setUserInfo);
+        }
+      } catch (error) { }
+    }
+  } catch (error) { }
+}
+
+const onSubmitChangeUsername = async (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any) => {
+  try {
+    await axios.patch("/api/users/" + userInfo.user.id, {
+      name: values.username,
+    });
+    setUserInfo({
+      ...userInfo,
+      user: {
+        ...userInfo.user,
+        name: values.username,
+      },
+      showWrongUsernameMessage: false,
+    });
+    return true;
+  } catch (error) {
+    setUserInfo({
+      ...userInfo,
+      showWrongUsernameMessage: true,
+    });
+  }
+};
+
+
+type UserPageParams = {
+  id: string;
+};
+
+function UserPage({
+  match,
+}: RouteComponentProps<UserPageParams>) {
+  const contextValue = React.useContext(AppContext);
+  const userId = match.params.id !== undefined ? match.params.id : contextValue.user?.id;
+
+  const [userInfo, setUserInfo] = useState({
+    // id: 0,
+    doesUserExist: false,
+    user: {
+      id: 0,
+      name: "",
+      password: "",
+      nbWin: 0,
+      nbLoss: 0,
+      stats: 0,
+      imgPath: "",
+      twoFactorAuth: false,
+      status: "",
+      role: UserRole.null,
+      channels: [],
+      idInf: false,
+    },
+    relationshipType: UserRelationshipType.null,
+    showWrongUsernameMessage: false,
+  })
+
+  useEffect(() => {
+    onLoad(Number(userId), userInfo, setUserInfo, contextValue);
+  }, [userInfo, userId]);
+
+  if (userId === "find") {
+    return <div></div>;
+  }
+
+  if (userId === "create") {
+    return <div></div>;
+  }
+
+
+  if (!userInfo.doesUserExist) {
+    return (
+      <div className="px-2 py-2 font-bold">This user does not exist</div>
+    );
+  }
+
+  let isMe = false;
+  if (contextValue.user !== undefined) {
+    isMe =
+      match.params.id === undefined || Number(userInfo.user.id) === Number(contextValue.user.id);
+  }
+
+  let idInf = false;
+  if (contextValue.user !== undefined) {
+    idInf = (contextValue.user.id < userInfo.user.id)
+  }
+
+  // const contextValue = React.useContext(AppContext);
+
+  return (
+    <div className="">
+      <section className="relative w-full">
+        <UserInformation
+          id={userInfo.user.id}
+          name={userInfo.user.name}
+          status={userInfo.user.status}
+          nbWin={userInfo.user.nbWin}
+          nbLoss={userInfo.user.nbLoss}
+          imgPath={userInfo.user.imgPath}
+          isMe={isMe}
+          relationshipTypes={userInfo.relationshipType} // A Gerer au niveau de l'update
+          idInf={idInf}
+          // isFriend
+          twoFactorAuth={userInfo.user.twoFactorAuth}
+          handleClickTwoFactorAuth={handleClickTwoFactorAuth}
+          handleClickProfilePicture={handleClickProfilePicture}
+          onFileChange={onFileChange}
+          addFriend={addFriend}
+          removeFriend={removeFriend}
+          blockUser={blockUser}
+          unblockUser={unblockUser}
+          changeUsername={onSubmitChangeUsername}
+          showWrongUsernameMessage={userInfo.showWrongUsernameMessage}
+          userInfo={userInfo}
+          setUserInfo={setUserInfo}
+        />
+      </section>
+      <div className="relative flex flex-wrap justify-center w-full">
+        <section className="relative">
+          <UserStats
+            nbWin={userInfo.user.nbWin}
+            nbLoss={userInfo.user.nbLoss}
+          />
+        </section>
+        <section className="relative">
+          <MatchHistory />
+        </section>
+      </div>
+    </div>
+  );
+}
+
 
 export default UserPage;

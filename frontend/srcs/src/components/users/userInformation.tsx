@@ -5,6 +5,9 @@ import ChangeNameUserForm from "../Forms/userChangeNameForm";
 import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import React from "react";
 import AppContext from "../../AppContext";
+import UserPageState from "../../models/user/UserPageState";
+import { IUser } from "../../models/user/IUser";
+import UserSearchState from "../../models/user/UserSearchState";
 
 type UserProps = {
   id: number; // optional ?
@@ -19,14 +22,16 @@ type UserProps = {
   idInf: boolean;
   isInSearch?: boolean | false;
   showWrongUsernameMessage?: boolean | false;
-  handleClickTwoFactorAuth?: () => void;
+  handleClickTwoFactorAuth?: (userInfo: UserPageState, setUserInfo: any) => void;
   handleClickProfilePicture?: () => void;
-  onFileChange?: (fileChangeEvent: any) => void;
-  addFriend: (id: number) => void;
-  removeFriend: (id: number) => void;
-  blockUser: (id: number) => void;
-  unblockUser: (id: number) => void;
-  changeUsername?: (values: IUserChangeNameFormValues) => void;
+  onFileChange?: (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any) => void;
+  addFriend: any;
+  removeFriend: any;
+  blockUser: any;
+  unblockUser: any;
+  changeUsername?: (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any) => void;
+  userInfo: any;
+  setUserInfo?: any;
 };
 
 function getStatusColor(param: string) {
@@ -78,7 +83,7 @@ function displayProfilePicture(user: UserProps) {
 
 function onFileChangeTrigger(user: UserProps, ev: any) {
   if (user.onFileChange !== undefined) {
-    return user.onFileChange(ev);
+    return user.onFileChange(ev, user.userInfo, user.setUserInfo);
   } else {
     return;
   }
@@ -103,14 +108,14 @@ function displayFileChange(user: UserProps) {
   }
 }
 
-function displayFriendButton(user: UserProps, updateAllRelationships: any) {
+function displayFriendButton(user: UserProps, updateAllRelationships: any, contextValue: any) {
   const addFriend = async (id: number) => {
-    await user.addFriend(id);
+    await user.addFriend(id, user.userInfo, user.setUserInfo, contextValue);
     await updateAllRelationships();
   };
 
   const removeFriend = async (id: number) => {
-    await user.removeFriend(id);
+    await user.removeFriend(id, user.userInfo, user.setUserInfo, contextValue);
     await updateAllRelationships();
   };
 
@@ -172,14 +177,14 @@ function displayFriendButton(user: UserProps, updateAllRelationships: any) {
   );
 }
 
-function displayBlockButton(user: UserProps, updateAllRelationships: any) {
+function displayBlockButton(user: UserProps, updateAllRelationships: any, contextValue: any) {
   const blockUser = async (id: number) => {
-    await user.blockUser(id);
+    await user.blockUser(id, user.userInfo, user.setUserInfo, contextValue);
     await updateAllRelationships();
   };
 
   const unblockUser = async (id: number) => {
-    await user.unblockUser(id);
+    await user.unblockUser(id, user.userInfo, user.setUserInfo, contextValue);
     await updateAllRelationships();
   };
 
@@ -217,13 +222,19 @@ function displayBlockButton(user: UserProps, updateAllRelationships: any) {
 }
 
 function displayTwoFactorAuth(user: UserProps) {
+  const localHandleClickTwoFactorAuth = async () => {
+    if (user.handleClickTwoFactorAuth) {
+      await user.handleClickTwoFactorAuth(user.userInfo, user.setUserInfo);
+    }
+  };
+
   return user.isMe && !user.isInSearch ? (
     <section className="relative flex items-center justify-center">
       <label className="font-bold text-gray-700">
         <input
           className="mr-2 leading-tight"
           type="checkbox"
-          onChange={user.handleClickTwoFactorAuth}
+          onChange={localHandleClickTwoFactorAuth}
           checked={user.twoFactorAuth}
         />
         <span className="text-sm">Activate 2 factor authentication</span>
@@ -233,8 +244,15 @@ function displayTwoFactorAuth(user: UserProps) {
 }
 
 function displayChangeNameField(user: UserProps) {
+  const localchangeUsername = async (values: IUserChangeNameFormValues) => {
+    if (user.changeUsername) {
+      await user.changeUsername(values, user.userInfo, user.setUserInfo);
+    }
+  };
+  
+
   if (user.isMe && !user.isInSearch && user.changeUsername !== undefined) {
-    return <ChangeNameUserForm onSubmit={user.changeUsername} />;
+    return <ChangeNameUserForm onSubmit={localchangeUsername} />;
   } else {
     return <div></div>;
   }
@@ -277,8 +295,8 @@ function UserInformation(user: UserProps) {
 
         <div>{displayWinAndLose(user)}</div>
         <div>
-          {displayFriendButton(user, contextValue.updateAllRelationships)}
-          {displayBlockButton(user, contextValue.updateAllRelationships)}
+          {displayFriendButton(user, contextValue.updateAllRelationships, contextValue)}
+          {displayBlockButton(user, contextValue.updateAllRelationships, contextValue)}
         </div>
       </section>
       {displayChangeNameField(user)}
