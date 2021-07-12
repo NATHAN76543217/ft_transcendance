@@ -14,7 +14,7 @@ import Admin from './pages/admin/admin';
 import Login from './pages/login/login';
 import Register from './pages/register/register';
 import ChatPage from './pages/chat/chat';
-import React from 'react';
+import React from 'react'
 import IUserInterface from './components/interface/IUserInterface';
 import axios from 'axios';
 import IUserRelationship from './components/interface/IUserRelationshipInterface';
@@ -184,7 +184,7 @@ class App extends React.Component<AppProps, AppStates> {
 												<PrivateRoute isAuth={ this.state.logged } path='/game'>
 													<Game/>
 												</PrivateRoute>
-												<PrivateRoute isAuth={ this.state.logged } exact path="/users">
+												<PrivateRoute isAuth={ this.state.logged } path="/users">
 													<User
 														myId={this.state.user?.id}
 													/>
