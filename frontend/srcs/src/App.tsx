@@ -36,9 +36,11 @@ interface TokenPayload {
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
+    let userVar = localStorage.getItem("user")
     this.state = {
       relationshipsList: [],
-      user: undefined,
+      // user: undefined,
+      user: userVar ? JSON.parse(userVar) : undefined,
       //myRole: UserRoleTypes.owner, // A remplacer par le vrai role
       //logged: false,
     };
@@ -108,6 +110,7 @@ class App extends React.Component<AppProps, AppState> {
     }
     // console.log("component did update")
   }
+
 
   async updateAllRelationships() {
     try {
@@ -179,7 +182,6 @@ class App extends React.Component<AppProps, AppState> {
                         </PrivateRoute>
                         <PrivateRoute
                           isAuth={this.state.user !== undefined}
-                          exact
                           path="/users"
                         >
                           <User />

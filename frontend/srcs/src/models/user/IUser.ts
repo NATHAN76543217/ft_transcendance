@@ -37,7 +37,7 @@ export type IUser = {
   channels: ChannelRelationship[];
 
   // TODO: This should be in the parent UserRelation object
-  relationshipType: UserRelationshipType;
+  // relationshipType: UserRelationshipType;
   idInf: boolean;
   //isBlock: boolean;
 };
