@@ -11,9 +11,6 @@ import {
     Socket
 } from "socket.io"
 import {
-    randomBytes
-} from "crypto"
-import {
     IDynamicDto
 } from "../dto/dynamic.dto"
 import {
@@ -447,38 +444,38 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     getMousePosClient(idPlayer : string)
     { return this.mousesPos[idPlayer]; }
 
-    @SubscribeMessage('exportCustomization')
-    exportCustomization(client : Socket, idRoom : string, idPlayer : string, customization : ICustomGame)
-    {
-        const room : IRoomDto = this.getRoom(idRoom);
+    // @SubscribeMessage('exportCustomization')
+    // exportCustomization(client : Socket, idRoom : string, idPlayer : string, customization : ICustomGame)
+    // {
+    //     const room : IRoomDto = this.getRoom(idRoom);
 
-        if (room.idPlayerOne == idPlayer)
-        {
-            const saveProp : string = room.customization.playerTwoColor;
-            room.customization = customization;
-            room.customization.playerTwoColor = saveProp;
-            room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
-        }
-        else if (room.idPlayerTwo == idPlayer)
-        {
-            room.customization.playerTwoColor = customization.playerTwoColor;
-            room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
-        }
-        else
-            throw new Unspected("Unspected error on exportCustomization"); 
+    //     if (room.idPlayerOne == idPlayer)
+    //     {
+    //         const saveProp : string = room.customization.playerTwoColor;
+    //         room.customization = customization;
+    //         room.customization.playerTwoColor = saveProp;
+    //         room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
+    //     }
+    //     else if (room.idPlayerTwo == idPlayer)
+    //     {
+    //         room.customization.playerTwoColor = customization.playerTwoColor;
+    //         room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
+    //     }
+    //     else
+    //         throw new Unspected("Unspected error on exportCustomization"); 
 
-        this.rooms[idRoom] = room;
-    }
+    //     this.rooms[idRoom] = room;
+    // }
 
-    @SubscribeMessage('importCustomization')
-    importCustomization(client : Socket, idRoom : string)
-    {
-        const room : IRoomDto = this.getRoom(idRoom);
+    // @SubscribeMessage('importCustomization')
+    // importCustomization(client : Socket, idRoom : string)
+    // {
+    //     const room : IRoomDto = this.getRoom(idRoom);
 
-        return room.flags & PLAYER_ONE_EXPORTED_CONFIG
-            && room.flags & PLAYER_TWO_EXPORTED_CONFIG
-            ? room.customization : null;
-    }
+    //     return room.flags & PLAYER_ONE_EXPORTED_CONFIG
+    //         && room.flags & PLAYER_TWO_EXPORTED_CONFIG
+    //         ? room.customization : null;
+    // }
 
     @SubscribeMessage('setUpBotLevel')
     setUpBotLevel(client : Socket, idRoom : string, botLevel : number)

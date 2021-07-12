@@ -103,33 +103,14 @@ export default class InvitedToGame extends React.Component
 
         if (this.socket.emit("arePlayersReady", idRoom))
         {
-            this.syncCustomisation();
+            this.syncCustomization();
             this.socket.emit("launchGame", idRoom);
             this.goToPong();
         }
     }
 
-    public syncCustomisation()
+    public syncCustomization()
     {
-        this.socket.emit("exportCustomization", this.roomId, this.idPlayer, {
-            ballSpeed: Number(),
-            ballColor: String(),
-            courtColor: String(),
-            netColor: String(),
-            playerOneWidth: Number(),
-            playerOneHeight: Number(),
-            playerOneColor: String(),
-            playerTwoWidth: Number(),
-            playerTwoHeight: Number(),
-            playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-                limits: {
-                    min: 0x00000000,
-                    max: 0x00FFFFFF
-                },
-                value: this.color.value
-            })),
-        });
-
         const libsNames : Array<string> = [
             LIB_HORIZONTAL_MULTI,
             LIB_VERTICAL_MULTI
@@ -141,23 +122,17 @@ export default class InvitedToGame extends React.Component
         if (index === undefined)
             throw new Unspected("Unspected error in syncCustomisation");
 
-        let syncCustomization;
-
-        // Stop until both sides has sent their customization
-        while ((syncCustomization = this.socket.emit("importCustomization", this.roomId)) == null)
-            ;
-
         this.data.pongFinals[index].gameStatus.playerOne.id = this.socket.emit("getOtherPlayerId", this.roomId, this.idPlayer);
         this.data.pongFinals[index].gameStatus.playerTwo.id = this.idPlayer;
-        this.data.pongFinals[index].gameStatus.ball.speed = syncCustomization.ballSpeed;
-        this.data.pongFinals[index].gameStatus.ball.style.data = syncCustomization.ballColor;
-        this.data.pongFinals[index].gameStatus.court.style.data = syncCustomization.courtColor;
-        this.data.pongFinals[index].gameStatus.net.style.data = syncCustomization.netColor;
-        this.data.pongFinals[index].gameStatus.playerOne.width = syncCustomization.playerOneWidth;
-        this.data.pongFinals[index].gameStatus.playerOne.height = syncCustomization.playerOneHeight;
-        this.data.pongFinals[index].gameStatus.playerOne.style.data = syncCustomization.playerOneColor;
-        this.data.pongFinals[index].gameStatus.playerTwo.width = syncCustomization.playerTwoWidth;
-        this.data.pongFinals[index].gameStatus.playerTwo.height = syncCustomization.playerTwoHeight;
+        this.data.pongFinals[index].gameStatus.ball.speed = this.slidersInfo.ballSpeed;
+        this.data.pongFinals[index].gameStatus.ball.style.data = this.slidersInfo.ballColor;
+        this.data.pongFinals[index].gameStatus.court.style.data = this.slidersInfo.courtColor;
+        this.data.pongFinals[index].gameStatus.net.style.data = this.slidersInfo.netColor;
+        this.data.pongFinals[index].gameStatus.playerOne.width = this.slidersInfo.playerOneWidth;
+        this.data.pongFinals[index].gameStatus.playerOne.height = this.slidersInfo.playerOneHeight;
+        this.data.pongFinals[index].gameStatus.playerOne.style.data = this.slidersInfo.playerOneColor;
+        this.data.pongFinals[index].gameStatus.playerTwo.width = this.slidersInfo.playerTwoWidth;
+        this.data.pongFinals[index].gameStatus.playerTwo.height = this.slidersInfo.playerTwoHeight;
         this.data.pongFinals[index].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
             limits: {
                 min: 0x00000000,
@@ -167,7 +142,68 @@ export default class InvitedToGame extends React.Component
         }))
 
         this.data.index = index;
+
     }
+
+    // public syncCustomisation()
+    // {
+    //     this.socket.emit("exportCustomization", this.roomId, this.idPlayer, {
+    //         ballSpeed: Number(),
+    //         ballColor: String(),
+    //         courtColor: String(),
+    //         netColor: String(),
+    //         playerOneWidth: Number(),
+    //         playerOneHeight: Number(),
+    //         playerOneColor: String(),
+    //         playerTwoWidth: Number(),
+    //         playerTwoHeight: Number(),
+    //         playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+    //             limits: {
+    //                 min: 0x00000000,
+    //                 max: 0x00FFFFFF
+    //             },
+    //             value: this.color.value
+    //         })),
+    //     });
+
+    //     const libsNames : Array<string> = [
+    //         LIB_HORIZONTAL_MULTI,
+    //         LIB_VERTICAL_MULTI
+    //     ];
+
+    //     const data : string = this.socket.emit("getGameStyle", this.roomId);
+    //     const index : number = libsNames.findIndex(elem => elem == data);
+
+    //     if (index === undefined)
+    //         throw new Unspected("Unspected error in syncCustomisation");
+
+    //     let syncCustomization;
+
+    //     // Stop until both sides has sent their customization
+    //     while ((syncCustomization = this.socket.emit("importCustomization", this.roomId)) == null)
+    //         ;
+
+    //     this.data.pongFinals[index].gameStatus.playerOne.id = this.socket.emit("getOtherPlayerId", this.roomId, this.idPlayer);
+    //     this.data.pongFinals[index].gameStatus.playerTwo.id = this.idPlayer;
+    //     this.data.pongFinals[index].gameStatus.ball.speed = syncCustomization.ballSpeed;
+    //     this.data.pongFinals[index].gameStatus.ball.style.data = syncCustomization.ballColor;
+    //     this.data.pongFinals[index].gameStatus.court.style.data = syncCustomization.courtColor;
+    //     this.data.pongFinals[index].gameStatus.net.style.data = syncCustomization.netColor;
+    //     this.data.pongFinals[index].gameStatus.playerOne.width = syncCustomization.playerOneWidth;
+    //     this.data.pongFinals[index].gameStatus.playerOne.height = syncCustomization.playerOneHeight;
+    //     this.data.pongFinals[index].gameStatus.playerOne.style.data = syncCustomization.playerOneColor;
+    //     this.data.pongFinals[index].gameStatus.playerTwo.width = syncCustomization.playerTwoWidth;
+    //     this.data.pongFinals[index].gameStatus.playerTwo.height = syncCustomization.playerTwoHeight;
+    //     this.data.pongFinals[index].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+    //         limits: {
+    //             min: 0x00000000,
+    //             max: 0x00FFFFFF
+    //         },
+    //         value: this.color.value
+    //     }))
+
+    //     this.data.index = index;
+    // }
 
     public onQuit()
     {

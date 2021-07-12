@@ -45,6 +45,9 @@ import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
 import {
     ICustomGame
 } from "../.../../../../../../../../pong/server/socketserver"
+import {
+    AStyle
+} from "../../../../../../../pong/render/style"
 
 export interface IPongGame
 {
@@ -63,7 +66,7 @@ export default class GameCustom extends React.Component
 
     public isReady : boolean = false;
     public gameConfig : Array<ContinousSlider> = [];
-    public slidersInfo : ICustomGame;
+    public slidersInfo : ICustomGame
 
     constructor(
         props : Readonly<{}>,
@@ -98,20 +101,19 @@ export default class GameCustom extends React.Component
         this.onQuit = this.onQuit.bind(this);
 
         this.updateGameConfig();
-
+        
         this.slidersInfo = {
-            ballSpeed: this.data.pongFinals[this.data.index].gameStatus.ball.speed,
-            ballColor: this.data.pongFinals[this.data.index].gameStatus.ball.style.data,
-            courtColor: this.data.pongFinals[this.data.index].gameStatus.court.style.data,
-            netColor: this.data.pongFinals[this.data.index].gameStatus.net.style.data,
-            playerOneWidth: this.data.pongFinals[this.data.index].gameStatus.playerOne.width,
-            playerOneHeight: this.data.pongFinals[this.data.index].gameStatus.playerOne.height,
-            playerOneColor: this.data.pongFinals[this.data.index].gameStatus.playerOne.style.data,
-            playerTwoWidth: this.data.pongFinals[this.data.index].gameStatus.playerTwo.width,
-            playerTwoHeight: this.data.pongFinals[this.data.index].gameStatus.playerTwo.height,
-            playerTwoColor: String(),
-            gameBrief: `Pong Style: ${this.pongStyles[this.data.index]}`
-        }
+            ballSpeed: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.ballSpeed, this.gameConfig[0 % this.gameConfig.length].value)),
+            ballColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[1 % this.gameConfig.length].value))),
+            courtColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[2 % this.gameConfig.length].value))),
+            netColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[3 % this.gameConfig.length].value))),
+            playerOneWidth: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerOneWidth, this.gameConfig[4 % this.gameConfig.length].value)),
+            playerOneHeight: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerOneHeight, this.gameConfig[5 % this.gameConfig.length].value)),
+            playerOneColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[6 % this.gameConfig.length].value))),
+            playerTwoWidth: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerTwoWidth, this.gameConfig[7 % this.gameConfig.length].value)),
+            playerTwoHeight: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerTwoHeight, this.gameConfig[8 % this.gameConfig.length].value)),
+            playerTwoColor: String()
+        };
 
         this.slidersInfo = this.socket.emit("updateInfo", this.idRoom, this.idRoom, this.slidersInfo);
 
@@ -193,9 +195,22 @@ export default class GameCustom extends React.Component
         ];
     }
 
-    private updateInfo()
+    public updateInfo()
     {
-        // TO DO
+        this.slidersInfo = {
+            ballSpeed: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.ballSpeed, this.gameConfig[0 % this.gameConfig.length].value)),
+            ballColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[1 % this.gameConfig.length].value))),
+            courtColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[2 % this.gameConfig.length].value))),
+            netColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[3 % this.gameConfig.length].value))),
+            playerOneWidth: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerOneWidth, this.gameConfig[4 % this.gameConfig.length].value)),
+            playerOneHeight: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerOneHeight, this.gameConfig[5 % this.gameConfig.length].value)),
+            playerOneColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.colorLimit, this.gameConfig[6 % this.gameConfig.length].value))),
+            playerTwoWidth: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerTwoWidth, this.gameConfig[7 % this.gameConfig.length].value)),
+            playerTwoHeight: RangeSlider.RangeSliderValue(new RangeSlider(this.data.pongFinals[this.data.index].settingsLimits.playerTwoHeight, this.gameConfig[8 % this.gameConfig.length].value)),
+            playerTwoColor: String()
+        };
+
+        this.slidersInfo = this.socket.emit("updateInfo", this.idRoom, this.idRoom, this.slidersInfo);
     }
 
     public onSinglePlayer()
@@ -261,75 +276,103 @@ export default class GameCustom extends React.Component
 
     public summitGameConfig()
     {
-        const pong : PongGenerator = this.data.pongFinals[this.data.index];
+        // this.updateInfo(); NEED IT ?
 
-        for (let i of this.gameConfig)
-        {
-            switch(i.name)
-            {
-                case BALL_SPEED: this.data.pongFinals[this.data.index].gameStatus.ballSpeed = new RangeSlider(pong.settingsLimits.ballSpeed, i.value); break ;
-                case BALL_COLOR: this.data.pongFinals[this.data.index].gameStatus.ballColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
-                case COURT_COLOR: this.data.pongFinals[this.data.index].gameStatus.courtColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
-                case NET_COLOR: this.data.pongFinals[this.data.index].gameStatus.netColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
-                case PLAYER_ONE_WIDTH: this.data.pongFinals[this.data.index].gameStatus.player1Width = new RangeSlider(pong.settingsLimits.playerOneWidth, i.value); break ;
-                case PLAYER_ONE_HEIGHT: this.data.pongFinals[this.data.index].gameStatus.player1Height = new RangeSlider(pong.settingsLimits.playerOneHeight, i.value); break ;
-                case PLAYER_ONE_COLOR: this.data.pongFinals[this.data.index].gameStatus.player1Color = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
+        this.data.pongFinals[this.data.index].gameStatus.ball.speed = this.slidersInfo.ballSpeed;
+        this.data.pongFinals[this.data.index].gameStatus.ball.style.data = this.slidersInfo.ballColor;
+        this.data.pongFinals[this.data.index].gameStatus.court.style.data = this.slidersInfo.courtColor;
+        this.data.pongFinals[this.data.index].gameStatus.net.style.data = this.slidersInfo.netColor;
+        this.data.pongFinals[this.data.index].gameStatus.playerOne.width = this.slidersInfo.playerOneWidth;
+        this.data.pongFinals[this.data.index].gameStatus.playerOne.height = this.slidersInfo.playerOneHeight;
+        this.data.pongFinals[this.data.index].gameStatus.playerOne.style.data = this.slidersInfo.playerOneColor;
 
-                case PLAYER_TWO_WIDTH:
-                    if (this.gameMode == GameMode.SINGLE_PLAYER)
-                        this.data.pongFinals[this.data.index].gameStatus.player2Width = new RangeSlider(pong.settingsLimits.playerTwoWidth, i.value);
-                    else
-                    this.data.pongFinals[this.data.index].gameStatus.player2Width = 
-                        this.data.pongFinals[this.data.index].gameStatus.player1Width
-                    break ;
-                case PLAYER_TWO_HEIGHT:
-                    if (this.gameMode == GameMode.SINGLE_PLAYER)
-                        this.data.pongFinals[this.data.index].gameStatus.player2Height = new RangeSlider(pong.settingsLimits.playerTwoHeight, i.value);
-                    else
-                    this.data.pongFinals[this.data.index].gameStatus.player2Height =
-                        this.data.pongFinals[this.data.index].gameStatus.player1Height
-                    break ;
-                case PLAYER_TWO_COLOR:
-                    if (this.gameMode == GameMode.SINGLE_PLAYER)
-                        this.data.pongFinals[this.data.index].gameStatus.player2Color = new RangeSlider(pong.settingsLimits.colorLimit, i.value);
-                    else
-                        ; // TO DO: Color will be the one selected by the invited playerTwo
-                    break ;
-                case BOT_LEVEL:
-                    if (this.gameMode == GameMode.SINGLE_PLAYER)
+        this.data.pongFinals[this.data.index].gameStatus.playerTwo.width =
+            this.gameMode == GameMode.SINGLE_PLAYER ? this.slidersInfo.playerTwoWidth : this.slidersInfo.playerOneWidth;
+        this.data.pongFinals[this.data.index].gameStatus.playerTwo.height = 
+            this.gameMode == GameMode.SINGLE_PLAYER ? this.slidersInfo.playerTwoHeight : this.slidersInfo.playerOneHeight;
+        this.data.pongFinals[this.data.index].gameStatus.playerTwo.style.data = this.slidersInfo.playerTwoColor;
+
+        if (this.gameMode == GameMode.SINGLE_PLAYER)
                         this.socket.emit("setUpBotLevel", this.idRoom, RangeSlider.RangeSliderValue({
                             limits: {
                                 min: 0,
                                 max: 1 // TO DO: Probally wrong limits
                             },
-                            value: i.value
+                            value: this.gameConfig[10 % this.gameConfig.length].value
                         }));
-                    break ;
-
-                default: throw new Unspected("Unspected exception in summitGameConfig"); // Unspected Exception
-            }
-        }
-    
-        this.socket.emit("exportCustomization", this.idRoom, this.idRoom, {
-            ballSpeed: this.data.pongFinals[this.data.index].gameStatus.ball.speed,
-            ballColor: this.data.pongFinals[this.data.index].gameStatus.ball.style.data,
-            courtColor: this.data.pongFinals[this.data.index].gameStatus.court.style.data,
-            netColor: this.data.pongFinals[this.data.index].gameStatus.net.style.data,
-            playerOneWidth: this.data.pongFinals[this.data.index].gameStatus.playerOne.width,
-            playerOneHeight: this.data.pongFinals[this.data.index].gameStatus.playerOne.height,
-            playerOneColor: this.data.pongFinals[this.data.index].gameStatus.playerOne.style.data,
-            playerTwoWidth: this.data.pongFinals[this.data.index].gameStatus.playerTwo.width,
-            playerTwoHeight: this.data.pongFinals[this.data.index].gameStatus.playerTwo.height,
-            playerTwoColor: String()
-        });
-
-        let syncCustomization;
-
-        // Stop until both sides has sent their customization
-        while ((syncCustomization = this.socket.emit("importCustomization", this.idRoom)) == null)
-            ;
-        this.data.pongFinals[this.data.index].gameStatus.playerTwo.style.data = syncCustomization.playerTwoColor;
     }
+
+    // public summitGameConfig()
+    // {
+    //     const pong : PongGenerator = this.data.pongFinals[this.data.index];
+
+    //     for (let i of this.gameConfig)
+    //     {
+    //         switch(i.name)
+    //         {
+    //             case BALL_SPEED: this.data.pongFinals[this.data.index].gameStatus.ballSpeed = new RangeSlider(pong.settingsLimits.ballSpeed, i.value); break ;
+    //             case BALL_COLOR: this.data.pongFinals[this.data.index].gameStatus.ballColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
+    //             case COURT_COLOR: this.data.pongFinals[this.data.index].gameStatus.courtColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
+    //             case NET_COLOR: this.data.pongFinals[this.data.index].gameStatus.netColor = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
+    //             case PLAYER_ONE_WIDTH: this.data.pongFinals[this.data.index].gameStatus.player1Width = new RangeSlider(pong.settingsLimits.playerOneWidth, i.value); break ;
+    //             case PLAYER_ONE_HEIGHT: this.data.pongFinals[this.data.index].gameStatus.player1Height = new RangeSlider(pong.settingsLimits.playerOneHeight, i.value); break ;
+    //             case PLAYER_ONE_COLOR: this.data.pongFinals[this.data.index].gameStatus.player1Color = new RangeSlider(pong.settingsLimits.colorLimit, i.value); break ;
+
+    //             case PLAYER_TWO_WIDTH:
+    //                 if (this.gameMode == GameMode.SINGLE_PLAYER)
+    //                     this.data.pongFinals[this.data.index].gameStatus.player2Width = new RangeSlider(pong.settingsLimits.playerTwoWidth, i.value);
+    //                 else
+    //                 this.data.pongFinals[this.data.index].gameStatus.player2Width = 
+    //                     this.data.pongFinals[this.data.index].gameStatus.player1Width
+    //                 break ;
+    //             case PLAYER_TWO_HEIGHT:
+    //                 if (this.gameMode == GameMode.SINGLE_PLAYER)
+    //                     this.data.pongFinals[this.data.index].gameStatus.player2Height = new RangeSlider(pong.settingsLimits.playerTwoHeight, i.value);
+    //                 else
+    //                 this.data.pongFinals[this.data.index].gameStatus.player2Height =
+    //                     this.data.pongFinals[this.data.index].gameStatus.player1Height
+    //                 break ;
+    //             case PLAYER_TWO_COLOR:
+    //                 if (this.gameMode == GameMode.SINGLE_PLAYER)
+    //                     this.data.pongFinals[this.data.index].gameStatus.player2Color = new RangeSlider(pong.settingsLimits.colorLimit, i.value);
+    //                 else
+    //                     ; // TO DO: Color will be the one selected by the invited playerTwo
+    //                 break ;
+    //             case BOT_LEVEL:
+    //                 if (this.gameMode == GameMode.SINGLE_PLAYER)
+    //                     this.socket.emit("setUpBotLevel", this.idRoom, RangeSlider.RangeSliderValue({
+    //                         limits: {
+    //                             min: 0,
+    //                             max: 1 // TO DO: Probally wrong limits
+    //                         },
+    //                         value: i.value
+    //                     }));
+    //                 break ;
+
+    //             default: throw new Unspected("Unspected exception in summitGameConfig"); // Unspected Exception
+    //         }
+    //     }
+    
+    //     this.socket.emit("exportCustomization", this.idRoom, this.idRoom, {
+    //         ballSpeed: this.data.pongFinals[this.data.index].gameStatus.ball.speed,
+    //         ballColor: this.data.pongFinals[this.data.index].gameStatus.ball.style.data,
+    //         courtColor: this.data.pongFinals[this.data.index].gameStatus.court.style.data,
+    //         netColor: this.data.pongFinals[this.data.index].gameStatus.net.style.data,
+    //         playerOneWidth: this.data.pongFinals[this.data.index].gameStatus.playerOne.width,
+    //         playerOneHeight: this.data.pongFinals[this.data.index].gameStatus.playerOne.height,
+    //         playerOneColor: this.data.pongFinals[this.data.index].gameStatus.playerOne.style.data,
+    //         playerTwoWidth: this.data.pongFinals[this.data.index].gameStatus.playerTwo.width,
+    //         playerTwoHeight: this.data.pongFinals[this.data.index].gameStatus.playerTwo.height,
+    //         playerTwoColor: String()
+    //     });
+
+    //     let syncCustomization;
+
+    //     // Stop until both sides has sent their customization
+    //     while ((syncCustomization = this.socket.emit("importCustomization", this.idRoom)) == null)
+    //         ;
+    //     this.data.pongFinals[this.data.index].gameStatus.playerTwo.style.data = syncCustomization.playerTwoColor;
+    // }
 
     public onQuit()
     {
@@ -339,6 +382,8 @@ export default class GameCustom extends React.Component
 
     public render()
     {
+        this.updateInfo();
+
         return (
             <div className="">
                 {
