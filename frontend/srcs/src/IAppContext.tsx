@@ -1,8 +1,8 @@
+import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
-import { IUser } from "./models/user/IUser";
 
 export interface IAppContext {
-  relationshipsList: IUser[];
+  relationshipsList: AppUserRelationship[];
   user?: AuthenticatedUser;
   setUser: (user?: AuthenticatedUser) => void;
   updateAllRelationships: () => void;

@@ -3,13 +3,12 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
-import { RouteComponentProps } from "react-router";
+import { Route, RouteComponentProps } from "react-router";
 import { io, Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
 
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
-import { Chat, ChatType } from "../../models/Chat";
 import ChannelCreate from "./channelCreate";
 import ChannelSearch from "./channelSearch";
 import { Channel } from "../../models/channel/Channel";
@@ -86,13 +85,13 @@ export default function ChatPage({
           <ChatView className="flex-1"></ChatView>
 
           <Route exact path='/chat/find'>
-            <ChannelSearch
-              myId="1"    // a changer
-            />
+            {/* <ChannelSearch
+            /> */}
+            <div>Channel Search</div>
           </Route>
           <Route exact path='/chat/create'>
-            <ChannelCreate />
-            {/* <div>Channel Create</div> */}
+            {/* <ChannelCreate /> */}
+            <div>Channel Create</div>
           </Route>
 
         </div>

@@ -23,6 +23,7 @@ import { IAppContext } from "./IAppContext";
 import AppContext from "./AppContext";
 import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
 import UserRelationship from "./models/user/UserRelationship";
+import { AppUserRelationship } from "./models/user/AppUserRelationship";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -95,8 +96,12 @@ class App extends React.Component<AppProps, AppState> {
 
   async sortRelationshipsList() {
     let a = this.state.relationshipsList.slice();
-    a.sort((user1: IUser, user2: IUser) =>
-      user1.name.localeCompare(user2.name)
+
+    console.log("a");
+    console.log(a);
+
+    a.sort((user1: AppUserRelationship, user2: AppUserRelationship) =>
+      user1.user.name.localeCompare(user2.user.name)
     );
     this.setState({ relationshipsList: a });
   }
@@ -117,18 +122,21 @@ class App extends React.Component<AppProps, AppState> {
       const dataRel = await axios.get(
         "/api/users/relationships/" + this.state.user?.id
       );
-      let a: IUser[] = [];
+      let a: AppUserRelationship[] = [];
       if (!dataRel.data.length) {
         this.setState({ relationshipsList: a });
       } else {
         await dataRel.data.map(async (relation: UserRelationship) => {
-          let inf = relation.user1_id === this.state.user?.id;
+          let inf = (relation.user1_id === this.state.user?.id);
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
             let index;
             const dataUser = await axios.get("/api/users/" + friendId);
-            index = a.push(dataUser.data);
-            a[index - 1].relationshipType = relation.type;
+            index = a.push({
+              user: dataUser.data,
+              relationshipType: relation.type
+            });
+            // a[index - 1].relationshipType = relation.type;
             this.setState({ relationshipsList: a });
           } catch (error) {}
         });

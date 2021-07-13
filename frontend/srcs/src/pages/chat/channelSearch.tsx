@@ -11,7 +11,7 @@ import {
 } from "../../models/channel/ChannelRelationship";
 
 interface ChannelProps {
-  myId: number;
+//   myId: number;
 }
 
 interface ChannelStates {

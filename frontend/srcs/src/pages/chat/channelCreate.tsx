@@ -3,11 +3,10 @@ import React from 'react';
 // import Button from '../../components/utilities/Button';
 import ChannelCreateForm from '../../components/Forms/channelCreateForm';
 import axios from 'axios';
-import IChannelInterface from '../../components/interface/IChannelInterface';
-import IChannelCreateFormValues from '../../components/interface/IChannelCreateFormValues';
-import { ChannelRelationshipTypes } from '../../components/channels/channelRelationshipTypes';
 import ChannelInformation from '../../components/channels/channelInformation';
 import AppContext from '../../AppContext';
+import IChannelCreateFormValues from '../../models/user/IChannelCreateFormValues';
+import { ChannelRelationshipType } from '../../models/channel/ChannelRelationship';
 
 
 interface ChannelProps {
@@ -46,7 +45,7 @@ class ChannelCreate extends React.Component<ChannelProps, ChannelStates> {
                 channel_id: channelId + "",
                 user_id: contextValue.myId, // a remplacer
                 user_name: contextValue.user.name,  // A REMPLACER PAR LE VRAI NOM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                type: ChannelRelationshipTypes.owner
+                type: ChannelRelationshipType.owner
             })
         } catch (error) { }
         // this.setState({ channelName: values.channelName });
