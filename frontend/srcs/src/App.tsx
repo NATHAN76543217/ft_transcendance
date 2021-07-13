@@ -116,7 +116,6 @@ class App extends React.Component<AppProps, AppState> {
     // console.log("component did update")
   }
 
-
   async updateAllRelationships() {
     try {
       const dataRel = await axios.get(

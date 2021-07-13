@@ -93,8 +93,9 @@ export default function ChatPage({
             {/* <ChannelCreate /> */}
             <div>Channel Create</div>
           </Route>
-
         </div>
+        <ChatNavBar></ChatNavBar>
+        <ChatView className="flex-1"></ChatView>
       </div>
     </ChatPageContext.Provider>
   );
