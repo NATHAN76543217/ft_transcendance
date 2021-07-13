@@ -1,12 +1,13 @@
 import React from 'react';
 
 // import Button from '../../components/utilities/Button';
-import ChannelCreateForm from '../../components/Forms/channelCreateForm';
 import axios from 'axios';
-import ChannelInformation from '../../components/channels/channelInformation';
+import ChannelInformation from '../../components/chat/ChatInformation';
 import AppContext from '../../AppContext';
-import IChannelCreateFormValues from '../../models/user/IChannelCreateFormValues';
 import { ChannelRelationshipType } from '../../models/channel/ChannelRelationship';
+import ChannelCreateForm from '../../components/Forms/channelCreateForm';
+import CreateChannelDto from '../../models/channel/CreateChannel.dto';
+import JoinChannelDto from '../../models/channel/JoinChannel.dto';
 
 
 interface ChannelProps {
@@ -35,18 +36,11 @@ class ChannelCreate extends React.Component<ChannelProps, ChannelStates> {
         // }
     }
 
-    onSubmit = async (values: IChannelCreateFormValues) => {
-        const contextValue = this.context;
+    onSubmit = async (values: CreateChannelDto) => {
         try {
             // const data = await axios.get("/api/channels?name=" + values.channelName);
             const data = await axios.post("/api/channels", values);
-            let channelId = data.data.id;
-            axios.post("/api/channels/join", {
-                channel_id: channelId + "",
-                user_id: contextValue.myId, // a remplacer
-                user_name: contextValue.user.name,  // A REMPLACER PAR LE VRAI NOM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                type: ChannelRelationshipType.owner
-            })
+            console.log(data);
         } catch (error) { }
         // this.setState({ channelName: values.channelName });
     };

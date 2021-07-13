@@ -50,12 +50,21 @@ export default class ChannelsService {
   // Admins can see all channels
   async getAllChannels(name: string) {
     if (name === undefined) {
+    //   const channels = await this.channelsRepository.createQueryBuilder("channel")
+    // .leftJoinAndMapOne("channel.relationshipType", "channels.users", "relationshipType", "user.id = user_id")
+    // .where("channel.name = :name", { name: name })
+    // .getOne();
+
+    // return channels
+
       return await this.channelsRepository.find({ relations: ['users'] });
     }
     return this.channelsRepository.find({
       where: { name: Like('%' + name + '%') },
     });
   }
+
+    
 
   async getChannelById(id: number) {
     // Load users relationships
@@ -86,13 +95,18 @@ export default class ChannelsService {
     userId: number,
     type: ChannelRelationshipType,
   ) {
+
+console.log("createChannelRelationship")
+
     // This should link user and channel to relation
     const relationship = this.channelRelationshipRepository.create({
       channel_id: channelId,
       user_id: userId,
-      type,
+      type: type,
     });
 
+console.log(relationship)
+    
     await this.channelRelationshipRepository.save(relationship);
     //await this.channelsRepository
     //  .createQueryBuilder('channel')
@@ -101,6 +115,8 @@ export default class ChannelsService {
     //  .add(relationship);
     // TODO: This should maybe be in a transaction to prevent null channel
     //await this.channelRelationshipRepository.save(relationship);
+
+    return relationship;
   }
 
   // TODO: onDelete: CASCADE, maybe even full cascade

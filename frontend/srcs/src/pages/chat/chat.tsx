@@ -85,17 +85,16 @@ export default function ChatPage({
           <ChatView className="flex-1"></ChatView>
 
           <Route exact path='/chat/find'>
-            {/* <ChannelSearch
-            /> */}
-            <div>Channel Search</div>
+            <ChannelSearch/>
+            {/* <div>Channel Search</div> */}
           </Route>
           <Route exact path='/chat/create'>
-            {/* <ChannelCreate /> */}
-            <div>Channel Create</div>
+            <ChannelCreate />
+            {/* <div>Channel Create</div> */}
           </Route>
         </div>
-        <ChatNavBar></ChatNavBar>
-        <ChatView className="flex-1"></ChatView>
+        {/* <ChatNavBar></ChatNavBar> */}
+        {/* <ChatView className="flex-1"></ChatView> */}
       </div>
     </ChatPageContext.Provider>
   );

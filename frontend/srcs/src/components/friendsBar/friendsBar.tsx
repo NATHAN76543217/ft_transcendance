@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import AppContext from "../../AppContext";
+import { IAppContext } from "../../IAppContext";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 import { IUser } from "../../models/user/IUser";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import FriendItem from "./friendsItem";
@@ -38,24 +40,24 @@ function changeSectionDisplayStatus(
 
 function displayPendingRequests(
   displaySection: any,
-  relation: IUser,
-  myId: number
+  relation: AppUserRelationship,
+  contextValue: IAppContext,
 ) {
   // TODO: This will be relation.user_id
-  let inf = myId < relation.id;
+  let inf = contextValue.user === undefined ? undefined : contextValue.user.id < relation.user.id;
   if (
     ((inf &&
       relation.relationshipType & UserRelationshipType.pending_second_first) || // a ajuster
       (!inf &&
         relation.relationshipType &
-          UserRelationshipType.pending_first_second)) &&
+        UserRelationshipType.pending_first_second)) &&
     displaySection.offlineFriends
   ) {
     return (
       <FriendItem
-        name={relation.name}
-        status={relation.status}
-        imgPath={relation.imgPath}
+        name={relation.user.name}
+        status={relation.user.status}
+        imgPath={relation.user.imgPath}
       />
     );
   } else {
@@ -63,18 +65,18 @@ function displayPendingRequests(
   }
 }
 
-function displayInGameFriends(displaySection: any, relation: IUser) {
+function displayInGameFriends(displaySection: any, relation: AppUserRelationship) {
   if (
     relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
     relation.relationshipType & UserRelationshipType.pending_second_first &&
-    relation.status === "In game" &&
+    relation.user.status === "In game" &&
     displaySection.inGameFriends
   ) {
     return (
       <FriendItem
-        name={relation.name}
-        status={relation.status}
-        imgPath={relation.imgPath}
+        name={relation.user.name}
+        status={relation.user.status}
+        imgPath={relation.user.imgPath}
       />
     );
   } else {
@@ -82,30 +84,34 @@ function displayInGameFriends(displaySection: any, relation: IUser) {
   }
 }
 
-// function displayOnlineFriends(displaySection: any, relation: IUser) {
-// 	if ((relation.relationshipType & UserRelationshipTypes.pending_first_second) &&	// a ajuster
-// 		(relation.relationshipType & UserRelationshipTypes.pending_second_first) &&
-// 		(relation.status === "Connected") &&
-// displaySection.onlineFriends) {
-// 		return (
-// 			<FriendItem name={relation.name} status={relation.status} imgPath={relation.imgPath} />
-// 		)
-// 	}
-// 	else { return (<div></div>) }
+// function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
+//   if ((relation.relationshipType & UserRelationshipType.pending_first_second) &&	// a ajuster
+//     (relation.relationshipType & UserRelationshipType.pending_second_first) &&
+//     (relation.user.status === "Connected") &&
+//     displaySection.onlineFriends) {
+//     return (
+//       <FriendItem
+//         name={relation.user.name}
+//         status={relation.user.status}
+//         imgPath={relation.user.imgPath}
+//       />
+//     )
+//   }
+//   else { return (<div></div>) }
 // }
 
-function displayOnlineFriends(displaySection: any, relation: IUser) {
-  // FAKE - For Testing
+function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
+  // TODO - FAKE - For Testing
   if (
     relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
-    relation.status === "Connected" &&
+    relation.user.status === "Connected" &&
     displaySection.onlineFriends
   ) {
     return (
       <FriendItem
-        name={relation.name}
-        status={relation.status}
-        imgPath={relation.imgPath}
+        name={relation.user.name}
+        status={relation.user.status}
+        imgPath={relation.user.imgPath}
       />
     );
   } else {
@@ -113,18 +119,18 @@ function displayOnlineFriends(displaySection: any, relation: IUser) {
   }
 }
 
-function displayofflineFriends(displaySection: any, relation: IUser) {
+function displayofflineFriends(displaySection: any, relation: AppUserRelationship) {
   if (
     relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
     relation.relationshipType & UserRelationshipType.pending_second_first &&
-    relation.status === "Offline" &&
+    relation.user.status === "Offline" &&
     displaySection.offlineFriends
   ) {
     return (
       <FriendItem
-        name={relation.name}
-        status={relation.status}
-        imgPath={relation.imgPath}
+        name={relation.user.name}
+        status={relation.user.status}
+        imgPath={relation.user.imgPath}
       />
     );
   } else {
@@ -186,11 +192,11 @@ function FriendsBar() {
         </button>
         <ul>
           {contextValue.relationshipsList.map((relation) => (
-            <div key={relation.name}>
+            <div key={relation.user.name}>
               {displayPendingRequests(
                 displaySection,
                 relation,
-                contextValue.user!.id
+                contextValue
               )}
             </div>
           ))}
@@ -221,7 +227,7 @@ function FriendsBar() {
         </button>
         <ul>
           {contextValue.relationshipsList.map((relation) => (
-            <div key={relation.name}>
+            <div key={relation.user.name}>
               {displayInGameFriends(displaySection, relation)}
             </div>
           ))}
@@ -252,7 +258,7 @@ function FriendsBar() {
         </button>
         <ul>
           {contextValue.relationshipsList.map((relation) => (
-            <div key={relation.name}>
+            <div key={relation.user.name}>
               {displayOnlineFriends(displaySection, relation)}
             </div>
           ))}
@@ -283,7 +289,7 @@ function FriendsBar() {
         </button>
         <ul>
           {contextValue.relationshipsList.map((relation) => (
-            <div key={relation.name}>
+            <div key={relation.user.name}>
               {displayofflineFriends(displaySection, relation)}
             </div>
           ))}

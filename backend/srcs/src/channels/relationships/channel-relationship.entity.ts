@@ -28,12 +28,12 @@ class ChannelRelationship {
   // TODO: Maybe use cascades on creation and update too
   // Provides channel id
   // The onDelete: 'CASCADE' attribute ensures deletion in foreign entities
-  @ManyToOne(() => Channel, (channel) => channel.users, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Channel, (channel: Channel) => channel.users, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'channel_id' })
   public channel: Channel;
 
   // Provides user name and id
-  @ManyToOne(() => User, (user) => user.channels, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user: User) => user.channels, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   public user: User;
 

@@ -2,6 +2,9 @@ import CustomButton from "../utilities/CustomButton";
 import { NavLink } from "react-router-dom";
 import { ChannelMode } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import { IAppContext } from "../../IAppContext";
+import React, { useEffect, useState } from "react";
+import AppContext from "../../AppContext";
 
 type ChannelProps = {
   id: number; // optional ?
@@ -10,8 +13,10 @@ type ChannelProps = {
   imgPath?: string;
   relationshipTypes: ChannelRelationshipType;
   isInSearch?: boolean | false;
-  joinChannel: (id: number) => void;
-  leaveChannel: (id: number) => void;
+  joinChannel: any;
+  leaveChannel: any;
+  channelInfo: any;
+  setChannelInfo?: any;
 };
 
 function getModeColor(mode: ChannelMode) {
@@ -82,12 +87,23 @@ function displayChannelPicture(channel: ChannelProps) {
 //     }
 // }
 
-function displayJoinButton(channel: ChannelProps) {
+function displayJoinButton(channel: ChannelProps, contextValue: IAppContext) {
   let isInChannel = !(
-    channel.relationshipTypes === ChannelRelationshipType.null ||
-    channel.relationshipTypes === ChannelRelationshipType.ban
+    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.null) ||
+    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.banned) ||
+    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.invited)
   );
-  let isBan = channel.relationshipTypes === ChannelRelationshipType.ban;
+  let isBan = channel.relationshipTypes === ChannelRelationshipType.banned;
+
+  const joinChannel = async (id: number) => {
+    await channel.joinChannel(id, channel.channelInfo, channel.setChannelInfo, contextValue);
+    await contextValue.updateAllRelationships();
+  };
+
+  const leaveChannel = async (id: number) => {
+    await channel.leaveChannel(id, channel.channelInfo, channel.setChannelInfo, contextValue);
+    await contextValue.updateAllRelationships();
+  };
 
   return (
     <div className="w-48 my-4 text-center">
@@ -98,7 +114,7 @@ function displayJoinButton(channel: ChannelProps) {
           <CustomButton
             content="Join channel"
             // url="/users/pending"
-            onClickFunctionId={channel.joinChannel}
+            onClickFunctionId={joinChannel}
             argId={channel.id}
             bg_color="bg-secondary"
             // bg_hover_color="bg-secondary-dark"
@@ -109,7 +125,7 @@ function displayJoinButton(channel: ChannelProps) {
         <CustomButton
           content="Leave channel"
           // url="/users/friend"
-          onClickFunctionId={channel.leaveChannel}
+          onClickFunctionId={leaveChannel}
           argId={channel.id}
           bg_color="bg-unset"
           // bg_hover_color="bg-secondary-dark"
@@ -131,6 +147,10 @@ function displayJoinButton(channel: ChannelProps) {
 // }
 
 function ChannelInformation(channel: ChannelProps) {
+  const contextValue = React.useContext(AppContext);
+  // const [relationState, setRelationState] = useState(channel.relationshipTypes)
+  // useEffect(() => {
+  // }, [relationState]);
   return (
     <div className="py-4 h-42">
       <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
@@ -149,7 +169,7 @@ function ChannelInformation(channel: ChannelProps) {
             {getModeName(channel.mode)}
           </h1>
         </div>
-        <div>{displayJoinButton(channel)}</div>
+        <div>{displayJoinButton(channel, contextValue)}</div>
       </section>
     </div>
   );

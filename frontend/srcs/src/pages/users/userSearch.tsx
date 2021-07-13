@@ -8,10 +8,11 @@ import { IUser } from "../../models/user/IUser";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import AppContext from "../../AppContext";
 import UserSearchState from "../../models/user/UserSearchState";
+import { IAppContext } from "../../IAppContext";
 
 
 
-const setFriendAndBlockBoolean = async (searchInfo: UserSearchState, setSearchInfo: any, contextValue: any) => {
+const setFriendAndBlockBoolean = async (searchInfo: UserSearchState, setSearchInfo: any, contextValue: IAppContext) => {
   searchInfo.list.map(async (elem, index) => {
     let user = elem.user
     let idInf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(user.id));
@@ -41,7 +42,7 @@ const setFriendAndBlockBoolean = async (searchInfo: UserSearchState, setSearchIn
   });
 }
 
-const onSubmit = async (values: IUserSearchFormValues, searchInfo: UserSearchState, setSearchInfo: any, contextValue: any) => {
+const onSubmit = async (values: IUserSearchFormValues, searchInfo: UserSearchState, setSearchInfo: any, contextValue: IAppContext) => {
   try {
     const data = await axios.get("/api/users?name=" + values.username);
     let a = data.data.slice();
@@ -71,7 +72,7 @@ const updateRelationshipState = (id: number, newType: UserRelationshipType, user
   });
 }
 
-const addFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: any) => {
+const addFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
   let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
   try {
     let request = inf ?
@@ -105,8 +106,8 @@ const addFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSe
       : UserRelationshipType.pending_second_first;
     try {
       await axios.post("/api/users/relationships", {
-        user1_id: (inf ? contextValue.user.id + "" : id + ""),
-        user2_id: (inf ? id + "" : contextValue.user.id + ""),
+        user1_id: (inf ? contextValue.user?.id + "" : id + ""),
+        user2_id: (inf ? id + "" : contextValue.user?.id + ""),
         type: newType,
       });
       updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
@@ -116,7 +117,7 @@ const addFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSe
   }
 }
 
-const removeFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: any) => {
+const removeFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
   let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
   try {
     let request = inf ?
@@ -144,7 +145,7 @@ const removeFriend = async (id: number, userInfoForSearch: UserInfoForSearch, se
   } catch (error) { }
 }
 
-const blockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: any) => {
+const blockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
   let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
   try {
     let request = inf ?
@@ -176,8 +177,8 @@ const blockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSe
       : UserRelationshipType.block_second_first;
     try {
       await axios.post("/api/users/relationships", {
-        user1_id: (inf ? contextValue.user.id + "" : id + ""),
-        user2_id: (inf ? id + "" : contextValue.user.id + ""),
+        user1_id: (inf ? contextValue.user?.id + "" : id + ""),
+        user2_id: (inf ? id + "" : contextValue.user?.id + ""),
         type: newType,
       });
       updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
@@ -185,7 +186,7 @@ const blockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSe
   }
 }
 
-const unblockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: any) => {
+const unblockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
   let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
   try {
     let request = inf ?

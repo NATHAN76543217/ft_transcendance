@@ -126,7 +126,7 @@ class AdminChannelElement extends React.Component<
         return UserRole.owner;
       case ChannelRelationshipType.admin:
         return UserRole.admin;
-      case ChannelRelationshipType.ban:
+      case ChannelRelationshipType.banned:
         return UserRole.ban;
       default:
         return UserRole.null;
@@ -152,16 +152,16 @@ class AdminChannelElement extends React.Component<
   }
 
   banUserFromChannel = async (id: number) =>
-    this.setChannelUserRelationship(id, ChannelRelationshipType.ban);
+    this.setChannelUserRelationship(id, ChannelRelationshipType.banned);
 
   unbanUserFromChannel = async (id: number) =>
-    this.setChannelUserRelationship(id, ChannelRelationshipType.standard);
+    this.setChannelUserRelationship(id, ChannelRelationshipType.member);
 
   setAdminFromChannel = async (id: number) =>
     this.setChannelUserRelationship(id, ChannelRelationshipType.admin);
 
   unsetAdminFromChannel = async (id: number) =>
-    this.setChannelUserRelationship(id, ChannelRelationshipType.standard);
+    this.setChannelUserRelationship(id, ChannelRelationshipType.member);
 
   displayUsersList() {
     if (this.state.showUsersList) {

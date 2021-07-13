@@ -8,6 +8,7 @@ import AppContext from "../../AppContext";
 import UserPageState from "../../models/user/UserPageState";
 import { IUser } from "../../models/user/IUser";
 import UserSearchState from "../../models/user/UserSearchState";
+import { IAppContext } from "../../IAppContext";
 
 type UserProps = {
   id: number; // optional ?
@@ -108,15 +109,15 @@ function displayFileChange(user: UserProps) {
   }
 }
 
-function displayFriendButton(user: UserProps, updateAllRelationships: any, contextValue: any) {
+function displayFriendButton(user: UserProps, contextValue: IAppContext) {
   const addFriend = async (id: number) => {
     await user.addFriend(id, user.userInfo, user.setUserInfo, contextValue);
-    await updateAllRelationships();
+    await contextValue.updateAllRelationships();
   };
 
   const removeFriend = async (id: number) => {
     await user.removeFriend(id, user.userInfo, user.setUserInfo, contextValue);
-    await updateAllRelationships();
+    await contextValue.updateAllRelationships();
   };
 
   let isPending = user.idInf
@@ -177,15 +178,15 @@ function displayFriendButton(user: UserProps, updateAllRelationships: any, conte
   );
 }
 
-function displayBlockButton(user: UserProps, updateAllRelationships: any, contextValue: any) {
+function displayBlockButton(user: UserProps, contextValue: IAppContext) {
   const blockUser = async (id: number) => {
     await user.blockUser(id, user.userInfo, user.setUserInfo, contextValue);
-    await updateAllRelationships();
+    await contextValue.updateAllRelationships();
   };
 
   const unblockUser = async (id: number) => {
     await user.unblockUser(id, user.userInfo, user.setUserInfo, contextValue);
-    await updateAllRelationships();
+    await contextValue.updateAllRelationships();
   };
 
   let isBlock = user.idInf
@@ -295,8 +296,8 @@ function UserInformation(user: UserProps) {
 
         <div>{displayWinAndLose(user)}</div>
         <div>
-          {displayFriendButton(user, contextValue.updateAllRelationships, contextValue)}
-          {displayBlockButton(user, contextValue.updateAllRelationships, contextValue)}
+          {displayFriendButton(user, contextValue)}
+          {displayBlockButton(user, contextValue)}
         </div>
       </section>
       {displayChangeNameField(user)}

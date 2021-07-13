@@ -23,6 +23,7 @@ import {
   ChannelAction,
   ChannelCaslAbilityFactory,
 } from './channel-casl-ability.factory';
+import { JoinChannelDto } from './dto/joinChannel.dto';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthenticationGuard)
@@ -41,7 +42,9 @@ export default class ChannelsController {
   @Get()
   //@UseGuards(PoliciesGuard)
   //@CheckPolicies(new ReadChannelPolicyHandler())
-  getChannels(@Query('name') name: string) {
+  getChannels(
+    // @Req() req: RequestWithUser,
+    @Query('name') name: string) {
     return this.channelsService.getAllChannels(name);
   }
 
@@ -71,13 +74,23 @@ export default class ChannelsController {
     @Req() req: RequestWithUser,
     @Body() channelData: CreateChannelDto,
   ) {
+
+    console.log("createChannel - begin") //////////////////////////////////////////////////
+
     const channel = await this.channelsService.createChannel(channelData);
 
-    await this.channelsService.createChannelRelationship(
+    console.log(channel)
+
+    const relation = await this.channelsService.createChannelRelationship(
       channel.id,
       req.user.id,
       ChannelRelationshipType.owner,
     );
+
+    console.log(relation)
+
+    console.log("createChannel - end") //////////////////////////////////////////////////
+
     return channel;
   }
 
@@ -131,7 +144,11 @@ export default class ChannelsController {
   async joinChannel(
     @Req() req: RequestWithUser,
     @Param('id') channelId: string,
+    // @Body() joinChannelData: JoinChannelDto,
   ) {
+
+console.log("join channel")
+
     const relationship = await this.channelsService.getChannelRelationship(
       Number(channelId),
       req.user.id,
@@ -145,11 +162,18 @@ export default class ChannelsController {
       throw new HttpException('TODO: Relationship already exists!', 400);
     }
 
+    // TODO: Add check if password
+
     await this.channelsService.createChannelRelationship(
       Number(channelId),
       req.user.id,
-      ChannelRelationshipType.member,
+      // joinChannelData.type,
+      ChannelRelationshipType.member
     );
+
+
+    console.log("joinChannel - end") /////////////////////////////////////////////////
+
   }
 
   @Delete(':id/leave')

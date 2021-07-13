@@ -7,7 +7,7 @@ type ChannelSearchProps = {
   onSubmit: (values: ChannelSearchDto) => void; // define function type
 };
 
-export default function SearchChannel(props: ChannelSearchProps) {
+export default function ChannelSearchForm(props: ChannelSearchProps) {
   //const [username, password] = useState();
 
   const { register, handleSubmit } = useForm<ChannelSearchDto>();
