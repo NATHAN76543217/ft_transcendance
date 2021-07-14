@@ -1,5 +1,6 @@
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.interface';
 import { UserRoleTypes } from './utils/userRoleTypes';
+import { UserStatus } from './utils/userStatus';
 
 export default interface User {
   id: number;
@@ -10,7 +11,7 @@ export default interface User {
   stats: number;
   imgPath: string;
   twoFactorAuth: boolean;
-  status: string;
+  status: UserStatus;
   role: UserRoleTypes;
   channels: ChannelRelationship[];
 }

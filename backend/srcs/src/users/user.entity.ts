@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { UserRoleTypes } from './utils/userRoleTypes';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
+import { UserStatus } from './utils/userStatus';
 
 @Entity()
 //@Unique('name', ['name'])
@@ -24,7 +25,7 @@ class User {
   @Column({ nullable: true })
   public stats: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 'default-profile-picture.png' })
   public imgPath: string;
 
   @Column({ unique: true, nullable: true })
@@ -36,8 +37,8 @@ class User {
   @Column({ nullable: true, default: false })
   public twoFactorAuth: boolean;
 
-  @Column({ nullable: true })
-  public status: string;
+  @Column({ nullable: true, default: UserStatus.offline })
+  public status: UserStatus;
 
   @Column({ default: UserRoleTypes.null })
   public role: UserRoleTypes;

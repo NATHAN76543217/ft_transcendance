@@ -1,4 +1,5 @@
 import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserStatus } from 'src/users/utils/userStatus';
 import User from '../../users/user.entity';
 
  
@@ -14,7 +15,7 @@ export const mockedUser: User = {
   googleid: null,
   jwt: "",
   twoFactorAuth: false,
-  status: "",
+  status: UserStatus.null,
   role: UserRoleTypes.null,
   channels: [],
   // userRelationship1: [],

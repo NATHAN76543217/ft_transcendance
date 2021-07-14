@@ -8,6 +8,7 @@ import UserNotFound from './exception/UserNotFound.exception';
 import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 import UserRelationshipsService from './relationships/user-relationships.service';
 import UserNameNotFoundException from './exception/UserNameNotFound.exception';
+import UserRelationship from './relationships/user-relationship.entity';
 
 @Injectable()
 export default class UsersService {
@@ -126,7 +127,7 @@ export default class UsersService {
       const dataRel =
         await userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
       if (dataRel) {
-        dataRel.map((relation) => {
+        dataRel.map((relation: UserRelationship) => {
           userRelationshipsService.deleteUserRelationship(Number(relation.id));
         });
       }

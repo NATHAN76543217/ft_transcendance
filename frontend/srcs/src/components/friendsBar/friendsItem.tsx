@@ -1,6 +1,8 @@
+import { UserStatus } from "../../models/user/IUser";
+
 type FriendsProps = {
     name : string,
-    status : string,
+    status : UserStatus,
     imgPath?: string,
 }
 

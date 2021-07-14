@@ -121,16 +121,22 @@ class App extends React.Component<AppProps, AppState> {
       const dataRel = await axios.get(
         "/api/users/relationships/" + this.state.user?.id
       );
-      let a: AppUserRelationship[] = [];
-      if (!dataRel.data.length) {
-        this.setState({ relationshipsList: a });
-      } else {
-        await dataRel.data.map(async (relation: UserRelationship) => {
-          let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
-          let friendId = inf ? relation.user2_id : relation.user1_id;
-          try {
-            let index;
-            const dataUser = await axios.get("/api/users/" + friendId);
+
+console.log("dataRel")
+console.log(dataRel)
+
+let a: AppUserRelationship[] = [];
+if (!dataRel.data.length) {
+  this.setState({ relationshipsList: a });
+} else {
+  await dataRel.data.map(async (relation: UserRelationship) => {
+    let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
+    let friendId = inf ? relation.user2_id : relation.user1_id;
+    try {
+      let index;
+      const dataUser = await axios.get("/api/users/" + friendId);
+      console.log("dataUser")
+      console.log(dataUser)
             index = a.push({
               user: dataUser.data,
               relationshipType: relation.type

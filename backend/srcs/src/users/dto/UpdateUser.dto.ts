@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber, IsBoolean, isNotEmpty, Length } from "class-validator";
+import { UserStatus } from "../utils/userStatus";
 
 export default class UpdateUserDto {
 	@IsOptional()
@@ -35,5 +36,5 @@ export default class UpdateUserDto {
 
 	@IsOptional()
 	@IsString()
-    public status: string;
+    public status: UserStatus;
 }

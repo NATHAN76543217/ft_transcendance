@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import AppContext from "../../AppContext";
 import { IAppContext } from "../../IAppContext";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
-import { IUser } from "../../models/user/IUser";
+import { UserStatus } from "../../models/user/IUser";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import FriendItem from "./friendsItem";
 
@@ -45,12 +45,8 @@ function displayPendingRequests(
 ) {
   // TODO: This will be relation.user_id
   let inf = contextValue.user === undefined ? undefined : Number(contextValue.user.id) < Number(relation.user.id);
-  if (!(relation.relationshipType & UserRelationshipType.friends) &&
-    ((inf &&
-      relation.relationshipType & UserRelationshipType.pending_second_first) || // a ajuster
-      (!inf &&
-        relation.relationshipType &
-        UserRelationshipType.pending_first_second)) &&
+  if (((inf && relation.relationshipType === UserRelationshipType.pending_second_first) ||
+    (!inf && relation.relationshipType === UserRelationshipType.pending_first_second)) &&
     displaySection.pendingRequests
   ) {
     return (
@@ -67,9 +63,8 @@ function displayPendingRequests(
 
 function displayInGameFriends(displaySection: any, relation: AppUserRelationship) {
   if (
-    relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
-    relation.relationshipType & UserRelationshipType.pending_second_first &&
-    relation.user.status === "In game" &&
+    relation.relationshipType === UserRelationshipType.friends &&
+    relation.user.status === UserStatus.inGame &&
     displaySection.inGameFriends
   ) {
     return (
@@ -84,10 +79,25 @@ function displayInGameFriends(displaySection: any, relation: AppUserRelationship
   }
 }
 
+function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
+  if (relation.relationshipType === UserRelationshipType.friends &&
+    (relation.user.status === UserStatus.online) &&
+    displaySection.onlineFriends) {
+    return (
+      <FriendItem
+        name={relation.user.name}
+        status={relation.user.status}
+        imgPath={relation.user.imgPath}
+      />
+    )
+  }
+  else { return (<div></div>) }
+}
+
 // function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
-//   if ((relation.relationshipType & UserRelationshipType.pending_first_second) &&	// a ajuster
-//     (relation.relationshipType & UserRelationshipType.pending_second_first) &&
-//     (relation.user.status === "Connected") &&
+//   // TODO - FAKE - For Testing
+//   if (relation.relationshipType === UserRelationshipType.friends &&
+//     (relation.user.status === UserStatus.null) &&
 //     displaySection.onlineFriends) {
 //     return (
 //       <FriendItem
@@ -100,28 +110,10 @@ function displayInGameFriends(displaySection: any, relation: AppUserRelationship
 //   else { return (<div></div>) }
 // }
 
-function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
-  // TODO - FAKE - For Testing
-  if ((relation.relationshipType & UserRelationshipType.pending_first_second) &&	// a ajuster
-  (relation.relationshipType & UserRelationshipType.pending_second_first) &&
-  (relation.user.status === null) &&
-  displaySection.onlineFriends) {
-  return (
-    <FriendItem
-      name={relation.user.name}
-      status={relation.user.status}
-      imgPath={relation.user.imgPath}
-    />
-  )
-}
-else { return (<div></div>) }
-}
-
 function displayofflineFriends(displaySection: any, relation: AppUserRelationship) {
   if (
-    relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
-    relation.relationshipType & UserRelationshipType.pending_second_first &&
-    relation.user.status === "Offline" &&
+    relation.relationshipType === UserRelationshipType.friends &&
+    relation.user.status === UserStatus.offline &&
     displaySection.offlineFriends
   ) {
     return (

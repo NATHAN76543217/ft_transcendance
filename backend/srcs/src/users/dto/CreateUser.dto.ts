@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsOptional, IsNumberString, IsBoolean, IsNumber, Length } from "class-validator";
+import { UserStatus } from "../utils/userStatus";
 
 export default class CreateUserDto {
     @IsString()
@@ -40,5 +41,5 @@ export default class CreateUserDto {
 
     @IsOptional()
     @IsString()
-    public status?: string;
+    public status?: UserStatus;
 }

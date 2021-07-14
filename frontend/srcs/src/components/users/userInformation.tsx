@@ -6,14 +6,14 @@ import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import React from "react";
 import AppContext from "../../AppContext";
 import UserPageState from "../../models/user/UserPageState";
-import { IUser } from "../../models/user/IUser";
+import { IUser, UserStatus } from "../../models/user/IUser";
 import UserSearchState from "../../models/user/UserSearchState";
 import { IAppContext } from "../../IAppContext";
 
 type UserProps = {
   id: number; // optional ?
   name: string;
-  status: string;
+  status: UserStatus;
   nbWin?: number;
   nbLoss?: number;
   imgPath: string;
@@ -35,13 +35,13 @@ type UserProps = {
   setUserInfo?: any;
 };
 
-function getStatusColor(param: string) {
+function getStatusColor(param: UserStatus) {
   switch (param) {
-    case "Connected":
+    case UserStatus.online:
       return " text-green-600";
-    case "Offline":
+    case UserStatus.offline:
       return " text-red-600";
-    case "In game":
+    case UserStatus.inGame:
       return " text-yellow-600";
     default:
       return "";
