@@ -126,7 +126,7 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({ relationshipsList: a });
       } else {
         await dataRel.data.map(async (relation: UserRelationship) => {
-          let inf = (relation.user1_id === this.state.user?.id);
+          let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
             let index;

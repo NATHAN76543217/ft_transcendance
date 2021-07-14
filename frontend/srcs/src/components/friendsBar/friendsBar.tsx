@@ -44,14 +44,14 @@ function displayPendingRequests(
   contextValue: IAppContext,
 ) {
   // TODO: This will be relation.user_id
-  let inf = contextValue.user === undefined ? undefined : contextValue.user.id < relation.user.id;
-  if (
+  let inf = contextValue.user === undefined ? undefined : Number(contextValue.user.id) < Number(relation.user.id);
+  if (!(relation.relationshipType & UserRelationshipType.friends) &&
     ((inf &&
       relation.relationshipType & UserRelationshipType.pending_second_first) || // a ajuster
       (!inf &&
         relation.relationshipType &
         UserRelationshipType.pending_first_second)) &&
-    displaySection.offlineFriends
+    displaySection.pendingRequests
   ) {
     return (
       <FriendItem
@@ -102,21 +102,19 @@ function displayInGameFriends(displaySection: any, relation: AppUserRelationship
 
 function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
   // TODO - FAKE - For Testing
-  if (
-    relation.relationshipType & UserRelationshipType.pending_first_second && // a ajuster
-    relation.user.status === "Connected" &&
-    displaySection.onlineFriends
-  ) {
-    return (
-      <FriendItem
-        name={relation.user.name}
-        status={relation.user.status}
-        imgPath={relation.user.imgPath}
-      />
-    );
-  } else {
-    return <div></div>;
-  }
+  if ((relation.relationshipType & UserRelationshipType.pending_first_second) &&	// a ajuster
+  (relation.relationshipType & UserRelationshipType.pending_second_first) &&
+  (relation.user.status === null) &&
+  displaySection.onlineFriends) {
+  return (
+    <FriendItem
+      name={relation.user.name}
+      status={relation.user.status}
+      imgPath={relation.user.imgPath}
+    />
+  )
+}
+else { return (<div></div>) }
 }
 
 function displayofflineFriends(displaySection: any, relation: AppUserRelationship) {
@@ -141,6 +139,9 @@ function displayofflineFriends(displaySection: any, relation: AppUserRelationshi
 function FriendsBar() {
   // const contextValue = React.useContext(App.appContext);
   const contextValue = React.useContext(AppContext);
+
+  console.log("contextValue")
+  console.log(contextValue)
 
   const [displaySection, setDisplaySection] = useState({
     pendingRequests: true,
