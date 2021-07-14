@@ -41,7 +41,7 @@ export default function LogoutButton() {
       type="button"
       onClick={onLogout}
       className={
-        "rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary"
+        "rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary hover:bg-secondary-dark"
       }
     >
       Logout

@@ -10,11 +10,11 @@ module.exports = {
         colors: {
           primary : {
             DEFAULT : '#b2e2eb',
-            dark : '#a1dbe6'
+            dark : '#7ab6c2'
           },
           secondary : {
             DEFAULT : '#28b9d4',
-            dark : '#219db4'
+            dark : '#24a6be'
           },
           neutral : {
             DEFAULT : '#efefef',
@@ -22,7 +22,11 @@ module.exports = {
           },
           unset : {
             DEFAULT : '#f04545',
-            dark : '#ee3636'
+            dark : '#d83e3e'
+          },
+          test : {
+            DEFAULT : '#d83e3e',
+            dark : '#d83e3e'
           },
           pending : {
             DEFAULT : '#c1d2e3',

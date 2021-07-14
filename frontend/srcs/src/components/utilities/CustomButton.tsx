@@ -25,6 +25,8 @@ function CustomButton({
     bg_hover_color = bg_color + "-dark";
   }
 
+  // bg_hover_color = "bg-gray-500"
+
   return (
     <button
       className={
@@ -33,7 +35,7 @@ function CustomButton({
         (dark_text ? " text-gray-900 " : " text-neutral ") +
         bg_color +
         " hover:" +
-        bg_hover_color +
+        bg_hover_color + " " +
         " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
       }
       // href={ url }

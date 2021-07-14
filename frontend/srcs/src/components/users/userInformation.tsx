@@ -152,7 +152,7 @@ function displayFriendButton(user: UserProps, contextValue: IAppContext) {
             onClickFunctionId={removeFriend}
             argId={user.id}
             bg_color="bg-unset"
-            // bg_hover_color="bg-unset-dark"
+            // bg_hover_color="bg-pending"
             dark_text
           />
         ) : isPending ? (

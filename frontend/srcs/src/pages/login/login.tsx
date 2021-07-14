@@ -85,45 +85,49 @@ export default function Login({ match }: LoginPageProps) {
 
   return (
     <section className="flex flex-col max-w-sm p-4 m-auto mt-32 rounded-xl bg-neutral">
-      <h1 className="m-4 text-6xl text-center">Login</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <TextInput
-          name="username"
-          register={register}
-          required={true}
-          error={errors.username}
-        ></TextInput>
-        <TextInput
-          name="password"
-          register={register}
-          type="password"
-          required={true}
-          error={errors.password}
-        ></TextInput>
-        <input
-          type="submit"
-          value="Login"
-          className={
-            "rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary"
-          }
-        ></input>
-      </form>
-      {/* <button type="button" onClick={() => {
-				const newTab = window.open("https://localhost/api/authentication/oauth2/school42");
-				}}>
-				content="Login with 42"
-			</button> */}
-      {/* TODO up: button with new tab    bellow: button on the same tab */}
-      <Button
-        content="Login with 42"
-        url="https://localhost/api/authentication/oauth2/school42"
-        className=""
-      />
-      <Button
-        content="Login with google"
-        url="https://localhost/api/authentication/oauth2/google"
-        className=""
-      />
+      <div className="mb-8">
+        <h1 className="m-4 text-6xl text-center">Login</h1>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextInput
+            name="username"
+            register={register}
+            required={true}
+            error={errors.username}
+          ></TextInput>
+          <TextInput
+            name="password"
+            register={register}
+            type="password"
+            required={true}
+            error={errors.password}
+          ></TextInput>
+          <input
+            type="submit"
+            value="Login"
+            className={
+              "rounded-xl text-neutral font-semibold p-2 mt-4 w-full text-lg bg-secondary hover:bg-secondary-dark"
+            }
+          ></input>
+        </form>
+      </div>
+      <div className="flex items-center">
+        {/* <button type="button" onClick={() => {
+        const newTab = window.open("https://localhost/api/authentication/oauth2/school42");
+      }}>
+      content="Login with 42"
+    </button> */}
+        {/* TODO up: button with new tab    bellow: button on the same tab */}
+        <Button
+          content="Login with 42"
+          url="https://localhost/api/authentication/oauth2/school42"
+          className="bg-gray-400 whitespace-nowrap hover:bg-gray-500"
+        />
+        <Button
+          content="Login with Google"
+          url="https://localhost/api/authentication/oauth2/google"
+          className="bg-gray-400 whitespace-nowrap hover:bg-gray-500"
+        />
+      </div>
     </section>
   );
 }

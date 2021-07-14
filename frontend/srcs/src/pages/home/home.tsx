@@ -19,9 +19,19 @@ function Home(props: { logged: boolean }) {
                             <br />
                             There's no time to waste, let's play!
                     </p>
-                        <div className="flex items-center justify-center space-x-16">
-                            <Button content="Let's play !" url="/game/quickgame" primary />
-                            <Button content="Custom Game" url="/game" />
+                        <div className="flex items-center justify-center space-x-8">
+                            <Button
+                                content="Let's play !"
+                                url="/game/quickgame"
+                                secondary
+                                className="whitespace-nowrap"
+                            />
+                            <Button
+                                content="Custom Game"
+                                url="/game"
+                                secondary
+                                className="whitespace-nowrap"
+                            />
                         </div>
                     </nav>
                 </section>
@@ -49,13 +59,13 @@ function Home(props: { logged: boolean }) {
                         <div className="flex items-center justify-center space-x-16">
                             <Button
                                 content="Login"
-                                primary
+                                secondary
                                 url="/login"
                                 className="w-24 text-center"
                             />
                             <Button
                                 content="Register"
-                                primary
+                                secondary
                                 url="/register"
                                 className="w-24 text-center"
                             />

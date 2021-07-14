@@ -22,13 +22,13 @@ function Header() {
         <div className="m-4 ">
           <Button
             content="Login"
-            primary
+            secondary
             url="/login"
             className="w-24 text-center"
           />
           <Button
             content="Register"
-            primary
+            secondary
             url="/register"
             className="w-24 text-center"
           />

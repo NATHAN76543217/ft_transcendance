@@ -48,7 +48,7 @@ export function TextInput<FormValues>({name, register, type, required, labelClas
     //const {value, bind, reset} = validateValue("");
 
     //const { register, handleSubmit, watch, formState: { errors } } = useForm();
-    let labelBasicClassName = "mb-2 ml-8 text-lg font-bold"
+    let labelBasicClassName = "mb-2 ml-2 text-lg font-bold"
     let inputBasicClassName = "flex h-auto px-2 py-1 mx-2 mb-2 font-semibold bg-gray-200 rounded-sm text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none w-3/4"
 
     return (
