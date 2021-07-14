@@ -11,7 +11,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser } from "./models/user/IUser";
+import { IUser, UserRole, UserStatus } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -75,8 +75,16 @@ class App extends React.Component<AppProps, AppState> {
         // If the user is not logged
         this.setUser(user);
       }
+
       window.location.href = "/";
     });
+
+    const dataUpdate = axios.patch(
+      `/api/users/${userid}`,
+      { status: UserStatus.online }
+    );
+    // console.log("data Update login: ",dataUpdate)
+
     return <p>You will be redirect soon</p>;
   };
 
@@ -214,7 +222,8 @@ class App extends React.Component<AppProps, AppState> {
                           <Register />
                         </OnlyPublic>
                         {this.displayAdminRoute(
-                          true //this.state.user?.role === UserRole.admin
+                          // true
+                          this.state.user?.role === UserRole.admin
                         )}
                       </Switch>
                     </main>

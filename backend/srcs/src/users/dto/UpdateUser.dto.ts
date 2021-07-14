@@ -35,6 +35,6 @@ export default class UpdateUserDto {
     public twoFactorAuth: boolean;
 
 	@IsOptional()
-	@IsString()
+	// @IsNumber()
     public status: UserStatus;
 }

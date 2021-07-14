@@ -8,6 +8,9 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
 import * as bcrypt from 'bcrypt';
+import { UserStatus } from 'src/users/utils/userStatus';
+import UpdateUserDto from 'src/users/dto/UpdateUser.dto';
+import User from 'src/users/user.entity';
 
 @Injectable()
 export class AuthenticationService {
@@ -94,4 +97,13 @@ export class AuthenticationService {
   public getCookieForLogOut() {
     return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
+
+  // public setUserStatus(user: User, userStatus: UserStatus) {
+  //   let usersService = new UsersService();
+  //   let userDto: UpdateUserDto = {
+  //     ...user,
+  //     status: userStatus
+  //   }
+  //   usersService.updateUser(user.id, userDto)
+  // }
 }

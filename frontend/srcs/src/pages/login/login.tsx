@@ -9,6 +9,7 @@ import { useContext } from "react";
 import AppContext from "../../AppContext";
 import axios from "axios";
 import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
+import { UserStatus } from "../../models/user/IUser";
 interface ILoginFormValues {
   username: string;
   password: string;
@@ -41,6 +42,12 @@ export default function Login({ match }: LoginPageProps) {
       console.log("Setting user data: ", data);
 
       setUser(data);
+
+      const dataUpdate = await axios.patch(
+        `/api/users/${data.id}`,
+        { status: UserStatus.online }
+      );
+      // console.log("data Update login: ",dataUpdate)
 
       const url = match.params.redirPath
         ? urljoin("/", match.params.redirPath)

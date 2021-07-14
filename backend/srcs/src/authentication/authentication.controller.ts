@@ -16,6 +16,8 @@ import { Response } from 'express';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
 import LoginWithPasswordDto from './dto/loginWithPassword.dto';
 import { ApiCookieAuth } from '@nestjs/swagger';
+import { UserStatus } from 'src/users/utils/userStatus';
+import UsersService from 'src/users/users.service';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -37,6 +39,7 @@ export class AuthenticationController {
     const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
     response.setHeader('Set-Cookie', cookie);
     user.password = undefined;
+    user.status = UserStatus.online;
     response.send(user);
   }
 
