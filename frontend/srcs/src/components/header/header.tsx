@@ -19,7 +19,7 @@ function Header() {
           <LogoutButton />
         </div>
       ) : (
-        <div className="m-4">
+        <div className="m-4 ">
           <Button
             content="Login"
             primary

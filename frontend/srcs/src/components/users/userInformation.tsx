@@ -48,6 +48,19 @@ function getStatusColor(param: UserStatus) {
   }
 }
 
+function getStatus(param: UserStatus) {
+  switch (param) {
+    case UserStatus.online:
+      return "Online";
+    case UserStatus.offline:
+      return "Offline";
+    case UserStatus.inGame:
+      return "In Game";
+    default:
+      return "";
+  }
+}
+
 function displayWinAndLose(user: UserProps) {
   if (user.isInSearch) {
     return (
@@ -289,7 +302,7 @@ function UserInformation(user: UserProps) {
             {user.name}
           </NavLink>
           <h1 className={"relative font-bold " + getStatusColor(user.status)}>
-            {user.status}
+            {getStatus(user.status)}
           </h1>
           {displayWrongUsernameMessage(user)}
         </div>

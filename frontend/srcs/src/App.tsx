@@ -192,7 +192,7 @@ class App extends React.Component<AppProps, AppState> {
                     <main className={"flex-grow " + change_bg_color_with_size}>
                       <Switch>
                         <Route exact path="/">
-                          <Home />
+                          <Home logged={this.state.user !== undefined} />
                         </Route>
                         <PrivateRoute
                           isAuth={this.state.user !== undefined}
@@ -229,7 +229,7 @@ class App extends React.Component<AppProps, AppState> {
                       </Switch>
                     </main>
                     <div className="flex-none hidden md:block">
-                      <FriendsBar />
+                      <FriendsBar logged={this.state.user !== undefined} />
                     </div>
                   </div>
                 </div>

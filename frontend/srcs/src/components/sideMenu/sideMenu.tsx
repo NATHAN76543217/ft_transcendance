@@ -41,6 +41,9 @@ SideMenuButton.defaultProps = {
 
 function SideMenu(props : {logged :boolean}) {
 	const { user } = useContext(AppContext);
+	if (!props.logged) {
+		return (<div></div>)
+	}
 	return (
 		<div>
 			<nav className="absolute z-50 w-16 h-full delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">

@@ -358,15 +358,6 @@ function UserPage({
     onLoad(Number(userId), userInfo, setUserInfo, contextValue);
   }, [userInfo, userId]);
 
-  if (userId === "find") {
-    return <div></div>;
-  }
-
-  if (userId === "create") {
-    return <div></div>;
-  }
-
-
   if (!userInfo.doesUserExist) {
     return (
       <div className="px-2 py-2 font-bold">This user does not exist</div>

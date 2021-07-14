@@ -128,7 +128,7 @@ function displayofflineFriends(displaySection: any, relation: AppUserRelationshi
   }
 }
 
-function FriendsBar() {
+function FriendsBar(props : {logged :boolean}) {
   // const contextValue = React.useContext(App.appContext);
   const contextValue = React.useContext(AppContext);
 
@@ -141,6 +141,10 @@ function FriendsBar() {
     onlineFriends: true,
     offlineFriends: true,
   });
+
+  if (!props.logged) {
+		return (<div></div>)
+	}
 
   return (
     <aside className="w-48 bg-neutral">
