@@ -28,7 +28,7 @@ import { AppUserRelationship } from "./models/user/AppUserRelationship";
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
 
-interface AppProps {}
+interface AppProps { }
 
 interface TokenPayload {
   userId: number;
@@ -107,13 +107,12 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
-    if (
-      prevState.relationshipsList.toString() !==
-      this.state.relationshipsList.toString()
-    ) {
+    if (prevState.user?.toString() !== this.state.user?.toString()) {
+      this.updateAllRelationships()
+    }
+    else if (prevState.relationshipsList.toString() !== this.state.relationshipsList.toString()) {
       this.sortRelationshipsList();
     }
-    // console.log("component did update")
   }
 
   async updateAllRelationships() {
@@ -122,31 +121,31 @@ class App extends React.Component<AppProps, AppState> {
         "/api/users/relationships/" + this.state.user?.id
       );
 
-console.log("dataRel")
-console.log(dataRel)
+      console.log("dataRel")
+      console.log(dataRel)
 
-let a: AppUserRelationship[] = [];
-if (!dataRel.data.length) {
-  this.setState({ relationshipsList: a });
-} else {
-  await dataRel.data.map(async (relation: UserRelationship) => {
-    let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
-    let friendId = inf ? relation.user2_id : relation.user1_id;
-    try {
-      let index;
-      const dataUser = await axios.get("/api/users/" + friendId);
-      console.log("dataUser")
-      console.log(dataUser)
+      let a: AppUserRelationship[] = [];
+      if (!dataRel.data.length) {
+        this.setState({ relationshipsList: a });
+      } else {
+        await dataRel.data.map(async (relation: UserRelationship) => {
+          let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
+          let friendId = inf ? relation.user2_id : relation.user1_id;
+          try {
+            let index;
+            const dataUser = await axios.get("/api/users/" + friendId);
+            console.log("dataUser")
+            console.log(dataUser)
             index = a.push({
               user: dataUser.data,
               relationshipType: relation.type
             });
             // a[index - 1].relationshipType = relation.type;
             this.setState({ relationshipsList: a });
-          } catch (error) {}
+          } catch (error) { }
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   displayAdminRoute(isAdmin: boolean) {
