@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import AppContext from '../../AppContext';
+import { UserRole } from '../../models/user/IUser';
 
 function DisplayAdminMenu(isAdmin: boolean) {
 	if (isAdmin) {
@@ -38,6 +40,7 @@ SideMenuButton.defaultProps = {
 }
 
 function SideMenu(props : {logged :boolean}) {
+	const { user } = useContext(AppContext);
 	return (
 		<div>
 			<nav className="absolute z-50 w-16 h-full delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">
@@ -64,7 +67,7 @@ function SideMenu(props : {logged :boolean}) {
 							<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
 						</React.Fragment>
 					}
-					{DisplayAdminMenu(true)}
+					{DisplayAdminMenu((user?.role === UserRole.admin) || (user?.role === UserRole.owner))}
 					{/* {DisplayAdminMenu(false)} */}
 					{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
 				</ul>

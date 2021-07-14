@@ -223,7 +223,8 @@ class App extends React.Component<AppProps, AppState> {
                         </OnlyPublic>
                         {this.displayAdminRoute(
                           // true
-                          this.state.user?.role === UserRole.admin
+                          (this.state.user?.role === UserRole.admin ||
+                            this.state.user?.role === UserRole.admin)
                         )}
                       </Switch>
                     </main>
