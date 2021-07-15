@@ -41,7 +41,7 @@ export function TextInputError(error?: FieldError) {
         else if (error.type === "required")
             message = "This field is required";
     }
-    return (<span>{message}</span>)
+    return (<span className="ml-2 font-semibold text-red-500">{message}</span>)
 }
 
 export function TextInput<FormValues>({name, register, type, required, labelClass, inputClass, error}: TextInputProps<FormValues>) {
