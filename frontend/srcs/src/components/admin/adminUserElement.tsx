@@ -6,12 +6,14 @@ type UserElementProps = {
   id: number;
   name: string;
   role: UserRole;
-  myRole: UserRole;
-  banUser: (id: number) => void;
-  unbanUser: (id: number) => void;
-  setAdmin: (id: number) => void;
-  unsetAdmin: (id: number) => void;
+  myRole?: UserRole;
+  banUser: any;
+  unbanUser: any;
+  setAdmin: any;
+  unsetAdmin: any;
   isChannelUserElement?: boolean | false;
+  adminInfo: any;
+  setAdminInfo: any;
 };
 
 function displayRole(role: UserRole) {
@@ -38,7 +40,7 @@ function isMyRoleAbove(user: UserElementProps) {
   if (user.isChannelUserElement) {
     return true;
   }
-  if (myRole & UserRole.owner && !(role & UserRole.owner)) {
+  if (myRole !== undefined && myRole & UserRole.owner && !(role & UserRole.owner)) {
     return true;
   }
   if (
@@ -52,6 +54,14 @@ function isMyRoleAbove(user: UserElementProps) {
 }
 
 function displayBanButton(user: UserElementProps) {
+  const banUser = async (id: number) => {
+    await user.banUser(id, user.adminInfo, user.setAdminInfo);
+  };
+
+  const unbanUser = async (id: number) => {
+    await user.unbanUser(id, user.adminInfo, user.setAdminInfo);
+  };
+  
   return (
     <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
       {isMyRoleAbove(user) ? (
@@ -59,7 +69,7 @@ function displayBanButton(user: UserElementProps) {
           <CustomButton
             content="Ban user"
             // url="/users/block"
-            onClickFunctionId={user.banUser}
+            onClickFunctionId={banUser}
             argId={user.id}
             bg_color="bg-unset"
             // bg_hover_color="bg-secondary-dark"
@@ -70,7 +80,7 @@ function displayBanButton(user: UserElementProps) {
           <CustomButton
             content="Unban user"
             // url="/users/unblock"
-            onClickFunctionId={user.unbanUser}
+            onClickFunctionId={unbanUser}
             argId={user.id}
             bg_color="bg-secondary"
             // bg_hover_color="bg-unset-dark"
@@ -86,6 +96,14 @@ function displayBanButton(user: UserElementProps) {
 }
 
 function displayAdminButton(user: UserElementProps) {
+  const setAdmin = async (id: number) => {
+    await user.setAdmin(id, user.adminInfo, user.setAdminInfo);
+  };
+
+  const unsetAdmin = async (id: number) => {
+    await user.unsetAdmin(id, user.adminInfo, user.setAdminInfo);
+  };
+  
   if (!(user.role & UserRole.ban) && isMyRoleAbove(user)) {
     return (
       <div className="relative inline-flex items-center justify-center w-32 h-6 text-center">
@@ -94,7 +112,7 @@ function displayAdminButton(user: UserElementProps) {
             <CustomButton
               content="Set admin"
               // url="/users/block"
-              onClickFunctionId={user.setAdmin}
+              onClickFunctionId={setAdmin}
               argId={user.id}
               bg_color="bg-secondary"
               // bg_hover_color="bg-secondary-dark"
@@ -105,7 +123,7 @@ function displayAdminButton(user: UserElementProps) {
             <CustomButton
               content="Unset admin"
               // url="/users/unblock"
-              onClickFunctionId={user.unsetAdmin}
+              onClickFunctionId={unsetAdmin}
               argId={user.id}
               bg_color="bg-unset"
               // bg_hover_color="bg-unset-dark"

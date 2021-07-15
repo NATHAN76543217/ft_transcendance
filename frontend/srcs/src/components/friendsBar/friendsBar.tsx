@@ -132,9 +132,6 @@ function FriendsBar(props : {logged :boolean}) {
   // const contextValue = React.useContext(App.appContext);
   const contextValue = React.useContext(AppContext);
 
-  console.log("contextValue")
-  console.log(contextValue)
-
   const [displaySection, setDisplaySection] = useState({
     pendingRequests: true,
     inGameFriends: true,

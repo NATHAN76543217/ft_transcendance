@@ -1,141 +1,129 @@
 import axios from "axios";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { IUser } from "../../models/user/IUser";
 import AdminUserElement from "../../components/admin/adminUserElement";
 import { UserRole } from "../../models/user/IUser";
+import AppContext from "../../AppContext";
 
-interface AdminUsersProps {
-  myRole: UserRole;
-}
 
-interface AdminUsersStates {
-  list: IUser[];
-  isOwner: boolean;
-  isAdmin: boolean;
-}
-
-class AdminUsers extends React.Component<AdminUsersProps, AdminUsersStates> {
-  constructor(props: AdminUsersProps) {
-    super(props);
-    this.state = {
-      list: [],
-      isOwner: this.props.myRole === UserRole.owner,
-      isAdmin: this.props.myRole === UserRole.admin,
-    };
-    this.banUser = this.banUser.bind(this);
-    this.unbanUser = this.unbanUser.bind(this);
-    this.setAdmin = this.setAdmin.bind(this);
-    this.unsetAdmin = this.unsetAdmin.bind(this);
-  }
-
-  componentDidMount() {
-    this.getAllUsers();
-  }
-
-  componentDidUpdate() {
-    // console.log("AdminUsers component did update")
-  }
-
-  async getAllUsers() {
-    try {
-      const dataUsers = await axios.get("/api/users");
-      let a = dataUsers.data.slice();
-      a.sort((user1: IUser, user2: IUser) =>
-        user1.name.localeCompare(user2.name)
-      );
-      this.setState({ list: a });
-    } catch (error) {}
-  }
-
-  setRole = async (id: number, role: UserRole) => {
-    try {
-      await axios.patch(`/api/users/${id}`, { role });
-      let a = this.state.list.slice();
-      let index = a.findIndex((userId) => userId.id === id);
-      a[index].role = UserRole.ban;
-      this.setState({ list: a });
-    } catch (error) {}
-  };
-
-  banUser = async (id: number) => this.setRole(id, UserRole.ban);
-
-  unbanUser = async (id: number) => this.setRole(id, UserRole.null);
-
-  setAdmin = async (id: number) => this.setRole(id, UserRole.admin);
-
-  unsetAdmin = async (id: number) => this.setRole(id, UserRole.null);
-
-  render() {
-    const sectionClass =
-      "h-auto pt-4 pb-4 mx-4 my-4 bg-gray-200 flex-grow text-center";
-    const h1Class = "text-2xl font-bold text-center";
-    return (
-      <div className="w-auto">
-        <h2 className="text-3xl font-bold text-center">Users Administration</h2>
-        <div className="relative flex flex-wrap">
-          <section className={sectionClass}>
-            <h1 className={h1Class}>Standard users</h1>
-            <ul className="relative w-auto pt-4 pl-4">
-              {this.state.list.map((user) => {
-                if (!(user.role & UserRole.ban)) {
-                  return (
-                    <li key={user.id} className="justify-center">
-                      <AdminUserElement
-                        id={user.id}
-                        name={user.name}
-                        role={user.role}
-                        myRole={this.props.myRole}
-                        banUser={this.banUser}
-                        unbanUser={this.unbanUser}
-                        setAdmin={this.setAdmin}
-                        unsetAdmin={this.unsetAdmin}
-                      />
-                    </li>
-                  );
-                } else {
-                  return (
-                    <li key={user.id} className="">
-                      <div></div>
-                    </li>
-                  );
-                }
-              })}
-            </ul>
-          </section>
-          <section className={sectionClass}>
-            <h1 className={h1Class}>Banned users</h1>
-            <ul className="relative w-auto pt-4 pl-4">
-              {this.state.list.map((user) => {
-                if (user.role & UserRole.ban) {
-                  return (
-                    <li key={user.id} className="">
-                      <AdminUserElement
-                        id={user.id}
-                        name={user.name}
-                        role={user.role}
-                        myRole={this.props.myRole}
-                        banUser={this.banUser}
-                        unbanUser={this.unbanUser}
-                        setAdmin={this.setAdmin}
-                        unsetAdmin={this.unsetAdmin}
-                      />
-                    </li>
-                  );
-                } else {
-                  return (
-                    <li key={user.id} className="">
-                      <div></div>
-                    </li>
-                  );
-                }
-              })}
-            </ul>
-          </section>
-        </div>
-      </div>
+const getAllUsers = async (adminInfo: AdminState, setAdminInfo: any) => {
+  try {
+    const dataUsers = await axios.get("/api/users");
+    let a = dataUsers.data.slice();
+    a.sort((user1: IUser, user2: IUser) =>
+      user1.name.localeCompare(user2.name)
     );
-  }
+    if (JSON.stringify(a) !== JSON.stringify(adminInfo.list)) {
+      setAdminInfo({ list: a });
+    }
+  } catch (error) { }
+}
+
+const setRole = async (id: number, role: UserRole, adminInfo: AdminState, setAdminInfo: any) => {
+  try {
+    await axios.patch(`/api/users/${id}`, { role });
+    getAllUsers(adminInfo, setAdminInfo);
+  } catch (error) { }
+};
+
+const banUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.ban, adminInfo, setAdminInfo);
+
+const unbanUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.null, adminInfo, setAdminInfo);
+
+const setAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.admin, adminInfo, setAdminInfo);
+
+const unsetAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.null, adminInfo, setAdminInfo);
+
+interface AdminState {
+  list: IUser[]
+}
+
+function AdminUsers() {
+  const contextValue = React.useContext(AppContext);
+
+  const [adminInfo, setAdminInfo] = useState<AdminState>({
+    list: []
+  });
+
+  getAllUsers(adminInfo, setAdminInfo);
+
+  useEffect(() => {
+    getAllUsers(adminInfo, setAdminInfo);
+  }, [adminInfo]);
+
+  const sectionClass =
+    "h-auto pt-4 pb-4 mx-4 my-4 bg-gray-200 flex-grow text-center";
+  const h1Class = "text-2xl font-bold text-center";
+  return (
+    <div className="w-auto">
+      <h2 className="text-3xl font-bold text-center">Users Administration</h2>
+      <div className="relative flex flex-wrap">
+        <section className={sectionClass}>
+          <h1 className={h1Class}>Standard users</h1>
+          <ul className="relative w-auto pt-4 pl-4">
+            {adminInfo.list.map((user) => {
+              if (!(user.role & UserRole.ban)) {
+                return (
+                  <li key={user.id} className="justify-center">
+                    <AdminUserElement
+                      id={user.id}
+                      name={user.name}
+                      role={user.role}
+                      myRole={contextValue.user?.role}
+                      banUser={banUser}
+                      unbanUser={unbanUser}
+                      setAdmin={setAdmin}
+                      unsetAdmin={unsetAdmin}
+                      adminInfo={adminInfo}
+                      setAdminInfo={setAdminInfo}
+                    />
+                  </li>
+                );
+              } else {
+                return (
+                  <li key={user.id} className="">
+                    <div></div>
+                  </li>
+                );
+              }
+            })}
+          </ul>
+        </section>
+        <section className={sectionClass}>
+          <h1 className={h1Class}>Banned users</h1>
+          <ul className="relative w-auto pt-4 pl-4">
+            {adminInfo.list.map((user) => {
+              if (user.role & UserRole.ban) {
+                return (
+                  <li key={user.id} className="">
+                    <AdminUserElement
+                      id={user.id}
+                      name={user.name}
+                      role={user.role}
+                      myRole={contextValue.user?.role}
+                      banUser={banUser}
+                      unbanUser={unbanUser}
+                      setAdmin={setAdmin}
+                      unsetAdmin={unsetAdmin}
+                      adminInfo={adminInfo}
+                      setAdminInfo={setAdminInfo}
+                    />
+                  </li>
+                );
+              } else {
+                return (
+                  <li key={user.id} className="">
+                    <div></div>
+                  </li>
+                );
+              }
+            })}
+          </ul>
+        </section>
+      </div>
+    </div>
+  );
 }
 
 export default AdminUsers;

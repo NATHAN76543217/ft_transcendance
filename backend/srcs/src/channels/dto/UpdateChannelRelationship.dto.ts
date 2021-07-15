@@ -3,6 +3,6 @@ import { ChannelRelationshipType } from '../relationships/channel-relationship.t
 
 export default class UpdateChannelRelationshipDto {
   @IsOptional()
-  @IsNumber()
+  // @IsNumber()
   public type: ChannelRelationshipType;
 }

@@ -13,7 +13,7 @@ class Admin extends React.Component {
       return (
         <div>
           <AdminChannels />
-          <AdminUsers myRole={contextValue.myRole} />
+          <AdminUsers />
         </div>
       );
     } else {

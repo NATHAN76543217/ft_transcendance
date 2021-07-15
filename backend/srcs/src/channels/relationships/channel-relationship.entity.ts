@@ -37,7 +37,7 @@ class ChannelRelationship {
   @JoinColumn({ name: 'user_id' })
   public user: User;
 
-  @Column({ default: ChannelRelationshipType.null })
+  @Column({ default: ChannelRelationshipType.null, nullable: true })
   public type: ChannelRelationshipType;
 
   // Maybe useful later

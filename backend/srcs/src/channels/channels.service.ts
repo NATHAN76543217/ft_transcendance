@@ -3,7 +3,7 @@ import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { createQueryBuilder, Like, Repository } from 'typeorm';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
 import { Socket } from 'socket.io';
 import { AuthenticationService } from 'src/authentication/authentication.service';
@@ -66,11 +66,31 @@ export default class ChannelsService {
 
     
 
+  // async getChannelById(id: number) {
+  //   // Load users relationships
+  //   const channel = await this.channelsRepository.findOne(id, {
+  //     relations: ['users'],
+  //   });
+
+  //   if (channel) {
+  //     return channel;
+  //   }
+
+  //   throw new ChannelNotFound(id);
+  // }
+
   async getChannelById(id: number) {
     // Load users relationships
-    const channel = await this.channelsRepository.findOne(id, {
-      relations: ['users'],
-    });
+    const channel = await this.channelsRepository
+      .createQueryBuilder('channel')
+      .leftJoinAndSelect("channel.users", "users")
+      .where("channel.id = :id", {id: id})
+      .getOne()
+      
+
+    // .findOne(id, {
+    //   relations: ['users'],
+    // });
 
     if (channel) {
       return channel;
@@ -128,16 +148,17 @@ console.log(relationship)
   }
 
   async updateChannelRelationship(
-    channelId: number,
-    userId: number,
+    channel_id: number,
+    user_id: number,
     type: ChannelRelationshipType,
   ) {
+
     await this.channelRelationshipRepository
       .createQueryBuilder('channelRelationship')
       .update(ChannelRelationship)
-      .set({ type })
-      .where('user_id = :userId', { userId })
-      .andWhere('channel_id = :channelId', { channelId })
+      .set({ type: type })
+      .where('user_id = :user_id', { user_id} )
+      .andWhere('channel_id = :channel_id', { channel_id })
       .execute();
   }
   // async getChannelByName(name: string) {

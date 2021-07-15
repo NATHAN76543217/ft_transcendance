@@ -147,7 +147,7 @@ export default class ChannelsController {
     // @Body() joinChannelData: JoinChannelDto,
   ) {
 
-console.log("join channel")
+  console.log("join channel")
 
     const relationship = await this.channelsService.getChannelRelationship(
       Number(channelId),
@@ -207,24 +207,46 @@ console.log("join channel")
   // Otherwise we need to specify it as a parameter
 
   // TODO: Check if user has CASL update permission, and if target is owner
-  @Patch(':channelId/update/:userId')
+  @Patch(':channel_id/update/:user_id')
   async updateChannelRelationship(
     @Req() req: RequestWithUser,
-    @Param('channelId') channelId: string,
-    @Param('userId') userId: string,
+    @Param('channel_id') channel_id: string,
+    @Param('user_id') user_id: string,
     @Body() channelRelationship: UpdateChannelRelationshipDto,
   ) {
+    console.log('-------------- channel_id/update/:user_id')
+
+    // let channel_id: string = "27"
+    // let user_id: string = "1"
+
     const channel = await this.channelsService.getChannelById(
-      Number(channelId),
+      Number(channel_id),
     );
+
+  // console.log(channel);
+
     const abilities = this.abilityFactory.createForUser(req.user);
 
     if (abilities.can(ChannelAction.Update, channel))
       return this.channelsService.updateChannelRelationship(
-        channel.id,
-        Number(userId),
+        Number(channel_id),
+        Number(user_id),
         channelRelationship.type,
       );
     throw new HttpException('TODO: Unauthorized update', 400);
   }
-}
+  
+  @Patch('update')
+  async updateUserRelationship(
+    @Body() channelRelationship: UpdateChannelRelationshipDto,
+    ) {
+      let channel_id: string = "27"
+      let user_id: string = "1"
+      return this.channelsService.updateChannelRelationship(
+        Number(channel_id),
+        Number(user_id),
+        channelRelationship.type,
+        );
+      }
+
+    }
