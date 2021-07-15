@@ -212,7 +212,7 @@ class AdminChannelElement extends React.Component<
               {this.displayMode()}
             </div>
             <div
-              className="w-48 font-bold text-md"
+              className="w-48 font-bold cursor-pointer text-md hover:underline"
               onClick={this.changeUsersListButtonState}
             >
               {this.props.name}

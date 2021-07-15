@@ -65,12 +65,9 @@ function displayWinAndLose(user: UserProps) {
   if (user.isInSearch) {
     return (
       <div className="w-24 mx-4 text-center">
-        <NavLink
-          to={"/users/" + user.id}
-          className="relative font-bold text-md"
-        >
+        <div className="relative font-bold text-md" >
           Win / Lose
-        </NavLink>
+        </div>
         <h1 className={"relative font-bold text-md "}>
           <span className="text-green-700">{user.nbWin}</span> /{" "}
           <span className="text-red-700">{user.nbLoss}</span>
@@ -85,14 +82,27 @@ function displayProfilePicture(user: UserProps) {
     user.imgPath === ""
       ? "/api/uploads/default-profile-picture.png"
       : "/api/uploads/" + user.imgPath;
-  return (
-    <img
-      className="object-contain w-32 h-full"
-      src={path}
-      alt="user profile"
-      onClick={user.handleClickProfilePicture}
-    />
-  );
+  if (user.isInSearch) {
+    return (
+      <NavLink to={"/users/" + user.id} >
+        <img
+          className="object-contain w-32 h-full"
+          src={path}
+          alt="user profile"
+          onClick={user.handleClickProfilePicture}
+        />
+      </NavLink>
+    );
+  } else {
+    return (
+      <img
+        className="object-contain w-32 h-full"
+        src={path}
+        alt="user profile"
+        onClick={user.handleClickProfilePicture}
+      />
+    )
+  }
 }
 
 function onFileChangeTrigger(user: UserProps, ev: any) {
@@ -107,7 +117,7 @@ function displayFileChange(user: UserProps) {
   if (user.onFileChange !== undefined && user.isMe) {
     return (
       <div className="mt-1 align-center">
-        <label className="custom-file-upload">
+        <label className="cursor-pointer custom-file-upload">
           <input
             type="file"
             name="file"
@@ -263,7 +273,7 @@ function displayChangeNameField(user: UserProps) {
       await user.changeUsername(values, user.userInfo, user.setUserInfo);
     }
   };
-  
+
 
   if (user.isMe && !user.isInSearch && user.changeUsername !== undefined) {
     return <ChangeNameUserForm onSubmit={localchangeUsername} />;
@@ -282,6 +292,22 @@ function displayWrongUsernameMessage(user: UserProps) {
   }
 }
 
+function displayUsername(user: UserProps) {
+  if (user.isInSearch) {
+    return (
+      <NavLink to={"/users/" + user.id} >
+        <span className="relative text-xl font-bold hover:underline">{user.name}</span>
+      </NavLink>
+    );
+  } else {
+    return (
+      <div className="relative text-xl font-bold">
+        {user.name}
+      </div>
+    );
+  }
+}
+
 function UserInformation(user: UserProps) {
   // const contextValue = React.useContext(App.appContext);
   const contextValue = React.useContext(AppContext);
@@ -295,12 +321,7 @@ function UserInformation(user: UserProps) {
         </div>
 
         <div className="w-40 mx-2 text-center">
-          <NavLink
-            to={"/users/" + user.id}
-            className="relative text-xl font-bold"
-          >
-            {user.name}
-          </NavLink>
+          {displayUsername(user)}
           <h1 className={"relative font-bold " + getStatusColor(user.status)}>
             {getStatus(user.status)}
           </h1>

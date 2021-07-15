@@ -133,7 +133,7 @@ function AdminUserElement(user: UserElementProps) {
         <div className="w-44">
           <NavLink
             to={"/users/" + user.id}
-            className="font-bold text-md whitespace-nowrap"
+            className="font-bold text-md whitespace-nowrap hover:underline"
           >
             {user.name}
           </NavLink>
