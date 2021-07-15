@@ -19,13 +19,17 @@ const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: 
     const data = await axios.get(
       `/api/channels/${id}`
     );
-    console.log("setchannelRelationshipsList", data)
+    // console.log("setchannelRelationshipsList", data)
     let a = data.data.users.slice();
 
+    a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
+    relation1.user.name.localeCompare(relation2.user.name)
+  ).reverse();
 
     a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
       relation1.type.toString().localeCompare(relation2.type.toString())
-    );
+    ).reverse();
+    
     if (JSON.stringify(a) !== JSON.stringify(adminChannelElementInfo.channelRelationshipsList)) {
       setAdminChannelElementInfo({
         ...adminChannelElementInfo,
@@ -236,7 +240,7 @@ function AdminChannelElement(props: ChannelElementProps) {
   }
 
   return (
-    <div>
+    <div className={adminChannelElementInfo.showUsersList ? "bg-blue-200 rounded-md py-1" : "py-1"}>
       <div className="flex items-center h-8 mt-2 group">
         <div className="flex">
           <div className="flex justify-center w-24 mr-2">

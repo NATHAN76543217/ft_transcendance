@@ -13,7 +13,10 @@ const getAllUsers = async (adminInfo: AdminState, setAdminInfo: any) => {
     let a = dataUsers.data.slice();
     a.sort((user1: IUser, user2: IUser) =>
       user1.name.localeCompare(user2.name)
-    );
+    ).reverse();
+    a.sort((user1: IUser, user2: IUser) =>
+      user1.role.toString().localeCompare(user2.role.toString())
+    ).reverse();
     if (JSON.stringify(a) !== JSON.stringify(adminInfo.list)) {
       setAdminInfo({ list: a });
     }
