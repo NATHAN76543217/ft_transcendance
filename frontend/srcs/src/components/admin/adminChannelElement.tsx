@@ -19,7 +19,7 @@ const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: 
     const data = await axios.get(
       `/api/channels/${id}`
     );
-    // console.log("setchannelRelationshipsList", data)
+    console.log("setchannelRelationshipsList", data)
     let a = data.data.users.slice();
 
 
@@ -178,7 +178,7 @@ const displayUsersList = (adminChannelElementInfo: ChannelElementStates, setAdmi
                 <li key={relation.user_id.toFixed()} className="">
                   <AdminUserElement
                     id={relation.user_id}
-                    name={relation.user_name}
+                    name={relation.user.name}
                     role={translatedRole}
                     myRole={UserRole.owner}
                     banUser={banUserFromChannel}

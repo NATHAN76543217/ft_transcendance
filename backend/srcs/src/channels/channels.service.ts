@@ -84,6 +84,7 @@ export default class ChannelsService {
     const channel = await this.channelsRepository
       .createQueryBuilder('channel')
       .leftJoinAndSelect("channel.users", "users")
+      .leftJoin("users.user", "channelUser").addSelect("channelUser.name")
       .where("channel.id = :id", {id: id})
       .getOne()
       
