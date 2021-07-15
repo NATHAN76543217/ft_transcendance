@@ -28,7 +28,7 @@ function Button({content, url, secondary, className=""} : ButtonProps){
     return (
         // <a className={ "inline-block rounded-xl text-neutral font-semibold p-4 mx-2  text-lg " + color + " hover:" + hoverColor + className  } href={ url }>
         <a className={
-                "inline-block rounded-xl text-neutral font-semibold p-4 mx-2  text-lg " +
+                "inline-block rounded-lg text-neutral font-semibold p-1 mx-1  text-lg " +
                 color +
                 " hover:" + hoverColor + " " +
                 className }

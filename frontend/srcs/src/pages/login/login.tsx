@@ -110,7 +110,7 @@ export default function Login({ match }: LoginPageProps) {
           ></input>
         </form>
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center justify-center space-x-4">
         {/* <button type="button" onClick={() => {
         const newTab = window.open("https://localhost/api/authentication/oauth2/school42");
       }}>
@@ -120,12 +120,12 @@ export default function Login({ match }: LoginPageProps) {
         <Button
           content="Login with 42"
           url="https://localhost/api/authentication/oauth2/school42"
-          className="bg-gray-400 whitespace-nowrap hover:bg-gray-500"
+          className="px-4 bg-gray-400 whitespace-nowrap hover:bg-gray-500"
         />
         <Button
           content="Login with Google"
           url="https://localhost/api/authentication/oauth2/google"
-          className="bg-gray-400 whitespace-nowrap hover:bg-gray-500"
+          className="px-4 bg-gray-400 whitespace-nowrap hover:bg-gray-500"
         />
       </div>
     </section>

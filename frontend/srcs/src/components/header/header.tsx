@@ -1,8 +1,53 @@
-import { useContext } from "react";
+import React, { useContext } from "react";
 
 import Button from "../utilities/Button";
 import LogoutButton from "../auth/LogoutButton";
 import AppContext from "../../AppContext";
+import { NavLink } from "react-router-dom";
+import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
+
+function displayProfileItem(user: AuthenticatedUser | undefined) {
+  let path = (user === undefined || (user.imgPath === "")) ? "/api/uploads/default-profile-picture.png" : "/api/uploads/" + user.imgPath;
+  if (user !== undefined) {
+    return (
+      <NavLink to="/users">
+        <span className="font-bold text-center hover:underline">{user && user.name}</span>
+        <img
+          src={path}
+          alt='friends_1_avatar'
+          className='inline w-8 h-8 ml-2 bg-white rounded-full hover:ring-2 hover:ring-gray-500' />
+      </NavLink>
+    );
+  }
+}
+
+function displayLoginAndRegisterItem(user: AuthenticatedUser | undefined) {
+  if (user !== undefined) {
+    return (
+      <div className="m-4">
+            <LogoutButton />
+          </div>
+    );
+  }
+  else {
+    return (
+      <div className="m-4 space-x-4">
+            <Button
+              content="Login"
+              secondary
+              url="/login"
+              className="w-24 text-center"
+            />
+            <Button
+              content="Register"
+              secondary
+              url="/register"
+              className="w-24 text-center"
+            />
+          </div>
+    );
+  }
+}
 
 function Header() {
   const { user } = useContext(AppContext);
@@ -11,29 +56,12 @@ function Header() {
 
   console.log("Header user authenticated:", user !== undefined);
   return (
-    <header className="relative z-30 flex flex-row justify-between w-full bg-primary ">
-      <span className="block px-4 py-2 text-4xl font-bold">ft_pong</span>
-      <span>{user && user.name}</span>
-      {user !== undefined ? (
-        <div className="m-4">
-          <LogoutButton />
-        </div>
-      ) : (
-        <div className="m-4 ">
-          <Button
-            content="Login"
-            secondary
-            url="/login"
-            className="w-24 text-center"
-          />
-          <Button
-            content="Register"
-            secondary
-            url="/register"
-            className="w-24 text-center"
-          />
-        </div>
-      )}
+    <header className="relative z-30 flex flex-row items-center justify-between w-full h-12 bg-primary">
+      <span className="block px-4 text-4xl font-bold">ft_pong</span>
+      <div className="flex items-center">
+        {displayProfileItem(user)}
+        {displayLoginAndRegisterItem(user)}
+      </div>
     </header>
   );
 }
