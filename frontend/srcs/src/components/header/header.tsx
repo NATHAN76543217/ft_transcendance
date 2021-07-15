@@ -5,10 +5,11 @@ import LogoutButton from "../auth/LogoutButton";
 import AppContext from "../../AppContext";
 import { NavLink } from "react-router-dom";
 import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
+import { UserRole } from "../../models/user/IUser";
 
 function displayProfileItem(user: AuthenticatedUser | undefined) {
   let path = (user === undefined || (user.imgPath === "")) ? "/api/uploads/default-profile-picture.png" : "/api/uploads/" + user.imgPath;
-  if (user !== undefined) {
+  if (user !== undefined && user.role !== UserRole.ban) {
     return (
       <NavLink to="/users">
         <span className="font-bold text-center hover:underline">{user && user.name}</span>

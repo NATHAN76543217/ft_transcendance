@@ -24,6 +24,7 @@ import AppContext from "./AppContext";
 import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
 import UserRelationship from "./models/user/UserRelationship";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
+import BanPage from "./pages/banPage/banPage";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -173,6 +174,17 @@ class App extends React.Component<AppProps, AppState> {
       setUser: this.setUser,
       updateAllRelationships: this.updateAllRelationships,
     };
+
+    if (this.state.user !== undefined && this.state.user.role === UserRole.ban) {
+      return (
+        <AppContext.Provider value={contextValue}>
+          <div className="h-full">
+            <Header />
+            <BanPage />
+          </div>
+        </AppContext.Provider>
+      )
+    }
 
     return (
       <AppContext.Provider value={contextValue}>
