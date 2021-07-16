@@ -5,7 +5,7 @@ import { AuthenticationController } from './authentication.controller';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { School42Strategy } from './oauth2/school42/school42.strategy';
 import { GoogleStrategy } from './oauth2/google/google.strategy';
@@ -22,6 +22,9 @@ import UsersService from 'src/users/users.service';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
+        verifyOptions: {
+          ignoreExpiration: true, // TODO: Remove in production!
+        },
         signOptions: {
           expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
         },
@@ -36,6 +39,6 @@ import UsersService from 'src/users/users.service';
     GoogleStrategy,
   ],
   controllers: [AuthenticationController, Oauth2Controller],
-  exports: [AuthenticationService],
+  exports: [AuthenticationService, JwtModule],
 })
 export class AuthenticationModule {}
