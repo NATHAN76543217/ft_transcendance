@@ -1,7 +1,7 @@
 export function ChatMessageList() {
-    return (
-      <ul className="w-full h-full bg-gray-300">
-          <li ></li>
-      </ul>
-    );
-  }
+  return (
+    <ul className="flex-grow w-full h-16 bg-gray-300">
+      <li></li>
+    </ul>
+  );
+}

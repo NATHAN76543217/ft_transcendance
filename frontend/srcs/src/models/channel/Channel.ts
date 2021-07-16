@@ -25,16 +25,17 @@ export type ChannelUserRelationship =
       user: ChannelUser;
     };
 
-export enum MessageType {
-  // TODO
-}
+export enum MessageType {}
+// TODO
 
 export type Message = {
   id: number;
   type: MessageType;
   data: string;
-  author_id: number; //
-}
+  channel_id: number;
+  author_id: number;
+  created_at: Date;
+};
 
 export type Channel = {
   id: number;

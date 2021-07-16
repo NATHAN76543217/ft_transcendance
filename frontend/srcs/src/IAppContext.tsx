@@ -5,6 +5,7 @@ import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
 export interface IAppContext {
   relationshipsList: AppUserRelationship[];
   user?: AuthenticatedUser;
+  token?: string;
   setUser: (user?: AuthenticatedUser) => void;
   updateAllRelationships: () => void;
   socket: Socket | undefined;

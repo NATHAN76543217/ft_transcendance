@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from "react-router-dom";
 import FriendsBar from "./components/friendsBar/friendsBar";
 import Header from "./components/header/header";
 import Footer from "./components/footer/footer";
@@ -11,12 +16,10 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { UserRole, UserStatus } from "./models/user/IUser";
+import { IUser, UserRole, UserStatus } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
-import Cookies from "js-cookie";
-import jwt_decode from "jwt-decode";
 
 import { AppState } from "./AppState";
 import { IAppContext } from "./IAppContext";
@@ -34,81 +37,110 @@ let change_bg_color_with_size =
 
 interface AppProps { }
 
-interface TokenPayload {
-  userId: number;
-}
-
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
-    //const userData = localStorage.getItem("user") JSON.parse();
     
     this.state = {
       relationshipsList: [],
-      socket: undefined
-      //user: ,
-      //myRole: UserRoleTypes.owner, // A remplacer par le vrai role
-      //logged: false,
+      socket: undefined,
+      user: this.getCachedUser(),
     };
     this.updateAllRelationships = this.updateAllRelationships.bind(this);
-    //this.setUser = this.setUser.bind(this);
   }
 
   // We do not need to bind when using the equal form
   setUser = (user?: AuthenticatedUser) => {
-    // if the user is undefined, he is not logged
-    const logged = user !== undefined;
+    if (user !== this.state.user) {
+      // if the user is undefined, he is not logged
+      const logged = user !== undefined;
 
-    console.debug(`setting user (logged = ${logged}): `, user);
+      console.debug(`setting user (logged = ${logged}): `, user);
 
-    if (!logged) localStorage.removeItem("user");
-    else localStorage.setItem("user", JSON.stringify(user));
-    this.setState({ user });
+      // update state
+      this.setState({ user });
+
+      // update cache
+      try {
+        if (user === undefined) localStorage.removeItem("user");
+        else localStorage.setItem("user", JSON.stringify(user));
+      } catch (e) {
+        console.error(e);
+      }
+    }
   };
+  /* 
+  setToken = async (token?: string) => {
+    // Set or clear the token
+    localStorage.setItem("token", token ?? "");
+    if (token)
+    {
+      this.GetLoggedProfile()
+    }
+  }; */
 
   // Get logged profile for OAuth users
-  GetLoggedProfile = (): JSX.Element => {
-    const jwt = Cookies.get("Authentication");
-    if (!jwt) return <p>Cookies not found</p>;
-    const userid = jwt_decode<TokenPayload>(jwt).userId;
 
-    axios.get(`/api/users/${userid}`, { withCredentials: true }).then((res) => {
-      const user: AuthenticatedUser = res.data;
+  getCachedUser = () => {
+    const userData = localStorage.getItem("user");
 
-      console.log("user = ", user);
-      if (this.state.user === undefined) {
-        // If the user is not logged
-        this.setUser(user);
+    if (userData !== null) {
+      try {
+        const user = JSON.parse(userData) as IUser;
+
+        if (user.imgPath === 'default-profile-picture.png') {
+          window.location.href = "/users";
+        } else {
+          window.location.href = "/";
+        }
+
+        return user;
+      } catch {
+        localStorage.removeItem("user");
       }
+    };
 
-      if (user.imgPath === 'default-profile-picture.png') {
-        window.location.href = "/users";
-      } else {
-        window.location.href = "/";
-      }
-    });
-
-    const dataUpdate = axios.patch(
-      `/api/users/${userid}`,
+    /* const dataUpdate = axios.patch(
+      `/api/users/${user.id}`,
       { status: UserStatus.online }
-    );
+    ); */
     // console.log("data Update login: ",dataUpdate)
 
-    return <Loading />
+    //return <Loading />
     // return <p>You will be redirected soon</p>;
+    //}
+    return undefined;
   };
 
-  getOldState() {
+  // TODO: Find out why the api gets called twice
+  getCurrentUser = async () => {
+    try {
+      const res = await axios.get<AuthenticatedUser>(`/api/users/me`, {
+        withCredentials: true,
+      });
+
+      this.setUser(res.data);
+    } catch (e) {
+      this.setUser();
+      // TODO: Handle refresh token if status 401 (Unauthorized)
+      if (axios.isAxiosError(e)) {
+        if (e.response?.status !== 401)
+          console.log("TODO: GetLoggedProfile: Handle status:", e.message);
+      }
+    }
+  };
+  /* 
+  getOldState = () => {
     if (this.state.user == null) {
       const user = localStorage.getItem("user");
       if (user === null) return false;
       else this.setUser(JSON.parse(user));
     }
-    return true;
-  }
+    return true; 
+  };*/
 
   componentDidMount() {
-    this.getOldState();
+    this.getCurrentUser();
     this.updateAllRelationships();
   }
 
@@ -223,7 +255,7 @@ class App extends React.Component<AppProps, AppState> {
           <Router>
             <Switch>
               <Route path="/health">
-                <h3>App is healthy!</h3>
+                <h3 className="text-center">App is healthy!</h3>
               </Route>
               <Route path="/test">
                 <Test />
@@ -254,7 +286,7 @@ class App extends React.Component<AppProps, AppState> {
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
-                          <this.GetLoggedProfile />
+                          <Redirect to="/" />
                         </Route>
                         <OnlyPublic
                           isAuth={this.state.user !== undefined}
