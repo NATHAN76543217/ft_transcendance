@@ -1,26 +1,26 @@
-
 import React from "react"
 
-export default class ButtonPong extends React.Component
-{
-    // TO DO: Add a disable option
-    constructor(
-        props : Readonly<{}>,
-        public content : string,
-        public divClassName : string,
-        public buttonClassName : string,
-        public buttonOnClick : React.MouseEventHandler<HTMLButtonElement>
-    )
-    { super(props); }
+type IButtonPongProps = {
+    content : string;
+    divClassName : string;
+    buttonClassName : string;
+    onClickHandler : React.MouseEventHandler<HTMLButtonElement>;
+    disabled? : true;
+}
 
-    public render()
-    {
-        return(
-            <div className={this.divClassName}>
-                <button className={this.buttonClassName} onClick={this.buttonOnClick}>
-                    {this.content}
-                </button>
-            </div>
-        );
-    }
+export default function ButtonPong({
+    content,
+    divClassName,
+    buttonClassName,
+    onClickHandler,
+    disabled
+} : IButtonPongProps)
+{
+    return (
+        <div className={divClassName}>
+            <button className={buttonClassName} onClick={onClickHandler} disabled={disabled}>
+                {content}
+            </button>
+        </div>
+    );
 }

@@ -123,6 +123,7 @@ export default class GameCustom extends React.Component
 
     private updateGameConfig() : void
     {
+        // TO DO: Change for a list of mapped pairs of [key [value, setValue]]
         this.gameConfig = [
             new ContinousSlider(
                 BALL_SPEED,
@@ -468,3 +469,10 @@ export default class GameCustom extends React.Component
         );
     }
 }
+
+// TO DO:
+// - Rebuild as a FUNCTION
+// - using the CONTEXT (no arguments)
+// - creating a state with "useState" or "useReducer"
+// - creating a CONTEXT for "pongStyleSelector" and "customization"
+// - using "Mesages" enum for socket.emit

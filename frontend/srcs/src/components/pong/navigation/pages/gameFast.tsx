@@ -3,61 +3,48 @@ import React from "react"
 import ButtonPong from "../../components/button";
 import Text from "../../components/text"
 import {
-    Socket
-} from "ngx-socket-io"
+    PongContext
+} from "../indexPong"
+import {
+    Mesages
+} from "../../../../../../../pong/server/socketserver"
 
-export default class GameFast extends React.Component
+export default function GameFast()
 {
-    public idRoom? : string = undefined;
+    const context = React.useContext(PongContext);
 
-    constructor(
-        props : Readonly<{}>,
-        public playerId : string,
-        public socket : Socket,
-        public goBack : Function,
-        public goToPong : Function
-    )
-    {
-        super(props);
+    // TO DO: Add a button for find game
+    // TO DO: Read all the code and think about it
 
-        // TO DO: Call endGame in the server when the game is end
-    }
+    const findGame = () => {
+        // Should this be async ?
+        const roomId : string = context.socket.emit(Mesages.FIND_GAME, context.playerId);
 
-    public cancelQueue()
-    {
-        this.socket.emit("cancelQueue", this.playerId, this.idRoom);
-        this.goBack();
-    }
+        while (context.socket.emit(Mesages.IS_IN_QUEUE, "", "") == false)
+            ;
+        context.goToPongGame()
+    };
 
-    public render()
-    {
-        // TO DO: This will work if react call iterativaly render()
-        this.idRoom = this.socket.emit("FindGame", this.playerId);
+    const cancelQueue = () => {
+        context.socket.emit(Mesages.CANCEL_QUEUE, context.playerId, context.gameId);
+        context.goToSelection();
+    };
 
-        // Same
-        if (this.socket.emit("isInQueue", "", "") == false)
-            this.goToPong();
-
-        return(
+    return (
+        <>
             <div className="">
-               {
-                   new Text(
-                       this.props,
-                       "In queue ...",
-                       "",
-                       ""
-                   )
-               }
-               {
-                   new ButtonPong(
-                        this.props,
-                        "Cancel",
-                        "",
-                        "",
-                        this.cancelQueue
-                   )
-               }
+                <Text
+                    content="In queue ..."
+                    divClassName=""
+                    textClassName=""
+                />
+                <ButtonPong
+                    content="Cancel"
+                    divClassName=""
+                    buttonClassName=""
+                    onClickHandler={cancelQueue}
+                />
             </div>
-        );
-    }
+        </>
+    );
 }

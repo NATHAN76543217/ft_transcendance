@@ -1,47 +1,32 @@
-import React from 'react';
+import React from "react"
 
-import Button from "../../components/button"
+import ButtonPong from "../../components/button"
+import {
+    PongContext
+} from "../indexPong"
 
-
-export default class SelectGameStyle extends React.Component
+export default function SelectGameStyle()
 {
-    constructor(
-        props : Readonly<{}>,
-        public loadFastGame : React.MouseEventHandler<HTMLButtonElement>,
-        public loadCustomGame : React.MouseEventHandler<HTMLButtonElement>
-    )
-    {
-        super(props);
+    const context = React.useContext(PongContext);
 
-        this.loadFastGame = this.loadFastGame.bind(this);
-        this.loadCustomGame = this.loadCustomGame.bind(this);
-    }
-
-    public render()
-    {
-        return (
+    return (
+        <>
             <div className="h-64 flex flex-wrap content-center md:content-around">
-                {
-                    new Button(
-                        this.props,
-                        "Fast Game",
-                        "",
-                        "bg-green-400 bg-opacity-60",
-                        this.loadFastGame
-                    )
-                }
-                {
-                    new Button(
-                        this.props,
-                        "Custom Game",
-                        "",
-                        "bg-green-400 bg-opacity-60",
-                        this.loadCustomGame
-                    )
-                }
+                <ButtonPong
+                    content="Fast Game"
+                    divClassName=""
+                    buttonClassName="bg-green-400 bg-opacity-60"
+                    onClickHandler={() => context.goToFastGame()}
+                />
+                <ButtonPong
+                    content="Custom Game"
+                    divClassName=""
+                    buttonClassName="bg-green-400 bg-opacity-60"
+                    onClickHandler={() => context.goToCustomGame()}
+                />
             </div>
-        );
-    }
+        </>
+    );
 }
 
 // How to switch between react components:
