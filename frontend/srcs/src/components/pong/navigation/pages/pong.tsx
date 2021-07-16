@@ -1,40 +1,40 @@
 import React from "react"
 
-import PongGenerator from "../../../../../../../pong/engine/engine"
-
 import {
-    Socket,
-} from "ngx-socket-io"
+    PongContext
+} from "../indexPong"
+import {
+    Mesages
+} from "../../../../../../../pong/server/socketserver"
 
-export default class Pong extends React.Component
+
+type IPongProps = {
+    canvasId : string
+}
+
+export default function Pong({
+    canvasId
+} : IPongProps)
 {
-    constructor(
-        props : Readonly<{}>,
-        public socket : Socket,
-        public pongEngine : PongGenerator
-    )
-    {
-        super(props);
+    const context = React.useContext(PongContext);
 
-        const canvas = document.getElementById("pongCanvas");
+    const canvas = document.getElementById(canvasId);
 
-        canvas?.addEventListener("mousemove", (event : any) => {
-            socket.emit('mouseEvent', {
-                mousePosX: event.clientX,
-                mousePosY: event.clientY,
-            })
-        });
+    canvas?.addEventListener("mousemove", (event : any) => {
+        context.socket.emit(Mesages.SEND_MOUSE_POS, {
+            mousePosX: event.clientX,
+            mousePosY: event.clientY,
+        })
+    });
 
-        pongEngine.run();
+    context.pongSpetializations[context.pongIndex][1].run();
 
-        // TO DO: How to end the game ?
-        // TO DO: Change run method from the engine
-    }
+    // TO DO: How to end the game ?
+    // TO DO: Change run method from the engine
 
-    public render()
-    {
-        return (
-            <canvas id="pongCanvas" className="bg-black w-50 h-40" />
-        );
-    }
+    return (
+        <>
+            <canvas id={canvasId} className="bg-black w-50 h-40" />
+        </>
+    );
 }

@@ -103,10 +103,35 @@ function SellectLib(
     }
 }
 
-const PLAYER_ONE_READY : number = 1 << 0;
-const PLAYER_TWO_READY : number = 1 << 1;
-const PLAYER_ONE_EXPORTED_CONFIG : number = 1 << 2;
-const PLAYER_TWO_EXPORTED_CONFIG : number = 1 << 3;
+export enum Mesages {
+    CREATE_ROOM = "createRoom",
+    JOIN_ROOM = "joinRoom",
+    LAUNCH_GAME = "launchGame",
+    UPDATE_CONFIG = "updateConfig",
+    PLAYER_IS_READY = "playerIsReady",
+    PLAYER_ISNT_READY = "playerIsNotReady",
+    ARE_PLAYERS_READY = "arePlayersReady",
+    FIND_GAME = "findGame",
+    CANCEL_QUEUE = "cancelQueue",
+    IS_IN_QUEUE = "isInQueue",
+    LEAVE_ROOM = "leaveRoom",
+    DESTROY_ROOM = "destroyRoom",
+    END_GAME = "endGame",
+    SET_UP_GAME_STYLE = "setUpGameStyle",
+    GET_GAME_STYLE = "getGameStyle",
+    CALC_GAME_STATUS = "calcGameStatus",
+    SEND_MOUSE_POS = "sendMousePos",
+    SET_UP_BOT_LEVEL = "setUpBotLevel",
+    GET_OTHER_PLAYER_ID = "getOtherPlayerId",
+    SYNC_CUSTOMIZATION = "syncCustomization"
+}
+
+enum State {
+    PLAYER_ONE_READY = 1 << 0,
+    PLAYER_TWO_READY = 1 << 1,
+    PLAYER_ONE_EXPORTED_CONFIG = 1 << 2,
+    PLAYER_TWO_EXPORTED_CONFIG = 1 << 3
+}
 
 @WebSocketGateway()
 export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -162,7 +187,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     handleDisconnexion(client : Socket)
     { console.log(`DEBUG: Disconnextion from: ${client.id}`); }
 
-    @SubscribeMessage('createRoom')
+    @SubscribeMessage(Mesages.CREATE_ROOM)
     createRoom(client : Socket, roomData : IRoomDto)
     {
         const idRoom : string = roomData.idPlayerOne;
@@ -184,7 +209,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         return idRoom;
     }
 
-    @SubscribeMessage('joinRoom')
+    @SubscribeMessage(Mesages.JOIN_ROOM)
     joinRoom(client : Socket, idRoom : string, idPlayerTwo : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -210,7 +235,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         }
     }
 
-    @SubscribeMessage('launchGame')
+    @SubscribeMessage(Mesages.LAUNCH_GAME)
     async launchGame(client : Socket, idRoom : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -242,7 +267,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         }
     }
 
-    @SubscribeMessage('updateConfig')
+    @SubscribeMessage(Mesages.UPDATE_CONFIG)
     updateConfig(client : Socket, idRoom : string, config : IStaticDto)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -250,36 +275,36 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         this.rooms[idRoom] = room;
     }
 
-    @SubscribeMessage('playerIsReady')
+    @SubscribeMessage(Mesages.PLAYER_IS_READY)
     playerIsReady(client : Socket, idRoom : string, idPlayer : string)
     {  
         const room : IRoomDto = this.getRoom(idRoom);
 
         room.flags |= room.idPlayerOne == idPlayer
-            ? PLAYER_ONE_READY : PLAYER_TWO_READY;
+            ? State.PLAYER_ONE_READY : State.PLAYER_TWO_READY;
     }
 
-    @SubscribeMessage('playerIsNotReady')
+    @SubscribeMessage(Mesages.PLAYER_ISNT_READY)
     playerIsNotReady(client : Socket, idRoom : string, idPlayer : string)
     {
         const room : IRoomDto = this.getRoom(idRoom)
 
         room.flags &= room.idPlayerOne == idPlayer
-            ? ~PLAYER_ONE_READY : ~PLAYER_TWO_READY;
+            ? ~State.PLAYER_ONE_READY : ~State.PLAYER_TWO_READY;
     }
 
-    @SubscribeMessage('arePlayersReady')
+    @SubscribeMessage(Mesages.ARE_PLAYERS_READY)
     arePlayersReady(client : Socket, idRoom : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
 
         return room.mode == GameMode.MULTI_PLAYER
-            ? room.flags & PLAYER_ONE_READY
-            && room.flags & PLAYER_TWO_READY
-            : room.flags & PLAYER_ONE_READY;
+            ? room.flags & State.PLAYER_ONE_READY
+            && room.flags & State.PLAYER_TWO_READY
+            : room.flags & State.PLAYER_ONE_READY;
     }
 
-    @SubscribeMessage('findGame')
+    @SubscribeMessage(Mesages.FIND_GAME)
     findGame(client : Socket, idPlayer : string)
     {
         let idRoom : string = undefined;
@@ -326,7 +351,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     }
 
     // NOTE: If idRoom param is filled the room already exists and both player joined it
-    @SubscribeMessage('cancelQueue')
+    @SubscribeMessage(Mesages.CANCEL_QUEUE)
     cancelQueue(client : Socket, idPlayer : string, idRoom? : string)
     {
         if (idRoom !== undefined)
@@ -339,7 +364,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         }
     }
 
-    @SubscribeMessage('isInQueue')
+    @SubscribeMessage(Mesages.IS_IN_QUEUE)
     isInQueue(client : Socket, idRoom : string, idPlayer : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -350,7 +375,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         return (false);
     }
 
-    @SubscribeMessage('leaveRoom')
+    @SubscribeMessage(Mesages.LEAVE_ROOM)
     leaveRoom(client : Socket, idRoom : string, idPlayer : string)
     {
         // When a clients leaves a room
@@ -379,7 +404,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     }
 
     // NOTE: Clients should be leave the room before call this
-    @SubscribeMessage('destroyRoom')
+    @SubscribeMessage(Mesages.DESTROY_ROOM)
     destroyRoom(client : Socket, idRoom : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -397,7 +422,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             throw new Unspected("Standar lib: Map: failed to delete");
     }
 
-    @SubscribeMessage('endGame')
+    @SubscribeMessage(Mesages.END_GAME)
     async endGame(client : Socket, idRoom : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -413,7 +438,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         });
     }
 
-    @SubscribeMessage('setUpGameStyle')
+    @SubscribeMessage(Mesages.SET_UP_GAME_STYLE)
     setUpGameStyle(client : Socket, idRoom : string, libName : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -421,7 +446,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         this.rooms[idRoom] = room;
     }
 
-    @SubscribeMessage('getGameStyle')
+    @SubscribeMessage(Mesages.GET_GAME_STYLE)
     getGameStyle(client : Socket, idRoom : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -429,11 +454,11 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         return room.libName;
     }
 
-    @SubscribeMessage('calcGameStatus')
+    @SubscribeMessage(Mesages.CALC_GAME_STATUS)
     calcPongStatus(client : Socket, idRoom : string, status : IDynamicDto)
     { return calcGameStatus(status, this.getRoom(idRoom).lib); }
 
-    @SubscribeMessage('mouseEvent')
+    @SubscribeMessage(Mesages.SEND_MOUSE_POS)
     updateMousePosClient(client : Socket, idPlayer : string, mousePos : IMousePosDto)
     {
         // Can only update if player has joined a match
@@ -477,7 +502,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     //         ? room.customization : null;
     // }
 
-    @SubscribeMessage('setUpBotLevel')
+    @SubscribeMessage(Mesages.SET_UP_BOT_LEVEL)
     setUpBotLevel(client : Socket, idRoom : string, botLevel : number)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -485,7 +510,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         this.rooms[idRoom] = room;
     }
 
-    @SubscribeMessage('getOtherPlayerId')
+    @SubscribeMessage(Mesages.GET_OTHER_PLAYER_ID)
     getOtherPlayerId(client : Socket, idRoom : string, playerId : string)
     {
         const room : IRoomDto = this.getRoom(idRoom);
@@ -498,7 +523,8 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             throw new Unspected("Unspected error in socketserver: getOtherPlayerId");
     }
 
-    @SubscribeMessage('updateInfo')
+    // WAS: updateInfo
+    @SubscribeMessage(Mesages.SYNC_CUSTOMIZATION)
     updateSharedClientsData(client : Socket, idRoom : string, idPlayer : string, data : ICustomGame)
     {
         const room : IRoomDto = this.getRoom(idRoom);

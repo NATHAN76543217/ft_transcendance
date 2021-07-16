@@ -1,23 +1,22 @@
 import React from "react"
 
-export default class Text extends React.Component
-{
-    constructor(
-        props : Readonly<{}>,
-        public content : string,
-        public divClassName : string,
-        public textClassName : string
-    )
-    { super(props); }
+type ITextProps = {
+    content : string;
+    divClassName : string;
+    textClassName : string;
+}
 
-    render()
-    {
-        return (
-            <div className={this.divClassName}>
-                <text className={this.textClassName}>
-                    {this.content}
-                </text>
-            </div>
-        );
-    }
+export default function Text({
+    content,
+    divClassName,
+    textClassName
+} : ITextProps)
+{
+    return (
+        <div className={divClassName}>
+            <text className={textClassName}>
+                {content}
+            </text>
+        </div>
+    );
 }

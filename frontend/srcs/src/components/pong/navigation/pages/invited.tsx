@@ -1,18 +1,12 @@
 import React from "react"
 
-import ContinousSlider from "../../components/continuousSlider"
-import {
-    Socket,
-} from "ngx-socket-io"
+import ContiniousSlider from "../../components/continuousSlider"
+import Text from "../../components/text"
+import ButtonPong from "../../components/button"
+import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
 import {
     RangeSlider,
 } from "../../../../../../../pong/settings/dto/rangeslider"
-import Text from "../../components/text"
-import ButtonPong from "../../components/button";
-import {
-    IPongGame
-} from "./gameCustom"
-
 import {
     LIB_VERTICAL_MULTI,
     LIB_HORIZONTAL_MULTI
@@ -20,54 +14,23 @@ import {
 import {
     AStyle
 } from "../../../../../../../pong/render/style"
-import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
 import {
     ICustomGame
 } from "../.../../../../../../../../pong/server/socketserver"
+import {
+    Mesages
+} from "../../../../../../../pong/server/socketserver"
+import {
+    PongContext
+} from "../indexPong" 
 
 const DEFAULT_COLOR_SLIDER : number = 42;
 
-export default class InvitedToGame extends React.Component
+export default function InvitedToGame()
 {
-    public color : ContinousSlider = new ContinousSlider("Color", DEFAULT_COLOR_SLIDER, this.props);
-    public isReady : boolean = false;
-    public slidersInfo : ICustomGame;
+    const [value, setValue] = React.useState<number>(DEFAULT_COLOR_SLIDER);
 
-    constructor(
-        public roomId : string,
-        public idPlayer : string,
-        public socket : Socket,
-        public data : IPongGame,
-        public goBack : Function,
-        public goToPong : Function,
-        props : Readonly<{}>
-    )
-    {
-        super(props);
-
-        this.socket.emit("joinRoom", this.idPlayer);
-
-        this.slidersInfo = this.socket.emit("updateInfo", this.roomId, this.idPlayer, {
-            ballSpeed: Number(),
-            ballColor: String(),
-            courtColor: String(),
-            netColor: String(),
-            playerOneWidth: Number(),
-            playerOneHeight: Number(),
-            playerOneColor: String(),
-            playerTwoWidth: Number(),
-            playerTwoHeight: Number(),
-            playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-                limits: {
-                    min: 0x00000000,
-                    max: 0x00FFFFFF,
-                },
-                value: DEFAULT_COLOR_SLIDER
-            }))
-        });
-
-        this.readyToPlay = this.readyToPlay.bind(this);
-        this.onQuit = this.onQuit.bind(this);
+    const context = React.useContext(PongContext);
 
         // TO DO:
         // Info:
@@ -84,182 +47,145 @@ export default class InvitedToGame extends React.Component
         // -> update them with the shared data
         // -> end ?
 
-    }
+    const [isReady, setIsReady] = React.useState<boolean>(false);
 
-    public readyToPlay()
-    {
-        const idRoom : string = this.roomId;
+    // TO DO: Better with a Reducer ?
+    const [sliderShared, setSliderShared] = React.useState<ICustomGame>({
+        ballSpeed: Number(),
+        ballColor: String(),
+        courtColor: String(),
+        netColor: String(),
+        playerOneWidth: Number(),
+        playerOneHeight: Number(),
+        playerOneColor: String(),
+        playerTwoWidth: Number(),
+        playerTwoHeight: Number(),
+        playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+            limits: {
+                min: 0x00000000,
+                max: 0x00FFFFFF,
+            },
+            value: value
+        }))
+    });
 
-        if (this.isReady == false)
+    setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared));
+
+    // TO DO: Need to update render when other user does too
+    // In this case it will update only if playerTwoColor is updated
+    React.useEffect(() => {
+        setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
+            ballSpeed: Number(),
+            ballColor: String(),
+            courtColor: String(),
+            netColor: String(),
+            playerOneWidth: Number(),
+            playerOneHeight: Number(),
+            playerOneColor: String(),
+            playerTwoWidth: Number(),
+            playerTwoHeight: Number(),
+            playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+                limits: {
+                    min: 0x00000000,
+                    max: 0x00FFFFFF,
+                },
+                value: value
+            }))
+        })); 
+    }, [sliderShared]);
+
+    // Handler for "Ready" button
+    const onReady = () => {
+        
+        // User clicked on "Ready" button (activating it)
+        if (isReady == false)
         {
-            this.socket.emit("playerIsReady", idRoom, this.idPlayer);
-            this.isReady = true;
+            context.socket.emit(Mesages.PLAYER_IS_READY, context.gameId, context.playerId);
+            setIsReady(true);
         }
+        // User clicked on "Ready" botton (desactivating it)
         else
         {
-            this.socket.emit("playerIsNotReady", idRoom, this.idPlayer);
-            this.isReady = false;
+            context.socket.emit(Mesages.PLAYER_ISNT_READY, context.gameId, context.playerId);
+            setIsReady(false);
         }
 
-        if (this.socket.emit("arePlayersReady", idRoom))
+        // If both are readdy ...
+        if (context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId))
         {
-            this.syncCustomization();
-            this.socket.emit("launchGame", idRoom);
-            this.goToPong();
+            syncCustomization();
+            context.socket.emit("launchGame", context.gameId);
+            context.goToPongGame(); // Perhabs it work, perhabs not
         }
     }
 
-    public syncCustomization()
-    {
+    // Handler for "Quit" button
+    const onQuit = () => {
+
+        context.socket.emit(Mesages.LEAVE_ROOM, context.gameId, context.playerId);
+        context.goToSelection(); // Perhabs it work, perhabs not
+    }
+
+    // Help to syncronize playerOne's and playerTwo's customization before launch the game
+    const syncCustomization = () => {
+
         const libsNames : Array<string> = [
             LIB_HORIZONTAL_MULTI,
             LIB_VERTICAL_MULTI
         ];
 
-        const data : string = this.socket.emit("getGameStyle", this.roomId);
-        const index : number = libsNames.findIndex(elem => elem == data);
+        const pongName : string = context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
+        const index : number = libsNames.findIndex(elem => elem == pongName);
 
         if (index === undefined)
             throw new Unspected("Unspected error in syncCustomisation");
 
-        this.data.pongFinals[index].gameStatus.playerOne.id = this.socket.emit("getOtherPlayerId", this.roomId, this.idPlayer);
-        this.data.pongFinals[index].gameStatus.playerTwo.id = this.idPlayer;
-        this.data.pongFinals[index].gameStatus.ball.speed = this.slidersInfo.ballSpeed;
-        this.data.pongFinals[index].gameStatus.ball.style.data = this.slidersInfo.ballColor;
-        this.data.pongFinals[index].gameStatus.court.style.data = this.slidersInfo.courtColor;
-        this.data.pongFinals[index].gameStatus.net.style.data = this.slidersInfo.netColor;
-        this.data.pongFinals[index].gameStatus.playerOne.width = this.slidersInfo.playerOneWidth;
-        this.data.pongFinals[index].gameStatus.playerOne.height = this.slidersInfo.playerOneHeight;
-        this.data.pongFinals[index].gameStatus.playerOne.style.data = this.slidersInfo.playerOneColor;
-        this.data.pongFinals[index].gameStatus.playerTwo.width = this.slidersInfo.playerTwoWidth;
-        this.data.pongFinals[index].gameStatus.playerTwo.height = this.slidersInfo.playerTwoHeight;
-        this.data.pongFinals[index].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+        context.pongSpetializations[index][1].gameStatus.playerOne.id = context.socket.emit(Mesages.GET_OTHER_PLAYER_ID, context.gameId, context.playerId);
+        context.pongSpetializations[index][1].gameStatus.playerTwo.id = context.playerId;
+        context.pongSpetializations[index][1].gameStatus.ball.speed = sliderShared.ballSpeed;
+        context.pongSpetializations[index][1].gameStatus.ball.style.data = sliderShared.ballColor;
+        context.pongSpetializations[index][1].gameStatus.court.style.data = sliderShared.courtColor;
+        context.pongSpetializations[index][1].gameStatus.net.style.data = sliderShared.netColor;
+        context.pongSpetializations[index][1].gameStatus.playerOne.width = sliderShared.playerOneWidth;
+        context.pongSpetializations[index][1].gameStatus.playerOne.height = sliderShared.playerOneHeight;
+        context.pongSpetializations[index][1].gameStatus.playerOne.style.data = sliderShared.playerOneColor;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.width = sliderShared.playerTwoWidth;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.height = sliderShared.playerTwoHeight;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
             limits: {
                 min: 0x00000000,
                 max: 0x00FFFFFF
             },
-            value: this.color.value
+            value: value
         }))
 
-        this.data.index = index;
-
+        context.setPongIndex(index);
     }
 
-    // public syncCustomisation()
-    // {
-    //     this.socket.emit("exportCustomization", this.roomId, this.idPlayer, {
-    //         ballSpeed: Number(),
-    //         ballColor: String(),
-    //         courtColor: String(),
-    //         netColor: String(),
-    //         playerOneWidth: Number(),
-    //         playerOneHeight: Number(),
-    //         playerOneColor: String(),
-    //         playerTwoWidth: Number(),
-    //         playerTwoHeight: Number(),
-    //         playerTwoColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-    //             limits: {
-    //                 min: 0x00000000,
-    //                 max: 0x00FFFFFF
-    //             },
-    //             value: this.color.value
-    //         })),
-    //     });
-
-    //     const libsNames : Array<string> = [
-    //         LIB_HORIZONTAL_MULTI,
-    //         LIB_VERTICAL_MULTI
-    //     ];
-
-    //     const data : string = this.socket.emit("getGameStyle", this.roomId);
-    //     const index : number = libsNames.findIndex(elem => elem == data);
-
-    //     if (index === undefined)
-    //         throw new Unspected("Unspected error in syncCustomisation");
-
-    //     let syncCustomization;
-
-    //     // Stop until both sides has sent their customization
-    //     while ((syncCustomization = this.socket.emit("importCustomization", this.roomId)) == null)
-    //         ;
-
-    //     this.data.pongFinals[index].gameStatus.playerOne.id = this.socket.emit("getOtherPlayerId", this.roomId, this.idPlayer);
-    //     this.data.pongFinals[index].gameStatus.playerTwo.id = this.idPlayer;
-    //     this.data.pongFinals[index].gameStatus.ball.speed = syncCustomization.ballSpeed;
-    //     this.data.pongFinals[index].gameStatus.ball.style.data = syncCustomization.ballColor;
-    //     this.data.pongFinals[index].gameStatus.court.style.data = syncCustomization.courtColor;
-    //     this.data.pongFinals[index].gameStatus.net.style.data = syncCustomization.netColor;
-    //     this.data.pongFinals[index].gameStatus.playerOne.width = syncCustomization.playerOneWidth;
-    //     this.data.pongFinals[index].gameStatus.playerOne.height = syncCustomization.playerOneHeight;
-    //     this.data.pongFinals[index].gameStatus.playerOne.style.data = syncCustomization.playerOneColor;
-    //     this.data.pongFinals[index].gameStatus.playerTwo.width = syncCustomization.playerTwoWidth;
-    //     this.data.pongFinals[index].gameStatus.playerTwo.height = syncCustomization.playerTwoHeight;
-    //     this.data.pongFinals[index].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-    //         limits: {
-    //             min: 0x00000000,
-    //             max: 0x00FFFFFF
-    //         },
-    //         value: this.color.value
-    //     }))
-
-    //     this.data.index = index;
-    // }
-
-    public onQuit()
-    {
-        this.socket.emit("leaveRoom", this.roomId, this.idPlayer);
-        this.goBack();
-    }
-
-    public updateInfo()
-    {
-        this.slidersInfo.playerTwoColor = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-            limits: {
-                min: 0x00000000,
-                max: 0x00FFFFFF
-            },
-            value: this.color.value
-            }),
-        );
-        this.slidersInfo = this.socket.emit("updateInfo", this.roomId, this.idPlayer, this.slidersInfo);
-    }
-
-    public render()
-    {
-        this.updateInfo();
-
-        return(
-            <div className="">
-                {
-                    new Text(
-                        this.props,
-                        this.slidersInfo.gameBrief ? this.slidersInfo.gameBrief : "UNSPECTED ERROR",
-                        "",
-                        ""
-                    )
-                }
-                <div className="">
-                    {this.color}
-                </div>
-                {
-                    new ButtonPong(
-                        this.props,
-                        "Ready",
-                        "",
-                        "",
-                        this.readyToPlay
-                    )
-                }
-                {
-                    new ButtonPong(
-                        this.props,
-                        "Quit",
-                        "",
-                        "",
-                        this.onQuit
-                    )
-                }
-            </div>
-        );
-    }
+    return (
+        // TO DO: Use isReady for button style too
+        <>
+            <Text
+                content={sliderShared.gameBrief ? sliderShared.gameBrief : "UNSPECTED ERROR"}
+                divClassName=""
+                textClassName=""
+            />
+            <ContiniousSlider
+                name="Color"
+                stateShared={{value: value, setValue: setValue}}
+            />
+            <ButtonPong
+                content="Ready"
+                divClassName=""
+                buttonClassName=""
+                onClickHandler={onReady}
+            />
+            <ButtonPong
+                content="Quit"
+                divClassName=""
+                buttonClassName=""
+                onClickHandler={onQuit}
+            />
+        </>
+    );
 }
