@@ -19,6 +19,7 @@ import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
 import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
 import Message from 'src/messages/message.entity';
+import { parse } from 'cookie';
 
 @Injectable()
 export default class ChannelsService {
@@ -34,20 +35,24 @@ export default class ChannelsService {
     private readonly channelsGateway: ChannelsGateway,
   ) {}
 
-  async getUserFromSocket(socket: Socket): Promise<User> {
+  async getUserFromSocket(socket: Socket, withChannels = true): Promise<User> {
     const logger = new Logger();
     logger.debug(
       `headers: ${JSON.stringify(
         socket.handshake.headers,
       )}, query: ${JSON.stringify(socket.handshake.query)}`,
     );
-    const token = socket.handshake.headers.token as string | undefined;
+    const cookie = socket.handshake.headers.cookie ?? '';
+    const { Authentication: token } = parse(cookie);
 
     if (!token) throw new WsException('Missing token.');
     logger.debug('auth token: ' + token);
 
     const user =
-      await this.authenticationService.getUserFromAuthenticationToken(token);
+      await this.authenticationService.getUserFromAuthenticationToken(
+        token,
+        withChannels,
+      );
 
     if (!user) {
       throw new WsException('Invalid token.');
@@ -121,17 +126,23 @@ export default class ChannelsService {
       throw new ChannelWrongPassword();
     }
   }
-  async getMessagesById(channelId: number, beforeId?: number, afterId?: number) {
+
+  async getMessagesById(
+    channelId: number,
+    beforeId?: number,
+    afterId?: number,
+  ) {
     const maxCount = 20;
 
-    return this.messageRepository.createQueryBuilder('message')
-      .where('message.channel_id = :channelId', {channelId})
-      .andWhere('message.id > :afterId', {afterId})
-      .where('message.id < :beforeId', {beforeId})
+    return this.messageRepository
+      .createQueryBuilder('message')
+      .where('message.channel_id = :channelId', { channelId })
+      .andWhere('message.id > :afterId', { afterId })
+      .where('message.id < :beforeId', { beforeId })
       .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
       .take(maxCount)
       .getMany();
-      // TODO: Get messages with message gt afterId
+    // TODO: Get messages with message gt afterId
   }
 
   // TODO: Rename all functions to exclude service name and provide uesful info
