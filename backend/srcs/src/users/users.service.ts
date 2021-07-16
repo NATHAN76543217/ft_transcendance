@@ -15,6 +15,7 @@ import { parse } from 'cookie';
 import { WsException } from '@nestjs/websockets';
 import { UsersGateway } from './users.gateway';
 import { UserRoleTypes } from './utils/userRoleTypes';
+import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 
 @Injectable()
 export default class UsersService {
@@ -69,6 +70,7 @@ export default class UsersService {
     });
   }
 
+  // withChannels option joins channels and preview data
   async getUserById(id: number, withChannels = false) {
     const query = this.usersRepository
       .createQueryBuilder('user')
@@ -86,7 +88,19 @@ export default class UsersService {
     query
       .leftJoin('user.channels', 'channelRelation')
       .addSelect('channelRelation.type')
-      .leftJoinAndSelect('channelRelation.channel', 'channel')
+      .addSelect('channelRelation.last_read_message_id', 'last_read_message_id')
+      .leftJoin('channelRelation.channel', 'channel')
+      .addSelect('channel')
+      .loadRelationCountAndMap(
+        'channelRelation.unread_messages_count',
+        'channel.messages',
+        'message',
+        (qb) =>
+          qb
+            .from(ChannelRelationship, 'channelRelation')
+            .where('message.id > channelRelation.last_read_message_id'),
+      )
+      //.addSelect('channelRelation.unread_messages_count')
       .leftJoin('channel.users', 'channelUserRelation')
       .addSelect('channelUserRelation.type')
       .leftJoin('channelUserRelation.user', 'channelUser')
@@ -101,16 +115,20 @@ export default class UsersService {
     // This should never be false
     //if (name !== undefined)
     // const user = await this.usersRepository.findOne(name, { relations: ['channels'] });
+
     const query = this.usersRepository
       .createQueryBuilder('user')
       .where('user.name = :name', { name });
 
     if (withPassword) query.addSelect('user.password');
     if (withChannels) this.joinChannels(query);
+    try {
+      const user = await query.getOne();
 
-    const user = await query.getOne();
-
-    if (user) return user;
+      if (user) return user;
+    } catch (e) {
+      Logger.error(e);
+    }
 
     throw new UserNameNotFoundException(name);
   }
