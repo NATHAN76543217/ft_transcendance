@@ -59,7 +59,8 @@ export class ChannelsGateway
     // TODO: Maybe join self named channel to receive friend invitations etc...
     // Join user channels
     socket.user.channels.forEach((c) => {
-      const channel = c.channel_id.toString();
+      Logger.debug(c.channel!.id);
+      const channel = c.channel!.id.toFixed();
 
       socket.join(channel);
       // TODO: Check which data to send on join
@@ -92,7 +93,7 @@ export class ChannelsGateway
     // TODO: Broadcast messages by room
     // TODO: Save messages to repository
 
-    this.logger.debug(`${author.name}: ${data}`);
+    this.logger.debug(`${author.name}: ${{ data }}`);
   }
 
   async closeChannel(id: number) {
