@@ -7,6 +7,7 @@ import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
 import PongGenerator from "../../../../../../pong/engine/engine"
 import  ClassicPong from "../../../../../../pong/specilizations/classicpong/classicpong.engine"
+import Unspected from "../../../../../../pong/exceptions/unspected.exception"
 import {
     Socket,
     SocketIoConfig
@@ -35,19 +36,19 @@ export type IPongContext = {
     setPongIndex : React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const PongContext = React.createContext({
+export const PongContext = React.createContext<IPongContext>({
     goToFastGame: Function(),
     goToCustomGame : Function(),
     goToSelection: Function(),
     goToPongGame: Function(),
     gameId: String(),
-    setGameId: Function(),
+    setGameId: () => { },
     playerId: String(),
-    socket: { },
+    socket: { } as Socket,
     pongSpetializations: Array(),
     pongIndex: Number(),
-    setPongIndex: Function()
-}  as unknown as IPongContext);
+    setPongIndex: () => { }
+});
 
 type IPongIndexProps = {
     playerId : string;
@@ -55,7 +56,7 @@ type IPongIndexProps = {
     roomId? : string;
 }
 
-export function PongIndex({
+export default function PongIndex({
     playerId,
     isInvited,
     roomId
@@ -81,7 +82,7 @@ export function PongIndex({
                 pageJSX = <GameFast />;
                 break ;
             case Pages.CUSTOM_GAME:
-                pageJSX = <>{/* TO DO */}</>;
+                pageJSX = <GameCustom />;
                 break ;
             case Pages.PONG:
                 pageJSX = <Pong canvasId="pongCanvas"/>;
@@ -90,9 +91,9 @@ export function PongIndex({
                 pageJSX = <InvitedToGame />;
                 break ;
             default:
-                throw new Error(); // Unspected error
+                throw new Unspected("Unspected error on: useEffects from indexPong.tsx");
         }
-    }, [currentPage])
+    }, [currentPage]);
 
     // Handle game/room id
     const [gameId, setGameId] = React.useState<string>(roomId ? roomId : "not in game yet");
@@ -115,21 +116,23 @@ export function PongIndex({
         ],
     ];
 
+    const context : IPongContext = {
+        goToFastGame: goToFastGame,
+        goToCustomGame: goToCustomGame,
+        goToSelection: goToSelection,
+        goToPongGame: goToPongGame,
+        gameId: gameId,
+        setGameId: setGameId,
+        playerId: playerId,
+        socket: socket,
+        pongSpetializations: pongSpetializations,
+        pongIndex: pongIndex,
+        setPongIndex: setPongIndex
+    };
+
     return (
         <>
-            <PongContext.Provider value={{
-                goToFastGame: goToFastGame,
-                goToCustomGame: goToCustomGame,
-                goToSelection: goToSelection,
-                goToPongGame: goToPongGame,
-                gameId: gameId,
-                setGameId: setGameId,
-                playerId: playerId,
-                socket: socket,
-                pongSpetializations: pongSpetializations,
-                pongIndex: pongIndex,
-                setPongIndex: setPongIndex
-            }}>
+            <PongContext.Provider value={{...context}}>
                 {pageJSX}
             </PongContext.Provider>
         </>

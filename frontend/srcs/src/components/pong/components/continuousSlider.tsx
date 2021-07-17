@@ -17,11 +17,6 @@ type IContiniousSlyderProps = {
     disabled? : true;
 }
 
-export type IContiniousSlyderContext = {
-    value : number;
-    setValue : React.Dispatch<React.SetStateAction<number>>;
-}
-
 export default function ContinousSlider({
     name,
     stateShared,
@@ -46,20 +41,15 @@ export default function ContinousSlider({
 
     return (
         <div className={classes.root}>
-
-        {/* Element slidered name */}
-        <Typography id="continuous-slider" gutterBottom>
-            {description}
-        </Typography>
-
-        {/* Slider that changes the value of the propertie */}
-        <Slider {...disabled} value={stateShared.value} onChange={handleChange} aria-labelledby="continuous-slider"/>
-
+            <Typography id="continuous-slider" gutterBottom>
+                {description}
+            </Typography>
+            <Slider
+                {...disabled}
+                value={stateShared.value}
+                onChange={handleChange}
+                aria-labelledby="continuous-slider"
+            />
         </div>
     );
 }
-
-// TO DO: Remember that this should be inlined in tsx code like this:
-// <ContinousSlider name="" defaultValue="" disabled=true />
-
-// TO DO: Button has a disabled field too !

@@ -3,26 +3,9 @@ import {
     GameMode
 } from "../../../../../../pong/engine/polimorphiclib";
 import ContiniousSlider from "./continuousSlider"
-
-interface ICustomization
-{
-    gameConfig : Array<JSX.Element>;
-    gameMode : GameMode
-}
-
-export const BALL_SPEED : string = "Ball speed";
-export const BALL_COLOR : string = "Ball color";
-export const COURT_COLOR : string = "Court color";
-export const NET_COLOR : string = "Net color";
-export const PLAYER_ONE_WIDTH : string = "Player one width";
-export const PLAYER_ONE_HEIGHT : string = "Player one height";
-export const PLAYER_ONE_COLOR : string = "Player one color";
-export const PLAYER_TWO_WIDTH : string = "Player two width";
-export const PLAYER_TWO_HEIGHT : string = "Player two height";
-export const PLAYER_TWO_COLOR : string = "Player two color";
-export const BOT_LEVEL : string = "Bot level";
-
-// TO DO: Use enum CustomValue instead of "defines"
+import {
+    CustomizationContext
+} from "../navigation/pages/gameCustom"
 
 export enum CustomValue
 {
@@ -40,64 +23,91 @@ export enum CustomValue
 }
 
 type ICustomizationProps = {
-    data : ICustomization;
     divClassName : string;
     sliderDivClassName : string;
 }
 
-// TO DO: Data must be context
+type Setter = React.Dispatch<React.SetStateAction<number>>;
 
-export default function Customization({
-    data,
+export function Customization({
     divClassName,
     sliderDivClassName
 } : ICustomizationProps)
 {
+    const context = React.useContext(CustomizationContext);
+
+    const setUpSlider = (key : CustomValue, disabled? : true) : JSX.Element => {
+        return (
+            <ContiniousSlider
+                name={String(key)}
+                stateShared={{
+                    value: Number(context.sliders.get(key)?.[0]),
+                    setValue: context.sliders.get(key)?.[1] as Setter
+                }}
+                disabled={disabled}
+            />
+        );
+    };
+
     return (
         <div className={divClassName}>
             <div className={sliderDivClassName}>
-                {data.gameConfig[0 % data.gameConfig.length]}
+               {setUpSlider(CustomValue.BALL_SPEED)}
             </div>
             <div className={sliderDivClassName}>
-                {data.gameConfig[1 % data.gameConfig.length]}
+                {setUpSlider(CustomValue.BALL_COLOR)}
             </div>
             <div className={sliderDivClassName}>
-                {data.gameConfig[2 % data.gameConfig.length]}
+                {setUpSlider(CustomValue.COURT_COLOR)}
             </div>
             <div className={sliderDivClassName}>
-                {data.gameConfig[3 % data.gameConfig.length]}
+                {setUpSlider(CustomValue.NET_COLOR)}
             </div>
             <div className={sliderDivClassName}>
-                {data.gameConfig[4 % data.gameConfig.length]}
+                {setUpSlider(CustomValue.PLAYER_ONE_WIDTH)}
             </div>
             <div className={sliderDivClassName}>
-                {data.gameConfig[5 % data.gameConfig.length]}
+                {setUpSlider(CustomValue.PLAYER_ONE_HEIGHT)}
             </div>
             <div className={sliderDivClassName}>
-                {data.gameConfig[6 % data.gameConfig.length]}
+                {setUpSlider(CustomValue.PLAYER_ONE_COLOR)}
             </div>
-            <div className={sliderDivClassName}>
-                {data.gameConfig[7 % data.gameConfig.length]}
-            </div>
+            <CustomizationContext.Consumer>
             {
-                data.gameMode == GameMode.SINGLE_PLAYER
-                ?
-                <div className="">
-                    <div className={sliderDivClassName}>
-                        {data.gameConfig[8 % data.gameConfig.length]}
-                    </div>
-                    <div className={sliderDivClassName}>
-                        {data.gameConfig[9 % data.gameConfig.length]}
-                    </div>
-                    <div className={sliderDivClassName}>
-                        {data.gameConfig[9 % data.gameConfig.length]}
-                    </div>
-                    <div className={sliderDivClassName}>
-                        {data.gameConfig[10 % data.gameConfig.length]}
-                    </div>
+                customization => 
+                <div className={sliderDivClassName}>
+                    {setUpSlider(CustomValue.PLAYER_TWO_WIDTH,
+                    customization.gameMode == GameMode.MULTI_PLAYER ? true : undefined)}
                 </div>
-                : 0
             }
+            </CustomizationContext.Consumer>
+            <CustomizationContext.Consumer>
+            {
+                customization =>
+                <div className={sliderDivClassName}>
+                    {setUpSlider(CustomValue.PLAYER_TWO_HEIGHT,
+                    customization.gameMode == GameMode.MULTI_PLAYER ? true : undefined)}
+                </div>
+            }
+            </CustomizationContext.Consumer>
+            <CustomizationContext.Consumer>
+            {
+                customization =>
+                <div className={sliderDivClassName}>
+                    {setUpSlider(CustomValue.PLAYER_TWO_COLOR,
+                    customization.gameMode == GameMode.MULTI_PLAYER ? true : undefined)}
+                </div>
+            }
+            </CustomizationContext.Consumer>
+            <CustomizationContext.Consumer>
+            {
+                customization =>
+                <div className={sliderDivClassName}>
+                    {setUpSlider(CustomValue.BOT_LEVEL,
+                    customization.gameMode == GameMode.MULTI_PLAYER ? true : undefined)}
+                </div>
+            }
+            </CustomizationContext.Consumer>
         </div>
     );
 }

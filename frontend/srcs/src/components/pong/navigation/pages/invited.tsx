@@ -49,7 +49,6 @@ export default function InvitedToGame()
 
     const [isReady, setIsReady] = React.useState<boolean>(false);
 
-    // TO DO: Better with a Reducer ?
     const [sliderShared, setSliderShared] = React.useState<ICustomGame>({
         ballSpeed: Number(),
         ballColor: String(),
@@ -92,7 +91,7 @@ export default function InvitedToGame()
                 value: value
             }))
         })); 
-    }, [sliderShared]);
+    }, [value, sliderShared]);
 
     // Handler for "Ready" button
     const onReady = () => {
