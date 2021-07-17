@@ -56,9 +56,7 @@ export default function ChatPage({
     new Map(user?.channels.map((c) => [c.channel.id, c.channel]))
   );
 
-  const [socket, setSocket] = useState<Socket | undefined>(
-    user ? getSocket() : undefined
-  );
+  const [socket, setSocket] = useState<Socket | undefined>(undefined);
 
   const chatIdParam = Number(match.params.id);
 
@@ -75,15 +73,15 @@ export default function ChatPage({
 
   // If the user state changes we need to reconnect the socket
   useEffect(() => {
-    setSocket(user ? getSocket() : undefined);
+    const newSocket = user?.id !== undefined ? getSocket() : undefined;
 
+    setSocket(newSocket);
     return () => {
-      socket?.close();
+      newSocket?.close();
     };
   }, [user?.id]);
 
   useEffect(() => {
-    console.log("Setting new channels for user: ", user);
     setChannels(new Map(user?.channels.map((c) => [c.channel.id, c.channel])));
   }, [user?.channels]);
 

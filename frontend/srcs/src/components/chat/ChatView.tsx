@@ -5,7 +5,6 @@ import { ChatPageContext } from "../../pages/chat/chat";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
 import { useForm } from "react-hook-form";
 import { TextInput } from "../utilities/TextInput";
-import axios from "axios";
 import { Socket } from "socket.io-client";
 
 type ChatViewProps = {
@@ -38,7 +37,7 @@ export function ChatInput({ onSubmit }: ChatInputProps) {
   const {
     register,
     handleSubmit,
-    setError,
+    //setError,
     formState: { errors },
   } = useForm<IMessageFormValues>();
 
