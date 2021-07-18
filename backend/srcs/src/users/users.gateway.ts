@@ -3,6 +3,7 @@ import {
     MessageBody,
     OnGatewayConnection,
     OnGatewayDisconnect,
+    OnGatewayInit,
     SubscribeMessage,
     WebSocketGateway,
     WebSocketServer,
@@ -13,15 +14,19 @@ import UsersService from './users.service';
 import { SocketWithUser } from 'src/authentication/socketWithUser.interface';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 
+
+@Injectable()
 @WebSocketGateway(undefined, { namespace: '/users' })
 export class UsersGateway
-    implements OnGatewayConnection, OnGatewayDisconnect {
+    implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer()
     server: Server;
 
     private logger: Logger = new Logger('UsersGateway');
 
+
     constructor(
+        @Inject(forwardRef(() => UsersService))
         private readonly usersService: UsersService
     ) {
     }
@@ -30,58 +35,80 @@ export class UsersGateway
         this.logger.debug(`Listening at ${server.path()}`);
     }
 
+    async handleConnection(socket: SocketWithUser) {
 
-    async handleConnection(client: Socket) {
-        
-        // client.on('connection', () => {
-        //     console.log(`connection detected`)
-        //     this.logger.debug('logger debug connection detected');
-        // })
+        this.logger.debug(`Query: ${JSON.stringify(socket.handshake.query)}`);
+        try {
+            socket.user = await this.usersService.getUserFromSocket(socket);
+        } catch (e) {
+            console.log("socket disconnected")
+            socket.disconnect(true);
+            return;
+        }
 
-        // client.on('disconnection', () => {
-        //     console.log(`disconnection detected`)
-        //     this.logger.debug('logger debug disconnection detected');
-        // })
-        
-        client.emit('connection')
+        socket.emit('authenticated');
 
-        client.on('disconnecting', () => {
+        socket.join('userStatus')
+
+        socket.to('userStatus').emit('authenticated');
+
+        socket.on('disconnecting', () => {
             // TODO: set offline status
             this.logger.debug(
-              `Client disconnecting with ${client.rooms.size} joined rooms`,
+              `Client disconnecting with ${socket.rooms.size} joined rooms`,
             );
-        })
-        
-        return this.logger.log(`Client connected: ${client.id}`);
+      
+            socket.rooms.forEach((r) => {
+              socket.to(r).emit('disconnected', { username: socket.user.name });
+            });
+          });
+
+        // socket.on('connected', () => {
+        //     socket.join("userStatus");
+        //     socket.to('userStatus').emit('newConnectedUser');
+        // })
+
+        this.logger.debug(
+            `Users ${socket.user?.name} - Client connected with ${socket.rooms.size} joined rooms`,
+        );
+
+        console.log('handleConnection - end')
+
+        return { event: 'connected' };
     }
 
 
-    async handleDisconnect(client: Socket) {
-        client.emit('disconnection')
-        return this.logger.log(`Client disconnected: ${client.id}`);
+    async handleDisconnect(socket: SocketWithUser) {
+        this.logger.debug(
+            `Client disconnect with ${socket.rooms.size} joined rooms`,
+        );
+        // socket.to("userStatus").emit('disconnected');
     }
 
-
-   
-    @SubscribeMessage('connection')
-    async listenForConnection(
+    @SubscribeMessage('authentication')
+    async handleMessage(
         @ConnectedSocket() socket: Socket,
     ) {
-        const user = await  this.usersService.getUserFromSocket(socket);
-
-       console.log(`user with id ${user.id} has just connected`)
+        this.server.emit('userConnected')
     }
 
-    @SubscribeMessage('disconnection')
-    async listenForDisconnection(
+    @SubscribeMessage('create')
+    async createRoom(
         @ConnectedSocket() socket: Socket,
+        @MessageBody() room: string,
     ) {
-        const user = await this.usersService.getUserFromSocket(socket);
+        const author = await this.usersService.getUserFromSocket(socket);
+        console.log("room", room)
 
-       console.log(`user with id ${user.id} has just disconnected`)
+        socket.join(room)
+
+        console.log(`user ${author.name} just joined room ${room}`)
+
+        // TODO: Replace getUser with SocketWithUser
+        // TODO: Broadcast messages by room
+        // TODO: Save messages to repository
+
+        this.logger.debug(`${author.name}: ${room}`);
     }
 
-    async connectUser(id: number) {
-        this.server.emit('connecting');
-    }
 }

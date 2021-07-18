@@ -23,7 +23,7 @@ import UsersService from 'src/users/users.service';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: {
-          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}`,
+          expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
         },
       }),
     }),

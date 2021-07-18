@@ -13,6 +13,8 @@ import { AuthenticationService } from 'src/authentication/authentication.service
 import { Socket } from 'socket.io';
 import { parse } from 'cookie';
 import { WsException } from '@nestjs/websockets';
+import { UsersGateway } from './users.gateway';
+import { UserRoleTypes } from './utils/userRoleTypes';
 
 @Injectable()
 export default class UsersService {
@@ -20,8 +22,10 @@ export default class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @Inject(forwardRef(() => AuthenticationService))
-    private authenticationService: AuthenticationService
-  ) {}
+    private authenticationService: AuthenticationService,
+    @Inject(forwardRef(() => UsersGateway))
+    private readonly usersGateway: UsersGateway,
+  ) { }
 
   async getUserFromSocket(socket: Socket): Promise<User> {
     const logger = new Logger();
@@ -36,16 +40,24 @@ export default class UsersService {
     if (!token) throw new WsException('Missing token.');
     logger.debug('auth token: ' + token);
 
-    const user =
-      await this.authenticationService.getUserFromAuthenticationToken(token);
-
-    if (!user) {
-      throw new WsException('Invalid token.');
+    try {
+      const user =
+        await this.authenticationService.getUserFromAuthenticationToken(token);
+      if (!user) {
+        throw new WsException('Invalid token.');
+      }
+      return user;
+    } catch (error) {
+      console.log(error)
     }
-    return user;
   }
 
   async getAllUsers(name: string) {
+    // const user = await this.getUserById(1);
+    // this.updateUser(1, {
+    //   ...user,
+    //   role: UserRoleTypes.owner})
+
     if (name === undefined) {
       return await this.usersRepository.find({
         relations: ['channels', 'channels.channel'],
@@ -159,7 +171,7 @@ export default class UsersService {
           userRelationshipsService.deleteUserRelationship(Number(relation.id));
         });
       }
-    } catch (error) {}
+    } catch (error) { }
 
     const deleteResponse = await this.usersRepository.delete(id);
     if (!deleteResponse.affected) {
