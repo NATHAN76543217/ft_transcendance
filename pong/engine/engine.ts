@@ -4,6 +4,9 @@ import {
 import {
     Socket,
 } from "ngx-socket-io"
+import {
+    Mesages
+} from "../server/socketserver"
 
 import  renderGameStatus from "../render/render"
 import SettingsLimits from "../settings/limits"
@@ -22,7 +25,7 @@ export default class PolimorphicEngine
     // Parse mouse mov
     // Disconect clients
 
-    // request info room broadcast to all
+    // request info from room and broadcast to all
     // request next animation frame for calculation in the server
     // Use "requesNextAnimationFrame" instead setInterval
 
@@ -33,7 +36,7 @@ export default class PolimorphicEngine
 
 
         setInterval(() : void => {
-            this.gameStatus = this.socket.emit('calcGameStatus',
+            this.gameStatus = this.socket.emit(Mesages.CALC_GAME_STATUS,
             this.roomId, this.gameStatus);
             renderGameStatus(this.gameStatus);
         }, 1000 / fps);
