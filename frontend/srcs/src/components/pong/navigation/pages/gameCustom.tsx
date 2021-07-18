@@ -15,7 +15,7 @@ import PongStyleSelector from '../../components/ponsStyleSelector'
 import {
     Customization,
     CustomValue
-} from '../../components/customization'
+} from "../../components/customization"
 import {
     LIB_VERTICAL_SINGLE,
     LIB_VERTICAL_MULTI,
@@ -58,7 +58,6 @@ export const CustomizationContext = React.createContext<ICustomizationContext>({
 });
 
 // TO DO: Finish a game and call server's endGame
-// TO DO: Check invite.tsx for TO DOs for this file too
 
 export default function GameCustom()
 {
@@ -87,7 +86,6 @@ export default function GameCustom()
     // Handle "Ready" value
     const [isReady, setIsReady] = React.useState<boolean>(false);
 
-    // TO DO: Perhabs is a good idea to inherit map and handle exceptions in my own data-structure
     // Init sliders data using the preloaded config in the context (context.pongSpetializations[context.pongIndex])
     const sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> = new Map([
         [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[
@@ -217,22 +215,22 @@ export default function GameCustom()
             .gameStatus.ball.style.data = sliderShared.ballColor;
         context.pongSpetializations[context.pongIndex][1]
             .gameStatus.court.style.data = sliderShared.courtColor;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.net.style.data = sliderShared.netColor;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.playerOne.width = sliderShared.playerOneWidth;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.playerOne.height = sliderShared.playerOneHeight;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.playerOne.style.data = sliderShared.playerOneColor;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.playerTwo.width = gameMode == GameMode.SINGLE_PLAYER ?
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.net.style.data = sliderShared.netColor;
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerOne.width = sliderShared.playerOneWidth;
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerOne.height = sliderShared.playerOneHeight;
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerOne.style.data = sliderShared.playerOneColor;
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerTwo.width = gameMode == GameMode.SINGLE_PLAYER ?
             sliderShared.playerTwoWidth : sliderShared.playerOneWidth;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.playerTwo.height = gameMode == GameMode.SINGLE_PLAYER ?
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerTwo.height = gameMode == GameMode.SINGLE_PLAYER ?
             sliderShared.playerTwoHeight : sliderShared.playerOneHeight;
-        context.pongSpetializations[context.pongIndex][1].
-            gameStatus.playerTwo.style.data = sliderShared.playerTwoColor;
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerTwo.style.data = sliderShared.playerTwoColor;
 
         if (gameMode == GameMode.SINGLE_PLAYER)
             context.socket.emit(Mesages.SET_UP_BOT_LEVEL, context.gameId, RangeSlider.RangeSliderValue({
