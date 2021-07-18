@@ -91,29 +91,29 @@ export default function PongIndex({
     const goToSelection : Readonly<Function> = () => { setCurrentPage(Pages.SELECT_GAME_STYLE); };
     const goToPongGame : Readonly<Function> = () => { setCurrentPage(Pages.PONG); };
 
-    let pageJSX : JSX.Element = <></>;
+    const [pageJSX, setPageJSX] = React.useState<JSX.Element>(<></>);
 
     React.useEffect(() => {
 
         switch (currentPage)
         {
             case Pages.SELECT_GAME_STYLE:
-                pageJSX = <SelectGameStyle />;
+                setPageJSX(<SelectGameStyle />);
                 break ;
             case Pages.FAST_GAME:
-                pageJSX = <GameFast />;
+                setPageJSX(<GameFast />);
                 break ;
             case Pages.CUSTOM_GAME:
-                pageJSX = <GameCustom />;
+                setPageJSX(<GameCustom />);
                 break ;
             case Pages.PONG:
-                pageJSX = <Pong canvasId="pongCanvas"/>;
+                setPageJSX(<Pong canvasId="pongCanvas"/>);
                 break ;
             case Pages.INVITED:
-                pageJSX = <InvitedToGame />;
+                setPageJSX(<InvitedToGame />);
                 break ;
             case Pages.SPECTATOR:
-                pageJSX = <Spectator />;
+                setPageJSX(<Spectator />);
                 break ;
             default:
                 throw new Unspected("Unspected error on: useEffects from indexPong.tsx");
