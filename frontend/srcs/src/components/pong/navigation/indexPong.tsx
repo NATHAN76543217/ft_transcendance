@@ -6,9 +6,13 @@ import GameFast from "./pages/gameFast"
 import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
 import Spectator from "./pages/spectator"
-import PongGenerator from "../../../../../../pong/engine/engine"
-import  ClassicPong from "../../../../../../pong/specilizations/classicpong/classicpong.engine"
+import PongClient from "../engine/engine"
+import  ClassicPong from "../specilizations/classicpong/classicpong.engine"
+
+// TO DO: merge exceptions
 import Unspected from "../../../../../../pong/exceptions/unspected.exception"
+
+
 import {
     Socket,
     SocketIoConfig
@@ -32,7 +36,7 @@ export type IPongContext = {
     setGameId : React.Dispatch<React.SetStateAction<string>>; // Perhabs not need this one (cause gameId != React.Elem)
     playerId : string;
     socket : Socket;
-    pongSpetializations : Readonly<Array<[string, PongGenerator]>>;
+    pongSpetializations : Readonly<Array<[string, PongClient]>>;
     pongIndex : Readonly<number>;
     setPongIndex : React.Dispatch<React.SetStateAction<number>>;
 }
@@ -94,7 +98,6 @@ export default function PongIndex({
     const [pageJSX, setPageJSX] = React.useState<JSX.Element>(<></>);
 
     React.useEffect(() => {
-
         switch (currentPage)
         {
             case Pages.SELECT_GAME_STYLE:
@@ -107,7 +110,7 @@ export default function PongIndex({
                 setPageJSX(<GameCustom />);
                 break ;
             case Pages.PONG:
-                setPageJSX(<Pong canvasId="pongCanvas"/>);
+                setPageJSX(<Pong canvasId="pongCanvas" />);
                 break ;
             case Pages.INVITED:
                 setPageJSX(<InvitedToGame />);
@@ -129,7 +132,7 @@ export default function PongIndex({
 
     // Handle pong spetializations
     const [pongIndex, setPongIndex] = React.useState<number>(0);
-    const pongSpetializations : Array<[string, PongGenerator]> = [
+    const pongSpetializations : Array<[string, PongClient]> = [
         [
             "Classic Pong",
             new ClassicPong(

@@ -1,9 +1,9 @@
 import {
     AStyle
-} from "../../render/style"
+} from "../render/style"
 import {
     IRange
-} from "./range";
+} from "./range.dto";
 
 export interface IRangeSliderDto
 {

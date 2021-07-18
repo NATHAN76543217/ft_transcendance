@@ -1,14 +1,24 @@
 import React from "react"
 
-import LibNames from "../../../../../../../pong/engine/lib.names"
+// TO DO: import shared from module
+import LibNames from "../../../../../../../shared/pong/utils/lib.names"
+
+// TO DO: merge excpetions
 import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
+
+
+
 import {
     PongContext
 } from "../indexPong"
+
+// TO DO: import shared from module
 import {
     Mesages,
+} from "../../../../../../../shared/pong/utils/messages"
+import {
     ICustomGame
-} from "../../../../../../../pong/server/socketserver"
+} from "../../../../../../../shared/pong/dto/customgame.dto"
 
 export default function Spectator()
 {

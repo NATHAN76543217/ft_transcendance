@@ -1,17 +1,20 @@
+
+// TO DO: import shared from module
+
 import {
     GameStatus
-} from "../game/status"
+} from "../../../../../../shared/pong/game/status"
 import {
     Socket,
 } from "ngx-socket-io"
 import {
     Mesages
-} from "../server/socketserver"
+} from "../../../../../../shared/pong/utils/messages"
 
-import  renderGameStatus from "../render/render"
+import  renderGameStatus from "../../../../../../shared/pong/render/render"
 import SettingsLimits from "../settings/limits"
 
-export default class PolimorphicEngine
+export default class PongClient
 {
     constructor(
         public gameStatus : GameStatus,
@@ -21,9 +24,7 @@ export default class PolimorphicEngine
     )
     { }
 
-    // TO DO: Init the engine
-    // Parse mouse mov
-    // Disconect clients
+    // TO DO: Disconect clients
 
     // request info from room and broadcast to all
     // request next animation frame for calculation in the server
@@ -32,8 +33,6 @@ export default class PolimorphicEngine
     public readonly run = () => {
 
         const fps : number = 50;
-
-
 
         setInterval(() : void => {
             this.gameStatus = this.socket.emit(Mesages.CALC_GAME_STATUS,
