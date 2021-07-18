@@ -16,12 +16,7 @@ import {
     Customization,
     CustomValue
 } from "../../components/customization"
-import {
-    LIB_VERTICAL_SINGLE,
-    LIB_VERTICAL_MULTI,
-    LIB_HORIZONTAL_SINGLE,
-    LIB_HORIZONTAL_MULTI
-} from "../../../../../../../pong/engine/lib.names"
+import LibNames from "../../../../../../../pong/engine/lib.names"
 import {
     ICustomGame
 } from "../.../../../../../../../../pong/server/socketserver"
@@ -198,9 +193,9 @@ export default function GameCustom()
     // Send the pong style (whitch pong user wanna play)
     const summitGameStyle = () => {
         // TO DO: Use emuns instead where those "defines" are included
-        const libs : Array<[string, string]> = [
-            [LIB_HORIZONTAL_SINGLE, LIB_HORIZONTAL_MULTI],
-            [LIB_VERTICAL_SINGLE, LIB_VERTICAL_MULTI]
+        const libs : Array<[LibNames, LibNames]> = [
+            [LibNames.LIB_HORIZONTAL_SINGLE, LibNames.LIB_HORIZONTAL_MULTI],
+            [LibNames.LIB_VERTICAL_SINGLE, LibNames.LIB_VERTICAL_MULTI]
         ];
 
         context.socket.emit(Mesages.SET_UP_GAME_STYLE,

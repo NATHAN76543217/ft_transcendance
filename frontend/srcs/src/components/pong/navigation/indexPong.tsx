@@ -5,6 +5,7 @@ import GameCustom from "./pages/gameCustom"
 import GameFast from "./pages/gameFast"
 import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
+import Spectator from "./pages/spectator"
 import PongGenerator from "../../../../../../pong/engine/engine"
 import  ClassicPong from "../../../../../../pong/specilizations/classicpong/classicpong.engine"
 import Unspected from "../../../../../../pong/exceptions/unspected.exception"
@@ -13,13 +14,13 @@ import {
     SocketIoConfig
 } from "ngx-socket-io"
 
-
 enum Pages {
     SELECT_GAME_STYLE,
     FAST_GAME,
     CUSTOM_GAME,
     INVITED,
     PONG,
+    SPECTATOR
 }
 
 export type IPongContext = {
@@ -50,20 +51,41 @@ export const PongContext = React.createContext<IPongContext>({
     setPongIndex: () => { }
 });
 
+export enum PlayerRole {
+    HOST,
+    INVITED,
+    SPECTATOR,
+}
+
 type IPongIndexProps = {
     playerId : string;
-    isInvited? : true;
+    role : PlayerRole;
     roomId? : string;
+}
+
+function getFirstPage(role : PlayerRole) : Pages
+{
+    switch (role)
+    {
+        case PlayerRole.HOST:
+            return Pages.SELECT_GAME_STYLE;
+        case PlayerRole.INVITED:
+            return Pages.INVITED;
+        case PlayerRole.SPECTATOR:
+            return Pages.SPECTATOR;
+        default:
+            throw new Unspected("Unspected error on getFirstPage");
+    }
 }
 
 export default function PongIndex({
     playerId,
-    isInvited,
+    role,
     roomId
 } : IPongIndexProps)
 {
     // Handle pages changes
-    const [currentPage, setCurrentPage] = React.useState<Pages>(isInvited ? Pages.INVITED : Pages.SELECT_GAME_STYLE);
+    const [currentPage, setCurrentPage] = React.useState<Pages>(getFirstPage(role));
     const goToFastGame : Readonly<Function> = () => { setCurrentPage(Pages.FAST_GAME); };
     const goToCustomGame : Readonly<Function> = () => { setCurrentPage(Pages.CUSTOM_GAME); };
     const goToSelection : Readonly<Function> = () => { setCurrentPage(Pages.SELECT_GAME_STYLE); };
@@ -89,6 +111,9 @@ export default function PongIndex({
                 break ;
             case Pages.INVITED:
                 pageJSX = <InvitedToGame />;
+                break ;
+            case Pages.SPECTATOR:
+                pageJSX = <Spectator />;
                 break ;
             default:
                 throw new Unspected("Unspected error on: useEffects from indexPong.tsx");
