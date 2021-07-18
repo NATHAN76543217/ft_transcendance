@@ -3,9 +3,15 @@ import React from "react"
 import {
     PongContext
 } from "../indexPong"
+
+
+// TO DO: import shared from module
 import {
     Mesages
-} from "../../../../../../../pong/server/socketserver"
+} from "../../../../../../../shared/pong/utils/messages"
+import {
+    IMousePosDto
+} from "../../../../../../../shared/pong/dto/mousepos.dto"
 
 
 type IPongProps = {
@@ -22,9 +28,9 @@ export default function Pong({
 
     canvas?.addEventListener("mousemove", (event : any) => {
         context.socket.emit(Mesages.SEND_MOUSE_POS, {
-            mousePosX: event.clientX,
-            mousePosY: event.clientY,
-        })
+            x: event.clientX,
+            y: event.clientY,
+        } as IMousePosDto)
     });
 
     context.pongSpetializations[context.pongIndex][1].run();

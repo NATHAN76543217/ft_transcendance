@@ -1,7 +1,12 @@
 import React from "react"
+
+// TO DO: import shared from module
 import {
     GameMode
-} from "../../../../../../pong/engine/polimorphiclib";
+} from "../../../../../../shared/pong/utils/gamemode";
+
+
+
 import ContiniousSlider from "./continiousSlider"
 import {
     CustomizationContext

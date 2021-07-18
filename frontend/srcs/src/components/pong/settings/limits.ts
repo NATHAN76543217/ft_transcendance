@@ -1,6 +1,9 @@
+
+// TO DO: import shared from module
+
 import {
     IRange
-} from "./dto/range"
+} from "../../../../../../shared/pong/dto/range.dto"
 
 export default class SettingsLimits
 {

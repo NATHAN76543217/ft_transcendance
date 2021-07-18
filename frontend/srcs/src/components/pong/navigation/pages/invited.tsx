@@ -1,22 +1,25 @@
 import React from "react"
 
-import ContiniousSlider from "../../components/continiousSlider"
 import Text from "../../components/text"
 import ButtonPong from "../../components/button"
+
+// TO DO: merge exceptions
 import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
+
+// TO DO: import shared from module
 import {
     RangeSlider,
-} from "../../../../../../../pong/settings/dto/rangeslider"
-import LibNames from "../../../../../../../pong/engine/lib.names"
+} from "../../../../../../../shared/pong/dto/rangeslider.dto"
+import LibNames from "../../../../../../../shared/pong/utils/lib.names"
 import {
     AStyle
-} from "../../../../../../../pong/render/style"
+} from "../../../../../../../shared/pong/render/style"
 import {
     ICustomGame
-} from "../.../../../../../../../../pong/server/socketserver"
+} from "../.../../../../../../../../shared/pong/dto/customgame.dto"
 import {
     Mesages
-} from "../../../../../../../pong/server/socketserver"
+} from "../../../../../../../shared/pong/utils/messages"
 import {
     PongContext
 } from "../indexPong"

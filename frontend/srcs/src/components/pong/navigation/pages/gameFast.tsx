@@ -5,9 +5,13 @@ import Text from "../../components/text"
 import {
     PongContext
 } from "../indexPong"
+
+// TO DO: import shared from module
 import {
     Mesages
-} from "../../../../../../../pong/server/socketserver"
+} from "../../../../../../../shared/pong/utils/messages"
+
+
 import {
     Timer
 } from "../../components/timer"

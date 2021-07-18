@@ -1,34 +1,51 @@
 import React from 'react'
 
+// TO DO: import shared from module
 import {
     GameMode
-} from "../../../../../../../pong/engine/polimorphiclib"
-import PongGenerator from "../../../../../../../pong/engine/engine"
+} from "../../../../../../../shared/pong/utils/gamemode"
+
+
+import PongGenerator from "../../engine/engine"
+
+
+// TO DO: import shared from module
 import {
     IRoomDto
-} from "../../../../../../../pong/server/socketserver"
+} from "../../../../../../../shared/pong/dto/room.dto"
 import {
-    RangeSlider,
-} from "../../../../../../../pong/settings/dto/rangeslider"
+    RangeSlider
+} from "../../../../../../../shared/pong/dto/rangeslider.dto"
+
+
+
+
 import ButtonPong from '../../components/button'
 import PongStyleSelector from '../../components/ponsStyleSelector'
 import {
     Customization,
     CustomValue
 } from "../../components/customization"
-import LibNames from "../../../../../../../pong/engine/lib.names"
+
+// TO DO: import shared from module
+import LibNames from "../../../../../../../shared/pong/utils/lib.names"
 import {
     ICustomGame
-} from "../.../../../../../../../../pong/server/socketserver"
+} from "../.../../../../../../../../shared/pong/dto/customgame.dto"
 import {
     AStyle
-} from "../../../../../../../pong/render/style"
+} from "../../../../../../../shared/pong/render/style"
+
+
 import {
     PongContext,
 } from "../indexPong"
+
+
+// TO DO: import shared from module
 import {
     Mesages
-} from "../../../../../../../pong/server/socketserver"
+} from "../../../../../../../shared/pong/utils/messages"
 
 type IPongStyleSelectorContext = {
     pongSpetializations : Readonly<Array<[string, PongGenerator]>>;
@@ -192,7 +209,6 @@ export default function GameCustom()
 
     // Send the pong style (whitch pong user wanna play)
     const summitGameStyle = () => {
-        // TO DO: Use emuns instead where those "defines" are included
         const libs : Array<[LibNames, LibNames]> = [
             [LibNames.LIB_HORIZONTAL_SINGLE, LibNames.LIB_HORIZONTAL_MULTI],
             [LibNames.LIB_VERTICAL_SINGLE, LibNames.LIB_VERTICAL_MULTI]
@@ -279,8 +295,8 @@ export default function GameCustom()
             <div className="">
                 <PongContext.Consumer>
                 {
-                    value =>
-                    <PongStyleSelectorContext.Provider value={{...value} as IPongStyleSelectorContext}>
+                    value => /* TO DO: remove "unknown" and correct the issue */
+                    <PongStyleSelectorContext.Provider value={{...value} as unknown as IPongStyleSelectorContext}>
                         <PongStyleSelector selectorClassName="" />
                     </PongStyleSelectorContext.Provider> 
                 }
