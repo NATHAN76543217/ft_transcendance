@@ -42,6 +42,7 @@ export class ChannelCaslAbilityFactory
     } else {
       // User abilities
       can(ChannelAction.Create, 'all');
+      can(ChannelAction.Read, 'all');
     }
 
     // Can join channel if public
@@ -75,6 +76,7 @@ export class ChannelCaslAbilityFactory
         user_id: user.id,
       },
     });
+
 
     // Banned members can't join or speak
     cannot([ChannelAction.Join, ChannelAction.Speak], Channel, {

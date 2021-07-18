@@ -35,7 +35,7 @@ export default class ChannelsController {
   constructor(
     private readonly channelsService: ChannelsService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
-  ) {}
+  ) { }
 
   // TODO: Nobody should be able to read all channels besides admin
   // Maybe this should only get channels with CASL read permissions
@@ -74,24 +74,40 @@ export default class ChannelsController {
     @Req() req: RequestWithUser,
     @Body() channelData: CreateChannelDto,
   ) {
-
-    console.log("createChannel - begin") //////////////////////////////////////////////////
-
     const channel = await this.channelsService.createChannel(channelData);
-
     console.log(channel)
-
     const relation = await this.channelsService.createChannelRelationship(
       channel.id,
       req.user.id,
       ChannelRelationshipType.owner,
     );
-
     console.log(relation)
-
-    console.log("createChannel - end") //////////////////////////////////////////////////
-
     return channel;
+  }
+
+
+  // TODO: Check if user has CASL update permission, and if target is owner
+  // @Patch('update')
+  @Patch(':channelId/update/:userId')
+  async updateChannelRelationship(
+    @Req() req: RequestWithUser,
+    @Param('channelId') channel_id: string,
+    @Param('userId') user_id: string,
+    @Body() channelRelationship: UpdateChannelRelationshipDto,
+  ) {
+    const channel = await this.channelsService.getChannelById(
+      Number(channel_id),
+    );
+
+    const abilities = this.abilityFactory.createForUser(req.user);
+
+    if (abilities.can(ChannelAction.Update, channel))
+      return this.channelsService.updateChannelRelationship(
+        Number(channel_id),
+        Number(user_id),
+        channelRelationship.type,
+      );
+    throw new HttpException('TODO: Unauthorized update', 400);
   }
 
   @Patch(':id')
@@ -134,9 +150,9 @@ export default class ChannelsController {
   // This should not be neeeded if we get channel users from GET /channels/:id
   /* 
   @Get('relationships/:id')
-	async getChannelRelationshipsById(@Param('id') id: string) {
-		return this.channelRelationshipsService.getAllChannelRelationshipsFromChannelId(id);
-	}
+  async getChannelRelationshipsById(@Param('id') id: string) {
+    return this.channelRelationshipsService.getAllChannelRelationshipsFromChannelId(id);
+  }
  */
 
   // In join and leave, the user id can be inferred from the JWT token
@@ -147,7 +163,7 @@ export default class ChannelsController {
     // @Body() joinChannelData: JoinChannelDto,
   ) {
 
-  console.log("join channel")
+    console.log("join channel")
 
     const relationship = await this.channelsService.getChannelRelationship(
       Number(channelId),
@@ -202,51 +218,10 @@ export default class ChannelsController {
     );
   }
 
-  @Post(':id/invite')
+  // @Post(':id/invite')
 
   // Otherwise we need to specify it as a parameter
 
-  // TODO: Check if user has CASL update permission, and if target is owner
-  @Patch(':channel_id/update/:user_id')
-  async updateChannelRelationship(
-    @Req() req: RequestWithUser,
-    @Param('channel_id') channel_id: string,
-    @Param('user_id') user_id: string,
-    @Body() channelRelationship: UpdateChannelRelationshipDto,
-  ) {
-    console.log('-------------- channel_id/update/:user_id')
 
-    // let channel_id: string = "27"
-    // let user_id: string = "1"
 
-    const channel = await this.channelsService.getChannelById(
-      Number(channel_id),
-    );
-
-  // console.log(channel);
-
-    const abilities = this.abilityFactory.createForUser(req.user);
-
-    if (abilities.can(ChannelAction.Update, channel))
-      return this.channelsService.updateChannelRelationship(
-        Number(channel_id),
-        Number(user_id),
-        channelRelationship.type,
-      );
-    throw new HttpException('TODO: Unauthorized update', 400);
-  }
-  
-  @Patch('update')
-  async updateUserRelationship(
-    @Body() channelRelationship: UpdateChannelRelationshipDto,
-    ) {
-      let channel_id: string = "27"
-      let user_id: string = "1"
-      return this.channelsService.updateChannelRelationship(
-        Number(channel_id),
-        Number(user_id),
-        channelRelationship.type,
-        );
-      }
-
-    }
+}

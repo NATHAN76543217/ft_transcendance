@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber, IsBoolean, isNotEmpty, Length } from "class-validator";
+import { UserRoleTypes } from "../utils/userRoleTypes";
 import { UserStatus } from "../utils/userStatus";
 
 export default class UpdateUserDto {
@@ -37,4 +38,8 @@ export default class UpdateUserDto {
 	@IsOptional()
 	// @IsNumber()
     public status: UserStatus;
+
+    @IsOptional()
+	// @IsNumber()
+    public role: UserRoleTypes;
 }
