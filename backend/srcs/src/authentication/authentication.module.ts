@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import UsersModule from '../users/users.module';
 import { AuthenticationController } from './authentication.controller';
@@ -10,10 +10,11 @@ import { JwtStrategy } from './jwt.strategy';
 import { School42Strategy } from './oauth2/school42/school42.strategy';
 import { GoogleStrategy } from './oauth2/google/google.strategy';
 import { Oauth2Controller } from './oauth2/oauth2.controller';
+import UsersService from 'src/users/users.service';
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule),
     PassportModule,
     ConfigModule,
     JwtModule.registerAsync({

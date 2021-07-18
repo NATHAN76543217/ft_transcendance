@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import CreateUserDto from './dto/CreateUser.dto';
 import User from './user.entity';
 import UpdateUserDto from './dto/UpdateUser.dto';
@@ -9,13 +9,41 @@ import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 import UserRelationshipsService from './relationships/user-relationships.service';
 import UserNameNotFoundException from './exception/UserNameNotFound.exception';
 import UserRelationship from './relationships/user-relationship.entity';
+import { AuthenticationService } from 'src/authentication/authentication.service';
+import { Socket } from 'socket.io';
+import { parse } from 'cookie';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export default class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @Inject(forwardRef(() => AuthenticationService))
+    private authenticationService: AuthenticationService
   ) {}
+
+  async getUserFromSocket(socket: Socket): Promise<User> {
+    const logger = new Logger();
+    logger.debug(
+      `headers: ${JSON.stringify(
+        socket.handshake.headers,
+      )}, query: ${JSON.stringify(socket.handshake.query)}`,
+    );
+    const cookie = socket.handshake.headers.cookie ?? '';
+    const { Authentication: token } = parse(cookie);
+
+    if (!token) throw new WsException('Missing token.');
+    logger.debug('auth token: ' + token);
+
+    const user =
+      await this.authenticationService.getUserFromAuthenticationToken(token);
+
+    if (!user) {
+      throw new WsException('Invalid token.');
+    }
+    return user;
+  }
 
   async getAllUsers(name: string) {
     if (name === undefined) {

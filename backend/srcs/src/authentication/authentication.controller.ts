@@ -7,6 +7,8 @@ import {
   UseGuards,
   Res,
   Get,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import RegisterWithPassword from './dto/registerWithPassword.dto';
@@ -18,10 +20,15 @@ import LoginWithPasswordDto from './dto/loginWithPassword.dto';
 import { ApiCookieAuth } from '@nestjs/swagger';
 import { UserStatus } from 'src/users/utils/userStatus';
 import UsersService from 'src/users/users.service';
+import { UsersGateway } from 'src/users/users.gateway';
 
 @Controller('authentication')
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(
+    private readonly authenticationService: AuthenticationService,
+    @Inject(forwardRef(() => UsersGateway))
+    private readonly usersGateway: UsersGateway,
+  ) {}
 
   @Post('registerWithPassword')
   async registerWithPassword(@Body() registrationData: RegisterWithPassword) {
@@ -41,6 +48,8 @@ export class AuthenticationController {
     user.password = undefined;
     user.status = UserStatus.online;
     response.send(user);
+    // this.usersGateway.handleConnection()
+    // this.usersGateway.server.emit('connection');
   }
 
   @Post('logout')
@@ -53,6 +62,7 @@ export class AuthenticationController {
       this.authenticationService.getCookieForLogOut(),
     );
     response.send();
+    this.usersGateway.server.emit('disconnection');
   }
 
   @Get()

@@ -1,5 +1,5 @@
 import UsersService from 'src/users/users.service';
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { forwardRef, HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { PostgresErrorCode } from '../database/postgresErrorCodes';
 import RegisterWithPasswordDto from './dto/registerWithPassword.dto';
 import UserNameAlreadyExistsException from './exception/UserNameAlreadyExists.exception';
@@ -15,6 +15,7 @@ import User from 'src/users/user.entity';
 @Injectable()
 export class AuthenticationService {
   constructor(
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
