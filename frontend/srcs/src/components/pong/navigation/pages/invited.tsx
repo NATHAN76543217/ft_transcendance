@@ -1,6 +1,6 @@
 import React from "react"
 
-import ContiniousSlider from "../../components/continuousSlider"
+import ContiniousSlider from "../../components/continiousSlider"
 import Text from "../../components/text"
 import ButtonPong from "../../components/button"
 import Unspected from "../../../../../../../pong/exceptions/unspected.exception"

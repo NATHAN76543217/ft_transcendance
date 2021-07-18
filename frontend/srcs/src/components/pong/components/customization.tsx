@@ -2,7 +2,7 @@ import React from "react"
 import {
     GameMode
 } from "../../../../../../pong/engine/polimorphiclib";
-import ContiniousSlider from "./continuousSlider"
+import ContiniousSlider from "./continiousSlider"
 import {
     CustomizationContext
 } from "../navigation/pages/gameCustom"

@@ -8,42 +8,75 @@ import {
 import {
     Mesages
 } from "../../../../../../../pong/server/socketserver"
+import {
+    Timer
+} from "../../components/timer"
 
 export default function GameFast()
 {
     const context = React.useContext(PongContext);
 
-    // TO DO: Add a button for find game
-    // TO DO: Read all the code and think about it
+    const [inQueue, setInQueue] = React.useState<boolean>(false);
+    const [timer, setTimer] = React.useState<JSX.Element>(<></>);
 
+    const findingGame : string = "Finding Game ...\nTime: ";
+
+    React.useEffect(() => {
+        if (inQueue == true)
+            setTimer(<Timer prefix={findingGame}/>);
+        else
+            setTimer(<></>);
+    }, [inQueue]);
+
+    // TO DO: This won't work, i'm a 100% sure
     const findGame = () => {
+        setInQueue(true);
+
         // Should this be async ?
         const roomId : string = context.socket.emit(Mesages.FIND_GAME, context.playerId);
 
-        while (context.socket.emit(Mesages.IS_IN_QUEUE, "", "") == false)
+        while (context.socket.emit(Mesages.IS_IN_QUEUE, roomId, context.playerId) == false)
             ;
-        context.goToPongGame()
+
+        context.goToPongGame();
     };
 
     const cancelQueue = () => {
+        setInQueue(false);
         context.socket.emit(Mesages.CANCEL_QUEUE, context.playerId, context.gameId);
-        context.goToSelection();
     };
 
     return (
         <>
             <div className="">
                 <Text
-                    content="In queue ..."
+                    content="*** DEFAULT GAME (IN FAST GAME) BRIEF ***\n"
                     divClassName=""
                     textClassName=""
                 />
-                <ButtonPong
-                    content="Cancel"
-                    divClassName=""
-                    buttonClassName=""
-                    onClickHandler={cancelQueue}
-                />
+                {timer}
+                <div className="">
+                    <ButtonPong
+                        content="Find Game"
+                        divClassName=""
+                        buttonClassName=""
+                        onClickHandler={findGame}
+                        disabled={inQueue == false ? undefined : true}
+                    />
+                    <ButtonPong
+                        content="Cancel"
+                        divClassName=""
+                        buttonClassName=""
+                        onClickHandler={cancelQueue}
+                        disabled={inQueue == false ? true : undefined}
+                    />
+                </div>
+            <ButtonPong
+                content="Quit"
+                divClassName=""
+                buttonClassName=""
+                onClickHandler={() => context.goToSelection()}
+            />
             </div>
         </>
     );
