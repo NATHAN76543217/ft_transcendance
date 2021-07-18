@@ -15,8 +15,6 @@ const MAX_PLAYER_HEIGHT : number = COURT.height / 5;
 const MIN_BALL_SPEED : number = 1;
 const MAX_BALL_SPEED : number = 40;
 
-// TO DO: Insert this in the pong
-
 export default class ClassicPongSettingsLimits extends SettingsLimits
 {
     constructor()

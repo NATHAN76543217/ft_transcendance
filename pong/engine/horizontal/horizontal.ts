@@ -32,9 +32,7 @@ export default abstract class AHorizontalLib extends APolimorphicLib
     abstract updatePlayerTwoPos(status : IDynamicDto, level? : number);
 
     updatePlayerOnePos(playerOne : IVector2D)
-    {
-        // to do
-    }
+    { playerOne = this.sockServ.getMousePosClient(this.gameConfig.playerOne.id); }
 
     isBallOnLeftSide(ball : IDynamicBallDto)
     { return ball.x + this.gameConfig.ball.rad < this.gameConfig.court.width / 2; }

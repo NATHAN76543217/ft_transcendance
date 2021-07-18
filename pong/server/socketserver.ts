@@ -23,12 +23,7 @@ import calcGameStatus from "../engine/calculations"
 import {
     GameMode
 } from "../engine/polimorphiclib"
-import {
-    LIB_VERTICAL_SINGLE,
-    LIB_VERTICAL_MULTI,
-    LIB_HORIZONTAL_SINGLE,
-    LIB_HORIZONTAL_MULTI
-} from "../engine/lib.names"
+import LibNames from "../engine/lib.names"
 import HorizontalSinglePlayerLib from "../engine/horizontal/horizontal.singleplayer"
 import HorizontalMultiPlayerLib from "../engine/horizontal/horizontal.multiplayer"
 import VerticalSinglePlayerLib from "../engine/vertical/vertical.sigleplayer"
@@ -38,7 +33,6 @@ import NeedMorePlayers from "../exceptions/needMorePlayers.exception"
 import IsSamePlayer from "../exceptions/isSamePlayer.exception"
 import RoomIsFull from "../exceptions/roomIsFull.exception"
 import Unspected from "../exceptions/unspected.exception"
-
 import MatchesService from "../matches.service"
 import ClassicPongGameConfig from "../specilizations/classicpong/customization/classicpong.gameconfig"
 
@@ -65,7 +59,7 @@ export declare interface IRoomDto
     idPlayerTwo : string;
     config : IStaticDto;
     lib : APolimorphicLib;
-    libName : string;
+    libName : LibNames;
     mode : GameMode;
     customization : ICustomGame;
     info : ICustomGame;
@@ -80,7 +74,7 @@ declare interface MousePosDto
 }
 
 function SellectLib(
-    name : string,
+    name : LibNames,
     sockServ : PongSocketServer,
     gameConfig : IStaticDto,
     ballSpeedIncrememnt : number,
@@ -90,13 +84,13 @@ function SellectLib(
 {
     switch(name)
     {
-        case LIB_HORIZONTAL_SINGLE:
+        case LibNames.LIB_HORIZONTAL_SINGLE:
             return new HorizontalSinglePlayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
-        case LIB_HORIZONTAL_MULTI:
+        case LibNames.LIB_HORIZONTAL_MULTI:
             return new HorizontalMultiPlayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
-        case LIB_VERTICAL_SINGLE:
+        case LibNames.LIB_VERTICAL_SINGLE:
             return new VerticalSinglePlayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
-        case LIB_VERTICAL_MULTI:
+        case LibNames.LIB_VERTICAL_MULTI:
             return new VerticalMultiPLayerLib(sockServ, gameConfig, ballSpeedIncrememnt, mode, level);
         default:
             throw new Unspected("server not able to select a calculation lib");
@@ -123,14 +117,14 @@ export enum Mesages {
     SEND_MOUSE_POS = "sendMousePos",
     SET_UP_BOT_LEVEL = "setUpBotLevel",
     GET_OTHER_PLAYER_ID = "getOtherPlayerId",
-    SYNC_CUSTOMIZATION = "syncCustomization"
+    SYNC_CUSTOMIZATION = "syncCustomization",
+    GET_CUSTOMIZATION = "getCustomization",
+    GET_PLAYERS_IDS = "getPlayersIds"
 }
 
 enum State {
     PLAYER_ONE_READY = 1 << 0,
     PLAYER_TWO_READY = 1 << 1,
-    PLAYER_ONE_EXPORTED_CONFIG = 1 << 2,
-    PLAYER_TWO_EXPORTED_CONFIG = 1 << 3
 }
 
 @WebSocketGateway()
@@ -147,13 +141,9 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     )
     { }
 
-    // TO DO: Think a join for spectators
     // TO DO: Call endGame in the client
 
-    // TO DO: Spectator.tsx preload the engine
-    // TO DO: Spectator.tsx -> indexPong.tsx -> pong.tsx
-
-    // TO DO: leave game changes the ownser of the room
+    // TO DO: leave game changes the owner of the room
     // Makes intived player perform invitations in the room
     // This is complicate to handle, better destroy just the room
     // THINK ABOUT IT
@@ -326,7 +316,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idPlayerTwo: null,
                 config: new ClassicPongGameConfig(this.queue[0].key, null),
                 lib: null,
-                libName: LIB_HORIZONTAL_MULTI,
+                libName: LibNames.LIB_HORIZONTAL_MULTI,
                 customization: null,
                 info: null,
                 flags: 0,
@@ -439,7 +429,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     }
 
     @SubscribeMessage(Mesages.SET_UP_GAME_STYLE)
-    setUpGameStyle(client : Socket, idRoom : string, libName : string)
+    setUpGameStyle(client : Socket, idRoom : string, libName : LibNames)
     {
         const room : IRoomDto = this.getRoom(idRoom);
         room.libName = libName;
@@ -469,39 +459,6 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     getMousePosClient(idPlayer : string)
     { return this.mousesPos[idPlayer]; }
 
-    // @SubscribeMessage('exportCustomization')
-    // exportCustomization(client : Socket, idRoom : string, idPlayer : string, customization : ICustomGame)
-    // {
-    //     const room : IRoomDto = this.getRoom(idRoom);
-
-    //     if (room.idPlayerOne == idPlayer)
-    //     {
-    //         const saveProp : string = room.customization.playerTwoColor;
-    //         room.customization = customization;
-    //         room.customization.playerTwoColor = saveProp;
-    //         room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
-    //     }
-    //     else if (room.idPlayerTwo == idPlayer)
-    //     {
-    //         room.customization.playerTwoColor = customization.playerTwoColor;
-    //         room.flags |= PLAYER_TWO_EXPORTED_CONFIG;
-    //     }
-    //     else
-    //         throw new Unspected("Unspected error on exportCustomization"); 
-
-    //     this.rooms[idRoom] = room;
-    // }
-
-    // @SubscribeMessage('importCustomization')
-    // importCustomization(client : Socket, idRoom : string)
-    // {
-    //     const room : IRoomDto = this.getRoom(idRoom);
-
-    //     return room.flags & PLAYER_ONE_EXPORTED_CONFIG
-    //         && room.flags & PLAYER_TWO_EXPORTED_CONFIG
-    //         ? room.customization : null;
-    // }
-
     @SubscribeMessage(Mesages.SET_UP_BOT_LEVEL)
     setUpBotLevel(client : Socket, idRoom : string, botLevel : number)
     {
@@ -523,7 +480,6 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             throw new Unspected("Unspected error in socketserver: getOtherPlayerId");
     }
 
-    // WAS: updateInfo
     @SubscribeMessage(Mesages.SYNC_CUSTOMIZATION)
     updateSharedClientsData(client : Socket, idRoom : string, idPlayer : string, data : ICustomGame)
     {
@@ -541,5 +497,21 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             throw new Unspected("Unspected error in updateSharedClientsData");
         this.rooms[idPlayer] = room;
         return (room.info);
+    }
+
+    @SubscribeMessage(Mesages.GET_CUSTOMIZATION)
+    getCustomization(client : Socket, roomId : string)
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+
+        return room.info;
+    }
+
+    @SubscribeMessage(Mesages.GET_PLAYERS_IDS)
+    getPlayersIds(client : Socket, roomId : string)
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+
+        return { idPlayerOne: room.idPlayerOne, idPlayerTwo: room.idPlayerTwo };
     }
 }
