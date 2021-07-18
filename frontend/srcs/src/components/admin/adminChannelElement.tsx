@@ -23,13 +23,13 @@ const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: 
     let a = data.data.users.slice();
 
     a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
-    relation1.user.name.localeCompare(relation2.user.name)
-  ).reverse();
+      relation1.user.name.localeCompare(relation2.user.name)
+    ).reverse();
 
     a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
       relation1.type.toString().localeCompare(relation2.type.toString())
     ).reverse();
-    
+      
     if (JSON.stringify(a) !== JSON.stringify(adminChannelElementInfo.channelRelationshipsList)) {
       setAdminChannelElementInfo({
         ...adminChannelElementInfo,
@@ -138,20 +138,20 @@ const setChannelUserRelationship = async (
   adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
 ) => {
   try {
-    console.log("----- setChannelUserRelationship ----- begin")
-    // await axios.patch(`/api/channels/${adminChannelElementInfo.channel_id}/update/${user_id}`, {
-      await axios.patch(`/api/channels/update`, {
-        type: type,
-      });
-      console.log("----- setChannelUserRelationship ----- end")
-      // a[index].type = type;
-      // setAdminChannelElementInfo({
-      //   ...adminChannelElementInfo,
-      //   channelRelationshipsList: a,
-      // });
+    console.log("----- setChannelUserRelationship ----- begin", `/api/channels/${adminChannelElementInfo.channel_id}/update/${user_id}`)
+    // await axios.patch(`/api/channels/update`, {
+      await axios.patch(`/api/channels/${adminChannelElementInfo.channel_id}/update/${user_id}`, {
+      type: type,
+    });
+    console.log("----- setChannelUserRelationship ----- end")
+    // a[index].type = type;
+    // setAdminChannelElementInfo({
+    //   ...adminChannelElementInfo,
+    //   channelRelationshipsList: a,
+    // });
 
-      setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
-  } catch (error) { }
+    setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
+  } catch (error) { console.log(error) }
 }
 
 const banUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>

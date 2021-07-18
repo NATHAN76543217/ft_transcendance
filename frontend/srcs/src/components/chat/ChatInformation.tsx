@@ -109,7 +109,7 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext) {
     <div className="w-48 my-4 text-center">
       {!isInChannel ? (
         isBan ? (
-          <div>You are banned fron this channel </div>
+          <div className="font-semibold text-red-600">You are banned from this channel </div>
         ) : (
           <CustomButton
             content="Join channel"
