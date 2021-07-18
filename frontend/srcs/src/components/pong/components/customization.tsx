@@ -6,6 +6,9 @@ import ContiniousSlider from "./continuousSlider"
 import {
     CustomizationContext
 } from "../navigation/pages/gameCustom"
+import {
+    InvitedCustomizationContext
+} from "../navigation/pages/invited"
 
 export enum CustomValue
 {
@@ -108,6 +111,62 @@ export function Customization({
                 </div>
             }
             </CustomizationContext.Consumer>
+        </div>
+    );
+}
+
+export function InvitedCustomization({
+    divClassName,
+    sliderDivClassName
+} : ICustomizationProps)
+{
+    const context = React.useContext(InvitedCustomizationContext);
+
+    const setUpSlider = (key : CustomValue, disabled? : true) : JSX.Element => {
+        return (
+            <ContiniousSlider
+                name={String(key)}
+                stateShared={{
+                    value: Number(context.sliders.get(key)?.[0]),
+                    setValue: context.sliders.get(key)?.[1] as Setter
+                }}
+                disabled={disabled}
+            />
+        );
+    };
+
+    return (
+        <div className={divClassName}>
+            <div className={sliderDivClassName}>
+               {setUpSlider(CustomValue.BALL_SPEED, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.BALL_COLOR, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.COURT_COLOR, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.NET_COLOR, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.PLAYER_ONE_WIDTH, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.PLAYER_ONE_HEIGHT, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.PLAYER_ONE_COLOR, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.PLAYER_TWO_WIDTH, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.PLAYER_TWO_HEIGHT, true)}
+            </div>
+            <div className={sliderDivClassName}>
+                {setUpSlider(CustomValue.PLAYER_TWO_COLOR)}
+            </div>
         </div>
     );
 }

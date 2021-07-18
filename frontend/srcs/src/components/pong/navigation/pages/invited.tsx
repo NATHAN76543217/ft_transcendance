@@ -22,30 +22,23 @@ import {
 } from "../../../../../../../pong/server/socketserver"
 import {
     PongContext
-} from "../indexPong" 
+} from "../indexPong"
+import {
+    InvitedCustomization,
+    CustomValue
+} from "../../components/customization"
 
-const DEFAULT_COLOR_SLIDER : number = 42;
+type IInvitedCustomization = {
+    sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]>;
+}
+
+export const InvitedCustomizationContext = React.createContext<IInvitedCustomization>({
+    sliders: new Map()
+});
 
 export default function InvitedToGame()
 {
-    const [value, setValue] = React.useState<number>(DEFAULT_COLOR_SLIDER);
-
     const context = React.useContext(PongContext);
-
-        // TO DO:
-        // Info:
-        // - Customization info: both player see the customization sliders
-        //          - the other player slider are disabled but the values updates real time
-        // - A brief about the pong game: style , and more ? (updated real time too)
-        // Brief: "Pong style: ${PONG_STYLE}"
-
-        // -> updateInfo in customGame
-        // -> replace init in the constructor by updateInfo (CustomGame)
-        // -> be sure the customGame is well sync
-        // -> upgrade the slider an add a disable feature
-        // -> insert missing slider
-        // -> update them with the shared data
-        // -> end ?
 
     const [isReady, setIsReady] = React.useState<boolean>(false);
 
@@ -64,15 +57,40 @@ export default function InvitedToGame()
                 min: 0x00000000,
                 max: 0x00FFFFFF,
             },
-            value: value
+            value: context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()
         }))
     });
 
     setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared));
 
+    // Init sliders data using host's custom data (except for playerTwo color)
+    const sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> = new Map([
+        [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.ballSpeed, sliderShared.ballSpeed))],
+        [CustomValue.BALL_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.colorLimit, parseInt(sliderShared.ballColor, 16)))],
+        [CustomValue.COURT_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.colorLimit, parseInt(sliderShared.courtColor, 16)))],
+        [CustomValue.NET_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.colorLimit, parseInt(sliderShared.netColor, 16)))],
+        [CustomValue.PLAYER_ONE_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.playerOneWidth, sliderShared.playerOneWidth))],
+        [CustomValue.PLAYER_ONE_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.playerOneHeight, sliderShared.playerOneHeight))],
+        [CustomValue.PLAYER_ONE_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.colorLimit, parseInt(sliderShared.playerOneColor, 16)))],
+        [CustomValue.PLAYER_TWO_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.playerTwoWidth, sliderShared.playerTwoWidth))],
+        [CustomValue.PLAYER_TWO_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.playerTwoHeight, sliderShared.playerTwoHeight))],
+        [CustomValue.PLAYER_TWO_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+            .settingsLimits.colorLimit, context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()))],
+    ]);
+
     // TO DO: Need to update render when other user does too
-    // In this case it will update only if playerTwoColor is updated
     React.useEffect(() => {
+        // Send playerTwo color to host
+        // Receive others customization values from host
         setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
             ballSpeed: Number(),
             ballColor: String(),
@@ -88,10 +106,21 @@ export default function InvitedToGame()
                     min: 0x00000000,
                     max: 0x00FFFFFF,
                 },
-                value: value
+                value: Number(sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[0])
             }))
-        })); 
-    }, [value, sliderShared]);
+        }));
+
+        // Update all the sliders data using received host's custom data
+        sliders.get(CustomValue.BALL_SPEED)?.[1](sliderShared.ballSpeed);
+        sliders.get(CustomValue.BALL_COLOR)?.[1](parseInt(sliderShared.ballColor, 16));
+        sliders.get(CustomValue.COURT_COLOR)?.[1](parseInt(sliderShared.courtColor, 16));
+        sliders.get(CustomValue.NET_COLOR)?.[1](parseInt(sliderShared.netColor, 16));
+        sliders.get(CustomValue.PLAYER_ONE_WIDTH)?.[1](sliderShared.playerOneWidth);
+        sliders.get(CustomValue.PLAYER_ONE_HEIGHT)?.[1](sliderShared.playerOneHeight);
+        sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[1](parseInt(sliderShared.playerOneColor, 16));
+        sliders.get(CustomValue.PLAYER_TWO_WIDTH)?.[1](sliderShared.playerOneWidth);
+        sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[1](sliderShared.playerOneHeight);
+    }, [sliderShared]);
 
     // Handler for "Ready" button
     const onReady = () => {
@@ -155,8 +184,8 @@ export default function InvitedToGame()
                 min: 0x00000000,
                 max: 0x00FFFFFF
             },
-            value: value
-        }))
+            value: parseInt(sliderShared.playerTwoColor, 16)
+        }));
 
         context.setPongIndex(index);
     }
@@ -169,10 +198,12 @@ export default function InvitedToGame()
                 divClassName=""
                 textClassName=""
             />
-            <ContiniousSlider
-                name="Color"
-                stateShared={{value: value, setValue: setValue}}
-            />
+            <InvitedCustomizationContext.Provider value={{sliders: sliders}}>
+                <InvitedCustomization
+                    divClassName=""
+                    sliderDivClassName=""
+                />
+            </InvitedCustomizationContext.Provider>
             <ButtonPong
                 content="Ready"
                 divClassName=""
