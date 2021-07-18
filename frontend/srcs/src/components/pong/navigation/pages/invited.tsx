@@ -7,10 +7,7 @@ import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
 import {
     RangeSlider,
 } from "../../../../../../../pong/settings/dto/rangeslider"
-import {
-    LIB_VERTICAL_MULTI,
-    LIB_HORIZONTAL_MULTI
-} from "../../../../../../../pong/engine/lib.names"
+import LibNames from "../../../../../../../pong/engine/lib.names"
 import {
     AStyle
 } from "../../../../../../../pong/render/style"
@@ -158,8 +155,8 @@ export default function InvitedToGame()
     const syncCustomization = () => {
 
         const libsNames : Array<string> = [
-            LIB_HORIZONTAL_MULTI,
-            LIB_VERTICAL_MULTI
+            LibNames.LIB_HORIZONTAL_MULTI,
+            LibNames.LIB_VERTICAL_MULTI
         ];
 
         const pongName : string = context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
