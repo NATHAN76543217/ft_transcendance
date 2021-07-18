@@ -7,6 +7,7 @@ const AppContext = React.createContext<IAppContext>({
   relationshipsList: [],
   updateAllRelationships: () => {},
   setUser: (user?: AuthenticatedUser) => {},
+  socket: undefined
 });
 
 export const AppProvider = AppContext.Provider;

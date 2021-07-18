@@ -25,6 +25,8 @@ import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
 import UserRelationship from "./models/user/UserRelationship";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
+import { io } from "socket.io-client";
+import Test from "./pages/test/test";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -43,6 +45,7 @@ class App extends React.Component<AppProps, AppState> {
       relationshipsList: [],
       // user: undefined,
       user: userVar ? JSON.parse(userVar) : undefined,
+      socket: undefined,
       //myRole: UserRoleTypes.owner, // A remplacer par le vrai role
       //logged: false,
     };
@@ -122,6 +125,14 @@ class App extends React.Component<AppProps, AppState> {
     else if (prevState.relationshipsList.toString() !== this.state.relationshipsList.toString()) {
       this.sortRelationshipsList();
     }
+    if (this.state.user !== undefined && this.state.socket === undefined) {
+      const newSocket = this.getSocket();
+      this.setState({
+        ...this.state,
+        socket: newSocket
+      })
+    }
+    console.log("state", this.state)
   }
 
   async updateAllRelationships() {
@@ -130,8 +141,7 @@ class App extends React.Component<AppProps, AppState> {
         "/api/users/relationships/" + this.state.user?.id
       );
 
-      console.log("dataRel")
-      console.log(dataRel)
+      // console.log("dataRel", dataRel)
 
       let a: AppUserRelationship[] = [];
       if (!dataRel.data.length) {
@@ -167,12 +177,31 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
+  getSocket = () => {
+    console.log("Users - Initiating socket connection...");
+  
+    const socket = io("", {
+      path: "/api/socket.io/users",
+      rejectUnauthorized: false, // This disables certificate authority verification
+      withCredentials: true,
+      transports: ["websocket, ws", "wss"],
+    }).on("authenticated", () => {
+      console.log("Users - Socket connection authenticated!");
+    });
+
+    return socket;
+
+    console.log("Users - Ending socket connection initiation...");
+
+  };
+
   render() {
     let contextValue: IAppContext = {
       relationshipsList: this.state.relationshipsList,
       user: this.state.user,
       setUser: this.setUser,
       updateAllRelationships: this.updateAllRelationships,
+      socket: this.state.socket
     };
 
     if (this.state.user !== undefined && this.state.user.role === UserRole.ban) {
@@ -193,6 +222,9 @@ class App extends React.Component<AppProps, AppState> {
             <Switch>
               <Route path="/health">
                 <h3>App is healthy!</h3>
+              </Route>
+              <Route path="/test">
+                <Test/>
               </Route>
               <Route>
                 <Header />
@@ -236,7 +268,7 @@ class App extends React.Component<AppProps, AppState> {
                         {this.displayAdminRoute(
                           // true
                           (this.state.user?.role === UserRole.admin ||
-                            this.state.user?.role === UserRole.admin)
+                            this.state.user?.role === UserRole.owner)
                         )}
                       </Switch>
                     </main>
