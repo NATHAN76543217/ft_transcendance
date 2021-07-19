@@ -4,22 +4,22 @@ import Text from "../../components/text"
 import ButtonPong from "../../components/button"
 
 // TO DO: merge exceptions
-import Unspected from "../../../../../../../pong/exceptions/unspected.exception"
+import Unspected from "shared-pong/game/exceptions/unspected.exception"
 
 // TO DO: import shared from module
 import {
     RangeSlider,
-} from "../../../../../../../shared/pong/dto/rangeslider.dto"
-import LibNames from "../../../../../../../shared/pong/utils/lib.names"
+} from "shared-pong/dto/rangeslider.dto"
+import LibNames from "shared-pong/utils/lib.names"
 import {
     AStyle
-} from "../../../../../../../shared/pong/render/style"
+} from "shared-pong/render/style"
 import {
     ICustomGame
-} from "../.../../../../../../../../shared/pong/dto/customgame.dto"
+} from "shared-pong/dto/customgame.dto"
 import {
     Mesages
-} from "../../../../../../../shared/pong/utils/messages"
+} from "shared-pong/utils/messages"
 import {
     PongContext
 } from "../indexPong"

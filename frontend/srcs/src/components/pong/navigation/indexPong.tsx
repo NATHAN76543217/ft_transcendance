@@ -6,13 +6,9 @@ import GameFast from "./pages/gameFast"
 import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
 import Spectator from "./pages/spectator"
-import PongClient from "../../../../../../shared/pong/engine/engine"
-import  ClassicPong from "../../../../../../shared/pong/specilizations/classicpong/classicpong.engine"
-
-// TO DO: merge exceptions
-import Unspected from "../../../../../../pong/exceptions/unspected.exception"
-
-
+import PongClient from "shared-pong/engine/engine"
+import  ClassicPong from "shared-pong/specilizations/classicpong/classicpong.engine"
+import Unspected from "shared-pong/game/exceptions/unspected.exception"
 import {
     Socket,
     SocketIoConfig
@@ -28,10 +24,10 @@ enum Pages {
 }
 
 export type IPongContext = {
-    goToFastGame : Readonly<Function>;
-    goToCustomGame : Readonly<Function>;
-    goToSelection : Readonly<Function>;
-    goToPongGame : Readonly<Function>;
+    goToFastGame : Function;
+    goToCustomGame : Function;
+    goToSelection : Function;
+    goToPongGame : Function;
     gameId : Readonly<string>;
     setGameId : React.Dispatch<React.SetStateAction<string>>; // Perhabs not need this one (cause gameId != React.Elem)
     playerId : string;
@@ -90,10 +86,10 @@ export default function PongIndex({
 {
     // Handle pages changes
     const [currentPage, setCurrentPage] = React.useState<Pages>(getFirstPage(role));
-    const goToFastGame : Readonly<Function> = () => { setCurrentPage(Pages.FAST_GAME); };
-    const goToCustomGame : Readonly<Function> = () => { setCurrentPage(Pages.CUSTOM_GAME); };
-    const goToSelection : Readonly<Function> = () => { setCurrentPage(Pages.SELECT_GAME_STYLE); };
-    const goToPongGame : Readonly<Function> = () => { setCurrentPage(Pages.PONG); };
+    const goToFastGame : Function = () => { setCurrentPage(Pages.FAST_GAME); };
+    const goToCustomGame : Function = () => { setCurrentPage(Pages.CUSTOM_GAME); };
+    const goToSelection : Function = () => { setCurrentPage(Pages.SELECT_GAME_STYLE); };
+    const goToPongGame : Function = () => { setCurrentPage(Pages.PONG); };
 
     const [pageJSX, setPageJSX] = React.useState<JSX.Element>(<></>);
 

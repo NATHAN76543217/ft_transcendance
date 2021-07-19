@@ -6,12 +6,9 @@ import {
     PongContext
 } from "../indexPong"
 
-// TO DO: import shared from module
 import {
     Mesages
-} from "../../../../../../../shared/pong/utils/messages"
-
-
+} from "shared-pong/utils/messages"
 import {
     Timer
 } from "../../components/timer"

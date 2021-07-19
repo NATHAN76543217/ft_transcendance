@@ -3,16 +3,12 @@ import React from "react"
 import {
     PongContext
 } from "../indexPong"
-
-
-// TO DO: import shared from module
 import {
     Mesages
-} from "../../../../../../../shared/pong/utils/messages"
+} from "shared-pong/utils/messages"
 import {
     IMousePosDto
-} from "../../../../../../../shared/pong/dto/mousepos.dto"
-
+} from "shared-pong/dto/mousepos.dto"
 
 type IPongProps = {
     canvasId : string

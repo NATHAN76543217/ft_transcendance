@@ -1,21 +1,17 @@
-
-// TO DO: import module
 import {
     IVector2D
-} from "../../../../../shared/pong/shapes/vector2d"
+} from "shared-pong/shapes/vector2d"
 import {
     IDynamicBallDto,
     IDynamicDto,
     IDynamicPlayerDto
-} from "../../../../../shared/pong/dto/dynamic.dto"
+} from "shared-pong/dto/dynamic.dto"
 import {
     IStaticDto
-} from "../../../../../shared/pong/dto/static.dto"
+} from "shared-pong/dto/static.dto"
 import {
     GameMode
-} from "../../../../../shared/pong/utils/gamemode"
-
-
+} from "shared-pong/utils/gamemode"
 import {
     PongSocketServer
 } from "../server/socketserver"

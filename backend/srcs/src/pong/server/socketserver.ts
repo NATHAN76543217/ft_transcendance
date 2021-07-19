@@ -10,26 +10,20 @@ import {
     Server,
     Socket
 } from "socket.io"
-
-// TO DO: import module
 import {
     IDynamicDto
-} from "../../../../../shared/pong/dto/dynamic.dto"
+} from "shared-pong/dto/dynamic.dto"
 import {
     IStaticDto
-} from "../../../../../shared/pong/dto/static.dto"
+} from "shared-pong/dto/static.dto"
 import {
     APolimorphicLib
 } from "../engine/polimorphiclib"
 import calcGameStatus from "../engine/calculations"
-
-// TO DO: import module
 import {
     GameMode
-} from "../../../../../shared/pong/utils/gamemode"
-// TO DO: import module
-import LibNames from "../../../../../shared/pong/utils/lib.names"
-
+} from "shared-pong/utils/gamemode"
+import LibNames from "shared-pong/utils/lib.names"
 import HorizontalSinglePlayerLib from "../engine/horizontal/horizontal.singleplayer"
 import HorizontalMultiPlayerLib from "../engine/horizontal/horizontal.multiplayer"
 import VerticalSinglePlayerLib from "../engine/vertical/vertical.sigleplayer"
@@ -39,25 +33,20 @@ import NeedMorePlayers from "../exceptions/needMorePlayers.exception"
 import IsSamePlayer from "../exceptions/isSamePlayer.exception"
 import RoomIsFull from "../exceptions/roomIsFull.exception"
 import Unspected from "../exceptions/unspected.exception"
-
 import MatchesService from "../../matches/matches.service"
-
-// TO DO: import module
-import ClassicPongGameConfig from "../../../../../shared/pong/specilizations/classicpong/customization/classicpong.gameconfig"
-
-// TO DO: import module
+import ClassicPongGameConfig from "shared-pong/specilizations/classicpong/customization/classicpong.gameconfig"
 import {
     IRoomDto as IRoomDtobase
-} from "../../../../../shared/pong/dto/room.dto"
+} from "shared-pong/dto/room.dto"
 import {
     Mesages
-} from "../../../../../shared/pong/utils/messages"
+} from "shared-pong/utils/messages"
 import {
     ICustomGame
-} from "../../../../../shared/pong/dto/customgame.dto"
+} from "shared-pong/dto/customgame.dto"
 import {
     IMousePosDto
-} from "../../../../../shared/pong/dto/mousepos.dto"
+} from "shared-pong/dto/mousepos.dto"
 
 interface IRoomDto extends IRoomDtobase
 {
