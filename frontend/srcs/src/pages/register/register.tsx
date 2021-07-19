@@ -17,6 +17,9 @@ export default function Register(props: {}) {
         showRegisterValidation: false,
     })
 
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false);
+
     const onSubmit = async (values: IRegisterFormValues) => {
         setRegisterInfo({ showRegisterValidation: false })
         if (values.password !== values["confirm password"])
@@ -44,6 +47,7 @@ export default function Register(props: {}) {
     };
 
     function displayRegisterValidationMessage(showRegisterValidation: boolean) {
+
         if (showRegisterValidation) {
             return (
                 <div className="absolute bottom-0 w-full font-bold text-center text-green-600">
@@ -59,6 +63,16 @@ export default function Register(props: {}) {
         }
     }
 
+    const displayShowPasswordButton = (show: boolean, setShow: any) => {
+        return (
+            <div
+                className="absolute items-center justify-between cursor-pointer right-24 top-8"
+                onClick={() => setShow(!show)}
+            >
+                <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
+            </div>
+        )
+    }
 
     return (
         <section className="flex flex-col max-w-sm p-4 m-auto mt-32 rounded-xl bg-neutral">
@@ -66,8 +80,14 @@ export default function Register(props: {}) {
                 <h1 className='m-4 text-6xl text-center'>Register</h1>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <TextInput name="username" register={register} required={true} error={errors.username} labelName="Username"></TextInput>
-                    <TextInput name="password" register={register} type="password" required={true} error={errors.password} labelName="Password"></TextInput>
-                    <TextInput name="confirm password" register={register} type="password" required={true} error={errors["confirm password"]} labelName="Confirm password"></TextInput>
+                    <div className="relative">
+                        <TextInput name="password" register={register} type={showPassword ? "text" : "password"} required={true} error={errors.password} labelName="Password"></TextInput>
+                        {displayShowPasswordButton(showPassword, setShowPassword)}
+                    </div>
+                    <div className="relative">
+                        <TextInput name="confirm password" register={register} type={showPasswordConfirmation ? "text" : "password"} required={true} error={errors["confirm password"]} labelName="Confirm password"></TextInput>
+                        {displayShowPasswordButton(showPasswordConfirmation, setShowPasswordConfirmation)}
+                    </div>
                     <input type='submit' value="Register" className={"rounded-xl text-neutral font-semibold p-2 mt-4 mb-20 w-full text-lg bg-secondary hover:bg-secondary-dark"}></input>
                     {displayRegisterValidationMessage(registerInfo.showRegisterValidation)}
                 </form>

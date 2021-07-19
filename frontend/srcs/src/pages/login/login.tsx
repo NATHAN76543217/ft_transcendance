@@ -5,7 +5,7 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import urljoin from "url-join";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import AppContext from "../../AppContext";
 import axios from "axios";
 import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
@@ -24,6 +24,8 @@ type LoginPageProps = RouteComponentProps<LoginPageParams>;
 export default function Login({ match }: LoginPageProps) {
   const history = useHistory();
   const { setUser } = useContext(AppContext);
+
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const {
     register,
@@ -83,6 +85,17 @@ export default function Login({ match }: LoginPageProps) {
     }
   };
 
+  const displayShowPasswordButton = (show: boolean, setShow: any) => {
+    return (
+      <div
+        className="absolute items-center justify-between cursor-pointer right-24 top-8"
+        onClick={() => setShow(!show)}
+      >
+        <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
+      </div>
+    )
+  }
+
   return (
     <section className="flex flex-col max-w-sm p-4 m-auto mt-32 rounded-xl bg-neutral">
       <div className="mb-8">
@@ -95,14 +108,18 @@ export default function Login({ match }: LoginPageProps) {
             error={errors.username}
             labelName="Username"
           ></TextInput>
-          <TextInput
-            name="password"
-            register={register}
-            type="password"
-            required={true}
-            error={errors.password}
-            labelName="Password"
-          ></TextInput>
+          <div className="relative">
+
+            <TextInput
+              name="password"
+              register={register}
+              type={showPassword ? "text" : "password"}
+              required={true}
+              error={errors.password}
+              labelName="Password"
+            ></TextInput>
+            {displayShowPasswordButton(showPassword, setShowPassword)}
+          </div>
           <input
             type="submit"
             value="Login"
