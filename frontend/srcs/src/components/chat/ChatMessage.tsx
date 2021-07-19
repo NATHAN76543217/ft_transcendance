@@ -8,8 +8,8 @@ type ChatMessageProps = {
 };
 
 export function ChatMessage({ message }: ChatMessageProps) {
-  const { channels } = useContext(ChatPageContext);
-  const sender = channels.get(message.channel_id)?.users.find((rel) => {
+  const { channelRels: channels } = useContext(ChatPageContext);
+  const sender = channels.get(message.channel_id)?.channel.users.find((rel) => {
     rel.user.id === message.author_id;
   })?.user; // TODO: Cleanup and premap this value
 

@@ -11,7 +11,7 @@ export function ChatHeader({ children }: ChatHeaderProps) {
 
   const currentChat =
     chatContext.currentChatId !== undefined
-      ? chatContext.channels.get(chatContext.currentChatId)
+      ? chatContext.channelRels.get(chatContext.currentChatId)?.channel
       : undefined;
 
   if (currentChat) {

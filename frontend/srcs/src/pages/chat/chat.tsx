@@ -9,8 +9,8 @@ import AppContext from "../../AppContext";
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
 import ChannelSearch from "./channelSearch";
-import { Channel } from "../../models/channel/Channel";
 import ChannelSettings from "./channelSettings";
+import { ChannelRelationship } from "../../models/channel/ChannelRelationship";
 //import ChannelSearch from "./channelSearch";
 
 const getSocket = () => {
@@ -26,13 +26,13 @@ const getSocket = () => {
 };
 
 type ChatPageContextProps = {
-  channels: Map<number, Channel>;
+  channelRels: Map<number, ChannelRelationship>;
   currentChatId?: number;
   socket?: Socket;
 };
 
 export const ChatPageContext = React.createContext<ChatPageContextProps>({
-  channels: new Map(), // TODO: Use local storage
+  channelRels: new Map(), // TODO: Use local storage
   //currentChatId: undefined, // TODO: Replace with currentChat id
   //socket: undefined, // TODO: Disconnect on logout, connect on login
 });
@@ -52,8 +52,8 @@ export default function ChatPage({
 }: RouteComponentProps<ChatPageParams>) {
   const { user } = useContext(AppContext);
 
-  const [channels, setChannels] = useState(
-    new Map(user?.channels.map((c) => [c.channel.id, c.channel]))
+  const [channelRels, setChannelRels] = useState(
+    new Map(user?.channels.map((rel) => [rel.channel.id, rel]))
   );
 
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
@@ -61,7 +61,7 @@ export default function ChatPage({
   const chatIdParam = Number(match.params.id);
 
   const [currentChatId, setCurrentChatId] = useState<number | undefined>(
-    !channels.get(chatIdParam) ? undefined : chatIdParam
+    !channelRels.get(chatIdParam) ? undefined : chatIdParam
   );
 
   // We do not want to do this in the frontend
@@ -82,20 +82,20 @@ export default function ChatPage({
   }, [user?.id]);
 
   useEffect(() => {
-    setChannels(new Map(user?.channels.map((c) => [c.channel.id, c.channel])));
+    setChannelRels(new Map(user?.channels.map((rel) => [rel.channel.id, rel])));
   }, [user?.channels]);
 
   useEffect(() => {
     if (!isNaN(chatIdParam))
-      setCurrentChatId(!channels.get(chatIdParam) ? NaN : chatIdParam);
-  }, [channels, chatIdParam]);
+      setCurrentChatId(!channelRels.get(chatIdParam) ? NaN : chatIdParam);
+  }, [channelRels, chatIdParam]);
 
   // TODO: Redirect or 404 for invalid id
 
   return (
       <ChatPageContext.Provider
         value={{
-          channels: channels,
+          channelRels: channelRels,
           currentChatId: currentChatId,
           socket: socket,
         }}

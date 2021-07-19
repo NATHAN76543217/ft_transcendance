@@ -6,6 +6,9 @@ import { TooltipIconButton } from "../utilities/TooltipIconButton";
 import { useForm } from "react-hook-form";
 import { TextInput } from "../utilities/TextInput";
 import { Socket } from "socket.io-client";
+import AppContext from "../../AppContext";
+import { UserRole } from "../../models/user/IUser";
+import { ChannelRelationship } from "../../models/channel/ChannelRelationship";
 
 type ChatViewProps = {
   className: string;
@@ -29,30 +32,7 @@ interface IMessageFormValues {
   message: string;
 }
 
-type ChatInputProps = {
-  onSubmit: (message: string) => void;
-};
-
-export function ChatInput({ onSubmit }: ChatInputProps) {
-  const {
-    register,
-    handleSubmit,
-    //setError,
-    formState: { errors },
-  } = useForm<IMessageFormValues>();
-
-  return (
-    <form onSubmit={handleSubmit((values) => onSubmit(values.message))}>
-      <TextInput
-        name="message"
-        register={register}
-        required={true}
-        error={errors.message}
-      ></TextInput>
-    </form>
-  );
-}
-
+type ChatInputProps = {};
 const sendMessage = (socket: Socket, currentChatId: number, data: string) => {
   const message: MessageEventDto = {
     channel_id: currentChatId,
@@ -65,32 +45,107 @@ const sendMessage = (socket: Socket, currentChatId: number, data: string) => {
   socket.emit("message", message);
 };
 
+export function ChatInput({}: ChatInputProps) {
+  const chatContext = useContext(ChatPageContext);
+
+  const {
+    register,
+    handleSubmit,
+    //setError,
+    formState: { errors },
+    reset,
+  } = useForm<IMessageFormValues>();
+
+  return (
+    <form
+      onSubmit={handleSubmit((values) => {
+        if (
+          chatContext.socket !== undefined &&
+          chatContext.currentChatId !== undefined
+        ) {
+          sendMessage(
+            chatContext.socket,
+            chatContext.currentChatId,
+            values.message
+          );
+          reset();
+        }
+      })}
+    >
+      <TextInput
+        name="message"
+        register={register}
+        required={true}
+        error={errors.message}
+      ></TextInput>
+    </form>
+  );
+}
+
+type UserActionsProps = {
+  channelId: number;
+};
+
+function UserActions({ channelId }: UserActionsProps) {
+  return (
+    <>
+      <span>40 users</span>
+      <TooltipIconButton
+        tooltip="Invite"
+        icon="fa-user-plus"
+        href={`/chat/${channelId}/invite`}
+      />
+      <TooltipIconButton
+        tooltip="Settings"
+        icon="fa-cog"
+        href={`/chat/${channelId}/settings`}
+      />
+    </>
+  );
+}
+
+type AdminActionsProps = {
+  channelId: number;
+};
+
+function AdminActions({ channelId }: AdminActionsProps) {
+  return (
+    <>
+      <UserActions channelId={channelId}></UserActions>
+    </>
+  );
+}
+
+type ChatActionsProps = {
+  userRole?: UserRole;
+  relation?: ChannelRelationship;
+};
+
+function ChatActions({ userRole, relation }: ChatActionsProps) {
+  if (userRole === undefined || relation === undefined) return <></>;
+  switch (userRole) {
+    case UserRole.admin || UserRole.owner:
+      return <AdminActions channelId={relation.channel.id}></AdminActions>;
+    default:
+      return <UserActions channelId={relation.channel.id}></UserActions>;
+  }
+}
+
 export function ChatView({ className }: ChatViewProps) {
+  const appContext = useContext(AppContext);
   const chatContext = useContext(ChatPageContext);
   const currentChatId = chatContext.currentChatId!;
 
   return (
     <div className={className}>
       <ChatHeader>
-        <span>40 users</span>
-        <TooltipIconButton
-          tooltip="Invite"
-          icon="fa-user-plus"
-          href={`/chat/${currentChatId}/invite`}
-        />
-        <TooltipIconButton
-          tooltip="Settings"
-          icon="fa-cog"
-          href={`/chat/${currentChatId}/settings`}
-        />
+        <ChatActions
+          userRole={appContext.user?.role}
+          relation={chatContext.channelRels.get(currentChatId)}
+        ></ChatActions>
       </ChatHeader>
       <ChatMessageList />
-      <ChatInput
-        onSubmit={(data) => {
-          if (chatContext.socket !== undefined && currentChatId !== undefined)
-            sendMessage(chatContext.socket, currentChatId, data);
-        }}
-      ></ChatInput>
+      <ChatInput />
     </div>
   );
 }
