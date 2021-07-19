@@ -25,9 +25,13 @@ interface ICreateChannelFormValues {
     channelName: string;
     mode: ChannelMode;
     password?: string;
+    passwordConfirmation?: string;
 }
 
 function ChannelCreate() {
+
+    const [showCreationValidation, setShowCreationValidation] = useState(false)
+
 
     const {
         register,
@@ -38,9 +42,21 @@ function ChannelCreate() {
     } = useForm<ICreateChannelFormValues>();
 
     const onSubmit = async (values: CreateChannelDto) => {
+        setShowCreationValidation(false);
+        clearErrors();
+        if (Number(values.mode) === (ChannelMode.protected) &&
+            values.password !== values.passwordConfirmation) {
+            setError(
+                "passwordConfirmation",
+                { message: "The password does not match." },
+                { shouldFocus: true }
+            );
+            return ;
+        }
         try {
             const data = await axios.post("/api/channels", values);
             console.log(data);
+            setShowCreationValidation(true);
         }
         catch (error) {
             if (axios.isAxiosError(error)) {
@@ -49,7 +65,6 @@ function ChannelCreate() {
                         statusCode: number;
                         message: string;
                     };
-                    clearErrors();
                     setError(
                         "channelName",
                         { message: details.message },
@@ -60,7 +75,6 @@ function ChannelCreate() {
                         statusCode: number;
                         message: string;
                     };
-                    clearErrors();
                     setError(
                         "password",
                         { message: details.message },
@@ -71,7 +85,6 @@ function ChannelCreate() {
                         statusCode: number;
                         message: string;
                     };
-                    clearErrors();
                     setError(
                         "mode",
                         { message: details.message },
@@ -83,7 +96,6 @@ function ChannelCreate() {
                         statusCode: number;
                         message: string;
                     };
-                    clearErrors();
                     setError(
                         "channelName",
                         { message: 'Wrong channel name provided' },
@@ -94,11 +106,13 @@ function ChannelCreate() {
         }
     };
 
+
     return (
         <div className="">
             <ChannelCreateForm
                 onSubmit={onSubmit}
                 errors={errors}
+                showCreationValidation={showCreationValidation}
             />
         </div>
     );

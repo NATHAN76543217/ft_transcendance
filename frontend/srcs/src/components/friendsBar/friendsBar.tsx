@@ -214,7 +214,7 @@ function FriendsBar(props : {logged :boolean}) {
                 ? "fa-chevron-down"
                 : "fa-chevron-right")
             }
-          ></i>
+          />
           <h3 className="text-lg text-center first-letter:uppercase">
             In game friends
           </h3>
