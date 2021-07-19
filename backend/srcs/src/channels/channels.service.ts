@@ -36,17 +36,10 @@ export default class ChannelsService {
   ) {}
 
   async getUserFromSocket(socket: Socket, withChannels = true): Promise<User> {
-    const logger = new Logger();
-    logger.debug(
-      `headers: ${JSON.stringify(
-        socket.handshake.headers,
-      )}, query: ${JSON.stringify(socket.handshake.query)}`,
-    );
     const cookie = socket.handshake.headers.cookie ?? '';
     const { Authentication: token } = parse(cookie);
 
     if (!token) throw new WsException('Missing token.');
-    logger.debug('auth token: ' + token);
 
     const user =
       await this.authenticationService.getUserFromAuthenticationToken(

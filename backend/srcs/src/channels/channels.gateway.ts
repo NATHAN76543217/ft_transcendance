@@ -31,11 +31,10 @@ export class ChannelsGateway
   ) {}
 
   afterInit(server: Server) {
-    this.logger.debug(`Listening at ${server.path()}`);
+    this.logger.log(`Listening at ${server.path()}`);
   }
 
   async handleConnection(socket: SocketWithUser) {
-    this.logger.debug(`Query: ${JSON.stringify(socket.handshake.query)}`);
     try {
       socket.user = await this.channelsService.getUserFromSocket(socket);
     } catch (e) {
@@ -61,7 +60,6 @@ export class ChannelsGateway
     // TODO: Maybe join self named channel to receive friend invitations etc...
     // Join user channels
     socket.user.channels.forEach((c) => {
-      Logger.debug(c.channel!.id);
       const channel = c.channel!.id.toFixed();
 
       socket.join(channel);
