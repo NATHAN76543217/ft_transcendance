@@ -93,6 +93,7 @@ export default function Login({ match }: LoginPageProps) {
             register={register}
             required={true}
             error={errors.username}
+            labelName="Username"
           ></TextInput>
           <TextInput
             name="password"
@@ -100,6 +101,7 @@ export default function Login({ match }: LoginPageProps) {
             type="password"
             required={true}
             error={errors.password}
+            labelName="Password"
           ></TextInput>
           <input
             type="submit"
