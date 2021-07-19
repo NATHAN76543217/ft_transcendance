@@ -47,7 +47,7 @@ export class ChannelsGateway
     socket.on('disconnecting', () => {
       // TODO: set offline status
       this.logger.debug(
-        `Client disconnecting with ${socket.rooms.size} joined rooms`,
+        `Client ${socket.user.id} disconnecting with ${socket.rooms.size} joined rooms`,
       );
 
       socket.rooms.forEach((r) => {
@@ -69,7 +69,7 @@ export class ChannelsGateway
     });
 
     this.logger.debug(
-      `Client connected with ${socket.rooms.size} joined rooms`,
+      `Client ${socket.user.id} connected with ${socket.rooms.size} joined rooms`,
     );
 
     return { event: 'connected' };
