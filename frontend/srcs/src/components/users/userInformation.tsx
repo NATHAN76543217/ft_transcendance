@@ -24,13 +24,12 @@ type UserProps = {
   isInSearch?: boolean | false;
   showWrongUsernameMessage?: boolean | false;
   handleClickTwoFactorAuth?: (userInfo: UserPageState, setUserInfo: any) => void;
-  handleClickProfilePicture?: () => void;
-  onFileChange?: (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any) => void;
+  onFileChange?: (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any, setUser: any) => void;
   addFriend: any;
   removeFriend: any;
   blockUser: any;
   unblockUser: any;
-  changeUsername?: (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any) => void;
+  changeUsername?: (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any, setUser: any) => void;
   userInfo: any;
   setUserInfo?: any;
 };
@@ -89,7 +88,6 @@ function displayProfilePicture(user: UserProps) {
           className="object-contain w-32 h-full"
           src={path}
           alt="user profile"
-          onClick={user.handleClickProfilePicture}
         />
       </NavLink>
     );
@@ -99,21 +97,20 @@ function displayProfilePicture(user: UserProps) {
         className="object-contain w-32 h-full"
         src={path}
         alt="user profile"
-        onClick={user.handleClickProfilePicture}
       />
     )
   }
 }
 
-function onFileChangeTrigger(user: UserProps, ev: any) {
+function onFileChangeTrigger(user: UserProps, ev: any, setUser: any) {
   if (user.onFileChange !== undefined) {
-    return user.onFileChange(ev, user.userInfo, user.setUserInfo);
+    return user.onFileChange(ev, user.userInfo, user.setUserInfo, setUser);
   } else {
     return;
   }
 }
 
-function displayFileChange(user: UserProps) {
+function displayFileChange(user: UserProps, setUser: any) {
   if (user.onFileChange !== undefined && user.isMe) {
     return (
       <div className="mt-1 align-center">
@@ -122,7 +119,7 @@ function displayFileChange(user: UserProps) {
             type="file"
             name="file"
             className="hidden"
-            onChange={(ev) => onFileChangeTrigger(user, ev)}
+            onChange={(ev) => onFileChangeTrigger(user, ev, setUser)}
           />
           <i className="fa fa-cloud-upload" />
           <span className="pl-1 ml-1 text-sm italic">Change picture</span>
@@ -267,10 +264,10 @@ function displayTwoFactorAuth(user: UserProps) {
   ) : null;
 }
 
-function displayChangeNameField(user: UserProps) {
+function displayChangeNameField(user: UserProps, setUser: any) {
   const localchangeUsername = async (values: IUserChangeNameFormValues) => {
     if (user.changeUsername) {
-      await user.changeUsername(values, user.userInfo, user.setUserInfo);
+      await user.changeUsername(values, user.userInfo, user.setUserInfo, setUser);
     }
   };
 
@@ -317,7 +314,7 @@ function UserInformation(user: UserProps) {
       <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
         <div className="relative w-32 mx-4">
           {displayProfilePicture(user)}
-          {displayFileChange(user)}
+          {displayFileChange(user, contextValue.setUser)}
         </div>
 
         <div className="w-40 mx-2 text-center">
@@ -334,7 +331,7 @@ function UserInformation(user: UserProps) {
           {displayBlockButton(user, contextValue)}
         </div>
       </section>
-      {displayChangeNameField(user)}
+      {displayChangeNameField(user, contextValue.setUser)}
       {displayTwoFactorAuth(user)}
     </div>
   );

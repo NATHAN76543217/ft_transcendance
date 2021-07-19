@@ -63,7 +63,7 @@ const handleClickTwoFactorAuth = async (userInfo: UserPageState, setUserInfo: an
   } catch (error) { }
 }
 
-const handleClickProfilePicture = async () => { }
+
 
 const getProfilePicture = async (pictureId: number) => {
   try {
@@ -72,11 +72,11 @@ const getProfilePicture = async (pictureId: number) => {
   } catch (error) { }
 }
 
-const onFileChange = async (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any) => {
-  submitForm(fileChangeEvent.target.files[0], userInfo, setUserInfo);
+const onFileChange = async (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any, setUser: any) => {
+  submitForm(fileChangeEvent.target.files[0], userInfo, setUserInfo, setUser);
 }
 
-const submitForm = async (valuesCurrentFile: any, userInfo: UserPageState, setUserInfo: any) => {
+const submitForm = async (valuesCurrentFile: any, userInfo: UserPageState, setUserInfo: any, setUser: any) => {
   if (!valuesCurrentFile) {
     return false;
   }
@@ -96,10 +96,13 @@ const submitForm = async (valuesCurrentFile: any, userInfo: UserPageState, setUs
         imgPath: newImgPath,
       },
     });
-    await axios.patch("/api/users/" + userInfo.user.id, {
+    const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
       imgPath: newImgPath,
     });
-    await axios.delete("/api/photos/" + oldImgPath);
+    if (oldImgPath !== 'default-profile-picture.png') {
+      await axios.delete("/api/photos/" + oldImgPath);
+    }
+    setUser(dataUser.data)
   } catch (error) { }
 }
 
@@ -300,11 +303,14 @@ const unblockUser = async (id: number, userInfo: UserPageState, setUserInfo: any
   } catch (error) { }
 }
 
-const onSubmitChangeUsername = async (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any) => {
+const onSubmitChangeUsername = async (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any, setUser: any) => {
   try {
-    await axios.patch("/api/users/" + userInfo.user.id, {
+    const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
       name: values.username,
     });
+
+    console.log("dataUser", dataUser)
+
     setUserInfo({
       ...userInfo,
       user: {
@@ -313,6 +319,7 @@ const onSubmitChangeUsername = async (values: IUserChangeNameFormValues, userInf
       },
       showWrongUsernameMessage: false,
     });
+    setUser(dataUser.data)
     return true;
   } catch (error) {
     setUserInfo({
@@ -393,7 +400,6 @@ function UserPage({
           // isFriend
           twoFactorAuth={userInfo.user.twoFactorAuth}
           handleClickTwoFactorAuth={handleClickTwoFactorAuth}
-          handleClickProfilePicture={handleClickProfilePicture}
           onFileChange={onFileChange}
           addFriend={addFriend}
           removeFriend={removeFriend}
