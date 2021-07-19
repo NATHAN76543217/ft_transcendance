@@ -27,6 +27,7 @@ import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import Test from "./pages/test/test";
+import Loading from "./components/loading/loading";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -89,7 +90,8 @@ class App extends React.Component<AppProps, AppState> {
     );
     // console.log("data Update login: ",dataUpdate)
 
-    return <p>You will be redirect soon</p>;
+    return <Loading/>
+    // return <p>You will be redirected soon</p>;
   };
 
   getOldState() {
@@ -108,10 +110,6 @@ class App extends React.Component<AppProps, AppState> {
 
   async sortRelationshipsList() {
     let a = this.state.relationshipsList.slice();
-
-    console.log("a");
-    console.log(a);
-
     a.sort((user1: AppUserRelationship, user2: AppUserRelationship) =>
       user1.user.name.localeCompare(user2.user.name)
     );
