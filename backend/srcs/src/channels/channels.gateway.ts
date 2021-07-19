@@ -12,8 +12,13 @@ import ChannelsService from './channels.service';
 import { Socket, Server } from 'socket.io';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { SocketWithUser } from 'src/authentication/socketWithUser.interface';
-import Message from 'src/messages/message.interface';
 import CreateMessageDto from 'src/messages/dto/createMessage.dto';
+import {
+  ChannelAction,
+  ChannelCaslAbilityFactory,
+} from './channel-casl-ability.factory';
+import MessageService from 'src/messages/messages.service';
+import { MessageType } from 'src/messages/message.entity';
 
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/channels' })
@@ -28,6 +33,8 @@ export class ChannelsGateway
   constructor(
     @Inject(forwardRef(() => ChannelsService))
     private readonly channelsService: ChannelsService,
+    private readonly messageService: MessageService,
+    private readonly abilityFactory: ChannelCaslAbilityFactory,
   ) {}
 
   afterInit(server: Server) {
@@ -85,14 +92,23 @@ export class ChannelsGateway
   @SubscribeMessage('message')
   async handleMessage(
     @ConnectedSocket() socket: SocketWithUser,
-    @MessageBody() data: CreateMessageDto,
+    @MessageBody() body: CreateMessageDto,
   ) {
     const author = socket.user;
+    const channel = await this.channelsService.getChannelById(body.channel_id);
+    const abilities = this.abilityFactory.createForUser(author);
 
-    // TODO: Broadcast messages by room
-    // TODO: Save messages to repository
+    if (
+      body.type === MessageType.Text &&
+      abilities.can(ChannelAction.Speak, channel)
+    ) {
+      const message = await this.messageService.createMessage(body, author.id);
 
-    this.logger.debug(`${author.name}: ${data.data}`);
+      this.server.to(channel.id.toFixed()).emit(JSON.stringify(message));
+      this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
+    } else {
+      this.logger.debug(`${author.name}: ${body.data}`);
+    }
   }
 
   async closeChannel(id: number) {
