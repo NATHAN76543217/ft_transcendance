@@ -100,7 +100,7 @@ const updateRelationshipState = (id: number, newType: ChannelRelationshipType, s
   });
 }
 
-const joinChannel = async (id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
+const joinChannel = async (id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext, password: string): Promise<boolean> => {
   try {
     const data = await axios.get(`/api/channels/${id}`);
     let index = data.data.users.findIndex(
@@ -108,21 +108,29 @@ const joinChannel = async (id: number, searchInfo: ChannelSearchState, setSearch
     );
 
     if (index === -1) {
-      axios.post(`/api/channels/${id}/join`, {
+      await axios.post(`/api/channels/${id}/join`, {
         type: ChannelRelationshipType.member,
+        password: password,
         //TODO - add password
       });
       updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
     }
+    return true;
   } catch (error) {
-    const joinValues: JoinChannelDto = {
-      type: ChannelRelationshipType.member
-    }
-    axios.post(`/api/channels/${id}/join`, {
-      // joinValues
-      //TODO - add password and joinValues
-    });
-    updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
+    // if (error.response) {
+    //   console.log(error.response.data);
+    //   console.log(error.response.status);
+    //   console.log(error.response.headers);
+    // }
+    return false;
+    // const joinValues: JoinChannelDto = {
+    //   type: ChannelRelationshipType.member
+    // }
+    // axios.post(`/api/channels/${id}/join`, {
+    //   // joinValues
+    //   //TODO - add password and joinValues
+    // });
+    // updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
   }
 }
 

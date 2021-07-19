@@ -55,7 +55,7 @@ function displayChannelPicture(channel: ChannelProps) {
       className="object-contain w-32 h-full"
       src={path}
       alt="channel"
-      onClick={() => {}}
+      onClick={() => { }}
     />
   );
 }
@@ -87,7 +87,7 @@ function displayChannelPicture(channel: ChannelProps) {
 //     }
 // }
 
-function displayJoinButton(channel: ChannelProps, contextValue: IAppContext) {
+function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, password: string, setPassword: any, showWrongPassword: boolean, setShowWrongPassword: any) {
   let isInChannel = !(
     Number(channel.relationshipTypes) === Number(ChannelRelationshipType.null) ||
     Number(channel.relationshipTypes) === Number(ChannelRelationshipType.banned) ||
@@ -95,9 +95,12 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext) {
   );
   let isBan = channel.relationshipTypes === ChannelRelationshipType.banned;
 
-  const joinChannel = async (id: number) => {
-    await channel.joinChannel(id, channel.channelInfo, channel.setChannelInfo, contextValue);
-    await contextValue.updateAllRelationships();
+  const joinChannel = async (channelPassword: string): Promise<boolean> => {
+    const res = await channel.joinChannel(channel.id, channel.channelInfo, channel.setChannelInfo, contextValue, channelPassword);
+    if (res) {
+      await contextValue.updateAllRelationships();
+    }
+    return res;
   };
 
   const leaveChannel = async (id: number) => {
@@ -105,21 +108,55 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext) {
     await contextValue.updateAllRelationships();
   };
 
+  const handleSubmit = (evt: any) => {
+    evt.preventDefault();
+    // alert(`Submitting Name ${password}`)
+    joinChannel(password).then((res: boolean) => {
+    if (!res) {
+      setShowWrongPassword(true);
+    } else {
+      setShowWrongPassword(false);
+    }
+  })
+}
+
+  const displayWrongPassword = (showWrongPassword: boolean) => {
+    if (showWrongPassword) {
+      return (
+        <span className="font-semibold text-red-600">Wrong password</span>
+      )
+    }
+  }
+
   return (
     <div className="w-48 my-4 text-center">
       {!isInChannel ? (
         isBan ? (
           <div className="font-semibold text-red-600">You are banned from this channel </div>
         ) : (
-          <CustomButton
-            content="Join channel"
-            // url="/users/pending"
-            onClickFunctionId={joinChannel}
-            argId={channel.id}
-            bg_color="bg-secondary"
-            // bg_hover_color="bg-secondary-dark"
-            dark_text
-          />
+          <form onSubmit={handleSubmit} className="relative">
+            <CustomButton
+              content="Join channel"
+              // url="/users/pending"
+              // onClickFunctionId={joinChannel}
+              argId={channel.id}
+              bg_color="bg-secondary"
+              // bg_hover_color="bg-secondary-dark"
+              dark_text
+            />
+            {channel.mode === ChannelMode.protected ?
+              <div>
+                <input
+                  type="password"
+                  // value={password}
+                  placeholder="Enter password..."
+                  onChange={e => setPassword(e.target.value)}
+                  className="justify-center h-auto px-2 py-1 mx-2 my-2 text-sm font-semibold bg-gray-200 rounded-sm w-36 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+                />
+                {displayWrongPassword(showWrongPassword)}
+              </div>
+              : <div></div>}
+          </form>
         )
       ) : (
         <CustomButton
@@ -151,6 +188,10 @@ function ChannelInformation(channel: ChannelProps) {
   // const [relationState, setRelationState] = useState(channel.relationshipTypes)
   // useEffect(() => {
   // }, [relationState]);
+
+  const [password, setPassword] = useState("");
+  const [showWrongPassword, setShowWrongPassword] = useState(false);
+
   return (
     <div className="py-4 h-42">
       <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
@@ -169,7 +210,7 @@ function ChannelInformation(channel: ChannelProps) {
             {getModeName(channel.mode)}
           </h1>
         </div>
-        <div>{displayJoinButton(channel, contextValue)}</div>
+        <div>{displayJoinButton(channel, contextValue, password, setPassword, showWrongPassword, setShowWrongPassword)}</div>
       </section>
     </div>
   );

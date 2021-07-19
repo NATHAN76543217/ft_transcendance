@@ -3,7 +3,7 @@ import React from "react";
 type CustomButtonProps = {
   content: string;
   url?: string;
-  onClickFunctionId: (id: number) => void;
+  onClickFunctionId?: (id: number) => void;
   argId: number;
   bg_color: string;
   bg_hover_color?: string | undefined;
@@ -25,6 +25,14 @@ function CustomButton({
     bg_hover_color = bg_color + "-dark";
   }
 
+  const localOnClickFunctionId = (argId: number) => {
+    if (onClickFunctionId !== undefined) {
+      onClickFunctionId(argId)
+    } else {
+      return ;
+    }
+  }
+
   // bg_hover_color = "bg-gray-500"
 
   return (
@@ -39,7 +47,7 @@ function CustomButton({
         " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
       }
       // href={ url }
-      onClick={() => onClickFunctionId(argId)}
+      onClick={() => localOnClickFunctionId(argId)}
     >
       {content}
     </button>
