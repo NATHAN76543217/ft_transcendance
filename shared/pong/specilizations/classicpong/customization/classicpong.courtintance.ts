@@ -3,10 +3,10 @@
 
 import {
     Court
-} from "../../../../../../../../shared/pong/game/court"
+} from "../../../game/court"
 import {
     ColorStyle
-} from "../../../../../../../../shared/pong/render/style"
+} from "../../../render/style"
 
 const NAME : string = "pongCanvas";
 const COURT_COLOR = "BLACK";

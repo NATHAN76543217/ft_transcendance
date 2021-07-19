@@ -4,7 +4,7 @@
 import SettingsLimits from "../../../settings/limits"
 import {
     Range
-} from "../../../../../../../../shared/pong/dto/range.dto"
+} from "../../../dto/range.dto"
 import {
     COURT
 } from "./classicpong.courtintance"

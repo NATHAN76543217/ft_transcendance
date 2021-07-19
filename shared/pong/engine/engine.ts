@@ -3,15 +3,15 @@
 
 import {
     GameStatus
-} from "../../../../../../shared/pong/game/status"
+} from "../game/status"
 import {
     Socket,
 } from "ngx-socket-io"
 import {
     Mesages
-} from "../../../../../../shared/pong/utils/messages"
+} from "../utils/messages"
 
-import  renderGameStatus from "../../../../../../shared/pong/render/render"
+import  renderGameStatus from "../render/render"
 import SettingsLimits from "../settings/limits"
 
 export default class PongClient
