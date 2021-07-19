@@ -14,6 +14,7 @@ export enum MessageType {
   GameInvite,
   GameSpectate,
   FriendInvite,
+  RoleUpdate,
 }
 
 @Entity()
