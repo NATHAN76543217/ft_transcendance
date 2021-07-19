@@ -12,7 +12,8 @@ import Unspected from "shared-pong/game/exceptions/unspected.exception"
 import {
     Socket,
     SocketIoConfig
-} from "ngx-socket-io"
+} from "socket.io-client"
+// docker exec -it <containnerName>
 
 enum Pages {
     SELECT_GAME_STYLE,

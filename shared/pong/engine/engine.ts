@@ -6,7 +6,7 @@ import {
 } from "../game/status"
 import {
     Socket,
-} from "ngx-socket-io"
+} from "socket.io-client"
 import {
     Mesages
 } from "../utils/messages"
