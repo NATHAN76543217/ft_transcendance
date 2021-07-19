@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable, Logger } from '@nestjs/common';
 import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
@@ -12,6 +12,10 @@ import { ChannelRelationshipType } from './relationships/channel-relationship.ty
 import User from 'src/users/user.entity';
 import ChannelRelationship from './relationships/channel-relationship.entity';
 import { ChannelsGateway } from './channels.gateway';
+import { ChannelModeTypes } from './utils/channelModeTypes';
+import ChannelMandatoryPassword from './exception/ChannelMandatoryPassword.exception';
+import ChannelAlreadyExist from './exception/ChannelAlreadyExist.exception';
+import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
 
 @Injectable()
 export default class ChannelsService {
@@ -117,8 +121,6 @@ export default class ChannelsService {
     type: ChannelRelationshipType,
   ) {
 
-console.log("createChannelRelationship")
-
     // This should link user and channel to relation
     const relationship = this.channelRelationshipRepository.create({
       channel_id: channelId,
@@ -171,9 +173,30 @@ console.log(relationship)
   // }
 
   async createChannel(channel: CreateChannelDto) {
-    const newChannel = this.channelsRepository.create(channel);
-    await this.channelsRepository.save(newChannel);
-    return newChannel;
+    if (channel.mode === null) {
+      throw new ChannelMandatoryMode()
+    }
+    if (
+      Number(channel.mode) === Number(ChannelModeTypes.protected) &&
+      (channel.password === "" || channel.password === undefined)
+    ) {
+      throw new ChannelMandatoryPassword()
+      // throw new HttpException('TODO: Unauthorized read', 401);
+    }
+    if (Number(channel.mode) !== Number(ChannelModeTypes.protected)) {
+      channel.password = "";
+    }
+    try {
+      const newChannel = this.channelsRepository.create(channel);
+      await this.channelsRepository.save(newChannel);
+      return newChannel;
+    } catch (error) {
+      if (Number(error.code) === 23505) {
+        throw new ChannelAlreadyExist(channel.name)
+      } else {
+        throw new HttpException('Error at channel creation', 400)
+      }
+    }
   }
 
   async updateChannel(id: number, channel: UpdateChannelDto) {

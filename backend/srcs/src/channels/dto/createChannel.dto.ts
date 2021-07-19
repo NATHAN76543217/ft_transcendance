@@ -16,10 +16,12 @@ export class CreateChannelDto {
 
   @IsString()
   @IsOptional()
+  // @Length(1, 15)
   password: string;
 
   // @IsNumber()
   @IsNumberString()
   @IsNotEmpty()
+  @IsOptional()
   mode: ChannelModeTypes;
 }
