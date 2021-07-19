@@ -24,6 +24,8 @@ import {
   ChannelCaslAbilityFactory,
 } from './channel-casl-ability.factory';
 import { JoinChannelDto } from './dto/joinChannel.dto';
+import { join } from 'path';
+import { ChannelModeTypes } from './utils/channelModeTypes';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthenticationGuard)
@@ -75,13 +77,13 @@ export default class ChannelsController {
     @Body() channelData: CreateChannelDto,
   ) {
     const channel = await this.channelsService.createChannel(channelData);
-    console.log(channel)
+    // console.log(channel)
     const relation = await this.channelsService.createChannelRelationship(
       channel.id,
       req.user.id,
       ChannelRelationshipType.owner,
     );
-    console.log(relation)
+    // console.log(relation)
     return channel;
   }
 
@@ -160,10 +162,8 @@ export default class ChannelsController {
   async joinChannel(
     @Req() req: RequestWithUser,
     @Param('id') channelId: string,
-    // @Body() joinChannelData: JoinChannelDto,
+    @Body() joinChannelData: JoinChannelDto,
   ) {
-
-    console.log("join channel")
 
     const relationship = await this.channelsService.getChannelRelationship(
       Number(channelId),
@@ -179,6 +179,10 @@ export default class ChannelsController {
     }
 
     // TODO: Add check if password
+    const channel = await this.channelsService.getChannelById(Number(channelId))
+    if (channel.mode === ChannelModeTypes.protected) {
+      await this.channelsService.verifyPassword(joinChannelData.password, channel.password);
+    }
 
     await this.channelsService.createChannelRelationship(
       Number(channelId),
@@ -186,9 +190,6 @@ export default class ChannelsController {
       // joinChannelData.type,
       ChannelRelationshipType.member
     );
-
-
-    console.log("joinChannel - end") /////////////////////////////////////////////////
 
   }
 

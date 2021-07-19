@@ -16,6 +16,8 @@ import { ChannelModeTypes } from './utils/channelModeTypes';
 import ChannelMandatoryPassword from './exception/ChannelMandatoryPassword.exception';
 import ChannelAlreadyExist from './exception/ChannelAlreadyExist.exception';
 import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
+import * as bcrypt from 'bcrypt';
+import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
 
 @Injectable()
 export default class ChannelsService {
@@ -104,6 +106,19 @@ export default class ChannelsService {
     throw new ChannelNotFound(id);
   }
 
+  public async verifyPassword(
+    plainTextPassword: string,
+    hashedPassword: string,
+  ) {
+    const isPasswordMatching = await bcrypt.compare(
+      plainTextPassword,
+      hashedPassword,
+    );
+    if (!isPasswordMatching) {
+      throw new ChannelWrongPassword();
+    }
+  }
+
   // TODO: Rename all functions to exclude service name and provide uesful info
   async getChannelRelationship(channelId: number, userId: number) {
     return await this.channelRelationshipRepository.findOne({
@@ -127,8 +142,6 @@ export default class ChannelsService {
       user_id: userId,
       type: type,
     });
-
-console.log(relationship)
     
     await this.channelRelationshipRepository.save(relationship);
     //await this.channelsRepository
@@ -185,6 +198,9 @@ console.log(relationship)
     }
     if (Number(channel.mode) !== Number(ChannelModeTypes.protected)) {
       channel.password = "";
+    } else {
+      const hashedPassword = await bcrypt.hash(channel.password, 10);
+      channel.password = hashedPassword;
     }
     try {
       const newChannel = this.channelsRepository.create(channel);

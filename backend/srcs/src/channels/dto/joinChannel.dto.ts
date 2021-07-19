@@ -12,8 +12,8 @@ import { ChannelRelationshipType } from '../relationships/channel-relationship.t
     @IsOptional()
     password: string;
 
-    // @IsNumber()
-    @IsNumberString()
-    @IsNotEmpty()
+    @IsNumber()
+    // @IsNumberString()
+    @IsOptional()
     type: ChannelRelationshipType;
   }

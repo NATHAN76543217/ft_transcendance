@@ -12,7 +12,7 @@ class Channel {
   @Column({ unique: true })
   public name: string;
 
-  @Column({ select: false })
+  @Column({ select: true })
   // TODO: Check if this is still needed
   //@Exclude({ toPlainOnly: true })
   public password: string; // public ?
