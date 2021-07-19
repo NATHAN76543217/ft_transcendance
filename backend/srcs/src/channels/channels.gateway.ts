@@ -12,6 +12,8 @@ import ChannelsService from './channels.service';
 import { Socket, Server } from 'socket.io';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { SocketWithUser } from 'src/authentication/socketWithUser.interface';
+import Message from 'src/messages/message.interface';
+import CreateMessageDto from 'src/messages/dto/createMessage.dto';
 
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/channels' })
@@ -85,7 +87,7 @@ export class ChannelsGateway
   @SubscribeMessage('message')
   async handleMessage(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: string,
+    @MessageBody() data: CreateMessageDto,
   ) {
     const author = await this.channelsService.getUserFromSocket(socket);
 
@@ -93,7 +95,7 @@ export class ChannelsGateway
     // TODO: Broadcast messages by room
     // TODO: Save messages to repository
 
-    this.logger.debug(`${author.name}: ${{ data }}`);
+    this.logger.debug(`${author.name}: ${data.data}`);
   }
 
   async closeChannel(id: number) {

@@ -1,4 +1,7 @@
+import { MessageType } from '../message.entity';
+
 export default class CreateMessageDto {
-    id_chat: number;
-    text: string;
+  channel_id: number;
+  type: MessageType;
+  data: string;
 }

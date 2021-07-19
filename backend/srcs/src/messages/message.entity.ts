@@ -9,8 +9,15 @@ import {
 } from 'typeorm';
 import Channel from '../channels/channel.entity';
 
+export enum MessageType {
+  Text,
+  GameInvite,
+  GameSpectate,
+  FriendInvite,
+}
+
 @Entity()
-export default class Message {
+export class Message {
   @PrimaryGeneratedColumn()
   public id: number;
 
@@ -26,8 +33,11 @@ export default class Message {
   @UpdateDateColumn()
   public updated_at: Date;
 
+  @Column({ type: 'enum', enum: MessageType, default: MessageType.Text })
+  public type: MessageType;
+
   @Column()
-  public text: string;
+  public data: string;
 
   @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
   @JoinColumn({ name: 'channel_id', referencedColumnName: 'id' })

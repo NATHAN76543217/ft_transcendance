@@ -18,7 +18,7 @@ import ChannelAlreadyExist from './exception/ChannelAlreadyExist.exception';
 import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
 import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
-import Message from 'src/messages/message.entity';
+import { Message } from 'src/messages/message.entity';
 import { parse } from 'cookie';
 
 @Injectable()

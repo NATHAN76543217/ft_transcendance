@@ -8,8 +8,7 @@ import ChannelRelationshipsService from './relationships/channel-relationships.s
 import { ChannelsGateway } from './channels.gateway';
 import { AuthenticationModule } from 'src/authentication/authentication.module';
 import { ChannelCaslAbilityFactory } from './channel-casl-ability.factory';
-import Message from 'src/messages/message.entity';
-import { JwtModule } from '@nestjs/jwt';
+import { Message } from 'src/messages/message.entity';
 
 @Module({
   imports: [

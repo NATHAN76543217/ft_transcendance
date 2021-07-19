@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 import { IAbilityFactory } from 'src/authorization/policies.guard';
 import User from 'src/users/user.entity';
 import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
-import Message from './message.entity';
+import { Message } from './message.entity';
 
 export enum MessageAction {
   Manage = 'manage',
@@ -42,7 +42,7 @@ export class MessageCaslAbilityFactory
 
     // Can manage Message if sender
     can(MessageAction.Manage, Message, {
-      sender_id: { "$eq": user.id},
+      sender_id: { $eq: user.id },
     });
 
     return build({
