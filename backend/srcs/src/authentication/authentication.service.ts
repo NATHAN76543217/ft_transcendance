@@ -73,7 +73,6 @@ export class AuthenticationService {
     token: string,
     withChannels = false,
   ) {
-    Logger.debug('JWT token:' + token);
     const payload: TokenPayload = this.jwtService.verify(token);
 
     return this.usersService.getUserById(payload.userId, withChannels);
@@ -83,16 +82,12 @@ export class AuthenticationService {
     const payload: TokenPayload = { userId };
     const expirationTime = this.configService.get('JWT_EXPIRATION_TIME');
 
-    Logger.debug(
-      `payload = ${userId.toFixed()}, expiration time = ${expirationTime}`,
-    );
     const token = this.jwtService.sign(payload);
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${expirationTime}; SameSite=None; Secure`;
   }
 
   public getJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    Logger.debug(`payload = ${userId.toFixed()}`);
     const token = this.jwtService.sign(payload);
     return token;
   }
