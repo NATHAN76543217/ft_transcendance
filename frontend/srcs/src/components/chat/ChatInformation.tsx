@@ -5,6 +5,7 @@ import { ChannelRelationshipType } from "../../models/channel/ChannelRelationshi
 import { IAppContext } from "../../IAppContext";
 import React, { useEffect, useState } from "react";
 import AppContext from "../../AppContext";
+import Button from "../utilities/Button";
 
 type ChannelProps = {
   id: number; // optional ?
@@ -87,7 +88,7 @@ function displayChannelPicture(channel: ChannelProps) {
 //     }
 // }
 
-function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, password: string, setPassword: any, showWrongPassword: boolean, setShowWrongPassword: any) {
+function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, password: string, setPassword: any, showWrongPassword: boolean, setShowWrongPassword: any, showPassword: boolean, setShowPassword: any) {
   let isInChannel = !(
     Number(channel.relationshipTypes) === Number(ChannelRelationshipType.null) ||
     Number(channel.relationshipTypes) === Number(ChannelRelationshipType.banned) ||
@@ -112,13 +113,13 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, pas
     evt.preventDefault();
     // alert(`Submitting Name ${password}`)
     joinChannel(password).then((res: boolean) => {
-    if (!res) {
-      setShowWrongPassword(true);
-    } else {
-      setShowWrongPassword(false);
-    }
-  })
-}
+      if (!res) {
+        setShowWrongPassword(true);
+      } else {
+        setShowWrongPassword(false);
+      }
+    })
+  }
 
   const displayWrongPassword = (showWrongPassword: boolean) => {
     if (showWrongPassword) {
@@ -126,6 +127,17 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, pas
         <span className="font-semibold text-red-600">Wrong password</span>
       )
     }
+  }
+
+  const displayShowPasswordButton = (show: boolean, setShow: any) => {
+    return (
+      <div
+        className="absolute right-0 items-center justify-between cursor-pointer top-1"
+        onClick={() => setShow(!show)}
+      >
+        <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
+      </div>
+    )
   }
 
   return (
@@ -146,13 +158,16 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, pas
             />
             {channel.mode === ChannelMode.protected ?
               <div>
-                <input
-                  type="password"
-                  // value={password}
-                  placeholder="Enter password..."
-                  onChange={e => setPassword(e.target.value)}
-                  className="justify-center h-auto px-2 py-1 mx-2 my-2 text-sm font-semibold bg-gray-200 rounded-sm w-36 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    // value={password}
+                    placeholder="Enter password..."
+                    onChange={e => setPassword(e.target.value)}
+                    className="flex justify-center h-auto px-2 py-1 mx-2 my-2 text-sm font-semibold bg-gray-200 rounded-sm w-36 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+                  />
+                  {displayShowPasswordButton(showPassword, setShowPassword)}
+                </div>
                 {displayWrongPassword(showWrongPassword)}
               </div>
               : <div></div>}
@@ -191,6 +206,7 @@ function ChannelInformation(channel: ChannelProps) {
 
   const [password, setPassword] = useState("");
   const [showWrongPassword, setShowWrongPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
     <div className="py-4 h-42">
@@ -210,7 +226,7 @@ function ChannelInformation(channel: ChannelProps) {
             {getModeName(channel.mode)}
           </h1>
         </div>
-        <div>{displayJoinButton(channel, contextValue, password, setPassword, showWrongPassword, setShowWrongPassword)}</div>
+        <div>{displayJoinButton(channel, contextValue, password, setPassword, showWrongPassword, setShowWrongPassword, showPassword, setShowPassword)}</div>
       </section>
     </div>
   );
