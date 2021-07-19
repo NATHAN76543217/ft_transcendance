@@ -155,6 +155,10 @@ export default class UsersService {
 
   async createUser(user: CreateUserDto) {
     const newUser = this.usersRepository.create(user);
+    const nbUsers = await this.usersRepository.count()
+    if (!nbUsers) {
+      newUser.role = UserRoleTypes.owner;
+    }
     await this.usersRepository.save(newUser);
     return newUser;
   }
