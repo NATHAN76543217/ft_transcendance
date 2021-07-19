@@ -84,12 +84,11 @@ export class ChannelsGateway
 
   @SubscribeMessage('message')
   async handleMessage(
-    @ConnectedSocket() socket: Socket,
+    @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() data: CreateMessageDto,
   ) {
-    const author = await this.channelsService.getUserFromSocket(socket);
+    const author = socket.user;
 
-    // TODO: Replace getUser with SocketWithUser
     // TODO: Broadcast messages by room
     // TODO: Save messages to repository
 
