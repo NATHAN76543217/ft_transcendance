@@ -23,6 +23,3 @@ export interface IRoomDto
     flags : number;
     level? : number;
 }
-
-// Merging problems:
-// 2) /front: gameCustom on React code at <PongStyleSelectorContext.Provider> -> value need a cast in unknown (~ line 300)

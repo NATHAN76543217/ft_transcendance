@@ -1,50 +1,34 @@
 import React from 'react'
 
-// TO DO: import shared from module
 import {
     GameMode
-} from "../../../../../../../shared/pong/utils/gamemode"
-
-
-import PongGenerator from "../../../../../../../shared/pong/engine/engine"
-
-
-// TO DO: import shared from module
+} from "shared-pong/utils/gamemode"
+import PongGenerator from "shared-pong/engine/engine"
 import {
     IRoomDto
-} from "../../../../../../../shared/pong/dto/room.dto"
+} from "shared-pong/dto/room.dto"
 import {
     RangeSlider
-} from "../../../../../../../shared/pong/dto/rangeslider.dto"
-
-
-
+} from "shared-pong/dto/rangeslider.dto"
 import ButtonPong from '../../components/button'
 import PongStyleSelector from '../../components/ponsStyleSelector'
 import {
     Customization,
     CustomValue
 } from "../../components/customization"
-
-// TO DO: import shared from module
-import LibNames from "../../../../../../../shared/pong/utils/lib.names"
+import LibNames from "shared-pong/utils/lib.names"
 import {
     ICustomGame
-} from "../.../../../../../../../../shared/pong/dto/customgame.dto"
+} from "shared-pong/dto/customgame.dto"
 import {
     AStyle
-} from "../../../../../../../shared/pong/render/style"
-
-
+} from "shared-pong/render/style"
 import {
     PongContext,
 } from "../indexPong"
-
-
-// TO DO: import shared from module
 import {
     Mesages
-} from "../../../../../../../shared/pong/utils/messages"
+} from "shared-pong/utils/messages"
 
 type IPongStyleSelectorContext = {
     pongSpetializations : Readonly<Array<[string, PongGenerator]>>;
@@ -295,7 +279,7 @@ export default function GameCustom()
                 <PongContext.Consumer>
                 {
                     value  =>
-                    <PongStyleSelectorContext.Provider value={{...value} as IPongStyleSelectorContext}>
+                    <PongStyleSelectorContext.Provider value={value as IPongStyleSelectorContext}>
                         <PongStyleSelector selectorClassName="" />
                     </PongStyleSelectorContext.Provider> 
                 }

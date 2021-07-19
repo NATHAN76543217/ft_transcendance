@@ -1,13 +1,7 @@
-
-
-// TO DO: import module
 import {
     DynamicDto,
     IDynamicPlayerDto
-} from "../../../../../shared/pong/dto/dynamic.dto"
-
-
-
+} from "shared-pong/dto/dynamic.dto"
 import {
     APolimorphicLib
 } from "./polimorphiclib"

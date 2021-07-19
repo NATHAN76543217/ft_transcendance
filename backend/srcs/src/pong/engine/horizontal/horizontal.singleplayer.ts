@@ -1,18 +1,13 @@
-
-
-
-// TO DO: import Module
-
 import {
     GameMode
-} from "../../../../../../shared/pong/utils/gamemode"
+} from "shared-pong/utils/gamemode"
 import {
     IStaticDto
-} from "../../../../../../shared/pong/dto/static.dto"
+} from "shared-pong/dto/static.dto"
 import AHorizontalLib from "./horizontal"
 import {
     IDynamicDto
-} from "../../../../../../shared/pong/dto/dynamic.dto"
+} from "shared-pong/dto/dynamic.dto"
 import {
     PongSocketServer
 } from "../../server/socketserver"
