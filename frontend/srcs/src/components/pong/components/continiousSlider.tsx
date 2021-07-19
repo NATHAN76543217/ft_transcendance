@@ -1,12 +1,12 @@
 import React from "react"
 
-// Need to install this
 import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
 import {
     makeStyles
 } from '@material-ui/core/styles';
 // https://material-ui.com/es/components/slider/
+// npm install @material-ui/core
 
 type IContiniousSlyderProps = {
     name : string;
@@ -27,7 +27,7 @@ export default function ContinousSlider({
         root: {
             width: 200,
         },
-    });
+    })();
 
     const [description, setDescription] = React.useState<string>(`${name}: ${stateShared.value}`);
 
@@ -35,7 +35,7 @@ export default function ContinousSlider({
         setDescription(`${name}, ${stateShared.value}`);
     }, [stateShared.value]);
 
-    const handleChange : Function = (event: any, newValue: number | number[]) => {
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: number | number[]) => {
         stateShared.setValue(newValue as number);
     };
 

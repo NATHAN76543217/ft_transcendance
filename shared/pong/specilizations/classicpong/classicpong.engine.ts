@@ -10,7 +10,7 @@ import PongClient from "../../engine/engine"
 import SettingsLimits from "../classicpong/customization/classicpong.settings"
 import {
     Socket
-} from "ngx-socket-io"
+} from "socket.io-client"
 
 export default class ClassicPong extends PongClient
 {
