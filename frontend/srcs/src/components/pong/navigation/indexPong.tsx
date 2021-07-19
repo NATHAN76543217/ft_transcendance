@@ -6,8 +6,8 @@ import GameFast from "./pages/gameFast"
 import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
 import Spectator from "./pages/spectator"
-import PongClient from "../engine/engine"
-import  ClassicPong from "../specilizations/classicpong/classicpong.engine"
+import PongClient from "../../../../../../shared/pong/engine/engine"
+import  ClassicPong from "../../../../../../shared/pong/specilizations/classicpong/classicpong.engine"
 
 // TO DO: merge exceptions
 import Unspected from "../../../../../../pong/exceptions/unspected.exception"

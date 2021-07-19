@@ -42,14 +42,12 @@ import Unspected from "../exceptions/unspected.exception"
 
 import MatchesService from "../../matches/matches.service"
 
-// TO DO: OH SHIT... do need i the customization to be shared ?
-// import ClassicPongGameConfig from "../../specilizations/classicpong/customization/classicpong.gameconfig"
-import ClassicPongGameConfig from "../../../../../frontend/srcs/src/components/pong/specilizations/classicpong/customization/classicpong.gameconfig"
-
+// TO DO: import module
+import ClassicPongGameConfig from "../../../../../shared/pong/specilizations/classicpong/customization/classicpong.gameconfig"
 
 // TO DO: import module
 import {
-    IRoomDto
+    IRoomDto as IRoomDtobase
 } from "../../../../../shared/pong/dto/room.dto"
 import {
     Mesages
@@ -60,6 +58,11 @@ import {
 import {
     IMousePosDto
 } from "../../../../../shared/pong/dto/mousepos.dto"
+
+interface IRoomDto extends IRoomDtobase
+{
+    lib : APolimorphicLib;
+}
 
 function SellectLib(
     name : LibNames,

@@ -4,35 +4,35 @@
 import {
     AStyle,
     ColorStyle
-} from "../../../../../../../../shared/pong/render/style"
+} from "../../../render/style"
 import {
     Score,
     IScore
-} from "../../../../../../../../shared/pong/game/score"
+} from "../../../game/score"
 import {
     Player,
     IPlayer
-} from "../../../../../../../../shared/pong/game/player"
+} from "../../../game/player"
 import {
     Ball,
     IBall,
     IDefaultBall
-} from "../../../../../../../../shared/pong/game/ball"
+} from "../../../game/ball"
 import {
     Net,
     INet,
     Direction
-} from "../../../../../../../../shared/pong/game/net"
+} from "../../../game/net"
 import {
     Vector2D,
     IVector2D
-} from "../../../../../../../../shared/pong/shapes/vector2d"
+} from "../../../shapes/vector2d"
 import {
     COURT
 } from "./classicpong.courtintance"
 import {
     GameStatus
-} from "../../../../../../../../shared/pong/game/status"
+} from "../../../game/status"
 
 const SCORE_COLOR : string = "WHITE";
 const SCORE_FONT : string = "75px Arial";

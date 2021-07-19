@@ -3,7 +3,7 @@
 
 import {
     GameStatus
-} from "../../../../../../../shared/pong/game/status"
+} from "../../game/status"
 
 import ClassicPongGameConfig from "./customization/classicpong.gameconfig"
 import PongClient from "../../engine/engine"

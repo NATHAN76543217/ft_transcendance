@@ -3,7 +3,7 @@
 
 import {
     IRange
-} from "../../../../../../shared/pong/dto/range.dto"
+} from "../dto/range.dto"
 
 export default class SettingsLimits
 {

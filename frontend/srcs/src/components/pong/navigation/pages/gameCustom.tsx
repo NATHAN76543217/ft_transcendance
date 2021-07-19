@@ -6,7 +6,7 @@ import {
 } from "../../../../../../../shared/pong/utils/gamemode"
 
 
-import PongGenerator from "../../engine/engine"
+import PongGenerator from "../../../../../../../shared/pong/engine/engine"
 
 
 // TO DO: import shared from module
@@ -16,7 +16,6 @@ import {
 import {
     RangeSlider
 } from "../../../../../../../shared/pong/dto/rangeslider.dto"
-
 
 
 
@@ -85,7 +84,7 @@ export default function GameCustom()
         idPlayerOne: context.playerId,
         idPlayerTwo: String(),
         config: { },
-        lib: { },
+        //lib: { },
         libName: String(),
         mode: gameMode,
         customization: { },
@@ -295,8 +294,8 @@ export default function GameCustom()
             <div className="">
                 <PongContext.Consumer>
                 {
-                    value => /* TO DO: remove "unknown" and correct the issue */
-                    <PongStyleSelectorContext.Provider value={{...value} as unknown as IPongStyleSelectorContext}>
+                    value  =>
+                    <PongStyleSelectorContext.Provider value={{...value} as IPongStyleSelectorContext}>
                         <PongStyleSelector selectorClassName="" />
                     </PongStyleSelectorContext.Provider> 
                 }
