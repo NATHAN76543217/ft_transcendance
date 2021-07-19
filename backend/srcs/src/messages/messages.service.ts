@@ -13,21 +13,22 @@ export default class MessageService {
   ) {}
 
   // TODO: Check if we need this
+  /*
   getAllMessages() {
     return this.messageRepository.find();
   }
-
-  // TODO: getMessagesByChatId(chatId: number)
 
   async getMessageById(id: number) {
     const message = await this.messageRepository.findOne(id);
     if (message) return message;
     throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
-  }
+  } */
 
-  // TODO: Add chatId parameter
-  async createMessage(message: CreateMessageDto) {
-    const newMessage = this.messageRepository.create(message);
+  async createMessage(message: CreateMessageDto, senderId: number) {
+    const newMessage = this.messageRepository.create({
+      ...message,
+      sender_id: senderId,
+    });
     await this.messageRepository.save(newMessage);
     return newMessage;
   }
