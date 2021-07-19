@@ -65,9 +65,9 @@ export default function Register(props: {}) {
             <div className="relative ">
                 <h1 className='m-4 text-6xl text-center'>Register</h1>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextInput name="username" register={register} required={true} error={errors.username}></TextInput>
-                    <TextInput name="password" register={register} type="password" required={true} error={errors.password}></TextInput>
-                    <TextInput name="confirm password" register={register} type="password" required={true} error={errors["confirm password"]}></TextInput>
+                    <TextInput name="username" register={register} required={true} error={errors.username} labelName="Username"></TextInput>
+                    <TextInput name="password" register={register} type="password" required={true} error={errors.password} labelName="Password"></TextInput>
+                    <TextInput name="confirm password" register={register} type="password" required={true} error={errors["confirm password"]} labelName="Confirm password"></TextInput>
                     <input type='submit' value="Register" className={"rounded-xl text-neutral font-semibold p-2 mt-4 mb-20 w-full text-lg bg-secondary hover:bg-secondary-dark"}></input>
                     {displayRegisterValidationMessage(registerInfo.showRegisterValidation)}
                 </form>

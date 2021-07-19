@@ -24,6 +24,7 @@ export default function SearchUser(props: UserSearchProps) {
             register={register}
             labelClass="bloc"
             inputClass=" left"
+            labelName="Username"
           ></TextInput>
           <input
             type="submit"

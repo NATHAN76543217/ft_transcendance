@@ -22,13 +22,15 @@ export default function ChannelSearchForm(props: ChannelSearchProps) {
           <TextInput
             name="channelName"
             register={register}
-            labelClass="bloc"
+            labelClass=""
             inputClass=" left"
+            labelName="Channel name"
+            placeHolder="Enter a channel name..."
           ></TextInput>
           <input
             type="submit"
             value="search"
-            className="absolute bottom-0 right-0 h-8 px-2 py-1 font-semibold bg-gray-200 rounded-md text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+            className="absolute h-8 px-2 py-1 font-semibold bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 right-12 bottom-8 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
           ></input>
         </div>
       </form>

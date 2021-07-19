@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 // import Button from '../../components/utilities/Button';
 import axios from 'axios';
@@ -8,50 +8,101 @@ import { ChannelRelationshipType } from '../../models/channel/ChannelRelationshi
 import ChannelCreateForm from '../../components/Forms/channelCreateForm';
 import CreateChannelDto from '../../models/channel/CreateChannel.dto';
 import JoinChannelDto from '../../models/channel/JoinChannel.dto';
+import { useForm } from 'react-hook-form';
+import { ChannelMode } from '../../models/channel/Channel';
 
 
 interface ChannelProps {
 }
 
 interface ChannelStates {
-    
+
 }
 
-class ChannelCreate extends React.Component<ChannelProps, ChannelStates> {
 
-    static contextType = AppContext
 
-    constructor(props: ChannelProps) {
-        super(props);
-        this.state = {
-        };
-    }
+interface ICreateChannelFormValues {
+    channelName: string;
+    mode: ChannelMode;
+    password?: string;
+}
 
-    componentDidUpdate(prevProps: ChannelProps, prevStates: ChannelStates) {
-        // Typical usage (don't forget to compare props):
-        // console.log("Previous list: " + prevStates.list);
-        // console.log("Current list: " + this.state.list);
-        // if (JSON.stringify(prevStates.list) !== JSON.stringify(this.state.list)) {
-        //     this.setFriendAndBlockBoolean(this.state.list); // infinite loop ?
-        // }
-    }
+function ChannelCreate() {
 
-    onSubmit = async (values: CreateChannelDto) => {
+    const {
+        register,
+        handleSubmit,
+        setError,
+        clearErrors,
+        formState: { errors },
+    } = useForm<ICreateChannelFormValues>();
+
+    const onSubmit = async (values: CreateChannelDto) => {
         try {
-            // const data = await axios.get("/api/channels?name=" + values.channelName);
             const data = await axios.post("/api/channels", values);
             console.log(data);
-        } catch (error) { }
-        // this.setState({ channelName: values.channelName });
+        }
+        catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 409) {
+                    const details = error.response.data as {
+                        statusCode: number;
+                        message: string;
+                    };
+                    clearErrors();
+                    setError(
+                        "channelName",
+                        { message: details.message },
+                        { shouldFocus: true }
+                    );
+                } else if (error.response?.status === 402) {
+                    const details = error.response.data as {
+                        statusCode: number;
+                        message: string;
+                    };
+                    clearErrors();
+                    setError(
+                        "password",
+                        { message: details.message },
+                        { shouldFocus: true }
+                    );
+                } else if (error.response?.status === 406) {
+                    const details = error.response.data as {
+                        statusCode: number;
+                        message: string;
+                    };
+                    clearErrors();
+                    setError(
+                        "mode",
+                        { message: details.message },
+                        { shouldFocus: true }
+                    );
+                }
+                else {
+                    const details = error.response?.data as {
+                        statusCode: number;
+                        message: string;
+                    };
+                    clearErrors();
+                    setError(
+                        "channelName",
+                        { message: 'Wrong channel name provided' },
+                        { shouldFocus: true }
+                    );
+                }
+            }
+        }
     };
 
-    render() {
-        return (
-            <div className="">
-                <ChannelCreateForm onSubmit={this.onSubmit} />
-            </div>
-        );
-    }
+    return (
+        <div className="">
+            <ChannelCreateForm
+                onSubmit={onSubmit}
+                errors={errors}
+            />
+        </div>
+    );
 }
+
 
 export default ChannelCreate;
