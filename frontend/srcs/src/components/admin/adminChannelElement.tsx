@@ -13,13 +13,10 @@ import AdminUserElement from "./adminUserElement";
 
 
 const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) => {
-  // console.log("setchannelRelationshipsList")
-
   try {
     const data = await axios.get(
       `/api/channels/${id}`
     );
-    // console.log("setchannelRelationshipsList", data)
     let a = data.data.users.slice();
 
     a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
@@ -36,7 +33,6 @@ const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: 
         channelRelationshipsList: a,
         channel_id: id
       });
-      console.log("a", a)
     }
   } catch (error) { }
 }
@@ -183,7 +179,6 @@ const unsetAdminFromChannel = async (user_id: number, adminChannelElementInfo: C
 
   
 const displayUsersList = (adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) => {
-  // console.log("displayUsersList", adminChannelElementInfo)
   if (adminChannelElementInfo.showUsersList) {
     return (
       <div>
@@ -257,7 +252,6 @@ function AdminChannelElement(props: ChannelElementProps) {
   });
 
   useEffect(() => {
-    console.log("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", props.id, props.myRole)
     setAdminChannelElementInfo({
       ...adminChannelElementInfo,
       channel_id: props.id,
@@ -265,10 +259,6 @@ function AdminChannelElement(props: ChannelElementProps) {
     })
   }, [props.id, props.myRole])
 
-  useEffect(() => {
-    console.log("..........................", adminChannelElementInfo)
-
-  }, [adminChannelElementInfo])
 
   setchannelRelationshipsList(props.id, adminChannelElementInfo, setAdminChannelElementInfo);
 
@@ -278,11 +268,6 @@ function AdminChannelElement(props: ChannelElementProps) {
       changeUsersListButtonState(adminChannelElementInfo, setAdminChannelElementInfo)
     }
   }
-
-
-  console.log("--------- AdminChannelElement - adminChannelElementInfo", adminChannelElementInfo)
-  console.log("--------- AdminChannelElement - props.id", props.id)
-
 
   const displayChannelInformation = () => {
     if (!props.isChannelSettings) {

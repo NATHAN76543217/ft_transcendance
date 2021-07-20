@@ -12,25 +12,26 @@ import { ChatView } from "../../components/chat/ChatView";
 import ChannelCreate from "./channelCreate";
 import ChannelSearch from "./channelSearch";
 import { Channel } from "../../models/channel/Channel";
+import ChannelSettings from "./channelSettings";
 //import ChannelSearch from "./channelSearch";
 
-const getSocket = () => {
-  const token = Cookies.get("Authentication"); // get jwt token from local storage or cookie
+// const getSocket = () => {
+//   const token = Cookies.get("Authentication"); // get jwt token from local storage or cookie
 
-  console.debug("Authentication:", token);
+//   console.debug("Authentication:", token);
 
-  if (token === undefined) return undefined;
+//   if (token === undefined) return undefined;
 
-  console.log("Initiating socket connection...");
+//   console.log("Initiating socket connection...");
 
-  return io("", {
-    path: "/api/socket.io/channels",
-    extraHeaders: { token },
-    rejectUnauthorized: false, // This disables certificate authority verification
-  }).on("authenticated", () => {
-    console.log("Socket connection authenticated!");
-  });
-};
+//   return io("", {
+//     path: "/api/socket.io/channels",
+//     extraHeaders: { token },
+//     rejectUnauthorized: false, // This disables certificate authority verification
+//   }).on("authenticated", () => {
+//     console.log("Socket connection authenticated!");
+//   });
+// };
 
 type ChatPageContextProps = {
   channels: Map<number, Channel>;
@@ -74,7 +75,8 @@ export default function ChatPage({
       value={{
         channels: channels,
         currentChatId: currentChat?.id,
-        socket: getSocket(),
+        socket: undefined,
+        // socket: getSocket(),
       }}
     >
       <div className="flex h-full">
@@ -92,6 +94,7 @@ export default function ChatPage({
             <ChannelCreate />
             {/* <div>Channel Create</div> */}
           </Route>
+          <Route path="/chat/:id/settings" component={ChannelSettings} />
         </div>
         {/* <ChatNavBar></ChatNavBar> */}
         {/* <ChatView className="flex-1"></ChatView> */}

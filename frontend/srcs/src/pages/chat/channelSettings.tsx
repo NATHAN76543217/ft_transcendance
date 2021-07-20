@@ -1,13 +1,12 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, useHistory } from "react-router";
 import AppContext from "../../AppContext";
 import AdminChannelElement from "../../components/admin/adminChannelElement";
-import { Channel, ChannelMode, ChannelUser,  } from "../../models/channel/Channel";
+import { Channel, ChannelMode, ChannelUser, } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import { UserRole } from "../../models/user/IUser";
-import AdminChannels from "./adminChannels";
-import AdminUsers from "./adminUsers";
+import ChannelSettingsProperties from "./channelSettingsProperties";
 
 type ChannelSettingsParams = {
   id: string;
@@ -19,7 +18,8 @@ function ChannelSettings({
   const contextValue = React.useContext(AppContext);
   const channelId = match.params.id !== undefined ? Number(match.params.id) : 4;
 
-  
+  const history = useHistory();
+
   const [channelInfo, setChannelInfo] = useState<Channel>({
     id: 0,
     name: "",
@@ -28,7 +28,7 @@ function ChannelSettings({
     // messages: Message[];
     users: [],
   })
-  
+
   const setChannel = async () => {
     try {
       // const dataChannel = await axios.get(`/api/channels/${channelId}`, {
@@ -36,18 +36,13 @@ function ChannelSettings({
         withCredentials: true,
       });
       // let a = dataChannel.data.slice();
-      dataChannel.data.users.sort((user1: {user: any}, user2: {user: any}) =>
+      dataChannel.data.users.sort((user1: { user: any }, user2: { user: any }) =>
         user1.user.name.localeCompare(user2.user.name)
       );
-
       const myRelationship = dataChannel.data.users.find((user: any) => {
-      return user.user_id === contextValue.user?.id
+        return user.user_id === contextValue.user?.id
       });
-
       const myRole = myRelationship !== undefined ? myRelationship.type : ChannelRelationshipType.null
-
-      console.log("myRelationship", myRelationship)
-
       setChannelInfo({
         id: dataChannel.data.id,
         name: dataChannel.data.name,
@@ -55,43 +50,52 @@ function ChannelSettings({
         myRole: myRole,
         users: dataChannel.data.users
       });
-      console.log("dataChannel.data", dataChannel.data)
-    } catch (error) { console.log("error setChannel") }
+    } catch (error) { }
   };
 
   const destroyChannel = async (id: number) => {
-    try {
-      console.log("Deleting channel " + id);
-      await axios.delete(`/api/channels/${id}`, { withCredentials: true });
-    } catch (error) { }
-    // this.setAllChannels();
+    if (channelInfo.myRole & ChannelRelationshipType.owner) {
+      try {
+        // console.log("Deleting channel " + id);
+        await axios.delete(`/api/channels/${id}`, { withCredentials: true });
+        history.push('/chat')
+      } catch (error) { }
+    } else { }
   };
 
-  // useEffect(() => {
-  //   const test = () => {
-  //     console.log("---------- useEffect", channelInfo)
-  //   }
-  // }, [channelInfo]);
 
   if (channelInfo.id !== channelId) {
     setChannel()
   }
-  // if (true || contextValue.myRole & (UserRole.owner + UserRole.admin)) {
-  return (
-    <div>
-      <AdminChannelElement
-        id={channelInfo.id}
-        name={channelInfo.name}
-        mode={channelInfo.mode}
-        destroyChannel={destroyChannel}
-        isChannelSettings={true}
-        myRole={channelInfo.myRole}
-      />
-    </div>
-  );
-  // } else {
-  //   return <div>You are not a channel administrator.</div>;
-  // }
+  if (channelInfo.myRole & (ChannelRelationshipType.owner + ChannelRelationshipType.admin)) {
+    return (
+      <div>
+        <ChannelSettingsProperties
+          id={channelInfo.id}
+          name={channelInfo.name}
+          mode={channelInfo.mode}
+          destroyChannel={destroyChannel}
+          isChannelSettings={true}
+          myRole={channelInfo.myRole}
+        />
+        <div>
+          <h2 className="mt-12 text-3xl font-bold text-center">
+            Channel Users
+            </h2>
+          <AdminChannelElement
+            id={channelInfo.id}
+            name={channelInfo.name}
+            mode={channelInfo.mode}
+            destroyChannel={destroyChannel}
+            isChannelSettings={true}
+            myRole={channelInfo.myRole}
+          />
+        </div>
+      </div>
+    );
+  } else {
+    return <div>You are not a channel administrator.</div>;
+  }
 }
 
 

@@ -21,10 +21,6 @@ type UserElementProps = {
 };
 
 function displayRole(role: UserRole | ChannelRelationshipType) {
-  // axios.patch("/api/users/1", { "role": 2 });
-
-  console.log("displayRole", role)
-
   const divClass = "italic text-sm ";
   switch (role) {
     case UserRole.owner:
@@ -108,12 +104,7 @@ function displayMuteButton(user: UserElementProps) {
   const unmuteUser = async (id: number) => {
     await user.unmuteUser(id, user.adminInfo, user.setAdminInfo);
   };
-
-  console.log("displayMuteButton", user.role)
-  console.log("displayMuteButton - 2", ChannelRelationshipType.muted)
-
   if (user.isChannelUserElement) {
-
     return (
       <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
         {isMyRoleAbove(user) ? (
