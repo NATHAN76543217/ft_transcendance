@@ -127,15 +127,18 @@ export default class ChannelsService {
   ) {
     const maxCount = 20;
 
-    return this.messageRepository
+    const query = this.messageRepository
       .createQueryBuilder('message')
       .where('message.channel_id = :channelId', { channelId })
-      .andWhere('message.id > :afterId', { afterId })
-      .where('message.id < :beforeId', { beforeId })
       .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
-      .take(maxCount)
-      .getMany();
-    // TODO: Get messages with message gt afterId
+      .take(maxCount);
+
+    if (beforeId !== undefined && !isNaN(beforeId))
+      query.andWhere('message.id < :beforeId', { beforeId });
+    if (afterId !== undefined && !isNaN(afterId))
+      query.andWhere('message.id > :afterId', { afterId });
+
+    return query.getMany();
   }
 
   // TODO: Rename all functions to exclude service name and provide uesful info
