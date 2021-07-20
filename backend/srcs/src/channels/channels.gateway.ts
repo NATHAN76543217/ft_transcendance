@@ -104,7 +104,9 @@ export class ChannelsGateway
     ) {
       const message = await this.messageService.createMessage(body, author.id);
 
-      this.server.to(channel.id.toFixed()).emit(JSON.stringify(message));
+      this.server
+        .to(channel.id.toFixed())
+        .emit('message', JSON.stringify(message));
       this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
     } else {
       this.logger.debug(`${author.name}: ${body.data}`);
