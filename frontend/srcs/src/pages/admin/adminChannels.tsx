@@ -150,6 +150,8 @@ class AdminChannels extends React.Component<
                       name={channel.name}
                       mode={channel.mode}
                       destroyChannel={this.destroyChannel}
+                      isChannelSettings={false}
+                      myRole={ChannelRelationshipType.owner}
                     />
                   </li>
                 );

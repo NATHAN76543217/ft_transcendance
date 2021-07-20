@@ -1,14 +1,18 @@
 import { NavLink } from "react-router-dom";
+import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import { UserRole } from "../../models/user/IUser";
 import CustomButton from "../utilities/CustomButton";
 
 type UserElementProps = {
   id: number;
   name: string;
-  role: UserRole;
-  myRole?: UserRole;
+  role: UserRole | ChannelRelationshipType;
+  myRole?: UserRole | undefined | ChannelRelationshipType;
   banUser: any;
   unbanUser: any;
+  muteUser: any;
+  unmuteUser: any;
+  kickUser: any;
   setAdmin: any;
   unsetAdmin: any;
   isChannelUserElement?: boolean | false;
@@ -16,8 +20,10 @@ type UserElementProps = {
   setAdminInfo: any;
 };
 
-function displayRole(role: UserRole) {
+function displayRole(role: UserRole | ChannelRelationshipType) {
   // axios.patch("/api/users/1", { "role": 2 });
+
+  console.log("displayRole", role)
 
   const divClass = "italic text-sm ";
   switch (role) {
@@ -29,6 +35,8 @@ function displayRole(role: UserRole) {
       return <div className={divClass + "text-green-600"}>Admin</div>;
     case UserRole.ban:
       return <div className={divClass + "text-red-600"}>Banned</div>;
+    case ChannelRelationshipType.muted:
+      return <div className={divClass + "text-purple-600"}>Muted</div>;
     default:
       return <div className={divClass + "text-gray-700"}>standard</div>;
   }
@@ -37,9 +45,6 @@ function displayRole(role: UserRole) {
 function isMyRoleAbove(user: UserElementProps) {
   let myRole = user.myRole;
   let role = user.role;
-  if (user.isChannelUserElement) {
-    return true;
-  }
   if (myRole !== undefined && myRole & UserRole.owner && !(role & UserRole.owner)) {
     return true;
   }
@@ -67,7 +72,7 @@ function displayBanButton(user: UserElementProps) {
       {isMyRoleAbove(user) ? (
         !(user.role & UserRole.ban) ? (
           <CustomButton
-            content="Ban user"
+            content="Ban"
             // url="/users/block"
             onClickFunctionId={banUser}
             argId={user.id}
@@ -78,7 +83,7 @@ function displayBanButton(user: UserElementProps) {
           />
         ) : (
           <CustomButton
-            content="Unban user"
+            content="Unban"
             // url="/users/unblock"
             onClickFunctionId={unbanUser}
             argId={user.id}
@@ -93,6 +98,83 @@ function displayBanButton(user: UserElementProps) {
       )}
     </div>
   );
+}
+
+function displayMuteButton(user: UserElementProps) {
+  const muteUser = async (id: number) => {
+    await user.muteUser(id, user.adminInfo, user.setAdminInfo);
+  };
+
+  const unmuteUser = async (id: number) => {
+    await user.unmuteUser(id, user.adminInfo, user.setAdminInfo);
+  };
+
+  console.log("displayMuteButton", user.role)
+  console.log("displayMuteButton - 2", ChannelRelationshipType.muted)
+
+  if (user.isChannelUserElement) {
+
+    return (
+      <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
+        {isMyRoleAbove(user) ? (
+          !(user.role & ChannelRelationshipType.muted) ? (
+            <CustomButton
+              content="Mute"
+              // url="/users/block"
+              onClickFunctionId={muteUser}
+              argId={user.id}
+              bg_color="bg-purple-400"
+              // bg_hover_color="bg-secondary-dark"
+              dark_text
+              text_size="text-sm"
+            />
+          ) : (
+            <CustomButton
+              content="Unmute"
+              // url="/users/unblock"
+              onClickFunctionId={unmuteUser}
+              argId={user.id}
+              bg_color="bg-secondary"
+              // bg_hover_color="bg-unset-dark"
+              dark_text
+              text_size="text-sm"
+            />
+          )
+        ) : (
+          <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
+        )}
+      </div>
+    );
+  }
+}
+
+function displayKickButton(user: UserElementProps) {
+  const kickUser = async (id: number) => {
+    await user.kickUser(id, user.adminInfo, user.setAdminInfo);
+  };
+
+  if (user.isChannelUserElement) {
+    return (
+      <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
+        {isMyRoleAbove(user) ? (
+
+          <CustomButton
+            content="Kick"
+            // url="/users/block"
+            onClickFunctionId={kickUser}
+            argId={user.id}
+            bg_color="bg-unset"
+            // bg_hover_color="bg-secondary-dark"
+            dark_text
+            text_size="text-sm"
+          />
+
+        ) : (
+          <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
+        )}
+      </div>
+    );
+  }
 }
 
 function displayAdminButton(user: UserElementProps) {
@@ -160,6 +242,8 @@ function AdminUserElement(user: UserElementProps) {
       </div>
       <div className={"flex w-56"}>
         {displayAdminButton(user)}
+        {displayMuteButton(user)}
+        {displayKickButton(user)}
         {displayBanButton(user)}
       </div>
     </div>

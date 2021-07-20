@@ -8,10 +8,12 @@ import { UserRelationshipType } from "./UserRelationship";
 export enum UserRole {
   null = 0,
 
-  admin = 1 << 0,
   owner = 1 << 1,
+  admin = 1 << 2,
 
-  ban = 1 << 2,
+  ban = 1 << 4,
+
+  // muted = 1 << 5
 }
 
 export enum UserStatus {

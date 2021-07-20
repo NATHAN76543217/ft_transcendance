@@ -34,5 +34,7 @@ export type Channel = {
 
   // messages: Message[];
 
+  myRole: ChannelRelationshipType;
+
   users: ChannelUserRelationship[];
 };

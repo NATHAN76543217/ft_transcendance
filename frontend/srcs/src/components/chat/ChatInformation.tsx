@@ -217,7 +217,7 @@ function ChannelInformation(channel: ChannelProps) {
 
         <div className="w-40 mx-2 text-center">
           <NavLink
-            to={"/channels/" + channel.id}
+            to={"/chat/" + channel.id}
             className="relative text-xl font-bold"
           >
             {channel.name}
