@@ -69,6 +69,8 @@ export default class ChannelsController {
   async getMessagesById(
     @Req() req: RequestWithUser,
     @Param('id') channelId: string,
+    @Query('beforeId') beforeId: string,
+    @Query('afterId') afterId: string,
   ) {
     const channel = await this.channelsService.getChannelById(
       Number(channelId),
@@ -78,8 +80,8 @@ export default class ChannelsController {
     if (abilities.can(ChannelAction.Read, channel))
       return this.channelsService.getMessagesById(
         channel.id,
-        Number(req.params['beforeId']),
-        Number(req.params['afterId']),
+        beforeId ? Number(beforeId) : undefined,
+        afterId ? Number(afterId) : undefined,
       );
     throw new HttpException('TODO: Unauthorized read', 400);
   }
