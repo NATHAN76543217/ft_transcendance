@@ -51,9 +51,14 @@ export default function Login({ match }: LoginPageProps) {
       );
       // console.log("data Update login: ",dataUpdate)
 
-      const url = match.params.redirPath
-        ? urljoin("/", match.params.redirPath)
+      const redirPath = data.imgPath === 'default-profile-picture.png' ? 'users' : ''
+
+      const url = redirPath
+        ? urljoin("/", redirPath)
         : "/";
+      // const url = match.params.redirPath
+      // ? urljoin("/", match.params.redirPath)
+      // : "/";
       console.log(`Redirecting to ${url}...`);
       history.push(url);
     } catch (error) {

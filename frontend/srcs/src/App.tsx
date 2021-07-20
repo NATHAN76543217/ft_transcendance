@@ -28,6 +28,7 @@ import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import Test from "./pages/test/test";
 import Loading from "./components/loading/loading";
+import { getAllByPlaceholderText } from "@testing-library/react";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -81,7 +82,11 @@ class App extends React.Component<AppProps, AppState> {
         this.setUser(user);
       }
 
-      window.location.href = "/";
+      if (user.imgPath === 'default-profile-picture.png') {
+        window.location.href = "/users";
+      } else {
+        window.location.href = "/";
+      }
     });
 
     const dataUpdate = axios.patch(
@@ -90,7 +95,7 @@ class App extends React.Component<AppProps, AppState> {
     );
     // console.log("data Update login: ",dataUpdate)
 
-    return <Loading/>
+    return <Loading />
     // return <p>You will be redirected soon</p>;
   };
 
@@ -177,7 +182,7 @@ class App extends React.Component<AppProps, AppState> {
 
   getSocket = () => {
     console.log("Users - Initiating socket connection...");
-  
+
     const socket = io("", {
       path: "/api/socket.io/users",
       rejectUnauthorized: false, // This disables certificate authority verification
@@ -222,7 +227,7 @@ class App extends React.Component<AppProps, AppState> {
                 <h3>App is healthy!</h3>
               </Route>
               <Route path="/test">
-                <Test/>
+                <Test />
               </Route>
               <Route>
                 <Header />

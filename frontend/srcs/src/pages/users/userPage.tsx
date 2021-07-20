@@ -9,6 +9,7 @@ import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import AppContext from "../../AppContext";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import UserPageState from "../../models/user/UserPageState";
+import UserWelcome from "../../components/users/userWelcome";
 
 
 
@@ -386,6 +387,13 @@ function UserPage({
 
   return (
     <div className="">
+      <section>
+        <UserWelcome
+          name={userInfo.user.name}
+          isMe={isMe}
+          imgPath={userInfo.user.imgPath}
+        />
+      </section>
       <section className="relative w-full">
         <UserInformation
           id={userInfo.user.id}
