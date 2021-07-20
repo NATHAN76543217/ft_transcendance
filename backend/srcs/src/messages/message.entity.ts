@@ -1,28 +1,46 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Timestamp, UpdateDateColumn, ManyToOne } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import Channel from '../channels/channel.entity';
 
+export enum MessageType {
+  Text,
+  GameInvite,
+  GameSpectate,
+  FriendInvite,
+  RoleUpdate,
+}
+
 @Entity()
-export default class Message {
-    @PrimaryGeneratedColumn()
-    public id: number;
-    
-    @Column()
-    public id_sender: number;
+export class Message {
+  @PrimaryGeneratedColumn()
+  public id: number;
 
-    @Column({ nullable: true })
-    public id_chan: number;
+  @Column()
+  public sender_id: number;
 
-    @CreateDateColumn()
-    public created_at: Date;
+  @Column()
+  public channel_id: number;
 
-    @UpdateDateColumn()
-    public updated_at: Date;
+  @CreateDateColumn()
+  public created_at: Date;
 
-    // TODO: Check if this can be empty
-    @Column()
-    public text: string;
+  @UpdateDateColumn()
+  public updated_at: Date;
 
-    @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
-    public channel: Channel;
-    // should we keep the 'id_chan' above ? I don't think so
+  @Column({ type: 'enum', enum: MessageType, default: MessageType.Text })
+  public type: MessageType;
+
+  @Column()
+  public data: string;
+
+  @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
+  @JoinColumn({ name: 'channel_id', referencedColumnName: 'id' })
+  public channel: Channel;
 }

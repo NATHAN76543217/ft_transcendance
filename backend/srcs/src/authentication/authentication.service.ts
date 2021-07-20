@@ -69,28 +69,25 @@ export class AuthenticationService {
     }
   }
 
-  public async getUserFromAuthenticationToken(token: string) {
-    const payload: TokenPayload = this.jwtService.verify(token, {
-      secret: this.configService.get('JWT_SECRET'),
-    });
+  public async getUserFromAuthenticationToken(
+    token: string,
+    withChannels = false,
+  ) {
+    const payload: TokenPayload = this.jwtService.verify(token);
 
-    if (payload.userId) {
-      return this.usersService.getUserById(payload.userId);
-    }
+    return this.usersService.getUserById(payload.userId, withChannels);
   }
 
   public getCookieWithJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    Logger.debug(`payload = ${userId.toFixed()}`);
+    const expirationTime = this.configService.get('JWT_EXPIRATION_TIME');
+
     const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
-    )}; SameSite=None; Secure`;
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${expirationTime}; SameSite=None; Secure`;
   }
 
   public getJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
-    Logger.debug(`payload = ${userId.toFixed()}`);
     const token = this.jwtService.sign(payload);
     return token;
   }

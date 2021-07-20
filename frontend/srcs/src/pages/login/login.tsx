@@ -38,8 +38,7 @@ export default function Login({ match }: LoginPageProps) {
     try {
       const { data } = await axios.post<AuthenticatedUser>(
         "/api/authentication/login",
-        { name: values.username, password: values.password },
-        { withCredentials: true }
+        { name: values.username, password: values.password }
       );
       console.log("Setting user data: ", data);
 

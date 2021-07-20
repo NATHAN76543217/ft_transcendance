@@ -12,6 +12,13 @@ import ChannelsService from './channels.service';
 import { Socket, Server } from 'socket.io';
 import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { SocketWithUser } from 'src/authentication/socketWithUser.interface';
+import CreateMessageDto from 'src/messages/dto/createMessage.dto';
+import {
+  ChannelAction,
+  ChannelCaslAbilityFactory,
+} from './channel-casl-ability.factory';
+import MessageService from 'src/messages/messages.service';
+import { MessageType } from 'src/messages/message.entity';
 
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/channels' })
@@ -26,14 +33,15 @@ export class ChannelsGateway
   constructor(
     @Inject(forwardRef(() => ChannelsService))
     private readonly channelsService: ChannelsService,
+    private readonly messageService: MessageService,
+    private readonly abilityFactory: ChannelCaslAbilityFactory,
   ) {}
 
   afterInit(server: Server) {
-    this.logger.debug(`Listening at ${server.path()}`);
+    this.logger.log(`Listening at ${server.path()}`);
   }
 
   async handleConnection(socket: SocketWithUser) {
-    this.logger.debug(`Query: ${JSON.stringify(socket.handshake.query)}`);
     try {
       socket.user = await this.channelsService.getUserFromSocket(socket);
     } catch (e) {
@@ -46,7 +54,7 @@ export class ChannelsGateway
     socket.on('disconnecting', () => {
       // TODO: set offline status
       this.logger.debug(
-        `Client disconnecting with ${socket.rooms.size} joined rooms`,
+        `Client ${socket.user.id} disconnecting with ${socket.rooms.size} joined rooms`,
       );
 
       socket.rooms.forEach((r) => {
@@ -59,15 +67,16 @@ export class ChannelsGateway
     // TODO: Maybe join self named channel to receive friend invitations etc...
     // Join user channels
     socket.user.channels.forEach((c) => {
-      const channel = c.channel_id.toString();
+      const channel = c.channel!.id.toFixed();
 
       socket.join(channel);
       // TODO: Check which data to send on join
+      // TODO: Use a status event and set connected as its value
       socket.to(channel).emit('connected', { username: socket.user.name });
     });
 
     this.logger.debug(
-      `Client connected with ${socket.rooms.size} joined rooms`,
+      `Client ${socket.user.id} connected with ${socket.rooms.size} joined rooms`,
     );
 
     return { event: 'connected' };
@@ -82,16 +91,26 @@ export class ChannelsGateway
 
   @SubscribeMessage('message')
   async handleMessage(
-    @ConnectedSocket() socket: Socket,
-    @MessageBody() data: string,
+    @ConnectedSocket() socket: SocketWithUser,
+    @MessageBody() body: CreateMessageDto,
   ) {
-    const author = await this.channelsService.getUserFromSocket(socket);
+    const author = socket.user;
+    const channel = await this.channelsService.getChannelById(body.channel_id);
+    const abilities = this.abilityFactory.createForUser(author);
 
-    // TODO: Replace getUser with SocketWithUser
-    // TODO: Broadcast messages by room
-    // TODO: Save messages to repository
+    if (
+      body.type === MessageType.Text &&
+      abilities.can(ChannelAction.Speak, channel)
+    ) {
+      const message = await this.messageService.createMessage(body, author.id);
 
-    this.logger.debug(`${author.name}: ${data}`);
+      this.server
+        .to(channel.id.toFixed())
+        .emit('message', JSON.stringify(message));
+      this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
+    } else {
+      this.logger.debug(`${author.name}: ${body.data}`);
+    }
   }
 
   async closeChannel(id: number) {

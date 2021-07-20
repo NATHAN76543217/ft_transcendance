@@ -87,11 +87,15 @@ export function ChatBarItem({ chat }: ChatBarItemProps) {
   );
 }
 
-export function ChatNavBar() {
+export type ChatNavBarProps = {
+  className: string;
+};
+
+export function ChatNavBar({ className }: ChatNavBarProps) {
   const chatContext = useContext(ChatPageContext);
 
   return (
-    <nav className="flex flex-col w-1/4 h-full bg-white divide-y-4 divide-black divide-double md:w-1/5 p2">
+    <nav className={`flex flex-col divide-black divide-double p2 ${className}`}>
       <div>
         <IconLinkButton name="Find..." icon="fa-search" href="/chat/find" />
         <IconLinkButton
@@ -101,8 +105,8 @@ export function ChatNavBar() {
         />
       </div>
       <ul>
-        {Array.from(chatContext.channels.values()).map((c) => (
-          <li key={c.id}>{ChatBarItem({ chat: c })}</li>
+        {Array.from(chatContext.channelRels.values()).map((rel) => (
+          <li key={rel.channel.id}>{ChatBarItem({ chat: rel.channel })}</li>
         ))}
       </ul>
     </nav>
@@ -110,5 +114,5 @@ export function ChatNavBar() {
 }
 
 ChatNavBar.defaultProps = {
-  chatList: [],
+  className: "",
 };

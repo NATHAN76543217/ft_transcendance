@@ -7,7 +7,7 @@ import {
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { IAbilityFactory } from 'src/authorization/policies.guard';
-import User from 'src/users/user.entity';
+import User from 'src/users/user.interface';
 import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
 import Channel from './channel.entity';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
@@ -23,7 +23,7 @@ export enum ChannelAction {
   Delete = 'delete',
 }
 
-type Subjects = InferSubjects<typeof Channel | typeof User> | 'all';
+type Subjects = InferSubjects<typeof Channel | User> | 'all';
 
 export type ChannelAbility = Ability<[ChannelAction, Subjects]>;
 

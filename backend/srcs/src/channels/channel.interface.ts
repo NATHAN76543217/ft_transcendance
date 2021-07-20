@@ -1,3 +1,5 @@
+import { ChannelModeTypes } from './utils/channelModeTypes';
+
 export default interface Channel {
   id: number;
 
@@ -5,7 +7,7 @@ export default interface Channel {
 
   password: string;
 
-  mode: string;
+  mode: ChannelModeTypes;
 
   // messages: Message[];
 

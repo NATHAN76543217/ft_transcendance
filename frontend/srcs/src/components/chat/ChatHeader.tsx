@@ -9,9 +9,10 @@ type ChatHeaderProps = {
 export function ChatHeader({ children }: ChatHeaderProps) {
   const chatContext = useContext(ChatPageContext);
 
-  const currentChat = chatContext.currentChatId
-    ? chatContext.channels.get(chatContext.currentChatId)
-    : undefined;
+  const currentChat =
+    chatContext.currentChannelRel !== undefined
+      ? chatContext.currentChannelRel.channel
+      : undefined;
 
   if (currentChat) {
     return (

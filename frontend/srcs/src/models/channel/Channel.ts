@@ -25,6 +25,18 @@ export type ChannelUserRelationship =
       user: ChannelUser;
     };
 
+export enum MessageType {}
+// TODO
+
+export type Message = {
+  id: number;
+  type: MessageType;
+  data: string;
+  channel_id: number;
+  sender_id: number;
+  created_at: Date;
+};
+
 export type Channel = {
   id: number;
 
@@ -32,9 +44,11 @@ export type Channel = {
 
   mode: ChannelMode;
 
-  // messages: Message[];
+  messages: Message[];
 
   myRole: ChannelRelationshipType;
 
   users: ChannelUserRelationship[];
 };
+// This should be in the Channel relationship itself (backend)
+//export type ChannelMetadata = Channel | { id: number } & { lastReadMessageId: number, lastReceivedMessageId: number };

@@ -3,7 +3,7 @@ import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createQueryBuilder, Like, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
 import { Socket } from 'socket.io';
 import { AuthenticationService } from 'src/authentication/authentication.service';
@@ -18,6 +18,8 @@ import ChannelAlreadyExist from './exception/ChannelAlreadyExist.exception';
 import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
 import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
+import { Message } from 'src/messages/message.entity';
+import { parse } from 'cookie';
 
 @Injectable()
 export default class ChannelsService {
@@ -27,24 +29,23 @@ export default class ChannelsService {
     private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(ChannelRelationship)
     private readonly channelRelationshipRepository: Repository<ChannelRelationship>,
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
     @Inject(forwardRef(() => ChannelsGateway))
     private readonly channelsGateway: ChannelsGateway,
   ) {}
 
-  async getUserFromSocket(socket: Socket): Promise<User> {
-    const logger = new Logger();
-    logger.debug(
-      `headers: ${JSON.stringify(
-        socket.handshake.headers,
-      )}, query: ${JSON.stringify(socket.handshake.query)}`,
-    );
-    const token = socket.handshake.headers.token as string | undefined;
+  async getUserFromSocket(socket: Socket, withChannels = true): Promise<User> {
+    const cookie = socket.handshake.headers.cookie ?? '';
+    const { Authentication: token } = parse(cookie);
 
     if (!token) throw new WsException('Missing token.');
-    logger.debug('auth token: ' + token);
 
     const user =
-      await this.authenticationService.getUserFromAuthenticationToken(token);
+      await this.authenticationService.getUserFromAuthenticationToken(
+        token,
+        withChannels,
+      );
 
     if (!user) {
       throw new WsException('Invalid token.');
@@ -117,6 +118,27 @@ export default class ChannelsService {
     if (!isPasswordMatching) {
       throw new ChannelWrongPassword();
     }
+  }
+
+  async getMessagesById(
+    channelId: number,
+    beforeId?: number,
+    afterId?: number,
+  ) {
+    const maxCount = 20;
+
+    const query = this.messageRepository
+      .createQueryBuilder('message')
+      .where('message.channel_id = :channelId', { channelId })
+      .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
+      .take(maxCount);
+
+    if (beforeId !== undefined && !isNaN(beforeId))
+      query.andWhere('message.id < :beforeId', { beforeId });
+    if (afterId !== undefined && !isNaN(afterId))
+      query.andWhere('message.id > :afterId', { afterId });
+
+    return query.getMany();
   }
 
   // TODO: Rename all functions to exclude service name and provide uesful info

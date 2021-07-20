@@ -54,8 +54,6 @@ function Header() {
   const { user } = useContext(AppContext);
 
   //TODO replace logout button redirection by a query to /apip/authentication/api
-
-  console.log("Header user authenticated:", user !== undefined);
   return (
     <header className="relative z-30 flex flex-row items-center justify-between w-full h-12 bg-primary">
       <span className="block px-4 text-4xl font-bold">ft_pong</span>

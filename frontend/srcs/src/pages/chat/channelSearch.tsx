@@ -1,30 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 // import Button from '../../components/utilities/Button';
 import ChannelSearchForm from "../../components/Forms/channelSearchForm";
 import axios from "axios";
 import ChannelSearchDto from "../../models/channel/ChannelSearch.dto";
 import ChatInformation from "../../components/chat/ChatInformation";
-import {
-  ChannelRelationship,
-  ChannelRelationshipType,
-} from "../../models/channel/ChannelRelationship";
+import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import AppContext from "../../AppContext";
 import ChannelSearchState from "../../models/channel/ChannelSearchState";
 import { IAppContext } from "../../IAppContext";
 import { Channel } from "../../models/channel/Channel";
 
-import JoinChannelDto from '../../models/channel/JoinChannel.dto'
-
-
 const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
   try {
-    const data = await axios.get(
-      `/api/channels/${id}`
-    );
+    const data = await axios.get(`/api/channels/${id}`);
 
     let indexData = data.data.users.findIndex(
-      (channelRelation: any) => Number(channelRelation.user_id) === Number(contextValue.user?.id) // Number ?
+      (channelRelation: any) =>
+        Number(channelRelation.user_id) === Number(contextValue.user?.id) // Number ?
     );
     if (indexData !== -1) {
       return data.data.users[indexData].type;
@@ -34,7 +27,7 @@ const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
   } catch (error) {
     return ChannelRelationshipType.null;
   }
-}
+};
 
 // const setJoinBoolean = async (searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
 
@@ -67,7 +60,12 @@ const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
 //   });
 // }
 
-const onSubmit = async (values: ChannelSearchDto, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
+const onSubmit = async (
+  values: ChannelSearchDto,
+  searchInfo: ChannelSearchState,
+  setSearchInfo: any,
+  contextValue: IAppContext
+) => {
   try {
     const data = await axios.get("/api/channels?name=" + values.channelName);
     let a = data.data.slice();
@@ -79,16 +77,21 @@ const onSubmit = async (values: ChannelSearchDto, searchInfo: ChannelSearchState
       a[index] = {
         channel: elem,
         relationType: relationshipType,
-      }
+      };
       setSearchInfo({
         list: a,
-        channelName: values.channelName
+        channelName: values.channelName,
       });
-    })
-  } catch (error) { }
+    });
+  } catch (error) {}
 };
 
-const updateRelationshipState = (id: number, newType: ChannelRelationshipType, searchInfo: ChannelSearchState, setSearchInfo: any) => {
+const updateRelationshipState = (
+  id: number,
+  newType: ChannelRelationshipType,
+  searchInfo: ChannelSearchState,
+  setSearchInfo: any
+) => {
   let a = searchInfo.list.slice();
   let index = a.findIndex((elem) => Number(elem.channel.id) === Number(id));
   if (index !== -1) {
@@ -98,13 +101,20 @@ const updateRelationshipState = (id: number, newType: ChannelRelationshipType, s
     list: a,
     channelName: searchInfo.channelName,
   });
-}
+};
 
-const joinChannel = async (id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext, password: string): Promise<boolean> => {
+const joinChannel = async (
+  id: number,
+  searchInfo: ChannelSearchState,
+  setSearchInfo: any,
+  contextValue: IAppContext,
+  password: string
+): Promise<boolean> => {
   try {
     const data = await axios.get(`/api/channels/${id}`);
     let index = data.data.users.findIndex(
-      (channelRelation: any) => channelRelation.user_id === contextValue.user?.id
+      (channelRelation: any) =>
+        channelRelation.user_id === contextValue.user?.id
     );
 
     if (index === -1) {
@@ -113,7 +123,12 @@ const joinChannel = async (id: number, searchInfo: ChannelSearchState, setSearch
         password: password,
         //TODO - add password
       });
-      updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
+      updateRelationshipState(
+        id,
+        ChannelRelationshipType.member,
+        searchInfo,
+        setSearchInfo
+      );
     }
     return true;
   } catch (error) {
@@ -132,23 +147,34 @@ const joinChannel = async (id: number, searchInfo: ChannelSearchState, setSearch
     // });
     // updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
   }
-}
+};
 
-const leaveChannel = async (id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
+const leaveChannel = async (
+  id: number,
+  searchInfo: ChannelSearchState,
+  setSearchInfo: any,
+  contextValue: IAppContext
+) => {
   try {
     const data = await axios.get(`/api/channels/${id}`);
     let index = data.data.users.findIndex(
-      (channelRelation: any) => channelRelation.user_id === contextValue.user?.id
+      (channelRelation: any) =>
+        channelRelation.user_id === contextValue.user?.id
     );
     if (
       index !== -1 &&
       data.data.users[index].type !== ChannelRelationshipType.banned
     ) {
       await axios.delete(`/api/channels/${id}/leave`);
-      updateRelationshipState(id, ChannelRelationshipType.null, searchInfo, setSearchInfo);
+      updateRelationshipState(
+        id,
+        ChannelRelationshipType.null,
+        searchInfo,
+        setSearchInfo
+      );
     }
-  } catch (error) { }
-}
+  } catch (error) {}
+};
 
 // const banUserFromChannel = async (channel_id: number, user_id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
 //   try {
@@ -210,7 +236,6 @@ const leaveChannel = async (id: number, searchInfo: ChannelSearchState, setSearc
 //   } catch (error) { }
 // }
 
-
 // type ChannelInfoForSearch = {
 //   // doesUserExist: boolean,
 //   channel: ChannelSearchState,
@@ -222,8 +247,8 @@ function ChannelSearch() {
 
   const [searchInfo, setSearchInfo] = useState<ChannelSearchState>({
     list: [],
-    channelName: ""
-  })
+    channelName: "",
+  });
 
   // useEffect(() => {
   //   setJoinBoolean(searchInfo, setSearchInfo, contextValue);
@@ -231,17 +256,17 @@ function ChannelSearch() {
 
   const localOnSubmit = (values: ChannelSearchDto) => {
     onSubmit(values, searchInfo, setSearchInfo, contextValue);
-  }
+  };
 
   return (
-    <div className="">
+    <div className="flex-grow">
       <ChannelSearchForm onSubmit={localOnSubmit} />
       <ul>
         {searchInfo.list.map((elem) => {
           let channel = elem.channel;
           if (channel !== undefined) {
             return (
-              <li key={channel?.id} className="relative w-full">
+              <li key={channel?.id} className="relative">
                 <ChatInformation
                   id={channel.id}
                   name={channel.name}
@@ -255,7 +280,7 @@ function ChannelSearch() {
                   setChannelInfo={setSearchInfo}
                 />
               </li>
-            )
+            );
           }
         })}
       </ul>

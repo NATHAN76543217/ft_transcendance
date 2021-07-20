@@ -17,7 +17,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ignoreExpiration: true,
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          Logger.debug(`jwt=${request?.cookies?.Authentication}`);
           if (request?.cookies?.Authentication)
             return request.cookies.Authentication as string;
           return null;
@@ -28,7 +27,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    Logger.debug(`payload userId=${payload.userId}`);
     return await this.userService.getUserById(payload.userId);
   }
 }
