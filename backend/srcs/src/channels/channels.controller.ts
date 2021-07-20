@@ -97,6 +97,9 @@ export default class ChannelsController {
     @Param('userId') user_id: string,
     @Body() channelRelationship: UpdateChannelRelationshipDto,
   ) {
+
+    console.log("--------------", channelRelationship)
+
     const channel = await this.channelsService.getChannelById(
       Number(channel_id),
     );
@@ -216,6 +219,33 @@ export default class ChannelsController {
     return this.channelsService.deleteChannelRelationship(
       Number(channelId),
       req.user.id,
+    );
+  }
+
+  @Delete(':channel_id/kick/:user_id')
+  async kickFromChannel(
+    @Req() req: RequestWithUser,
+    @Param('channel_id') channelId: string,
+    @Param('user_id') userId: string,
+  ) {
+    const relationship = await this.channelsService.getChannelRelationship(
+      Number(channelId),
+      Number(userId),
+    );
+    const sanction = relationship.type & ChannelRelationshipType.sanctioned;
+
+    if (sanction) {
+      // A sanctioned user is not deleted from relationships
+      return this.channelsService.updateChannelRelationship(
+        Number(channelId),
+        Number(userId),
+        sanction,
+      );
+    }
+
+    return this.channelsService.deleteChannelRelationship(
+      Number(channelId),
+      Number(userId),
     );
   }
 
