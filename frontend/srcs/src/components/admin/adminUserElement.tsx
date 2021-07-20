@@ -41,7 +41,11 @@ function displayRole(role: UserRole | ChannelRelationshipType) {
 function isMyRoleAbove(user: UserElementProps) {
   let myRole = user.myRole;
   let role = user.role;
-  if (myRole !== undefined && myRole & UserRole.owner && !(role & UserRole.owner)) {
+  if (
+    myRole !== undefined &&
+    myRole & UserRole.owner &&
+    !(role & UserRole.owner)
+  ) {
     return true;
   }
   if (
@@ -148,7 +152,6 @@ function displayKickButton(user: UserElementProps) {
     return (
       <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
         {isMyRoleAbove(user) ? (
-
           <CustomButton
             content="Kick"
             // url="/users/block"
@@ -159,7 +162,6 @@ function displayKickButton(user: UserElementProps) {
             dark_text
             text_size="text-sm"
           />
-
         ) : (
           <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
         )}
@@ -177,8 +179,12 @@ function displayAdminButton(user: UserElementProps) {
     await user.unsetAdmin(id, user.adminInfo, user.setAdminInfo);
   };
 
-  if (!(user.role & UserRole.ban) && isMyRoleAbove(user) &&
-    user.myRole !== undefined && user.myRole & UserRole.owner) {
+  if (
+    !(user.role & UserRole.ban) &&
+    isMyRoleAbove(user) &&
+    user.myRole !== undefined &&
+    user.myRole & UserRole.owner
+  ) {
     return (
       <div className="relative inline-flex items-center justify-center w-32 h-6 text-center">
         {!(user.role & UserRole.owner) ? (
@@ -240,5 +246,11 @@ function AdminUserElement(user: UserElementProps) {
     </div>
   );
 }
+
+AdminUserElement.defaultProps = {
+  muteUser: () => {},
+  unmuteUser: () => {},
+  kickUser: () => {},
+};
 
 export default AdminUserElement;
