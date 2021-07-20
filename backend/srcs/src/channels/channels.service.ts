@@ -216,6 +216,19 @@ export default class ChannelsService {
   }
 
   async updateChannel(id: number, channel: UpdateChannelDto) {
+    if (
+      Number(channel.mode) === Number(ChannelModeTypes.protected) &&
+      (channel.password === "" || channel.password === undefined)
+    ) {
+      throw new ChannelMandatoryPassword()
+      // throw new HttpException('TODO: Unauthorized read', 401);
+    }
+    if (Number(channel.mode) !== Number(ChannelModeTypes.protected)) {
+      channel.password = "";
+    } else {
+      const hashedPassword = await bcrypt.hash(channel.password, 10);
+      channel.password = hashedPassword;
+    }
     await this.channelsRepository.update(id, channel);
     const updatedChannel = await this.channelsRepository.findOne(id, {
       relations: ['users'],
