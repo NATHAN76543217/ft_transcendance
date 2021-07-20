@@ -33,9 +33,9 @@ interface IMessageFormValues {
 }
 
 type ChatInputProps = {};
-const sendMessage = (socket: Socket, currentChatId: number, data: string) => {
+const sendMessage = (socket: Socket, channelId: number, data: string) => {
   const message: MessageEventDto = {
-    channel_id: currentChatId,
+    channel_id: channelId,
     type: MessageType.text,
     data,
   };
@@ -61,11 +61,11 @@ export function ChatInput({}: ChatInputProps) {
       onSubmit={handleSubmit((values) => {
         if (
           chatContext.socket !== undefined &&
-          chatContext.currentChatId !== undefined
+          chatContext.currentChannelRel !== undefined
         ) {
           sendMessage(
             chatContext.socket,
-            chatContext.currentChatId,
+            chatContext.currentChannelRel.channel.id,
             values.message
           );
           reset();
@@ -133,18 +133,17 @@ function ChatActions({ userRole, relation }: ChatActionsProps) {
 
 export function ChatView({ className }: ChatViewProps) {
   const appContext = useContext(AppContext);
-  const chatContext = useContext(ChatPageContext);
-  const currentChatId = chatContext.currentChatId!;
+  const { currentChannelRel } = useContext(ChatPageContext);
 
   return (
     <div className={className}>
       <ChatHeader>
         <ChatActions
           userRole={appContext.user?.role}
-          relation={chatContext.channelRels.get(currentChatId)}
-        ></ChatActions>
+          relation={currentChannelRel}
+        />
       </ChatHeader>
-      <ChatMessageList />
+      <ChatMessageList className="flex-grow overflow-scroll bg-gray-300" />
       <ChatInput />
     </div>
   );

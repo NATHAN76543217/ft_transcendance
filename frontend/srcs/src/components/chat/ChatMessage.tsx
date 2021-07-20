@@ -8,21 +8,24 @@ type ChatMessageProps = {
 };
 
 export function ChatMessage({ message }: ChatMessageProps) {
-  const { channelRels: channels } = useContext(ChatPageContext);
-  const sender = channels.get(message.channel_id)?.channel.users.find((rel) => {
-    rel.user.id === message.author_id;
-  })?.user; // TODO: Cleanup and premap this value
+  const { currentChannelRel } = useContext(ChatPageContext);
 
-  const senderImgUrl = sender?.imgPath ?? "TODO: Insert standard img url";
+  const sender = currentChannelRel?.channel.users.find((rel) => {
+    return rel.user.id === message.sender_id;
+  })?.user;
+
+  const senderImgUrl =
+    sender?.imgPath ??
+    "https://st.depositphotos.com/2101611/3925/v/950/depositphotos_39258143-stock-illustration-businessman-avatar-profile-picture.jpg";
   const senderProfileUrl = `/profile/${sender?.id ?? ""}`;
 
   return (
     <div className="flex">
-      <Link className="flex flex-col" to={senderProfileUrl}>
-        <image href={senderImgUrl}></image>
-        {sender?.name ?? "Unknown"}
+      <Link className="flex gap-2 m-2" to={senderProfileUrl}>
+        <img className="w-8" src={senderImgUrl}></img>
+        <span>{sender?.name ?? "Unknown"}</span>
       </Link>
-      {message.data}
+      <span className="">{message.data}</span>
     </div>
   );
 }

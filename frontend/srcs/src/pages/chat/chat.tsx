@@ -27,14 +27,12 @@ const getSocket = () => {
 
 type ChatPageContextProps = {
   channelRels: Map<number, ChannelRelationship>;
-  currentChatId?: number;
+  currentChannelRel?: ChannelRelationship;
   socket?: Socket;
 };
 
 export const ChatPageContext = React.createContext<ChatPageContextProps>({
   channelRels: new Map(), // TODO: Use local storage
-  //currentChatId: undefined, // TODO: Replace with currentChat id
-  //socket: undefined, // TODO: Disconnect on logout, connect on login
 });
 
 type ChatPageParams = {
@@ -60,18 +58,10 @@ export default function ChatPage({
 
   const chatIdParam = Number(match.params.id);
 
-  const [currentChatId, setCurrentChatId] = useState<number | undefined>(
-    !channelRels.get(chatIdParam) ? undefined : chatIdParam
-  );
+  const [currentChannelRel, setCurrentChannelRel] = useState<
+    ChannelRelationship | undefined
+  >(channelRels.get(chatIdParam));
 
-  // We do not want to do this in the frontend
-  // Join initial unreadMessageCount on backend request
-  /*  useEffect(() => {
-    // TODO: Add before after and iterate over all channel relations
-    ///axios.get(`/api/channels/`, )
-  }); */
-
-  // If the user state changes we need to reconnect the socket
   useEffect(() => {
     const newSocket = user?.id !== undefined ? getSocket() : undefined;
 
@@ -86,18 +76,16 @@ export default function ChatPage({
   }, [user?.channels]);
 
   useEffect(() => {
-    if (!isNaN(chatIdParam))
-      setCurrentChatId(!channelRels.get(chatIdParam) ? NaN : chatIdParam);
+    if (!isNaN(chatIdParam)) setCurrentChannelRel(channelRels.get(chatIdParam));
   }, [channelRels, chatIdParam]);
-
   // TODO: Redirect or 404 for invalid id
 
   return (
       <ChatPageContext.Provider
         value={{
-          channelRels: channelRels,
-          currentChatId: currentChatId,
-          socket: socket,
+          channelRels,
+          currentChannelRel,
+          socket,
         }}
       >
         {/*
@@ -111,7 +99,7 @@ export default function ChatPage({
           </Route>
           <Route path="/chat/:id/settings" component={ChannelSettings} />
         <ChatNavBar></ChatNavBar>
-        <ChatView className="flex-col flex-grow"></ChatView>
+        <ChatView className="flex flex-col flex-grow"></ChatView>
       </ChatPageContext.Provider>
   );
 }

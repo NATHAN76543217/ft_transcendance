@@ -33,7 +33,7 @@ export type Message = {
   type: MessageType;
   data: string;
   channel_id: number;
-  author_id: number;
+  sender_id: number;
   created_at: Date;
 };
 
