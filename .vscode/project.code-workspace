@@ -18,6 +18,7 @@
       "**/.git": true,
       "**/.DS_Store": true,
       "node_modules/": true,
-    }
+    },
+    "editor.formatOnSave": true
   }
 }
