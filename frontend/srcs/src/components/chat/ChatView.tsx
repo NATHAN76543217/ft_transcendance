@@ -32,7 +32,10 @@ interface IMessageFormValues {
   message: string;
 }
 
-type ChatInputProps = {};
+type ChatInputProps = {
+  className: string;
+};
+
 const sendMessage = (socket: Socket, channelId: number, data: string) => {
   const message: MessageEventDto = {
     channel_id: channelId,
@@ -45,7 +48,7 @@ const sendMessage = (socket: Socket, channelId: number, data: string) => {
   socket.emit("message", message);
 };
 
-export function ChatInput({}: ChatInputProps) {
+export function ChatInput({ className }: ChatInputProps) {
   const chatContext = useContext(ChatPageContext);
 
   const {
@@ -58,6 +61,7 @@ export function ChatInput({}: ChatInputProps) {
 
   return (
     <form
+      className={`${className}`}
       onSubmit={handleSubmit((values) => {
         if (
           chatContext.socket !== undefined &&
@@ -77,10 +81,14 @@ export function ChatInput({}: ChatInputProps) {
         register={register}
         required={true}
         error={errors.message}
-      ></TextInput>
+      />
     </form>
   );
 }
+
+ChatInput.defaultProps = {
+  className: "",
+};
 
 type UserActionsProps = {
   channelId: number;
@@ -135,16 +143,17 @@ export function ChatView({ className }: ChatViewProps) {
   const appContext = useContext(AppContext);
   const { currentChannelRel } = useContext(ChatPageContext);
 
+  console.log(currentChannelRel);
   return (
-    <div className={className}>
+    <div className={`flex flex-col flex-grow ${className}`}>
       <ChatHeader>
         <ChatActions
           userRole={appContext.user?.role}
           relation={currentChannelRel}
         />
       </ChatHeader>
-      <ChatMessageList className="flex-grow overflow-scroll bg-gray-300" />
-      <ChatInput />
+      <ChatMessageList className="flex-grow overflow-y-scroll bg-gray-300" />
+      <ChatInput className="bg-white" />
     </div>
   );
 }

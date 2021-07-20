@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
-import { Route, RouteComponentProps } from "react-router";
+import { Route, RouteComponentProps, Switch } from "react-router";
 import { io, Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
 
@@ -81,25 +81,25 @@ export default function ChatPage({
   // TODO: Redirect or 404 for invalid id
 
   return (
-      <ChatPageContext.Provider
-        value={{
-          channelRels,
-          currentChannelRel,
-          socket,
-        }}
-      >
-        {/*
-          <Route exact path='/chat/create'>
-              { <ChannelCreate /> }
-                  <div>Channel Create</div>
+    <ChatPageContext.Provider
+      value={{
+        channelRels,
+        currentChannelRel,
+        socket,
+      }}
+    >
+      <div className="flex h-full">
+        <ChatNavBar className="w-1/4 bg-white divide-y-4 md:w-1/5" />
+        <Switch>
+          <Route exact path="./find">
+            <ChannelSearch />
           </Route>
-          */}
-          <Route exact path='/chat/find'>
-            <ChannelSearch/>
+          <Route exact path="./:id?">
+            <ChatView />
           </Route>
-          <Route path="/chat/:id/settings" component={ChannelSettings} />
-        <ChatNavBar></ChatNavBar>
-        <ChatView className="flex flex-col flex-grow"></ChatView>
-      </ChatPageContext.Provider>
+          <Route path="./:id/settings" component={ChannelSettings} />
+        </Switch>
+      </div>
+    </ChatPageContext.Provider>
   );
 }

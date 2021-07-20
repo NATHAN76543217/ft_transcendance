@@ -16,7 +16,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser, UserRole, UserStatus } from "./models/user/IUser";
+import { IUser, UserRole } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -30,17 +30,16 @@ import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import Test from "./pages/test/test";
-import Loading from "./components/loading/loading";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
 
-interface AppProps { }
+interface AppProps {}
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
-    
+
     this.state = {
       relationshipsList: [],
       socket: undefined,
@@ -87,18 +86,18 @@ class App extends React.Component<AppProps, AppState> {
     if (userData !== null) {
       try {
         const user = JSON.parse(userData) as IUser;
-
-        if (user.imgPath === 'default-profile-picture.png') {
+        /* 
+        if (user.imgPath === "default-profile-picture.png") {
           window.location.href = "/users";
         } else {
           window.location.href = "/";
-        }
+        } */
 
         return user;
       } catch {
         localStorage.removeItem("user");
       }
-    };
+    }
 
     /* const dataUpdate = axios.patch(
       `/api/users/${user.id}`,
@@ -140,6 +139,7 @@ class App extends React.Component<AppProps, AppState> {
   };*/
 
   componentDidMount() {
+    this.getCachedUser();
     this.getCurrentUser();
     this.updateAllRelationships();
   }
@@ -154,19 +154,21 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
     if (prevState.user?.toString() !== this.state.user?.toString()) {
-      this.updateAllRelationships()
-    }
-    else if (prevState.relationshipsList.toString() !== this.state.relationshipsList.toString()) {
+      this.updateAllRelationships();
+    } else if (
+      prevState.relationshipsList.toString() !==
+      this.state.relationshipsList.toString()
+    ) {
       this.sortRelationshipsList();
     }
     if (this.state.user !== undefined && this.state.socket === undefined) {
       const newSocket = this.getSocket();
       this.setState({
         ...this.state,
-        socket: newSocket
-      })
+        socket: newSocket,
+      });
     }
-    console.log("state", this.state)
+    console.log("state", this.state);
   }
 
   async updateAllRelationships() {
@@ -182,23 +184,23 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({ relationshipsList: a });
       } else {
         await dataRel.data.map(async (relation: UserRelationship) => {
-          let inf = (Number(relation.user1_id) === Number(this.state.user?.id));
+          let inf = Number(relation.user1_id) === Number(this.state.user?.id);
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
             let index;
             const dataUser = await axios.get("/api/users/" + friendId);
-            console.log("dataUser")
-            console.log(dataUser)
+            console.log("dataUser");
+            console.log(dataUser);
             index = a.push({
               user: dataUser.data,
-              relationshipType: relation.type
+              relationshipType: relation.type,
             });
             // a[index - 1].relationshipType = relation.type;
             this.setState({ relationshipsList: a });
-          } catch (error) { }
+          } catch (error) {}
         });
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   displayAdminRoute(isAdmin: boolean) {
@@ -224,9 +226,6 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     return socket;
-
-    console.log("Users - Ending socket connection initiation...");
-
   };
 
   render() {
@@ -235,10 +234,13 @@ class App extends React.Component<AppProps, AppState> {
       user: this.state.user,
       setUser: this.setUser,
       updateAllRelationships: this.updateAllRelationships,
-      socket: this.state.socket
+      socket: this.state.socket,
     };
 
-    if (this.state.user !== undefined && this.state.user.role === UserRole.ban) {
+    if (
+      this.state.user !== undefined &&
+      this.state.user.role === UserRole.ban
+    ) {
       return (
         <AppContext.Provider value={contextValue}>
           <div className="h-full">
@@ -246,7 +248,7 @@ class App extends React.Component<AppProps, AppState> {
             <BanPage />
           </div>
         </AppContext.Provider>
-      )
+      );
     }
 
     return (
@@ -284,7 +286,7 @@ class App extends React.Component<AppProps, AppState> {
                         >
                           <User />
                         </PrivateRoute>
-                        <Route path="/chat/:id?" component={ChatPage} />
+                        <Route path="/chat" component={ChatPage} />
                         <Route exact path="/login/success">
                           <Redirect to="/" />
                         </Route>
@@ -301,8 +303,8 @@ class App extends React.Component<AppProps, AppState> {
                         </OnlyPublic>
                         {this.displayAdminRoute(
                           // true
-                          (this.state.user?.role === UserRole.admin ||
-                            this.state.user?.role === UserRole.owner)
+                          this.state.user?.role === UserRole.admin ||
+                            this.state.user?.role === UserRole.owner
                         )}
                       </Switch>
                     </main>

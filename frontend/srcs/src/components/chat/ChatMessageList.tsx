@@ -27,9 +27,10 @@ function useChatMessages() {
   const { socket, currentChannelRel } = useContext(ChatPageContext);
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const oldestMessageId = messages.length
+  // This will be used to fetch more past messages
+  /*   const oldestMessageId = messages.length
     ? messages[messages.length - 1].id
-    : undefined;
+    : undefined; */
 
   useEffect(() => {
     socket?.on("message", (data) => {
@@ -45,10 +46,7 @@ function useChatMessages() {
   useEffect(() => {
     async function appendOlderMessages() {
       if (currentChannelRel) {
-        const olderMessages = await fetchMessages(
-          currentChannelRel.channel.id,
-          oldestMessageId
-        );
+        const olderMessages = await fetchMessages(currentChannelRel.channel.id);
         if (olderMessages.length) setMessages(olderMessages);
       }
     }
