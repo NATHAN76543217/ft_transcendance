@@ -286,7 +286,7 @@ class App extends React.Component<AppProps, AppState> {
                         >
                           <User />
                         </PrivateRoute>
-                        <Route path="/chat" component={ChatPage} />
+                        <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
                           <Redirect to="/" />
                         </Route>

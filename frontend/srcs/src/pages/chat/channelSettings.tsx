@@ -81,7 +81,7 @@ function ChannelSettings({
     (ChannelRelationshipType.owner + ChannelRelationshipType.admin)
   ) {
     return (
-      <div>
+      <div className="flex-grow">
         <ChannelSettingsProperties
           id={channelInfo.id}
           name={channelInfo.name}

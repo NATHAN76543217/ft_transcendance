@@ -91,13 +91,14 @@ export default function ChatPage({
       <div className="flex h-full">
         <ChatNavBar className="w-1/4 bg-white divide-y-4 md:w-1/5" />
         <Switch>
-          <Route exact path="./find">
+          <Route exact path="/chat/find">
             <ChannelSearch />
           </Route>
-          <Route exact path="./:id?">
+          <Route path="/chat/:id/settings" component={ChannelSettings} />
+          <Route exact path="/chat/create"></Route>
+          <Route>
             <ChatView />
           </Route>
-          <Route path="./:id/settings" component={ChannelSettings} />
         </Switch>
       </div>
     </ChatPageContext.Provider>
