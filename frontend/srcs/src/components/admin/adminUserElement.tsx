@@ -61,7 +61,7 @@ function displayBanButton(user: UserElementProps) {
   const unbanUser = async (id: number) => {
     await user.unbanUser(id, user.adminInfo, user.setAdminInfo);
   };
-  
+
   return (
     <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
       {isMyRoleAbove(user) ? (
@@ -103,8 +103,9 @@ function displayAdminButton(user: UserElementProps) {
   const unsetAdmin = async (id: number) => {
     await user.unsetAdmin(id, user.adminInfo, user.setAdminInfo);
   };
-  
-  if (!(user.role & UserRole.ban) && isMyRoleAbove(user)) {
+
+  if (!(user.role & UserRole.ban) && isMyRoleAbove(user) &&
+    user.myRole !== undefined && user.myRole & UserRole.owner) {
     return (
       <div className="relative inline-flex items-center justify-center w-32 h-6 text-center">
         {!(user.role & UserRole.owner) ? (
