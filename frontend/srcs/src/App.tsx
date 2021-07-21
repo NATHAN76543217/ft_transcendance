@@ -30,6 +30,7 @@ import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import Test from "./pages/test/test";
+import FailedLogin from "./pages/failedLogin/failedLogin";
 
 let change_bg_color_with_size =
   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -289,6 +290,10 @@ class App extends React.Component<AppProps, AppState> {
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
                           <Redirect to="/" />
+                        </Route>
+                        <Route exact path="/login/failure">
+                          <FailedLogin/>
+                          {/* <Redirect to="/" /> */}
                         </Route>
                         <OnlyPublic
                           isAuth={this.state.user !== undefined}
