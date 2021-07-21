@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { UserRoleTypes } from './utils/userRoleTypes';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import { UserStatus } from './utils/userStatus';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 //@Unique('name', ['name'])
@@ -42,6 +43,12 @@ class User {
 
   @Column({ default: UserRoleTypes.null })
   public role: UserRoleTypes;
+
+  @Column({
+    nullable: true
+  })
+  @Exclude()
+  public currentHashedRefreshToken?: string;
 
   @OneToMany(
     () => ChannelRelationship,

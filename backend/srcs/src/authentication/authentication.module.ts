@@ -11,6 +11,7 @@ import { School42Strategy } from './oauth2/school42/school42.strategy';
 import { GoogleStrategy } from './oauth2/google/google.strategy';
 import { Oauth2Controller } from './oauth2/oauth2.controller';
 import UsersService from 'src/users/users.service';
+import { JwtRefreshTokenStrategy } from './jwt-refresh.strategy';
 
 @Module({
   imports: [
@@ -22,9 +23,9 @@ import UsersService from 'src/users/users.service';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        verifyOptions: {
-          ignoreExpiration: true, // TODO: Remove in production!
-        },
+        // verifyOptions: {
+        //   ignoreExpiration: true, // TODO: Remove in production!
+        // },
         signOptions: {
           expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
         },
@@ -35,6 +36,7 @@ import UsersService from 'src/users/users.service';
     AuthenticationService,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshTokenStrategy,
     School42Strategy,
     GoogleStrategy,
   ],

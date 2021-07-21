@@ -9,6 +9,8 @@ import {
   Get,
   Inject,
   forwardRef,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import RegisterWithPassword from './dto/registerWithPassword.dto';
@@ -21,14 +23,27 @@ import { ApiCookieAuth } from '@nestjs/swagger';
 import { UserStatus } from 'src/users/utils/userStatus';
 import UsersService from 'src/users/users.service';
 import { UsersGateway } from 'src/users/users.gateway';
+import JwtRefreshGuard from './jwt-refresh.guard';
 
 @Controller('authentication')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthenticationController {
   constructor(
     private readonly authenticationService: AuthenticationService,
     @Inject(forwardRef(() => UsersGateway))
     private readonly usersGateway: UsersGateway,
+    @Inject(forwardRef(() => UsersService))
+    private readonly usersService: UsersService,
   ) {}
+
+  @UseGuards(JwtRefreshGuard)
+  @Get('refresh')
+  refresh(@Req() request: RequestWithUser) {
+    const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(request.user.id);
+ 
+    request.res.setHeader('Set-Cookie', accessTokenCookie);
+    return request.user;
+  }
 
   @Post('registerWithPassword')
   async registerWithPassword(@Body() registrationData: RegisterWithPassword) {
@@ -43,8 +58,13 @@ export class AuthenticationController {
     @Res() response: Response,
   ) {
     const { user } = request;
-    const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
-    response.setHeader('Set-Cookie', cookie);
+    const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(user.id);
+
+    const refreshTokenCookie = this.authenticationService.getCookieWithJwtRefreshToken(user.id);
+    await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+
+    // response.setHeader('Set-Cookie', cookie);
+    request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
     user.password = undefined;
     user.status = UserStatus.online;
     response.send(user);
@@ -55,14 +75,13 @@ export class AuthenticationController {
   @Post('logout')
   @HttpCode(200)
   @UseGuards(JwtAuthenticationGuard)
-  async logOut(@Res() response: Response) {
+  async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+    await this.usersService.removeRefreshToken(request.user.id);
+    request.res.setHeader('Set-Cookie', this.authenticationService.getCookieForLogOut());
+    
     // It doesn't hurt to reset cookies
-    response.setHeader(
-      'Set-Cookie',
-      this.authenticationService.getCookieForLogOut(),
-    );
     response.send();
-    this.usersGateway.server.emit('disconnection');
+    // this.usersGateway.server.emit('disconnection');
   }
 
   @Get()

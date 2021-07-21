@@ -16,6 +16,7 @@ import { WsException } from '@nestjs/websockets';
 import { UsersGateway } from './users.gateway';
 import { UserRoleTypes } from './utils/userRoleTypes';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export default class UsersService {
@@ -52,6 +53,21 @@ export default class UsersService {
       console.log(error)
     }
   }
+
+
+  async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
+    const user = await this.getUserById(userId);
+ 
+    const isRefreshTokenMatching = await bcrypt.compare(
+      refreshToken,
+      user.currentHashedRefreshToken
+    );
+ 
+    if (isRefreshTokenMatching) {
+      return user;
+    }
+  }
+
 
   async getAllUsers(name: string) {
     // const user = await this.getUserById(1);
@@ -200,4 +216,20 @@ export default class UsersService {
       throw new UserNotFound(Number(id));
     }
   }
+
+
+  async setCurrentRefreshToken(refreshToken: string, userId: number) {
+    const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.usersRepository.update(userId, {
+      currentHashedRefreshToken: currentHashedRefreshToken
+      // currentHashedRefreshToken
+    });
+  }
+
+  async removeRefreshToken(userId: number) {
+    return this.usersRepository.update(userId, {
+      currentHashedRefreshToken: null
+    });
+  }
+
 }

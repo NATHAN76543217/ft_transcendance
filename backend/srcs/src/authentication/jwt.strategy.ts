@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       // TODO: Remove this for production!
-      ignoreExpiration: true,
+      // ignoreExpiration: true,
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
           if (request?.cookies?.Authentication)
