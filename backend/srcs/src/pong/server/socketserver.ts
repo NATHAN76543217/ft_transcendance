@@ -474,3 +474,32 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         return { idPlayerOne: room.idPlayerOne, idPlayerTwo: room.idPlayerTwo };
     }
 }
+
+// TO DO:
+/*
+React elements:
+- Use same room as pong for encapsulate handlers
+- Use acknowledgement for syncronization stuff (last arg is a callback)
+
+Pong:
+- Use volatile events for positions share/receive
+- Use a room for each game (room use in React elements )
+- Redirect path to room id in url
+
+MatchMaking:
+- onClick "Find Game" => join queue ; wait until match (send a verification event each second)
+    ; when a match is found => display ready button (players have a timeout to click on it (in the server and the client))
+    ; onClick "Ready" -> both sides ? go to pong : timeout (wait until next match found) ;
+
+Custom Game:
+- Seems ok as is it
+
+Spectator:
+- Join a room
+- Go to pong
+
+HOW TO REIMPLEMENT:
+- Emit both sides and construct handler in both sides, as easy as that.
+- Be careful an use wiselly the rooms.
+
+*/
