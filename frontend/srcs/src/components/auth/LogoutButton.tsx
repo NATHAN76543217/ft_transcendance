@@ -12,7 +12,7 @@ export default function LogoutButton() {
     try {
       const dataUpdate = await axios.patch(
         `/api/users/${userId}`,
-        { status: UserStatus.offline },
+        { status: UserStatus.Offline },
         // { withCredentials: true }
       );
       console.log("data Update logout: ",dataUpdate)

@@ -3,9 +3,8 @@ import { NavLink } from "react-router-dom";
 import { ChannelMode } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import { IAppContext } from "../../IAppContext";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AppContext from "../../AppContext";
-import Button from "../utilities/Button";
 
 type ChannelProps = {
   id: number; // optional ?
@@ -90,11 +89,11 @@ function displayChannelPicture(channel: ChannelProps) {
 
 function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, password: string, setPassword: any, showWrongPassword: boolean, setShowWrongPassword: any, showPassword: boolean, setShowPassword: any) {
   let isInChannel = !(
-    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.null) ||
-    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.banned) ||
-    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.invited)
+    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.Member) ||
+    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.Banned) ||
+    Number(channel.relationshipTypes) === Number(ChannelRelationshipType.Invited)
   );
-  let isBan = channel.relationshipTypes === ChannelRelationshipType.banned;
+  let isBan = channel.relationshipTypes === ChannelRelationshipType.Banned;
 
   const joinChannel = async (channelPassword: string): Promise<boolean> => {
     const res = await channel.joinChannel(channel.id, channel.channelInfo, channel.setChannelInfo, contextValue, channelPassword);
@@ -106,7 +105,7 @@ function displayJoinButton(channel: ChannelProps, contextValue: IAppContext, pas
 
   const leaveChannel = async (id: number) => {
     await channel.leaveChannel(id, channel.channelInfo, channel.setChannelInfo, contextValue);
-    await contextValue.updateAllRelationships();
+    contextValue.updateAllRelationships();
   };
 
   const handleSubmit = (evt: any) => {

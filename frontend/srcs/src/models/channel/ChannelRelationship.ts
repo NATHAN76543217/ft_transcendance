@@ -1,26 +1,24 @@
-import { IUser } from "../user/IUser";
+import { IUser, UserRole } from "../user/IUser";
 import { Channel } from "./Channel";
 
 export enum ChannelRelationshipType {
-  null = 0,
-
-  /**  Normal member */
-  member = 1 << 0,
+  Member = UserRole.User,
 
   /** Channel owner */
-  owner = 1 << 1,
+  Owner = UserRole.Owner,
   /** Channel administrator */
-  admin = 1 << 2,
-
-  /** Invited member */
-  invited = 1 << 3,
+  Admin = UserRole.Admin,
 
   /** Banned user */
-  banned = 1 << 4,
+  Banned = UserRole.Banned,
   /** Muted user */
-  muted = 1 << 5,
+  Muted = 1 << 3,
+
+  /** Invited member */
+  Invited = 1 << 4,
+
   /** Sanction mask */
-  sanctioned = banned | muted,
+  Sanctioned = Banned | Muted,
 }
 
 export type ChannelRelationship = {

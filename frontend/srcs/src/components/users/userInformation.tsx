@@ -36,11 +36,11 @@ type UserProps = {
 
 function getStatusColor(param: UserStatus) {
   switch (param) {
-    case UserStatus.online:
+    case UserStatus.Online:
       return " text-green-600";
-    case UserStatus.offline:
+    case UserStatus.Offline:
       return " text-red-600";
-    case UserStatus.inGame:
+    case UserStatus.InGame:
       return " text-yellow-600";
     default:
       return "";
@@ -49,11 +49,11 @@ function getStatusColor(param: UserStatus) {
 
 function getStatus(param: UserStatus) {
   switch (param) {
-    case UserStatus.online:
+    case UserStatus.Online:
       return "Online";
-    case UserStatus.offline:
+    case UserStatus.Offline:
       return "Offline";
-    case UserStatus.inGame:
+    case UserStatus.InGame:
       return "In Game";
     default:
       return "";

@@ -30,13 +30,13 @@ const setRole = async (id: number, role: UserRole, adminInfo: AdminState, setAdm
   } catch (error) { }
 };
 
-const banUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.ban, adminInfo, setAdminInfo);
+const banUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Banned, adminInfo, setAdminInfo);
 
-const unbanUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.null, adminInfo, setAdminInfo);
+const unbanUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
 
-const setAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.admin, adminInfo, setAdminInfo);
+const setAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Admin, adminInfo, setAdminInfo);
 
-const unsetAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.null, adminInfo, setAdminInfo);
+const unsetAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
 
 interface AdminState {
   list: IUser[]
@@ -66,7 +66,7 @@ function AdminUsers() {
           <h1 className={h1Class}>Standard users</h1>
           <ul className="relative w-auto pt-4 pl-4">
             {adminInfo.list.map((user) => {
-              if (!(user.role & UserRole.ban)) {
+              if (!(user.role & UserRole.Banned)) {
                 return (
                   <li key={user.id} className="justify-center">
                     <AdminUserElement
@@ -97,7 +97,7 @@ function AdminUsers() {
           <h1 className={h1Class}>Banned users</h1>
           <ul className="relative w-auto pt-4 pl-4">
             {adminInfo.list.map((user) => {
-              if (user.role & UserRole.ban) {
+              if (user.role & UserRole.Banned) {
                 return (
                   <li key={user.id} className="">
                     <AdminUserElement

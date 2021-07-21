@@ -22,10 +22,10 @@ const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
     if (indexData !== -1) {
       return data.data.users[indexData].type;
     } else {
-      return ChannelRelationshipType.null;
+      return ChannelRelationshipType.Member;
     }
   } catch (error) {
-    return ChannelRelationshipType.null;
+    return ChannelRelationshipType.Member;
   }
 };
 
@@ -119,13 +119,13 @@ const joinChannel = async (
 
     if (index === -1) {
       await axios.post(`/api/channels/${id}/join`, {
-        type: ChannelRelationshipType.member,
+        type: ChannelRelationshipType.Member,
         password: password,
         //TODO - add password
       });
       updateRelationshipState(
         id,
-        ChannelRelationshipType.member,
+        ChannelRelationshipType.Member,
         searchInfo,
         setSearchInfo
       );
@@ -163,12 +163,12 @@ const leaveChannel = async (
     );
     if (
       index !== -1 &&
-      data.data.users[index].type !== ChannelRelationshipType.banned
+      data.data.users[index].type !== ChannelRelationshipType.Banned
     ) {
       await axios.delete(`/api/channels/${id}/leave`);
       updateRelationshipState(
         id,
-        ChannelRelationshipType.null,
+        ChannelRelationshipType.Member,
         searchInfo,
         setSearchInfo
       );

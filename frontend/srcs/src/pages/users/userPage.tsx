@@ -4,7 +4,7 @@ import UserStats from "../../components/users/userStats";
 import MatchHistory from "../../components/matchHistory/matchHistory";
 import { RouteComponentProps } from "react-router-dom";
 import axios from "axios";
-import { IUser, UserRole, UserStatus } from "../../models/user/IUser";
+import { UserRole, UserStatus } from "../../models/user/IUser";
 import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import AppContext from "../../AppContext";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
@@ -353,8 +353,8 @@ function UserPage({
       stats: 0,
       imgPath: "",
       twoFactorAuth: false,
-      status: UserStatus.null,
-      role: UserRole.null,
+      status: UserStatus.Null,
+      role: UserRole.User,
       channels: [],
       idInf: false,
     },

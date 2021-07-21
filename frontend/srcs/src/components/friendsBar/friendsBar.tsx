@@ -64,7 +64,7 @@ function displayPendingRequests(
 function displayInGameFriends(displaySection: any, relation: AppUserRelationship) {
   if (
     relation.relationshipType === UserRelationshipType.friends &&
-    relation.user.status === UserStatus.inGame &&
+    relation.user.status === UserStatus.InGame &&
     displaySection.inGameFriends
   ) {
     return (
@@ -81,7 +81,7 @@ function displayInGameFriends(displaySection: any, relation: AppUserRelationship
 
 function displayOnlineFriends(displaySection: any, relation: AppUserRelationship) {
   if (relation.relationshipType === UserRelationshipType.friends &&
-    (relation.user.status === UserStatus.online) &&
+    (relation.user.status === UserStatus.Online) &&
     displaySection.onlineFriends) {
     return (
       <FriendItem
@@ -113,7 +113,7 @@ function displayOnlineFriends(displaySection: any, relation: AppUserRelationship
 function displayofflineFriends(displaySection: any, relation: AppUserRelationship) {
   if (
     relation.relationshipType === UserRelationshipType.friends &&
-    relation.user.status === UserStatus.offline &&
+    relation.user.status === UserStatus.Offline &&
     displaySection.offlineFriends
   ) {
     return (
