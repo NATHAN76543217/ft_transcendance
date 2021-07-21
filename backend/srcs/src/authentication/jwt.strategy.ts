@@ -1,10 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import UsersService from 'src/users/users.service';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import TokenPayload from './tokenPayload.interface';
 import { Request } from 'express';
+import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserBannedException } from './exception/UserBanned.exception';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -27,6 +29,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: TokenPayload) {
-    return await this.userService.getUserById(payload.userId);
+    const user = await this.userService.getUserById(payload.userId);
+
+    if (user.role & UserRoleTypes.ban)
+      throw new UserBannedException();
+
+    return user;
   }
 }
