@@ -11,6 +11,7 @@ import { ChatView } from "../../components/chat/ChatView";
 import ChannelSearch from "./channelSearch";
 import ChannelSettings from "./channelSettings";
 import { ChannelRelationship } from "../../models/channel/ChannelRelationship";
+import ChannelCreate from "./channelCreate";
 //import ChannelSearch from "./channelSearch";
 
 const getSocket = () => {
@@ -91,11 +92,15 @@ export default function ChatPage({
       <div className="flex h-full">
         <ChatNavBar className="w-1/4 bg-white divide-y-4 md:w-1/5" />
         <Switch>
-          <Route exact path="/chat/find">
-            <ChannelSearch />
+        <Route exact path='/chat/find'>
+            <ChannelSearch/>
+            {/* <div>Channel Search</div> */}
+          </Route>
+          <Route exact path='/chat/create'>
+            <ChannelCreate />
+            {/* <div>Channel Create</div> */}
           </Route>
           <Route path="/chat/:id/settings" component={ChannelSettings} />
-          <Route exact path="/chat/create"></Route>
           <Route>
             <ChatView />
           </Route>
