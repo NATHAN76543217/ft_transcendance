@@ -124,9 +124,18 @@ class App extends React.Component<AppProps, AppState> {
       this.setUser();
       // TODO: Handle refresh token if status 401 (Unauthorized)
       if (axios.isAxiosError(e)) {
-        if (e.response?.status !== 401)
+        if (e.response?.status === 401) {
+          try {
+            await axios.get('/api/authentication/refresh');
+            const res = await axios.get<AuthenticatedUser>(`/api/users/me`, {
+              withCredentials: true,
+            });
+            this.setUser(res.data);
+          } catch(error) { }
+        } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
-      }
+        }
+        }
     }
   };
   /* 
