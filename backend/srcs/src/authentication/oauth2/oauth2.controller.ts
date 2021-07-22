@@ -36,20 +36,20 @@ export class Oauth2Controller {
     ////////////////////////
 
     const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(user.id);
-
     const refreshTokenCookie = this.authenticationService.getCookieWithJwtRefreshToken(user.id);
-    await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
-
-    // response.setHeader('Set-Cookie', cookie);
-    request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
-    ///////////////////////
-
-    // response.setHeader('Set-Cookie', cookie);
-    // request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.token]);
-
-    // response.setHeader('Access-Control-Allow-Origin', "https://localhost/, https://api.intra.42.fr");
 
     try {
+      await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+
+      // response.setHeader('Set-Cookie', cookie);
+      request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
+      ///////////////////////
+
+      // response.setHeader('Set-Cookie', cookie);
+      // request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.token]);
+
+      // response.setHeader('Access-Control-Allow-Origin', "https://localhost/, https://api.intra.42.fr");
+
       user.password = undefined;
       response.redirect('https://localhost/login/success/');
     } catch (error) {
@@ -71,16 +71,16 @@ export class Oauth2Controller {
     const { user } = req;
 
     const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(user.id);
-
     const refreshTokenCookie = this.authenticationService.getCookieWithJwtRefreshToken(user.id);
-    await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
 
-    req.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
-
-    // const jwt = this.authenticationService.getJwtToken(user.id);
-    // res.cookie('Authentication', jwt);
-    // console.log(jwt);
     try {
+      await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+
+      req.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
+
+      // const jwt = this.authenticationService.getJwtToken(user.id);
+      // res.cookie('Authentication', jwt);
+      // console.log(jwt);
       user.password = undefined;
       res.redirect('https://localhost/login/success');
     }
