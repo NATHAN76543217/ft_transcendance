@@ -208,8 +208,8 @@ function ChannelInformation(channel: ChannelProps) {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
-    <div className="py-4 h-42">
-      <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
+    <div className="py-4 h-42 bg-neutral">
+      <section className="flex flex-wrap items-center justify-center py-2 my-2">
         <div className="relative w-32 mx-4">
           {displayChannelPicture(channel)}
         </div>

@@ -13,11 +13,11 @@ export default function ChannelSearchForm(props: ChannelSearchProps) {
   const { register, handleSubmit } = useForm<ChannelSearchDto>();
 
   return (
-    <section className="flex flex-col max-w-sm p-4 m-auto mt-32 bg-neutral">
+    <div className="flex flex-col max-w-sm pt-4 pl-4 mt-20 mb-2 bg-neutral">
       <h1 className="mb-2">
         <span className="ml-8 text-xl font-bold">Search channels</span>
       </h1>
-      <form onSubmit={handleSubmit(props.onSubmit)} className="py-4 pr-8">
+      <form onSubmit={handleSubmit(props.onSubmit)} className="">
         <div className="relative w-96">
           <TextInput
             name="channelName"
@@ -34,6 +34,6 @@ export default function ChannelSearchForm(props: ChannelSearchProps) {
           ></input>
         </div>
       </form>
-    </section>
+    </div>
   );
 }

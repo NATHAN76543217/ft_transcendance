@@ -324,15 +324,15 @@ function UserInformation(user: UserProps) {
 
   return (
     <div className="py-4 h-42 bg-neutral">
-      <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
-        <div className="relative w-32 mx-4">
+      <section className="flex flex-wrap items-center justify-center py-2 my-2">
+        <div className="w-32 mx-4">
           {displayProfilePicture(user)}
           {displayFileChange(user, contextValue.setUser)}
         </div>
 
         <div className="w-40 mx-2 text-center">
           {displayUsername(user)}
-          <h1 className={"relative font-bold " + getStatusColor(user.status)}>
+          <h1 className={"font-bold " + getStatusColor(user.status)}>
             {getStatus(user.status)}
           </h1>
           {displayWrongUsernameMessage(user)}

@@ -259,14 +259,14 @@ function ChannelSearch() {
   };
 
   return (
-    <div className="flex-grow">
+    <div className="flex flex-col items-center flex-grow">
       <ChannelSearchForm onSubmit={localOnSubmit} />
-      <ul>
+      <ul >
         {searchInfo.list.map((elem) => {
           let channel = elem.channel;
           if (channel !== undefined) {
             return (
-              <li key={channel?.id} className="relative">
+              <li key={channel?.id} className="max-w-xl my-4 ">
                 <ChatInformation
                   id={channel.id}
                   name={channel.name}

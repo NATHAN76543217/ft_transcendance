@@ -13,7 +13,7 @@ export default function SearchUser(props: UserSearchProps) {
   const { register, handleSubmit } = useForm<IUserSearchFormValues>();
 
   return (
-    <div className="h-auto max-w-sm p-4 mt-32 rounded-sm bg-neutral">
+    <div className="h-auto max-w-sm pt-4 pl-4 mt-20 rounded-sm bg-neutral">
       <h1 className="mb-2">
         <span className="ml-8 text-xl font-bold">Search users</span>
       </h1>
