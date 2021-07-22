@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsNumberString, IsOptional, IsNumber, Length } from 'class-validator';
-import { ChannelModeTypes } from '../utils/channelModeTypes';
+import { IsString, IsOptional, IsNumber, Length } from 'class-validator';
+import { ChannelMode } from '../utils/channelModeTypes';
 
 export class UpdateChannelDto {
     @IsOptional()
@@ -13,5 +13,5 @@ export class UpdateChannelDto {
 
     @IsNumber()
     @IsOptional()
-    mode: ChannelModeTypes;
+    mode: ChannelMode;
 }

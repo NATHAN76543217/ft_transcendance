@@ -8,10 +8,10 @@ import {
 import { Injectable } from '@nestjs/common';
 import { IAbilityFactory } from 'src/authorization/policies.guard';
 import User from 'src/users/user.interface';
-import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserRole } from 'src/users/utils/userRole';
 import Channel from './channel.entity';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
-import { ChannelModeTypes } from './utils/channelModeTypes';
+import { ChannelMode } from './utils/channelModeTypes';
 
 export enum ChannelAction {
   Manage = 'manage',
@@ -36,7 +36,7 @@ export class ChannelCaslAbilityFactory
       Ability as AbilityClass<ChannelAbility>,
     );
 
-    if (user.role & (UserRoleTypes.admin | UserRoleTypes.owner)) {
+    if (user.role & (UserRole.Admin | UserRole.Owner)) {
       // Admin abilities
       can(ChannelAction.Manage, 'all');
     } else {
@@ -47,26 +47,26 @@ export class ChannelCaslAbilityFactory
 
     // Can join channel if public
     can(ChannelAction.Join, Channel, {
-      mode: ChannelModeTypes.public,
+      mode: ChannelMode.public,
     });
 
     // Can join channel if invited
     can(ChannelAction.Join, Channel, {
-      mode: ChannelModeTypes.private,
-      users: { user_id: user.id, type: ChannelRelationshipType.invited },
+      mode: ChannelMode.private,
+      users: { user_id: user.id, type: ChannelRelationshipType.Invited },
     });
 
     // Can manage channel if owner
     can(ChannelAction.Manage, Channel, {
       users: {
-        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.owner },
+        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.Owner },
       },
     });
 
     // Can update channel if admin
     can(ChannelAction.Update, Channel, {
       users: {
-        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.admin },
+        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.Admin },
       },
     });
 
@@ -77,18 +77,17 @@ export class ChannelCaslAbilityFactory
       },
     });
 
-
     // Banned members can't join or speak
     cannot([ChannelAction.Join, ChannelAction.Speak], Channel, {
       users: {
-        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.banned },
+        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.Banned },
       },
     });
 
     // Muted members can't speak
     cannot(ChannelAction.Speak, Channel, {
       users: {
-        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.muted },
+        $elemMatch: { user_id: user.id, type: ChannelRelationshipType.Muted },
       },
     });
 

@@ -1,21 +1,21 @@
-export enum ChannelRelationshipType {
-  null = 0,
+import { UserRole } from 'src/users/utils/userRole';
 
-  /**  Normal member */
-  member = 1 << 0,
+export enum ChannelRelationshipType {
+  Member = UserRole.User,
 
   /** Channel owner */
-  owner = 1 << 1,
+  Owner = UserRole.Owner,
   /** Channel administrator */
-  admin = 1 << 2,
-
-  /** Invited member */
-  invited = 1 << 3,
+  Admin = UserRole.Admin,
 
   /** Banned user */
-  banned = 1 << 4,
+  Banned = UserRole.Banned,
   /** Muted user */
-  muted = 1 << 5,
+  Muted = ChannelRelationshipType.Banned << 1,
+
+  /** Invited member */
+  Invited = ChannelRelationshipType.Muted << 1,
+
   /** Sanction mask */
-  sanctioned = banned | muted,
+  Sanctioned = ChannelRelationshipType.Banned | ChannelRelationshipType.Muted,
 }

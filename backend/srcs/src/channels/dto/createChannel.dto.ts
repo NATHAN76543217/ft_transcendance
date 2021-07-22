@@ -6,7 +6,7 @@ import {
   IsNumberString,
   Length,
 } from 'class-validator';
-import { ChannelModeTypes } from '../utils/channelModeTypes';
+import { ChannelMode } from '../utils/channelModeTypes';
 
 export class CreateChannelDto {
   @IsString()
@@ -23,5 +23,5 @@ export class CreateChannelDto {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  mode: ChannelModeTypes;
+  mode: ChannelMode;
 }

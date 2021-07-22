@@ -14,7 +14,7 @@ import { Socket } from 'socket.io';
 import { parse } from 'cookie';
 import { WsException } from '@nestjs/websockets';
 import { UsersGateway } from './users.gateway';
-import { UserRoleTypes } from './utils/userRoleTypes';
+import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -191,7 +191,7 @@ export default class UsersService {
     const newUser = this.usersRepository.create(user);
     const nbUsers = await this.usersRepository.count()
     if (!nbUsers) {
-      newUser.role = UserRoleTypes.owner;
+      newUser.role = UserRole.Owner;
     }
     await this.usersRepository.save(newUser);
     return newUser;

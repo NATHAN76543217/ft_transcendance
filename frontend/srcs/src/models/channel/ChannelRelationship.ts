@@ -12,13 +12,13 @@ export enum ChannelRelationshipType {
   /** Banned user */
   Banned = UserRole.Banned,
   /** Muted user */
-  Muted = 1 << 3,
+  Muted = ChannelRelationshipType.Banned << 1,
 
   /** Invited member */
-  Invited = 1 << 4,
+  Invited = ChannelRelationshipType.Muted << 1,
 
   /** Sanction mask */
-  Sanctioned = Banned | Muted,
+  Sanctioned = ChannelRelationshipType.Banned | ChannelRelationshipType.Muted,
 }
 
 export type ChannelRelationship = {

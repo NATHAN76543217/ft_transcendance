@@ -8,7 +8,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { IAbilityFactory } from 'src/authorization/policies.guard';
 import User from 'src/users/user.entity';
-import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserRole } from 'src/users/utils/userRole';
 import { Message } from './message.entity';
 
 export enum MessageAction {
@@ -28,11 +28,11 @@ export class MessageCaslAbilityFactory
   implements IAbilityFactory<MessageAbility>
 {
   createForUser(user: User) {
-    const { can, cannot, build } = new AbilityBuilder<MessageAbility>(
+    const { can, build } = new AbilityBuilder<MessageAbility>(
       Ability as AbilityClass<MessageAbility>,
     );
 
-    if (user.role & (UserRoleTypes.admin | UserRoleTypes.owner)) {
+    if (user.role & (UserRole.Admin | UserRole.Owner)) {
       // Admin abilities
       can(MessageAction.Manage, 'all');
     } else {

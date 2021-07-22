@@ -1,9 +1,9 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import User from '../users/user.entity';
-import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserRole } from 'src/users/utils/userRole';
 import { UserBannedException } from './exception/UserBanned.exception';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       password,
     );
 
-    if (user.role & UserRoleTypes.ban) {
+    if (user.role & UserRole.Banned) {
       throw new UserBannedException();
     }
 

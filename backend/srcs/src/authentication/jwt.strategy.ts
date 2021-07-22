@@ -5,7 +5,7 @@ import UsersService from 'src/users/users.service';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import TokenPayload from './tokenPayload.interface';
 import { Request } from 'express';
-import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserRole } from 'src/users/utils/userRole';
 import { UserBannedException } from './exception/UserBanned.exception';
 
 @Injectable()
@@ -31,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: TokenPayload) {
     const user = await this.userService.getUserById(payload.userId);
 
-    if (user.role & UserRoleTypes.ban)
+    if (user.role & UserRole.Banned)
       throw new UserBannedException();
 
     return user;
