@@ -112,12 +112,22 @@ export class ChannelsGateway
     return { event: 'connected' };
   }
 
-  async handleDisconnect(socket: SocketWithUser) {
-    this.broadcastStatusChange(socket, UserStatus.offline);
-    // Check if we have a room list here
-    this.logger.debug(
-      `Client disconnect with ${socket.rooms.size} joined rooms`,
+  async onUserDisconnect(socket: SocketWithUser) {
+    await this.broadcastStatusChange(
+      socket as SocketWithUser,
+      UserStatus.offline,
     );
+  }
+
+  async handleDisconnect(socket: Socket | SocketWithUser) {
+    if ('user' in socket) {
+      await this.onUserDisconnect(socket as SocketWithUser);
+      this.logger.debug(
+        `Authenticated user ${(socket as SocketWithUser).user.id} disconnected`,
+      );
+    } else {
+      this.logger.debug('Unauthenticated client disconnected');
+    }
   }
 
   @SubscribeMessage('message')
