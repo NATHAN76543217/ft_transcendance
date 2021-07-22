@@ -15,19 +15,37 @@ import {
     ICustomGame
 } from "shared-pong/dto/customgame.dto"
 
+interface IIds
+{
+    idPlayerOne: string;
+    idPlayerTwo: string;
+}
+
 export default function Spectator()
 {
     const context = React.useContext(PongContext);
 
-    // Problems with socket libs
-    // context.socket.join(context.gameId); // Bad socket lib ?
-    //context.socket.to(context.gameId).emit('room', `User: ${context.playerId} is spectating game ${context.gameId}.`);
+    const [gameStyle, setGameStyle] = React.useState<LibNames>();
+    const [gameCustomization, setGameCustomization] = React.useState<ICustomGame>();
+    const [playersIds, setPlayersIds] = React.useState<IIds>();
 
-    const gameStyle : LibNames =
-        context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
+    context.socket.on(Mesages.RECEIVE_GAME_STYLE, (receivedLib : LibNames) => {
+        setGameStyle(receivedLib);
+    });
+
+    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customization : ICustomGame) => {
+        setGameCustomization(customization);
+    });
+
+    context.socket.on(Mesages.RECEIVE_PLAYERS_IDS, (ids : IIds) => {
+        setPlayersIds(ids);
+    });
+
+    context.socket.emit(Mesages.JOIN_SPECTATOR, context.gameId, context.playerId);
+    context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
 
     // TO DO: For fast games, how is the customized data ?
-    // If is empty just i must ignore it here
+    // If is empty i must just ignore it here
 
     const libsNames : Array<string> = [
         LibNames.LIB_HORIZONTAL_MULTI,
@@ -39,16 +57,18 @@ export default function Spectator()
     if (index === undefined)
         throw new Unspected("Unspected error in spectator");
 
-    const gameCustomization : ICustomGame =
-        context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
+    context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
+    context.socket.emit(Mesages.GET_PLAYERS_IDS, context.gameId);
 
-    const ids : { idPlayerOne : string, idPlayerTwo : string } =
-        context.socket.emit(Mesages.GET_PLAYERS_IDS, context.gameId);
+    // TO DO: Somehow wait a bit and syncronize (values can be undefined ...)
+
+    if (!gameStyle || !gameCustomization || !playersIds)
+        throw new Unspected("Unsyncronized spectator");
 
     context.pongSpetializations[index][1]
-        .gameStatus.playerOne.id = ids.idPlayerOne;
+        .gameStatus.playerOne.id = playersIds.idPlayerOne;
     context.pongSpetializations[index][1]
-        .gameStatus.playerTwo.id = ids.idPlayerTwo;
+        .gameStatus.playerTwo.id = playersIds.idPlayerTwo;
     context.pongSpetializations[index][1]
         .gameStatus.ball.speed = gameCustomization.ballSpeed;
     context.pongSpetializations[index][1]

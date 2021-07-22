@@ -6,7 +6,6 @@ import {
     makeStyles
 } from '@material-ui/core/styles';
 // https://material-ui.com/es/components/slider/
-// npm install @material-ui/core
 
 type IContiniousSlyderProps = {
     name : string;

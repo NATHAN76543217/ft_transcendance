@@ -2,11 +2,7 @@ import React from "react"
 
 import Text from "../../components/text"
 import ButtonPong from "../../components/button"
-
-// TO DO: merge exceptions
 import Unspected from "shared-pong/game/exceptions/unspected.exception"
-
-// TO DO: import shared from module
 import {
     RangeSlider,
 } from "shared-pong/dto/rangeslider.dto"
@@ -25,7 +21,8 @@ import {
 } from "../indexPong"
 import {
     InvitedCustomization,
-    CustomValue
+    CustomValue,
+    Customization
 } from "../../components/customization"
 
 type IInvitedCustomization = {
@@ -39,6 +36,12 @@ export const InvitedCustomizationContext = React.createContext<IInvitedCustomiza
 export default function InvitedToGame()
 {
     const context = React.useContext(PongContext);
+
+    const [allReady, setAllReady] = React.useState<boolean>(false);
+
+    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, (status : boolean) => {
+        setAllReady(true);
+    });
 
     const [isReady, setIsReady] = React.useState<boolean>(false);
 
@@ -61,7 +64,14 @@ export default function InvitedToGame()
         }))
     });
 
-    setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared));
+    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customization : ICustomGame) => {
+        setSliderShared(customization);
+    });
+
+    context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
+    context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
+
+    // TO DO: SomeHow syncronize client-server
 
     // Init sliders data using host's custom data (except for playerTwo color)
     const sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> = new Map([
@@ -91,7 +101,7 @@ export default function InvitedToGame()
     React.useEffect(() => {
         // Send playerTwo color to host
         // Receive others customization values from host
-        setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
+        context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
             ballSpeed: Number(),
             ballColor: String(),
             courtColor: String(),
@@ -108,7 +118,11 @@ export default function InvitedToGame()
                 },
                 value: Number(sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[0])
             }))
-        }));
+        });
+
+        context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
+
+        // TO DO: Somehow syncronize server-client before using sliderShared
 
         // Update all the sliders data using received host's custom data
         sliders.get(CustomValue.BALL_SPEED)?.[1](sliderShared.ballSpeed);
@@ -138,12 +152,16 @@ export default function InvitedToGame()
             setIsReady(false);
         }
 
+        context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId);
+
+        // TO DO: Sync alReady
+
         // If both are readdy ...
-        if (context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId))
+        if (allReady)
         {
             syncCustomization();
-            context.socket.emit("launchGame", context.gameId);
-            context.goToPongGame(); // Perhabs it work, perhabs not
+            context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
+            context.goToPongGame();
         }
     }
 
@@ -151,24 +169,43 @@ export default function InvitedToGame()
     const onQuit = () => {
 
         context.socket.emit(Mesages.LEAVE_ROOM, context.gameId, context.playerId);
-        context.goToSelection(); // Perhabs it work, perhabs not
+        context.goToSelection();
     }
 
     // Help to syncronize playerOne's and playerTwo's customization before launch the game
     const syncCustomization = () => {
 
-        const libsNames : Array<string> = [
+        const libsNames : Array<LibNames> = [
             LibNames.LIB_HORIZONTAL_MULTI,
             LibNames.LIB_VERTICAL_MULTI
         ];
 
-        const pongName : string = context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
+        let pongName : LibNames | undefined = undefined;
+        let otherPlayerId : string | undefined = undefined;
+
+        context.socket.on(Mesages.RECEIVE_GAME_STYLE, (receivedLib : LibNames) => {
+            pongName = receivedLib;
+        });
+
+        context.socket.on(Mesages.RECEIVE_OTHER_PLAYER_ID, (id : string) => {
+            otherPlayerId = id;
+        });
+
+        context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
+
+        if (pongName === undefined)
+            throw new Error();
+
+        // TO DO: Somehow syncronize before use pongName
+
         const index : number = libsNames.findIndex(elem => elem == pongName);
 
-        if (index === undefined)
+        if (index === undefined || otherPlayerId === undefined)
             throw new Unspected("Unspected error in syncCustomisation");
+        
+        // TO DO: Somehow syncronize before using otherPlayerId
 
-        context.pongSpetializations[index][1].gameStatus.playerOne.id = context.socket.emit(Mesages.GET_OTHER_PLAYER_ID, context.gameId, context.playerId);
+        context.pongSpetializations[index][1].gameStatus.playerOne.id = otherPlayerId;
         context.pongSpetializations[index][1].gameStatus.playerTwo.id = context.playerId;
         context.pongSpetializations[index][1].gameStatus.ball.speed = sliderShared.ballSpeed;
         context.pongSpetializations[index][1].gameStatus.ball.style.data = sliderShared.ballColor;

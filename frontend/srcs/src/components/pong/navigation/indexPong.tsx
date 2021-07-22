@@ -11,9 +11,8 @@ import  ClassicPong from "shared-pong/specilizations/classicpong/classicpong.eng
 import Unspected from "shared-pong/game/exceptions/unspected.exception"
 import {
     Socket,
-    SocketIoConfig
+    io
 } from "socket.io-client"
-// docker exec -it <containnerName>
 
 enum Pages {
     SELECT_GAME_STYLE,
@@ -122,10 +121,7 @@ export default function PongIndex({
 
     // Handle game/room id
     const [gameId, setGameId] = React.useState<string>(roomId ? roomId : "not in game yet");
-    const socket : Socket = new Socket({
-        url: "http://localhost",
-        options: { }
-    } as SocketIoConfig);
+    const socket : Socket = io();
 
     // Handle pong spetializations
     const [pongIndex, setPongIndex] = React.useState<number>(0);
@@ -133,8 +129,8 @@ export default function PongIndex({
         [
             "Classic Pong",
             new ClassicPong(
-                roomId ? roomId : playerId, // If room id is playerOne's id
-                playerId,
+                role != PlayerRole.HOST && roomId ? roomId : socket.id,
+                String(),
                 String(),
                 socket
             )

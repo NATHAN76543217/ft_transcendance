@@ -23,16 +23,18 @@ export default function Pong({
     const canvas = document.getElementById(canvasId);
 
     canvas?.addEventListener("mousemove", (event : any) => {
-        context.socket.emit(Mesages.SEND_MOUSE_POS, {
+        context.socket.volatile.emit(Mesages.SEND_MOUSE_POS, {
             x: event.clientX,
             y: event.clientY,
         } as IMousePosDto)
     });
 
+    // TO DO: Function run won't work, have issues to solve there
     context.pongSpetializations[context.pongIndex][1].run();
 
     // TO DO: How to end the game ?
     // TO DO: Change run method from the engine
+    // TO DO: Redirect path to matches/current/gameId
 
     return (
         <>

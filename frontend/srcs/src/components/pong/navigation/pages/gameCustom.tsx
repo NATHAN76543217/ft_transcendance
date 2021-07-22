@@ -61,19 +61,22 @@ export default function GameCustom()
     // Handle SINGLEPLAYER, MULTIPLAYER mode value
     const [gameMode, setGameMode] = React.useState<GameMode>(GameMode.MULTI_PLAYER);
 
+    const [allReady, setAllReady] = React.useState<boolean>(false);
+
+    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, (status : boolean) => {
+        setAllReady(true);
+    });
+
     // Create a room in the server
     context.socket.emit(Mesages.CREATE_ROOM, {
-        isFilled: false,
         idRoom: context.playerId,
         idPlayerOne: context.playerId,
         idPlayerTwo: String(),
         config: { },
-        //lib: { },
         libName: String(),
         mode: gameMode,
         customization: { },
         info: { },
-        flags: Number(0)
     } as IRoomDto);
 
     context.setGameId(context.playerId);
@@ -141,10 +144,14 @@ export default function GameCustom()
         // TO DO: Add bot level here, no ?
     });
 
+    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customimzation) => {
+        setSliderShared(customimzation);
+    });
+
     // TO DO: This is not real time sync with invited (need to update to see invited upadtes ...)
     // Every time a slider is mofied: send changes to the server
     React.useEffect(() => {
-        setSliderShared(context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
+        context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
             ballSpeed: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
                 context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.BALL_SPEED)?.[0]))),
             ballColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
@@ -164,7 +171,12 @@ export default function GameCustom()
             playerTwoHeight: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
                 context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[0]))),
             playerTwoColor: String()
-        }));
+        });
+        context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
+
+        // TO DO: Somehow syncronize server-client before using sliderShared
+
+        sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[1](parseInt(sliderShared.playerTwoColor, 16));
     }, [sliders, sliderShared]);
 
     // Handler for "Single Player" button
@@ -249,15 +261,30 @@ export default function GameCustom()
             setIsReady(false);
         }
 
+        context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId);
+
+        // TO DO: Sync alReady
+
         // If both are readdy ...
-        if (context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId))
+        if (allReady)
         {
             summitGameStyle();
             summitGameCustomization();
 
+            context.socket.emit(Mesages.GET_OTHER_PLAYER_ID, context.gameId, context.playerId);
+
+            let otherPlayerId : string | undefined = undefined;
+
+            context.socket.on(Mesages.RECEIVE_OTHER_PLAYER_ID, (id : string) => {
+                otherPlayerId = id;
+            });
+
+            if (otherPlayerId === undefined)
+                throw new Error(); // TO DO: Just sync need an await for sockets
+
             if (gameMode == GameMode.MULTI_PLAYER)
-                context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.id =
-                    context.socket.emit(Mesages.GET_OTHER_PLAYER_ID, context.gameId, context.playerId);
+                context.pongSpetializations[context.pongIndex][1]
+                    .gameStatus.playerTwo.id = otherPlayerId;
 
             // TO DO: do i need this ?
             context.socket.emit(Mesages.UPDATE_CONFIG,
