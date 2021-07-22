@@ -45,7 +45,7 @@ class User {
   public role: UserRole;
 
   @Column({
-    nullable: true
+    nullable: true,
   })
   @Exclude()
   public currentHashedRefreshToken?: string;

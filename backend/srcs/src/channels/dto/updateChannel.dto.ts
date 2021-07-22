@@ -1,17 +1,24 @@
-import { IsString, IsOptional, IsNumber, Length } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  Length,
+  Matches,
+} from 'class-validator';
 import { ChannelMode } from '../utils/channelModeTypes';
 
 export class UpdateChannelDto {
-    @IsOptional()
-    @IsString()
-    @Length(1, 15)
-    name: string;
+  @IsOptional()
+  @IsString()
+  @Length(1, 15)
+  @Matches('^([0-9a-z-_])+')
+  name: string;
 
-    @IsOptional()
-    @IsString()
-    password: string;
+  @IsOptional()
+  @IsString()
+  password: string;
 
-    @IsNumber()
-    @IsOptional()
-    mode: ChannelMode;
+  @IsNumber()
+  @IsOptional()
+  mode: ChannelMode;
 }
