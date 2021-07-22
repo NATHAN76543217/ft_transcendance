@@ -11,7 +11,7 @@ import LibNames from "../utils/lib.names"
 
 export interface IRoomDto
 {
-    isFilled : boolean;
+    //isFilled : boolean;
     idRoom : string;
     idPlayerOne : string;
     idPlayerTwo : string;
@@ -20,6 +20,6 @@ export interface IRoomDto
     mode : GameMode;
     customization : ICustomGame; // TO DO: I can remove this
     info : ICustomGame; // I prefer "customization" over "info" if i only need 1
-    flags : number;
+    //flags : number;
     level? : number;
 }
