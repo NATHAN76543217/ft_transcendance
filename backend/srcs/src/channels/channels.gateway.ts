@@ -19,9 +19,12 @@ import {
 } from './channel-casl-ability.factory';
 import MessageService from 'src/messages/messages.service';
 import { MessageType } from 'src/messages/message.entity';
+import { UserStatus } from 'src/users/utils/userStatus';
+import UserRelationshipsService from 'src/users/relationships/user-relationships.service';
 
+// TODO: Rename to EventsModule...
 @Injectable()
-@WebSocketGateway(undefined, { namespace: '/channels' })
+@WebSocketGateway(undefined, { namespace: '/events' })
 export class ChannelsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -35,16 +38,37 @@ export class ChannelsGateway
     private readonly channelsService: ChannelsService,
     private readonly messageService: MessageService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
+    private readonly userRelationshipService: UserRelationshipsService,
   ) {}
 
   afterInit(server: Server) {
     this.logger.log(`Listening at ${server.path()}`);
   }
 
+  async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
+    const rels =
+      await this.userRelationshipService.getAllUserRelationshipsFromOneUser(
+        socket.user.id.toString(),
+      );
+
+    // TODO: Filter by relation state
+    this.logger.debug(`Notifying ${rels.length} rels...`);
+    rels.forEach((rel) => {
+      const otherId =
+        socket.user.id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id;
+
+      socket.to(otherId).emit('statusChanged', {
+        user_id: socket.user.id,
+        status,
+      });
+    });
+  }
+
   async handleConnection(socket: SocketWithUser) {
     try {
       socket.user = await this.channelsService.getUserFromSocket(socket);
     } catch (e) {
+      this.logger.error(`Disconnected: ${e}`);
       socket.disconnect(true);
       return;
     }
@@ -62,12 +86,14 @@ export class ChannelsGateway
       });
     });
 
-    // TODO: set online status
+    this.broadcastStatusChange(socket, UserStatus.online);
 
-    // TODO: Maybe join self named channel to receive friend invitations etc...
+    // Join self named channel
+    socket.join(socket.user.id.toString());
     // Join user channels
     socket.user.channels.forEach((c) => {
-      const channel = c.channel!.id.toFixed();
+      const channel = `#${c.channel!.id}`;
+      this.logger.log(`User joining ${channel}`);
 
       socket.join(channel);
       // TODO: Check which data to send on join
@@ -75,14 +101,19 @@ export class ChannelsGateway
       socket.to(channel).emit('connected', { username: socket.user.name });
     });
 
+    // Notify friends about status
+
     this.logger.debug(
-      `Client ${socket.user.id} connected with ${socket.rooms.size} joined rooms`,
+      `Client ${socket.user.id} connected with ${
+        socket.rooms.size - 2
+      } joined channels`,
     );
 
     return { event: 'connected' };
   }
 
-  async handleDisconnect(socket: Socket) {
+  async handleDisconnect(socket: SocketWithUser) {
+    this.broadcastStatusChange(socket, UserStatus.offline);
     // Check if we have a room list here
     this.logger.debug(
       `Client disconnect with ${socket.rooms.size} joined rooms`,

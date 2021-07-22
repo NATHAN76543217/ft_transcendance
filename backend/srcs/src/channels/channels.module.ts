@@ -11,11 +11,14 @@ import { ChannelCaslAbilityFactory } from './channel-casl-ability.factory';
 import { Message } from 'src/messages/message.entity';
 import { MessagesModule } from 'src/messages/messages.module';
 import MessageService from 'src/messages/messages.service';
+import UserRelationshipsService from 'src/users/relationships/user-relationships.service';
+import UsersModule from 'src/users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Channel, ChannelRelationship, Message]),
     AuthenticationModule,
+    UsersModule,
     MessagesModule,
   ],
   controllers: [ChannelsController],

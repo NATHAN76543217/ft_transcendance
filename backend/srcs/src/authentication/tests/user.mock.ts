@@ -2,7 +2,6 @@ import { UserRole } from 'src/users/utils/userRole';
 import { UserStatus } from 'src/users/utils/userStatus';
 import User from '../../users/user.entity';
 
- 
 export const mockedUser: User = {
   id: 1,
   name: 'Bob',
@@ -10,14 +9,14 @@ export const mockedUser: User = {
   nbWin: 0,
   nbLoss: 0,
   stats: 0,
-  imgPath: "path/img",
+  imgPath: 'path/img',
   school42id: null,
   googleid: null,
-  jwt: "",
+  jwt: '',
   twoFactorAuth: false,
   status: UserStatus.null,
   role: UserRole.User,
   channels: [],
   // userRelationship1: [],
   // userRelationship2: []
-}
+};

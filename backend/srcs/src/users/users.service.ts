@@ -13,11 +13,11 @@ import { AuthenticationService } from 'src/authentication/authentication.service
 import { Socket } from 'socket.io';
 import { parse } from 'cookie';
 import { WsException } from '@nestjs/websockets';
-import { UsersGateway } from './users.gateway';
 import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import * as bcrypt from 'bcrypt';
 import UserNameInvalid from './exception/UserNameNotFound.exception';
+import { UserRelationshipTypes } from './relationships/userRelationshipTypes';
 
 @Injectable()
 export default class UsersService {
@@ -26,8 +26,6 @@ export default class UsersService {
     private usersRepository: Repository<User>,
     @Inject(forwardRef(() => AuthenticationService))
     private authenticationService: AuthenticationService,
-    @Inject(forwardRef(() => UsersGateway))
-    private readonly usersGateway: UsersGateway,
   ) {}
 
   async getUserFromSocket(socket: Socket): Promise<User> {
@@ -94,7 +92,9 @@ export default class UsersService {
     if (withChannels) this.joinChannels(query);
     const user = await query.getOne();
 
-    if (user) return user;
+    if (user) {
+      return user;
+    }
 
     throw new UserNotFound(id);
   }

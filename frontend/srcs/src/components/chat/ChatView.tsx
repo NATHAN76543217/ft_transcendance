@@ -49,6 +49,7 @@ const sendMessage = (socket: Socket, channelId: number, data: string) => {
 };
 
 export function ChatInput({ className }: ChatInputProps) {
+  const { socket } = useContext(AppContext);
   const chatContext = useContext(ChatPageContext);
 
   const {
@@ -64,11 +65,11 @@ export function ChatInput({ className }: ChatInputProps) {
       className={`${className}`}
       onSubmit={handleSubmit((values) => {
         if (
-          chatContext.socket !== undefined &&
+          socket !== undefined &&
           chatContext.currentChannelRel !== undefined
         ) {
           sendMessage(
-            chatContext.socket,
+            socket,
             chatContext.currentChannelRel.channel.id,
             values.message
           );

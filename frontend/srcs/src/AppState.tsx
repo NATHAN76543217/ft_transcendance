@@ -3,6 +3,6 @@ import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
 export interface AppState {
   user?: AuthenticatedUser;
-  relationshipsList: AppUserRelationship[]
-  socket: Socket | undefined;
+  relationshipsList: AppUserRelationship[];
+  socket?: Socket;
 }

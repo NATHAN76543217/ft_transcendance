@@ -8,5 +8,5 @@ export interface IAppContext {
   token?: string;
   setUser: (user?: AuthenticatedUser) => void;
   updateAllRelationships: () => void;
-  socket: Socket | undefined;
+  socket?: Socket;
 }

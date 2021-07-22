@@ -55,7 +55,12 @@ class App extends React.Component<AppProps, AppState> {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
 
-      console.debug(`setting user (logged = ${logged}): `, user);
+      if (logged) {
+        this.setState({ socket: this.getSocket() });
+      } else {
+        this.state.socket?.close();
+        this.setState({ socket: undefined });
+      }
 
       // update state
       this.setState({ user });
@@ -126,16 +131,16 @@ class App extends React.Component<AppProps, AppState> {
       if (axios.isAxiosError(e)) {
         if (e.response?.status === 401) {
           try {
-            await axios.get('/api/authentication/refresh');
+            await axios.get("/api/authentication/refresh");
             const res = await axios.get<AuthenticatedUser>(`/api/users/me`, {
               withCredentials: true,
             });
             this.setUser(res.data);
-          } catch(error) { }
+          } catch (error) {}
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
-        }
+      }
     }
   };
   /* 
@@ -224,18 +229,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   getSocket = () => {
-    console.log("Users - Initiating socket connection...");
+    console.log("Initiating socket connection...");
 
-    const socket = io("", {
-      path: "/api/socket.io/users",
+    return io("", {
+      path: "/api/socket.io/events",
       rejectUnauthorized: false, // This disables certificate authority verification
       withCredentials: true,
-      transports: ["websocket, ws", "wss"],
     }).on("authenticated", () => {
-      console.log("Users - Socket connection authenticated!");
+      console.log("Socket connection authenticated!");
     });
-
-    return socket;
   };
 
   render() {
@@ -301,7 +303,7 @@ class App extends React.Component<AppProps, AppState> {
                           <Redirect to="/" />
                         </Route>
                         <Route exact path="/login/failure">
-                          <FailedLogin/>
+                          <FailedLogin />
                           {/* <Redirect to="/" /> */}
                         </Route>
                         <OnlyPublic

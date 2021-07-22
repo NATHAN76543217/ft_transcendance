@@ -1,4 +1,10 @@
-import { forwardRef, HttpException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
@@ -9,7 +15,7 @@ import { Socket } from 'socket.io';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { WsException } from '@nestjs/websockets';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
-import User from 'src/users/user.entity';
+import User from 'src/users/user.interface';
 import ChannelRelationship from './relationships/channel-relationship.entity';
 import { ChannelsGateway } from './channels.gateway';
 import { ChannelMode } from './utils/channelModeTypes';
@@ -57,12 +63,12 @@ export default class ChannelsService {
   // Admins can see all channels
   async getAllChannels(name: string) {
     if (name === undefined) {
-    //   const channels = await this.channelsRepository.createQueryBuilder("channel")
-    // .leftJoinAndMapOne("channel.relationshipType", "channels.users", "relationshipType", "user.id = user_id")
-    // .where("channel.name = :name", { name: name })
-    // .getOne();
+      //   const channels = await this.channelsRepository.createQueryBuilder("channel")
+      // .leftJoinAndMapOne("channel.relationshipType", "channels.users", "relationshipType", "user.id = user_id")
+      // .where("channel.name = :name", { name: name })
+      // .getOne();
 
-    // return channels
+      // return channels
 
       return await this.channelsRepository.find({ relations: ['users'] });
     }
@@ -70,8 +76,6 @@ export default class ChannelsService {
       where: { name: Like('%' + name + '%') },
     });
   }
-
-    
 
   // async getChannelById(id: number) {
   //   // Load users relationships
@@ -90,11 +94,11 @@ export default class ChannelsService {
     // Load users relationships
     const channel = await this.channelsRepository
       .createQueryBuilder('channel')
-      .leftJoinAndSelect("channel.users", "users")
-      .leftJoin("users.user", "channelUser").addSelect("channelUser.name")
-      .where("channel.id = :id", {id: id})
-      .getOne()
-      
+      .leftJoinAndSelect('channel.users', 'users')
+      .leftJoin('users.user', 'channelUser')
+      .addSelect('channelUser.name')
+      .where('channel.id = :id', { id: id })
+      .getOne();
 
     // .findOne(id, {
     //   relations: ['users'],
@@ -157,14 +161,13 @@ export default class ChannelsService {
     userId: number,
     type: ChannelRelationshipType,
   ) {
-
     // This should link user and channel to relation
     const relationship = this.channelRelationshipRepository.create({
       channel_id: channelId,
       user_id: userId,
       type: type,
     });
-    
+
     await this.channelRelationshipRepository.save(relationship);
     //await this.channelsRepository
     //  .createQueryBuilder('channel')
@@ -190,12 +193,11 @@ export default class ChannelsService {
     user_id: number,
     type: ChannelRelationshipType,
   ) {
-
     await this.channelRelationshipRepository
       .createQueryBuilder('channelRelationship')
       .update(ChannelRelationship)
       .set({ type: type })
-      .where('user_id = :user_id', { user_id} )
+      .where('user_id = :user_id', { user_id })
       .andWhere('channel_id = :channel_id', { channel_id })
       .execute();
   }
@@ -209,17 +211,17 @@ export default class ChannelsService {
 
   async createChannel(channel: CreateChannelDto) {
     if (channel.mode === null) {
-      throw new ChannelMandatoryMode()
+      throw new ChannelMandatoryMode();
     }
     if (
       Number(channel.mode) === Number(ChannelMode.protected) &&
-      (channel.password === "" || channel.password === undefined)
+      (channel.password === '' || channel.password === undefined)
     ) {
-      throw new ChannelMandatoryPassword()
+      throw new ChannelMandatoryPassword();
       // throw new HttpException('TODO: Unauthorized read', 401);
     }
     if (Number(channel.mode) !== Number(ChannelMode.protected)) {
-      channel.password = "";
+      channel.password = '';
     } else {
       const hashedPassword = await bcrypt.hash(channel.password, 10);
       channel.password = hashedPassword;
@@ -230,9 +232,9 @@ export default class ChannelsService {
       return newChannel;
     } catch (error) {
       if (Number(error.code) === 23505) {
-        throw new ChannelAlreadyExist(channel.name)
+        throw new ChannelAlreadyExist(channel.name);
       } else {
-        throw new HttpException('Error at channel creation', 400)
+        throw new HttpException('Error at channel creation', 400);
       }
     }
   }
@@ -240,13 +242,13 @@ export default class ChannelsService {
   async updateChannel(id: number, channel: UpdateChannelDto) {
     if (
       Number(channel.mode) === Number(ChannelMode.protected) &&
-      (channel.password === "" || channel.password === undefined)
+      (channel.password === '' || channel.password === undefined)
     ) {
-      throw new ChannelMandatoryPassword()
+      throw new ChannelMandatoryPassword();
       // throw new HttpException('TODO: Unauthorized read', 401);
     }
     if (Number(channel.mode) !== Number(ChannelMode.protected)) {
-      channel.password = "";
+      channel.password = '';
     } else {
       const hashedPassword = await bcrypt.hash(channel.password, 10);
       channel.password = hashedPassword;

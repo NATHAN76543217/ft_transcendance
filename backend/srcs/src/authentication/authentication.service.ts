@@ -1,5 +1,11 @@
 import UsersService from 'src/users/users.service';
-import { forwardRef, HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { PostgresErrorCode } from '../database/postgresErrorCodes';
 import RegisterWithPasswordDto from './dto/registerWithPassword.dto';
 import UserNameAlreadyExistsException from './exception/UserNameAlreadyExists.exception';
@@ -8,10 +14,6 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
 import * as bcrypt from 'bcrypt';
-import { UserStatus } from 'src/users/utils/userStatus';
-import UpdateUserDto from 'src/users/dto/UpdateUser.dto';
-import User from 'src/users/user.entity';
-
 @Injectable()
 export class AuthenticationService {
   constructor(
@@ -90,13 +92,15 @@ export class AuthenticationService {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION_TIME')}s`
+      expiresIn: `${this.configService.get('JWT_REFRESH_EXPIRATION_TIME')}s`,
     });
-    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get('JWT_REFRESH_EXPIRATION_TIME')}`;
+    const cookie = `Refresh=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_REFRESH_EXPIRATION_TIME',
+    )}`;
     return {
       cookie,
-      token
-    }
+      token,
+    };
   }
 
   public getJwtToken(userId: number) {
@@ -105,11 +109,10 @@ export class AuthenticationService {
     return token;
   }
 
-
   public getCookieForLogOut() {
     return [
       'Authentication=; HttpOnly; Path=/; Max-Age=0',
-      'Refresh=; HttpOnly; Path=/; Max-Age=0'
+      'Refresh=; HttpOnly; Path=/; Max-Age=0',
     ];
   }
 

@@ -3,6 +3,7 @@ import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import { UserStatus } from './utils/userStatus';
 import { Exclude } from 'class-transformer';
+import UserRelationship from './relationships/user-relationship.entity';
 
 @Entity()
 //@Unique('name', ['name'])
