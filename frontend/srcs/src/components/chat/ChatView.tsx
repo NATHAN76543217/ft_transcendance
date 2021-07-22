@@ -153,7 +153,7 @@ export function ChatView({ className }: ChatViewProps) {
           relation={currentChannelRel}
         />
       </ChatHeader>
-      <ChatMessageList className="flex-grow overflow-y-scroll bg-gray-300" />
+      <ChatMessageList className="flex-grow overflow-y-scroll bg-gray-200" />
       <ChatInput className="bg-white" />
     </div>
   );

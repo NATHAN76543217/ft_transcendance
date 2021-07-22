@@ -36,6 +36,9 @@ module.exports = {
             DEFAULT : '#50d97e',
             dark : '#37d36c'
           },
+          app: {
+            DEFAULT : 'gray-200'
+          }
         }
     },
   },

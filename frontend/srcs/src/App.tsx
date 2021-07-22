@@ -32,8 +32,11 @@ import { io } from "socket.io-client";
 import Test from "./pages/test/test";
 import FailedLogin from "./pages/failedLogin/failedLogin";
 
-let change_bg_color_with_size =
-  "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
+// let change_bg_color_with_size =
+//   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
+
+  let change_bg_color_with_size =
+  "bg-gray-200"
 
 interface AppProps {}
 

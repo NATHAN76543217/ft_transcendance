@@ -323,7 +323,7 @@ function UserInformation(user: UserProps) {
   const contextValue = React.useContext(AppContext);
 
   return (
-    <div className="py-4 h-42">
+    <div className="py-4 h-42 bg-neutral">
       <section className="relative flex flex-wrap items-center justify-center py-2 my-2">
         <div className="relative w-32 mx-4">
           {displayProfilePicture(user)}

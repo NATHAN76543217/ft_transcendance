@@ -13,12 +13,12 @@ export default function SearchUser(props: UserSearchProps) {
   const { register, handleSubmit } = useForm<IUserSearchFormValues>();
 
   return (
-    <section className="flex flex-col max-w-sm p-4 m-auto mt-32 bg-neutral">
+    <div className="h-auto max-w-sm p-4 mt-32 rounded-sm bg-neutral">
       <h1 className="mb-2">
         <span className="ml-8 text-xl font-bold">Search users</span>
       </h1>
-      <form onSubmit={handleSubmit(props.onSubmit)} className="py-4 pr-8">
-        <div className="relative w-96">
+      <form onSubmit={handleSubmit(props.onSubmit)} className="">
+        <div className="relative w-80">
           <TextInput
             name="username"
             register={register}
@@ -26,13 +26,16 @@ export default function SearchUser(props: UserSearchProps) {
             inputClass=" left"
             labelName="Username"
           ></TextInput>
+          <div className="relative flex w-auto ">
+
           <input
             type="submit"
             value="search"
-            className="absolute bottom-0 right-0 h-8 px-2 py-1 font-semibold bg-gray-200 rounded-md text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
-          ></input>
+            className="absolute h-8 px-2 py-1 font-semibold bg-gray-200 rounded-md right-8 bottom-8 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+            ></input>
+            </div>
         </div>
       </form>
-    </section>
+    </div>
   );
 }

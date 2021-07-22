@@ -251,8 +251,11 @@ function UserSearch() {
   }
 
   return (
-    <div className="">
-      <UserSearchForm onSubmit={localOnSubmit} />
+    <div className="flex flex-col ">
+      <div className="flex justify-center">
+
+        <UserSearchForm onSubmit={localOnSubmit} />
+      </div>
 
       <ul>
         {searchInfo?.list.map((elem) => {
@@ -269,7 +272,7 @@ function UserSearch() {
             showWrongUsernameMessage: false,
           }
           return (
-            <li key={user.id} className="relative w-full">
+            <li key={user.id} className="flex justify-center object-center w-full my-4 rounded-md ">
               <UserInformation
                 id={user.id}
                 name={user.name}
