@@ -6,15 +6,12 @@ import {
   IsBoolean,
   IsNumber,
   Length,
-  Matches,
 } from 'class-validator';
+import { NameValidator } from 'src/utils/NameValidator';
 import { UserStatus } from '../utils/userStatus';
 
 export default class CreateUserDto {
-  @IsString()
-  @IsNotEmpty()
-  @Length(1, 15)
-  @Matches('^([0-9a-z-_])+')
+  @NameValidator('Username')
   public name: string;
 
   @IsString()

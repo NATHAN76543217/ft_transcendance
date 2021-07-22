@@ -5,13 +5,12 @@ import {
   Length,
   Matches,
 } from 'class-validator';
+import { NameValidator } from 'src/utils/NameValidator';
 import { ChannelMode } from '../utils/channelModeTypes';
 
 export class UpdateChannelDto {
   @IsOptional()
-  @IsString()
-  @Length(1, 15)
-  @Matches('^([0-9a-z-_])+')
+  @NameValidator('Channel name')
   name: string;
 
   @IsOptional()

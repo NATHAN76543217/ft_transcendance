@@ -5,17 +5,14 @@ import {
   IsOptional,
   IsBoolean,
   Length,
-  Matches,
 } from 'class-validator';
+import { NameValidator } from 'src/utils/NameValidator';
 import { UserRole } from '../utils/userRole';
 import { UserStatus } from '../utils/userStatus';
 
 export default class UpdateUserDto {
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  @Length(1, 15)
-  @Matches('^([0-9a-z-_])+')
+  @NameValidator('Username')
   public name: string;
 
   @IsString()

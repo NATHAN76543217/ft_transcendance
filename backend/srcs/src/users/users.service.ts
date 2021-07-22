@@ -17,6 +17,7 @@ import { UsersGateway } from './users.gateway';
 import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import * as bcrypt from 'bcrypt';
+import UserNameInvalid from './exception/UserNameNotFound.exception';
 
 @Injectable()
 export default class UsersService {
@@ -27,7 +28,7 @@ export default class UsersService {
     private authenticationService: AuthenticationService,
     @Inject(forwardRef(() => UsersGateway))
     private readonly usersGateway: UsersGateway,
-  ) { }
+  ) {}
 
   async getUserFromSocket(socket: Socket): Promise<User> {
     const logger = new Logger();
@@ -50,24 +51,22 @@ export default class UsersService {
       }
       return user;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
-
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
     const user = await this.getUserById(userId);
- 
+
     const isRefreshTokenMatching = await bcrypt.compare(
       refreshToken,
-      user.currentHashedRefreshToken
+      user.currentHashedRefreshToken,
     );
- 
+
     if (isRefreshTokenMatching) {
       return user;
     }
   }
-
 
   async getAllUsers(name: string) {
     // const user = await this.getUserById(1);
@@ -177,7 +176,11 @@ export default class UsersService {
   }
 
   async updateUser(id: number, user: UpdateUserDto) {
-    await this.usersRepository.update(id, user);
+    try {
+      await this.usersRepository.update(id, user);
+    } catch (e) {
+      throw new UserNameInvalid(user.name);
+    }
     const updatedUser = this.usersRepository.findOne(id, {
       relations: ['channels', 'channels.channel'],
     });
@@ -189,7 +192,7 @@ export default class UsersService {
 
   async createUser(user: CreateUserDto) {
     const newUser = this.usersRepository.create(user);
-    const nbUsers = await this.usersRepository.count()
+    const nbUsers = await this.usersRepository.count();
     if (!nbUsers) {
       newUser.role = UserRole.Owner;
     }
@@ -209,7 +212,7 @@ export default class UsersService {
           userRelationshipsService.deleteUserRelationship(Number(relation.id));
         });
       }
-    } catch (error) { }
+    } catch (error) {}
 
     const deleteResponse = await this.usersRepository.delete(id);
     if (!deleteResponse.affected) {
@@ -217,19 +220,17 @@ export default class UsersService {
     }
   }
 
-
   async setCurrentRefreshToken(refreshToken: string, userId: number) {
     const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.usersRepository.update(userId, {
-      currentHashedRefreshToken: currentHashedRefreshToken
+      currentHashedRefreshToken: currentHashedRefreshToken,
       // currentHashedRefreshToken
     });
   }
 
   async removeRefreshToken(userId: number) {
     return this.usersRepository.update(userId, {
-      currentHashedRefreshToken: null
+      currentHashedRefreshToken: null,
     });
   }
-
 }
