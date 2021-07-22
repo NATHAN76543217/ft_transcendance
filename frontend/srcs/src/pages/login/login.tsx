@@ -10,6 +10,7 @@ import AppContext from "../../AppContext";
 import axios from "axios";
 import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
 import { UserStatus } from "../../models/user/IUser";
+import { ExceptionData } from "../../models/exceptions/ExceptionData";
 interface ILoginFormValues {
   username: string;
   password: string;
@@ -44,17 +45,15 @@ export default function Login({ match }: LoginPageProps) {
 
       setUser(data);
 
-      const dataUpdate = await axios.patch(
-        `/api/users/${data.id}`,
-        { status: UserStatus.online }
-      );
+      const dataUpdate = await axios.patch(`/api/users/${data.id}`, {
+        status: UserStatus.Online,
+      });
       // console.log("data Update login: ",dataUpdate)
 
-      const redirPath = data.imgPath === 'default-profile-picture.png' ? 'users' : ''
+      const redirPath =
+        data.imgPath === "default-profile-picture.png" ? "users" : "";
 
-      const url = redirPath
-        ? urljoin("/", redirPath)
-        : "/";
+      const url = redirPath ? urljoin("/", redirPath) : "/";
       // const url = match.params.redirPath
       // ? urljoin("/", match.params.redirPath)
       // : "/";
@@ -63,10 +62,7 @@ export default function Login({ match }: LoginPageProps) {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
-          const details = error.response.data as {
-            statusCode: number;
-            message: string;
-          };
+          const details = error.response.data as ExceptionData;
           setError(
             "password",
             { message: details.message },
@@ -97,8 +93,8 @@ export default function Login({ match }: LoginPageProps) {
       >
         <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <section className="flex flex-col max-w-sm p-4 m-auto mt-32 rounded-xl bg-neutral">
@@ -113,7 +109,6 @@ export default function Login({ match }: LoginPageProps) {
             labelName="Username"
           ></TextInput>
           <div className="relative">
-
             <TextInput
               name="password"
               register={register}

@@ -1,17 +1,23 @@
-import { IsString, IsNotEmpty, IsNumberString, IsOptional, IsNumber, Length } from 'class-validator';
-import { ChannelModeTypes } from '../utils/channelModeTypes';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  Length,
+  Matches,
+} from 'class-validator';
+import { NameValidator } from 'src/utils/NameValidator';
+import { ChannelMode } from '../utils/channelModeTypes';
 
 export class UpdateChannelDto {
-    @IsOptional()
-    @IsString()
-    @Length(1, 15)
-    name: string;
+  @IsOptional()
+  @NameValidator('Channel name')
+  name: string;
 
-    @IsOptional()
-    @IsString()
-    password: string;
+  @IsOptional()
+  @IsString()
+  password: string;
 
-    @IsNumber()
-    @IsOptional()
-    mode: ChannelModeTypes;
+  @IsNumber()
+  @IsOptional()
+  mode: ChannelMode;
 }

@@ -12,7 +12,7 @@ import { ChannelRelationshipType } from './relationships/channel-relationship.ty
 import User from 'src/users/user.entity';
 import ChannelRelationship from './relationships/channel-relationship.entity';
 import { ChannelsGateway } from './channels.gateway';
-import { ChannelModeTypes } from './utils/channelModeTypes';
+import { ChannelMode } from './utils/channelModeTypes';
 import ChannelMandatoryPassword from './exception/ChannelMandatoryPassword.exception';
 import ChannelAlreadyExist from './exception/ChannelAlreadyExist.exception';
 import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
@@ -212,13 +212,13 @@ export default class ChannelsService {
       throw new ChannelMandatoryMode()
     }
     if (
-      Number(channel.mode) === Number(ChannelModeTypes.protected) &&
+      Number(channel.mode) === Number(ChannelMode.protected) &&
       (channel.password === "" || channel.password === undefined)
     ) {
       throw new ChannelMandatoryPassword()
       // throw new HttpException('TODO: Unauthorized read', 401);
     }
-    if (Number(channel.mode) !== Number(ChannelModeTypes.protected)) {
+    if (Number(channel.mode) !== Number(ChannelMode.protected)) {
       channel.password = "";
     } else {
       const hashedPassword = await bcrypt.hash(channel.password, 10);
@@ -239,13 +239,13 @@ export default class ChannelsService {
 
   async updateChannel(id: number, channel: UpdateChannelDto) {
     if (
-      Number(channel.mode) === Number(ChannelModeTypes.protected) &&
+      Number(channel.mode) === Number(ChannelMode.protected) &&
       (channel.password === "" || channel.password === undefined)
     ) {
       throw new ChannelMandatoryPassword()
       // throw new HttpException('TODO: Unauthorized read', 401);
     }
-    if (Number(channel.mode) !== Number(ChannelModeTypes.protected)) {
+    if (Number(channel.mode) !== Number(ChannelMode.protected)) {
       channel.password = "";
     } else {
       const hashedPassword = await bcrypt.hash(channel.password, 10);

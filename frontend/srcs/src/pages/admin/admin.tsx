@@ -9,7 +9,7 @@ class Admin extends React.Component {
 
   render() {
     const contextValue = this.context;
-    if (true || contextValue.myRole & (UserRole.owner + UserRole.admin)) {
+    if (true || contextValue.myRole & (UserRole.Owner + UserRole.Admin)) {
       return (
         <div>
           <AdminChannels />

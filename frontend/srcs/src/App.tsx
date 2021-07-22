@@ -249,7 +249,7 @@ class App extends React.Component<AppProps, AppState> {
 
     if (
       this.state.user !== undefined &&
-      this.state.user.role === UserRole.ban
+      this.state.user.role === UserRole.Banned
     ) {
       return (
         <AppContext.Provider value={contextValue}>
@@ -317,8 +317,8 @@ class App extends React.Component<AppProps, AppState> {
                         </OnlyPublic>
                         {this.displayAdminRoute(
                           // true
-                          this.state.user?.role === UserRole.admin ||
-                            this.state.user?.role === UserRole.owner
+                          this.state.user?.role === UserRole.Admin ||
+                            this.state.user?.role === UserRole.Owner
                         )}
                       </Switch>
                     </main>

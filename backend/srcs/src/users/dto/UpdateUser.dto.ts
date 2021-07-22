@@ -1,45 +1,52 @@
-import { IsString, IsNotEmpty,IsNumberString, IsOptional, IsBooleanString, IsNumber, IsBoolean, isNotEmpty, Length } from "class-validator";
-import { UserRoleTypes } from "../utils/userRoleTypes";
-import { UserStatus } from "../utils/userStatus";
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsBoolean,
+  Length,
+} from 'class-validator';
+import { NameValidator } from 'src/utils/NameValidator';
+import { UserRole } from '../utils/userRole';
+import { UserStatus } from '../utils/userStatus';
 
 export default class UpdateUserDto {
-	@IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    @Length(1, 15)
-    public name: string;
-    
-    @IsString()
-    @IsOptional()
-    @IsNotEmpty()
-    public password : string;
+  @IsOptional()
+  @NameValidator('Username')
+  public name: string;
 
-	@IsOptional()
-    @IsNumberString()
-    public nbWin: number;
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  @Length(4, 64)
+  public password: string;
 
-	@IsOptional()
-    @IsNumberString()
-    public nbLoss: number;
+  @IsOptional()
+  @IsNumberString()
+  public nbWin: number;
 
-	@IsOptional()
-    @IsNumberString()
-    public stats: number;
+  @IsOptional()
+  @IsNumberString()
+  public nbLoss: number;
 
-	@IsOptional()
-	@IsString()
-    public imgPath: string;
+  @IsOptional()
+  @IsNumberString()
+  public stats: number;
 
-	@IsOptional()
-	// @IsBooleanString()
-	@IsBoolean()
-    public twoFactorAuth: boolean;
+  @IsOptional()
+  @IsString()
+  public imgPath: string;
 
-	@IsOptional()
-	// @IsNumber()
-    public status: UserStatus;
+  @IsOptional()
+  // @IsBooleanString()
+  @IsBoolean()
+  public twoFactorAuth: boolean;
 
-    @IsOptional()
-	// @IsNumber()
-    public role: UserRoleTypes;
+  @IsOptional()
+  // @IsNumber()
+  public status: UserStatus;
+
+  @IsOptional()
+  // @IsNumber()
+  public role: UserRole;
 }

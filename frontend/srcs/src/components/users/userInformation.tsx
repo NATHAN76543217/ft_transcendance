@@ -22,25 +22,38 @@ type UserProps = {
   relationshipTypes: UserRelationshipType;
   idInf: boolean;
   isInSearch?: boolean | false;
-  showWrongUsernameMessage?: boolean | false;
-  handleClickTwoFactorAuth?: (userInfo: UserPageState, setUserInfo: any) => void;
-  onFileChange?: (fileChangeEvent: any, userInfo: UserPageState, setUserInfo: any, setUser: any) => void;
+  usernameErrorMessage?: string;
+  handleClickTwoFactorAuth?: (
+    userInfo: UserPageState,
+    setUserInfo: any
+  ) => void;
+  onFileChange?: (
+    fileChangeEvent: any,
+    userInfo: UserPageState,
+    setUserInfo: any,
+    setUser: any
+  ) => void;
   addFriend: any;
   removeFriend: any;
   blockUser: any;
   unblockUser: any;
-  changeUsername?: (values: IUserChangeNameFormValues, userInfo: UserPageState, setUserInfo: any, setUser: any) => void;
+  changeUsername?: (
+    values: IUserChangeNameFormValues,
+    userInfo: UserPageState,
+    setUserInfo: any,
+    setUser: any
+  ) => void;
   userInfo: any;
   setUserInfo?: any;
 };
 
 function getStatusColor(param: UserStatus) {
   switch (param) {
-    case UserStatus.online:
+    case UserStatus.Online:
       return " text-green-600";
-    case UserStatus.offline:
+    case UserStatus.Offline:
       return " text-red-600";
-    case UserStatus.inGame:
+    case UserStatus.InGame:
       return " text-yellow-600";
     default:
       return "";
@@ -49,11 +62,11 @@ function getStatusColor(param: UserStatus) {
 
 function getStatus(param: UserStatus) {
   switch (param) {
-    case UserStatus.online:
+    case UserStatus.Online:
       return "Online";
-    case UserStatus.offline:
+    case UserStatus.Offline:
       return "Offline";
-    case UserStatus.inGame:
+    case UserStatus.InGame:
       return "In Game";
     default:
       return "";
@@ -64,9 +77,7 @@ function displayWinAndLose(user: UserProps) {
   if (user.isInSearch) {
     return (
       <div className="w-24 mx-4 text-center">
-        <div className="relative font-bold text-md" >
-          Win / Lose
-        </div>
+        <div className="relative font-bold text-md">Win / Lose</div>
         <h1 className={"relative font-bold text-md "}>
           <span className="text-green-700">{user.nbWin}</span> /{" "}
           <span className="text-red-700">{user.nbLoss}</span>
@@ -83,7 +94,7 @@ function displayProfilePicture(user: UserProps) {
       : "/api/uploads/" + user.imgPath;
   if (user.isInSearch) {
     return (
-      <NavLink to={"/users/" + user.id} >
+      <NavLink to={"/users/" + user.id}>
         <img
           className="object-contain w-32 h-full"
           src={path}
@@ -98,7 +109,7 @@ function displayProfilePicture(user: UserProps) {
         src={path}
         alt="user profile"
       />
-    )
+    );
   }
 }
 
@@ -267,10 +278,14 @@ function displayTwoFactorAuth(user: UserProps) {
 function displayChangeNameField(user: UserProps, setUser: any) {
   const localchangeUsername = async (values: IUserChangeNameFormValues) => {
     if (user.changeUsername) {
-      await user.changeUsername(values, user.userInfo, user.setUserInfo, setUser);
+      await user.changeUsername(
+        values,
+        user.userInfo,
+        user.setUserInfo,
+        setUser
+      );
     }
   };
-
 
   if (user.isMe && !user.isInSearch && user.changeUsername !== undefined) {
     return <ChangeNameUserForm onSubmit={localchangeUsername} />;
@@ -280,10 +295,10 @@ function displayChangeNameField(user: UserProps, setUser: any) {
 }
 
 function displayWrongUsernameMessage(user: UserProps) {
-  if (user.showWrongUsernameMessage) {
+  if (user.usernameErrorMessage) {
     return (
       <div className="absolute bottom-0 w-48 font-bold text-red-600">
-        Wrong Username
+        {user.usernameErrorMessage}
       </div>
     );
   }
@@ -292,16 +307,14 @@ function displayWrongUsernameMessage(user: UserProps) {
 function displayUsername(user: UserProps) {
   if (user.isInSearch) {
     return (
-      <NavLink to={"/users/" + user.id} >
-        <span className="relative text-xl font-bold hover:underline">{user.name}</span>
+      <NavLink to={"/users/" + user.id}>
+        <span className="relative text-xl font-bold hover:underline">
+          {user.name}
+        </span>
       </NavLink>
     );
   } else {
-    return (
-      <div className="relative text-xl font-bold">
-        {user.name}
-      </div>
-    );
+    return <div className="relative text-xl font-bold">{user.name}</div>;
   }
 }
 

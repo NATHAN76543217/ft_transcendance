@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { UserRoleTypes } from './utils/userRoleTypes';
+import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import { UserStatus } from './utils/userStatus';
 import { Exclude } from 'class-transformer';
@@ -41,11 +41,11 @@ class User {
   @Column({ nullable: true, default: UserStatus.offline })
   public status: UserStatus;
 
-  @Column({ default: UserRoleTypes.null })
-  public role: UserRoleTypes;
+  @Column({ default: UserRole.User })
+  public role: UserRole;
 
   @Column({
-    nullable: true
+    nullable: true,
   })
   @Exclude()
   public currentHashedRefreshToken?: string;

@@ -1,4 +1,4 @@
-import { UserRoleTypes } from 'src/users/utils/userRoleTypes';
+import { UserRole } from 'src/users/utils/userRole';
 import { UserStatus } from 'src/users/utils/userStatus';
 import User from '../../users/user.entity';
 
@@ -16,7 +16,7 @@ export const mockedUser: User = {
   jwt: "",
   twoFactorAuth: false,
   status: UserStatus.null,
-  role: UserRoleTypes.null,
+  role: UserRole.User,
   channels: [],
   // userRelationship1: [],
   // userRelationship2: []

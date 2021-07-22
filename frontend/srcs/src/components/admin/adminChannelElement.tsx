@@ -7,7 +7,6 @@ import {
   ChannelRelationshipType,
 } from "../../models/channel/ChannelRelationship";
 import { UserRole } from "../../models/user/IUser";
-import User from "../../pages/users/user";
 import CustomButton from "../utilities/CustomButton";
 import AdminUserElement from "./adminUserElement";
 
@@ -119,16 +118,16 @@ const displayDestroyValidationButton = (props: ChannelElementProps, adminChannel
 
 const translateRelationTypeToRole = (type: ChannelRelationshipType) => {
   switch (type) {
-    case ChannelRelationshipType.owner:
-      return UserRole.owner;
-    case ChannelRelationshipType.admin:
-      return UserRole.admin;
-    case ChannelRelationshipType.banned:
-      return UserRole.ban;
-      case ChannelRelationshipType.muted:
-        return ChannelRelationshipType.muted;
+    case ChannelRelationshipType.Owner:
+      return UserRole.Owner;
+    case ChannelRelationshipType.Admin:
+      return UserRole.Admin;
+    case ChannelRelationshipType.Banned:
+      return UserRole.Banned;
+      case ChannelRelationshipType.Muted:
+        return ChannelRelationshipType.Muted;
     default:
-      return UserRole.null;
+      return UserRole.User;
   }
 }
 
@@ -157,22 +156,22 @@ const kickUserFromChannel = async (
 
 
 const banUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.banned, adminChannelElementInfo, setAdminChannelElementInfo);
+  setChannelUserRelationship(user_id, ChannelRelationshipType.Banned, adminChannelElementInfo, setAdminChannelElementInfo);
 
 const unbanUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.member, adminChannelElementInfo, setAdminChannelElementInfo);
+  setChannelUserRelationship(user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
 
 const setAdminFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.admin, adminChannelElementInfo, setAdminChannelElementInfo);
+  setChannelUserRelationship(user_id, ChannelRelationshipType.Admin, adminChannelElementInfo, setAdminChannelElementInfo);
 
 const unsetAdminFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.member, adminChannelElementInfo, setAdminChannelElementInfo);
+  setChannelUserRelationship(user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
 
   const muteUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.muted, adminChannelElementInfo, setAdminChannelElementInfo);
+  setChannelUserRelationship(user_id, ChannelRelationshipType.Muted, adminChannelElementInfo, setAdminChannelElementInfo);
 
   const unmuteUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.member, adminChannelElementInfo, setAdminChannelElementInfo);
+  setChannelUserRelationship(user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
 
   // const kickUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
   // setChannelUserRelationship(user_id, ChannelRelationshipType.null, adminChannelElementInfo, setAdminChannelElementInfo);
@@ -188,7 +187,7 @@ const displayUsersList = (adminChannelElementInfo: ChannelElementStates, setAdmi
               relation.type
             );
 
-            if (!(relation.type & ChannelRelationshipType.null)) {
+            if (!(relation.type & ChannelRelationshipType.Member)) {
               return (
                 <li key={relation.user_id.toFixed()} className="">
                   <AdminUserElement

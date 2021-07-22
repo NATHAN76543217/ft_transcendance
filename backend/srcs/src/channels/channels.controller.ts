@@ -25,7 +25,7 @@ import {
 } from './channel-casl-ability.factory';
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { join } from 'path';
-import { ChannelModeTypes } from './utils/channelModeTypes';
+import { ChannelMode } from './utils/channelModeTypes';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthenticationGuard)
@@ -102,7 +102,7 @@ export default class ChannelsController {
     const relation = await this.channelsService.createChannelRelationship(
       channel.id,
       req.user.id,
-      ChannelRelationshipType.owner,
+      ChannelRelationshipType.Owner,
     );
     // console.log(relation)
     return channel;
@@ -204,15 +204,14 @@ export default class ChannelsController {
 
     // TODO: Add check if password
     const channel = await this.channelsService.getChannelById(Number(channelId))
-    if (channel.mode === ChannelModeTypes.protected) {
+    if (channel.mode === ChannelMode.protected) {
       await this.channelsService.verifyPassword(joinChannelData.password, channel.password);
     }
 
     await this.channelsService.createChannelRelationship(
       Number(channelId),
       req.user.id,
-      // joinChannelData.type,
-      ChannelRelationshipType.member
+      ChannelRelationshipType.Member,
     );
 
   }
@@ -226,7 +225,7 @@ export default class ChannelsController {
       Number(channelId),
       req.user.id,
     );
-    const sanction = relationship.type & ChannelRelationshipType.sanctioned;
+    const sanction = relationship.type & ChannelRelationshipType.Sanctioned;
 
     if (sanction) {
       // A sanctioned user is not deleted from relationships
@@ -253,7 +252,7 @@ export default class ChannelsController {
       Number(channelId),
       Number(userId),
     );
-    const sanction = relationship.type & ChannelRelationshipType.sanctioned;
+    const sanction = relationship.type & ChannelRelationshipType.Sanctioned;
 
     if (sanction) {
       // A sanctioned user is not deleted from relationships

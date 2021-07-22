@@ -70,7 +70,7 @@ function SideMenu(props : {logged :boolean}) {
 							<SideMenuButton name="Profile" href="/users" icon="fa-address-card" />
 						</React.Fragment>
 					}
-					{DisplayAdminMenu((user?.role === UserRole.admin) || (user?.role === UserRole.owner))}
+					{DisplayAdminMenu((user?.role === UserRole.Admin) || (user?.role === UserRole.Owner))}
 					{/* {DisplayAdminMenu(false)} */}
 					{/* A CHANGER AVEC LE VRAI ADMIN STATUS */}
 				</ul>

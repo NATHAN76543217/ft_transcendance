@@ -5,13 +5,13 @@ import {
   IsNumber,
   IsNumberString,
   Length,
+  Matches,
 } from 'class-validator';
-import { ChannelModeTypes } from '../utils/channelModeTypes';
+import { NameValidator } from 'src/utils/NameValidator';
+import { ChannelMode } from '../utils/channelModeTypes';
 
 export class CreateChannelDto {
-  @IsString()
-  @IsNotEmpty()
-  @Length(1, 15)
+  @NameValidator('Channel name')
   name: string;
 
   @IsString()
@@ -23,5 +23,5 @@ export class CreateChannelDto {
   @IsNumberString()
   @IsNotEmpty()
   @IsOptional()
-  mode: ChannelModeTypes;
+  mode: ChannelMode;
 }

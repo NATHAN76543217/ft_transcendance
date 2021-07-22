@@ -23,15 +23,15 @@ type UserElementProps = {
 function displayRole(role: UserRole | ChannelRelationshipType) {
   const divClass = "italic text-sm ";
   switch (role) {
-    case UserRole.owner:
+    case UserRole.Owner:
       return (
         <div className={divClass + "text-blue-600 font-semibold"}>Owner</div>
       );
-    case UserRole.admin:
+    case UserRole.Admin:
       return <div className={divClass + "text-green-600"}>Admin</div>;
-    case UserRole.ban:
+    case UserRole.Banned:
       return <div className={divClass + "text-red-600"}>Banned</div>;
-    case ChannelRelationshipType.muted:
+    case ChannelRelationshipType.Muted:
       return <div className={divClass + "text-purple-600"}>Muted</div>;
     default:
       return <div className={divClass + "text-gray-700"}>standard</div>;
@@ -43,15 +43,15 @@ function isMyRoleAbove(user: UserElementProps) {
   let role = user.role;
   if (
     myRole !== undefined &&
-    myRole & UserRole.owner &&
-    !(role & UserRole.owner)
+    myRole & UserRole.Owner &&
+    !(role & UserRole.Owner)
   ) {
     return true;
   }
   if (
-    myRole === UserRole.admin &&
-    role !== UserRole.owner &&
-    role !== UserRole.admin
+    myRole === UserRole.Admin &&
+    role !== UserRole.Owner &&
+    role !== UserRole.Admin
   ) {
     return true;
   }
@@ -70,7 +70,7 @@ function displayBanButton(user: UserElementProps) {
   return (
     <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
       {isMyRoleAbove(user) ? (
-        !(user.role & UserRole.ban) ? (
+        !(user.role & UserRole.Banned) ? (
           <CustomButton
             content="Ban"
             // url="/users/block"
@@ -112,7 +112,7 @@ function displayMuteButton(user: UserElementProps) {
     return (
       <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
         {isMyRoleAbove(user) ? (
-          !(user.role & ChannelRelationshipType.muted) ? (
+          !(user.role & ChannelRelationshipType.Muted) ? (
             <CustomButton
               content="Mute"
               // url="/users/block"
@@ -180,15 +180,15 @@ function displayAdminButton(user: UserElementProps) {
   };
 
   if (
-    !(user.role & UserRole.ban) &&
+    !(user.role & UserRole.Banned) &&
     isMyRoleAbove(user) &&
     user.myRole !== undefined &&
-    user.myRole & UserRole.owner
+    user.myRole & UserRole.Owner
   ) {
     return (
       <div className="relative inline-flex items-center justify-center w-32 h-6 text-center">
-        {!(user.role & UserRole.owner) ? (
-          !(user.role & UserRole.admin) ? (
+        {!(user.role & UserRole.Owner) ? (
+          !(user.role & UserRole.Admin) ? (
             <CustomButton
               content="Set admin"
               // url="/users/block"

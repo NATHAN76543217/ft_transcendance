@@ -6,10 +6,8 @@ import AdminChannelElement from "../../components/admin/adminChannelElement";
 import {
   Channel,
   ChannelMode,
-  ChannelUser,
 } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
-import { UserRole } from "../../models/user/IUser";
 import ChannelSettingsProperties from "./channelSettingsProperties";
 
 type ChannelSettingsParams = {
@@ -28,7 +26,7 @@ function ChannelSettings({
     id: 0,
     name: "",
     mode: ChannelMode.public,
-    myRole: ChannelRelationshipType.null,
+    myRole: ChannelRelationshipType.Member,
     messages: [],
     users: [],
   });
@@ -50,7 +48,7 @@ function ChannelSettings({
       const myRole =
         myRelationship !== undefined
           ? myRelationship.type
-          : ChannelRelationshipType.null;
+          : ChannelRelationshipType.Member;
       setChannelInfo({
         id: dataChannel.data.id,
         name: dataChannel.data.name,
@@ -63,7 +61,7 @@ function ChannelSettings({
   };
 
   const destroyChannel = async (id: number) => {
-    if (channelInfo.myRole & ChannelRelationshipType.owner) {
+    if (channelInfo.myRole & ChannelRelationshipType.Owner) {
       try {
         // console.log("Deleting channel " + id);
         await axios.delete(`/api/channels/${id}`, { withCredentials: true });
@@ -78,7 +76,7 @@ function ChannelSettings({
   }
   if (
     channelInfo.myRole &
-    (ChannelRelationshipType.owner + ChannelRelationshipType.admin)
+    (ChannelRelationshipType.Owner + ChannelRelationshipType.Admin)
   ) {
     return (
       <div className="flex-grow">

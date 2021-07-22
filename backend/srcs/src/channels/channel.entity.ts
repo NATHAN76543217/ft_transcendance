@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 //import { Exclude } from 'class-transformer';
 import { Message } from '../messages/message.entity';
-import { ChannelModeTypes } from './utils/channelModeTypes';
+import { ChannelMode } from './utils/channelModeTypes';
 import ChannelRelationship from './relationships/channel-relationship.entity';
 
 @Entity()
@@ -17,8 +17,8 @@ class Channel {
   //@Exclude({ toPlainOnly: true })
   public password: string; // public ?
 
-  @Column({ default: ChannelModeTypes.public })
-  public mode: ChannelModeTypes;
+  @Column({ default: ChannelMode.public })
+  public mode: ChannelMode;
 
   @OneToMany(() => Message, (message: Message) => message.channel)
   public messages: Message[];

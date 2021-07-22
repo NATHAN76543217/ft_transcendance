@@ -132,7 +132,7 @@ type ChatActionsProps = {
 function ChatActions({ userRole, relation }: ChatActionsProps) {
   if (userRole === undefined || relation === undefined) return <></>;
   switch (userRole) {
-    case UserRole.admin || UserRole.owner:
+    case UserRole.Admin || UserRole.Owner:
       return <AdminActions channelId={relation.channel.id}></AdminActions>;
     default:
       return <UserActions channelId={relation.channel.id}></UserActions>;

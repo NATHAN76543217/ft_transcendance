@@ -8,5 +8,5 @@ export default interface UserPageState {
   doesUserExist: boolean;
   user: IUser;
   relationshipType: UserRelationshipType;
-  showWrongUsernameMessage: boolean;
+  usernameErrorMessage: string;
 }

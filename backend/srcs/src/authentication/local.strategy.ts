@@ -1,8 +1,10 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import User from '../users/user.entity';
+import { UserRole } from 'src/users/utils/userRole';
+import { UserBannedException } from './exception/UserBanned.exception';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -14,9 +16,15 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   }
   async validate(name: string, password: string): Promise<User> {
     //REVIEW change function name?
-    return this.authenticationService.getAuthenticatedUserWithPassword(
+    const user = await this.authenticationService.getAuthenticatedUserWithPassword(
       name,
       password,
     );
+
+    if (user.role & UserRole.Banned) {
+      throw new UserBannedException();
+    }
+
+    return user;
   }
 }
