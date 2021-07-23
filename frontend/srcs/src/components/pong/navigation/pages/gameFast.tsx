@@ -25,10 +25,13 @@ export default function GameFast()
     // JSX object representing the duration of the search
     const [timer, setTimer] = React.useState<JSX.Element>(<></>);
 
-    const [allReady, setAllReady] = React.useState<boolean>(false);
+    //const [allReady, setAllReady] = React.useState<boolean>(false);
 
-    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, (status : boolean) => {
-        setAllReady(true);
+    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, () => {
+        if (isTimeOut == false)
+            context.goToPongGame();
+        else
+            cancelQueue();
     });
 
     React.useEffect(() => {
@@ -79,35 +82,18 @@ export default function GameFast()
         }
     });
 
-    const [roomId, setRoomId] = React.useState<string>();
-
     context.socket.on(Mesages.RECEIVE_ROOM_ID, (id : string) => {
-        setRoomId(id);
+        context.socket.emit(Mesages.IS_IN_QUEUE, id, context.playerId);
     });
 
     const acceptGame = () => {
         context.socket.emit(Mesages.PLAYER_IS_READY, context.gameId, context.playerId);
-
-        // TO DO: await somehow the response
-
-        // TO DO: Put both in a setInterval for a limited time or something like that
-        // TO DO: Emit each N seconds
         context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId);
-
-        // TO DO: Check each N seconds, if timeout cancel game
-        if (isTimeOut == false && allReady)
-            context.goToPongGame();
-        else
-            cancelQueue();
     };
 
     const findGame = () => {
         setInQueue(true);
         context.socket.emit(Mesages.FIND_GAME, context.playerId);
-        
-        // TO DO: Somehow wait to receive the roomId before exec this
-        while (inQueue == true) ; // wait ? in aync ?
-        context.socket.emit(Mesages.IS_IN_QUEUE, roomId, context.playerId);
     };
 
     const cancelQueue = () => {

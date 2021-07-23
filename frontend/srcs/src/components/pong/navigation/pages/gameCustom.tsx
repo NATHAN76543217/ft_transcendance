@@ -144,7 +144,7 @@ export default function GameCustom()
         // TO DO: Add bot level here, no ?
     });
 
-    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customimzation) => {
+    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customimzation : ICustomGame) => {
         setSliderShared(customimzation);
     });
 

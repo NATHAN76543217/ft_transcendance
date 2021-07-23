@@ -22,12 +22,16 @@ import {
 import {
     InvitedCustomization,
     CustomValue,
-    Customization
 } from "../../components/customization"
+import {
+    IInvitedDataDto
+} from "shared-pong/dto/invited.dto"
 
 type IInvitedCustomization = {
     sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]>;
 }
+
+type CustomizationPair = [ICustomGame, React.Dispatch<React.SetStateAction<ICustomGame>>];
 
 export const InvitedCustomizationContext = React.createContext<IInvitedCustomization>({
     sliders: new Map()
@@ -35,17 +39,19 @@ export const InvitedCustomizationContext = React.createContext<IInvitedCustomiza
 
 export default function InvitedToGame()
 {
+
     const context = React.useContext(PongContext);
 
-    const [allReady, setAllReady] = React.useState<boolean>(false);
+    /////////////////
+    // REACT STATE //
+    /////////////////
 
-    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, (status : boolean) => {
-        setAllReady(true);
-    });
+    // A Map holding the sliders state
+    let sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> =
+        new Map();
 
-    const [isReady, setIsReady] = React.useState<boolean>(false);
-
-    const [sliderShared, setSliderShared] = React.useState<ICustomGame>({
+    // An Object holding the customization
+    const [sliderShared, setSliderShared] : CustomizationPair = React.useState<ICustomGame>({
         ballSpeed: Number(),
         ballColor: String(),
         courtColor: String(),
@@ -64,38 +70,105 @@ export default function InvitedToGame()
         }))
     });
 
-    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customization : ICustomGame) => {
-        setSliderShared(customization);
+    // Represent the state of the "Ready" button
+    const [isReady, setIsReady] = React.useState<boolean>(false);
+
+    /////////////////////
+    // EVENT LISTENERS //
+    /////////////////////
+    
+    // NOTE: Listeners are defined by execution order
+
+    // Initialise the customization range sliders with normalised data
+    context.socket.on(Mesages.RECEIVE_INIT_CUSTOMIZATION, () => {
+        sliders = new Map([
+            [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.ballSpeed, sliderShared.ballSpeed))],
+            [CustomValue.BALL_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.colorLimit, parseInt(sliderShared.ballColor, 16)))],
+            [CustomValue.COURT_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.colorLimit, parseInt(sliderShared.courtColor, 16)))],
+            [CustomValue.NET_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.colorLimit, parseInt(sliderShared.netColor, 16)))],
+            [CustomValue.PLAYER_ONE_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.playerOneWidth, sliderShared.playerOneWidth))],
+            [CustomValue.PLAYER_ONE_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.playerOneHeight, sliderShared.playerOneHeight))],
+            [CustomValue.PLAYER_ONE_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.colorLimit, parseInt(sliderShared.playerOneColor, 16)))],
+            [CustomValue.PLAYER_TWO_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.playerTwoWidth, sliderShared.playerTwoWidth))],
+            [CustomValue.PLAYER_TWO_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.playerTwoHeight, sliderShared.playerTwoHeight))],
+            [CustomValue.PLAYER_TWO_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
+                .settingsLimits.colorLimit, context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()))],
+        ]);
     });
 
-    context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
-    context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
+    // Update the customziation range sliders
+    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customization : ICustomGame) => {
+        setSliderShared(customization);
+        sliders.get(CustomValue.BALL_SPEED)?.[1](sliderShared.ballSpeed);
+        sliders.get(CustomValue.BALL_COLOR)?.[1](parseInt(sliderShared.ballColor, 16));
+        sliders.get(CustomValue.COURT_COLOR)?.[1](parseInt(sliderShared.courtColor, 16));
+        sliders.get(CustomValue.NET_COLOR)?.[1](parseInt(sliderShared.netColor, 16));
+        sliders.get(CustomValue.PLAYER_ONE_WIDTH)?.[1](sliderShared.playerOneWidth);
+        sliders.get(CustomValue.PLAYER_ONE_HEIGHT)?.[1](sliderShared.playerOneHeight);
+        sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[1](parseInt(sliderShared.playerOneColor, 16));
+        sliders.get(CustomValue.PLAYER_TWO_WIDTH)?.[1](sliderShared.playerOneWidth);
+        sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[1](sliderShared.playerOneHeight);
+    });
 
-    // TO DO: SomeHow syncronize client-server
+    // When both players are ready, makes server will emit SUMMIT_INVITED_CUSTOMIZATION
+    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, () => {
+        context.socket.emit(Mesages.SYNC_INVITED_CUSTOMIZATION, context.gameId);
+    });
 
-    // Init sliders data using host's custom data (except for playerTwo color)
-    const sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> = new Map([
-        [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.ballSpeed, sliderShared.ballSpeed))],
-        [CustomValue.BALL_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.colorLimit, parseInt(sliderShared.ballColor, 16)))],
-        [CustomValue.COURT_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.colorLimit, parseInt(sliderShared.courtColor, 16)))],
-        [CustomValue.NET_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.colorLimit, parseInt(sliderShared.netColor, 16)))],
-        [CustomValue.PLAYER_ONE_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.playerOneWidth, sliderShared.playerOneWidth))],
-        [CustomValue.PLAYER_ONE_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.playerOneHeight, sliderShared.playerOneHeight))],
-        [CustomValue.PLAYER_ONE_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.colorLimit, parseInt(sliderShared.playerOneColor, 16)))],
-        [CustomValue.PLAYER_TWO_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.playerTwoWidth, sliderShared.playerTwoWidth))],
-        [CustomValue.PLAYER_TWO_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.playerTwoHeight, sliderShared.playerTwoHeight))],
-        [CustomValue.PLAYER_TWO_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
-            .settingsLimits.colorLimit, context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()))],
-    ]);
+    // Summit the current customization & init pong engine
+    context.socket.on(Mesages.SUMMIT_INVITED_CUSTOMIZATION, (data : IInvitedDataDto) => {
+        
+        const libsNames : Array<LibNames> = [
+            LibNames.LIB_HORIZONTAL_MULTI,
+            LibNames.LIB_VERTICAL_MULTI
+        ];
+
+        const index : number = libsNames.findIndex(elem => elem == data.libName);
+        if (index === undefined)
+            throw new Unspected("Unspected error on RECEIVE_INVITED_CUSTOMIZATION listener");
+        
+        context.pongSpetializations[index][1].gameStatus.playerOne.id =
+            data.ids.idPlayerOne == context.playerId ? data.ids.idPlayerTwo : data.ids.idPlayerOne;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.id = context.playerId;
+        context.pongSpetializations[index][1].gameStatus.ball.speed = sliderShared.ballSpeed;
+        context.pongSpetializations[index][1].gameStatus.ball.style.data = sliderShared.ballColor;
+        context.pongSpetializations[index][1].gameStatus.court.style.data = sliderShared.courtColor;
+        context.pongSpetializations[index][1].gameStatus.net.style.data = sliderShared.netColor;
+        context.pongSpetializations[index][1].gameStatus.playerOne.width = sliderShared.playerOneWidth;
+        context.pongSpetializations[index][1].gameStatus.playerOne.height = sliderShared.playerOneHeight;
+        context.pongSpetializations[index][1].gameStatus.playerOne.style.data = sliderShared.playerOneColor;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.width = sliderShared.playerTwoWidth;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.height = sliderShared.playerTwoHeight;
+        context.pongSpetializations[index][1].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
+            limits: {
+                min: 0x00000000,
+                max: 0x00FFFFFF
+            },
+            value: parseInt(sliderShared.playerTwoColor, 16)
+        }));
+
+        context.setPongIndex(index);
+
+        context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
+    });
+
+    // When all is syncronized, summited & both players are ready go to the game 
+    context.socket.on(Mesages.RECEIVE_PONG_IS_READY, () => {
+        context.goToPongGame();
+    });
+
+    /////////////////
+    // REACT HOOKS //
+    /////////////////
 
     // TO DO: Need to update render when other user does too
     React.useEffect(() => {
@@ -119,22 +192,13 @@ export default function InvitedToGame()
                 value: Number(sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[0])
             }))
         });
-
+        // Receive lastest shared customization update it
         context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
-
-        // TO DO: Somehow syncronize server-client before using sliderShared
-
-        // Update all the sliders data using received host's custom data
-        sliders.get(CustomValue.BALL_SPEED)?.[1](sliderShared.ballSpeed);
-        sliders.get(CustomValue.BALL_COLOR)?.[1](parseInt(sliderShared.ballColor, 16));
-        sliders.get(CustomValue.COURT_COLOR)?.[1](parseInt(sliderShared.courtColor, 16));
-        sliders.get(CustomValue.NET_COLOR)?.[1](parseInt(sliderShared.netColor, 16));
-        sliders.get(CustomValue.PLAYER_ONE_WIDTH)?.[1](sliderShared.playerOneWidth);
-        sliders.get(CustomValue.PLAYER_ONE_HEIGHT)?.[1](sliderShared.playerOneHeight);
-        sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[1](parseInt(sliderShared.playerOneColor, 16));
-        sliders.get(CustomValue.PLAYER_TWO_WIDTH)?.[1](sliderShared.playerOneWidth);
-        sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[1](sliderShared.playerOneHeight);
     }, [sliderShared]);
+
+    ////////////////////
+    // BUTTON ONCLICK //
+    ////////////////////
 
     // Handler for "Ready" button
     const onReady = () => {
@@ -151,19 +215,9 @@ export default function InvitedToGame()
             context.socket.emit(Mesages.PLAYER_ISNT_READY, context.gameId, context.playerId);
             setIsReady(false);
         }
-
+        // If both players are ready load custom & launch game
         context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId);
-
-        // TO DO: Sync alReady
-
-        // If both are readdy ...
-        if (allReady)
-        {
-            syncCustomization();
-            context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
-            context.goToPongGame();
-        }
-    }
+    };
 
     // Handler for "Quit" button
     const onQuit = () => {
@@ -172,60 +226,12 @@ export default function InvitedToGame()
         context.goToSelection();
     }
 
-    // Help to syncronize playerOne's and playerTwo's customization before launch the game
-    const syncCustomization = () => {
+    /////////////////////
+    // ALWAYS EXECUTED //
+    /////////////////////
 
-        const libsNames : Array<LibNames> = [
-            LibNames.LIB_HORIZONTAL_MULTI,
-            LibNames.LIB_VERTICAL_MULTI
-        ];
-
-        let pongName : LibNames | undefined = undefined;
-        let otherPlayerId : string | undefined = undefined;
-
-        context.socket.on(Mesages.RECEIVE_GAME_STYLE, (receivedLib : LibNames) => {
-            pongName = receivedLib;
-        });
-
-        context.socket.on(Mesages.RECEIVE_OTHER_PLAYER_ID, (id : string) => {
-            otherPlayerId = id;
-        });
-
-        context.socket.emit(Mesages.GET_GAME_STYLE, context.gameId);
-
-        if (pongName === undefined)
-            throw new Error();
-
-        // TO DO: Somehow syncronize before use pongName
-
-        const index : number = libsNames.findIndex(elem => elem == pongName);
-
-        if (index === undefined || otherPlayerId === undefined)
-            throw new Unspected("Unspected error in syncCustomisation");
-        
-        // TO DO: Somehow syncronize before using otherPlayerId
-
-        context.pongSpetializations[index][1].gameStatus.playerOne.id = otherPlayerId;
-        context.pongSpetializations[index][1].gameStatus.playerTwo.id = context.playerId;
-        context.pongSpetializations[index][1].gameStatus.ball.speed = sliderShared.ballSpeed;
-        context.pongSpetializations[index][1].gameStatus.ball.style.data = sliderShared.ballColor;
-        context.pongSpetializations[index][1].gameStatus.court.style.data = sliderShared.courtColor;
-        context.pongSpetializations[index][1].gameStatus.net.style.data = sliderShared.netColor;
-        context.pongSpetializations[index][1].gameStatus.playerOne.width = sliderShared.playerOneWidth;
-        context.pongSpetializations[index][1].gameStatus.playerOne.height = sliderShared.playerOneHeight;
-        context.pongSpetializations[index][1].gameStatus.playerOne.style.data = sliderShared.playerOneColor;
-        context.pongSpetializations[index][1].gameStatus.playerTwo.width = sliderShared.playerTwoWidth;
-        context.pongSpetializations[index][1].gameStatus.playerTwo.height = sliderShared.playerTwoHeight;
-        context.pongSpetializations[index][1].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-            limits: {
-                min: 0x00000000,
-                max: 0x00FFFFFF
-            },
-            value: parseInt(sliderShared.playerTwoColor, 16)
-        }));
-
-        context.setPongIndex(index);
-    }
+    context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
+    context.socket.emit(Mesages.INIT_CUSTOMIZATION, context.gameId);
 
     return (
         // TO DO: Use isReady for button style too

@@ -23,6 +23,9 @@ export enum Mesages {
     GET_PLAYERS_IDS = "server:getPlayersIds",
 
     JOIN_SPECTATOR = "server:joinSpectator",
+    GET_SPECTATOR_DATA = "server:getSpectatorData",
+    INIT_CUSTOMIZATION = "server:initCustomization",
+    SYNC_INVITED_CUSTOMIZATION = "server:syncInvitedCustomization",
 
     RECEIVE_GAME_STYLE = "client:receiveGameStyle",
     RECEIVE_GAME_CUSTOMIZATION = "client:receiveGameCustomization",
@@ -32,4 +35,8 @@ export enum Mesages {
     RECEIVE_OTHER_PLAYER_ID = "client:receiveOtherPlayerId",
     RECEIVE_GAME_FOUND = "client:receiveGameFound",
     RECEIVE_ROOM_ID = "client:receiveRoomId",
+    RECEIVE_SPECTATOR_DATA = "client:receiveSpectatorData",
+    RECEIVE_INIT_CUSTOMIZATION = "client:receiveInitCustomization",
+    SUMMIT_INVITED_CUSTOMIZATION = "client:summitClientCustomization",
+    RECEIVE_PONG_IS_READY = "client:receivePongisready",
 }

@@ -17,6 +17,8 @@ import {
 import  renderGameStatus from "../render/render"
 import SettingsLimits from "../settings/limits"
 
+// TO DO: Move to the front after fix server issue
+
 export default class PongClient
 {
     constructor(

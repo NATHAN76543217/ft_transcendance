@@ -47,6 +47,12 @@ import {
 import {
     IMousePosDto
 } from "shared-pong/dto/mousepos.dto"
+import {
+    ISpectatorDataDto
+} from "shared-pong/dto/spectator.dto"
+import {
+    IInvitedDataDto
+} from "shared-pong/dto/invited.dto"
 
 interface IRoomDto extends IRoomDtobase
 {
@@ -210,6 +216,8 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idPlayerTwo: room.idPlayerTwo,
                 startTime: new Date()
             });
+
+            this.server.to(client.id).emit(Mesages.RECEIVE_PONG_IS_READY);
         }
     }
 
@@ -244,11 +252,15 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         const room : IRoomDto = this.getRoom(idRoom);
 
-        this.server.to(client.id).emit(Mesages.RECEIVE_PLAYERS_ARE_READY,
-            room.mode == GameMode.MULTI_PLAYER
-            ? room.flags & State.PLAYER_ONE_READY
-            && room.flags & State.PLAYER_TWO_READY
-            : room.flags & State.PLAYER_ONE_READY);
+        if (room.mode == GameMode.MULTI_PLAYER
+        ? room.flags & State.PLAYER_ONE_READY
+        && room.flags & State.PLAYER_TWO_READY
+        : room.flags & State.PLAYER_ONE_READY)
+        {
+            this.server.to(client.id).emit(Mesages.RECEIVE_PLAYERS_ARE_READY);
+            this.server.to(room.idPlayerOne == client.id
+                ? room.idPlayerTwo : room.idPlayerOne).emit(Mesages.RECEIVE_PLAYERS_ARE_READY);
+        }
     }
 
     @SubscribeMessage(Mesages.FIND_GAME)
@@ -272,6 +284,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idRoom: null,
                 idPlayerOne: this.queue[0].key,
                 idPlayerTwo: null,
+                // TO DO: Check how i did for host-client or build a listener
                 config: new ClassicPongGameConfig(this.queue[0].key, null),
                 lib: null,
                 libName: LibNames.LIB_HORIZONTAL_MULTI,
@@ -289,8 +302,8 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
 
             // The game can now start
             this.launchGame(client, idRoom);
+            this.server.to(client.id).emit(Mesages.RECEIVE_ROOM_ID, idRoom);
         }
-        this.server.to(client.id).emit(Mesages.RECEIVE_ROOM_ID, idRoom);
     }
 
     // NOTE: If idRoom param is filled the room already exists and both player joined it
@@ -310,11 +323,8 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     @SubscribeMessage(Mesages.IS_IN_QUEUE)
     isInQueue(client : Socket, idRoom : string, idPlayer : string)
     {
-        const room : IRoomDto = this.getRoom(idRoom);
-
-        for (const i in this.queue)
-            if (i == idPlayer)
-                this.server.to(client.id).emit(Mesages.RECEIVE_GAME_FOUND);
+        if (idPlayer in this.queue === undefined)
+            this.server.to(client.id).emit(Mesages.RECEIVE_GAME_FOUND);
     }
 
     // NOTE: Better change the behaviour, if playerOne or playerTwo left the room the game ends
@@ -397,7 +407,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         const room : IRoomDto = this.getRoom(idRoom);
         this.server.to(client.id).emit(Mesages.RECEIVE_GAME_STYLE, room.libName);
-    }
+    } 
 
     @SubscribeMessage(Mesages.CALC_GAME_STATUS)
     calcPongStatus(client : Socket, idRoom : string, status : IDynamicDto)
@@ -488,6 +498,41 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         client.join(roomId);
         client.to(roomId).emit(`User ${spectatorId} joined the room`);
+    }
+
+    @SubscribeMessage(Mesages.GET_SPECTATOR_DATA)
+    getSpectatorData(client : Socket, roomId : string)
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+
+        this.server.to(client.id).emit(Mesages.RECEIVE_SPECTATOR_DATA, {
+            ids: {
+                idPlayerOne: room.idPlayerOne,
+                idPlayerTwo: room.idPlayerTwo
+            },
+            libName: room.libName,
+            customization: room.info
+        } as ISpectatorDataDto);
+    }
+
+    @SubscribeMessage(Mesages.INIT_CUSTOMIZATION)
+    initCustomization(client : Socket)
+    {
+        this.server.to(client.id).emit(Mesages.RECEIVE_INIT_CUSTOMIZATION);
+    }
+
+    @SubscribeMessage(Mesages.SYNC_INVITED_CUSTOMIZATION)
+    syncInvitedCustomization(client : Socket, roomid : string)
+    {
+        const room : IRoomDto = this.getRoom(roomid);
+
+        this.server.to(client.id).emit(Mesages.SUMMIT_INVITED_CUSTOMIZATION, {
+            libName: room.libName,
+            ids: {
+                idPlayerOne: room.idPlayerOne,
+                idPlayerTwo: room.idPlayerTwo
+            }
+        } as IInvitedDataDto);
     }
 }
 
