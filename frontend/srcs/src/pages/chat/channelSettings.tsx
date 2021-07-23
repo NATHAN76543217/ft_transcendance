@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { RouteComponentProps, useHistory } from "react-router";
 import AppContext from "../../AppContext";
 import AdminChannelElement from "../../components/admin/adminChannelElement";

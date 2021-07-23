@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useContext } from "react";
 import { Route, RouteComponentProps, Switch } from "react-router";
-import { io, Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
 
 import { ChatNavBar } from "../../components/chat/ChatNavBar";
@@ -37,7 +36,7 @@ export default function ChatPage({
     new Map(user?.channels.map((rel) => [rel.channel.id, rel]))
   );
 
-  const [socket, setSocket] = useState<Socket | undefined>(undefined);
+  // const [socket, setSocket] = useState<Socket | undefined>(undefined);
 
   const chatIdParam = Number(match.params.id);
 

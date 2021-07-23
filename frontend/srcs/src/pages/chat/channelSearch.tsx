@@ -281,6 +281,8 @@ function ChannelSearch() {
                 />
               </li>
             );
+          } else {
+            return <div></div>
           }
         })}
       </ul>

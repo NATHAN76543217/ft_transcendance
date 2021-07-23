@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import UserInformation from "../../components/users/userInformation";
 import UserStats from "../../components/users/userStats";
 import MatchHistory from "../../components/matchHistory/matchHistory";
@@ -69,12 +69,12 @@ const handleClickTwoFactorAuth = async (
   } catch (error) {}
 };
 
-const getProfilePicture = async (pictureId: number) => {
-  try {
-    const data = await axios.get("/uploads/" + pictureId);
-    return data.request.responseURL;
-  } catch (error) {}
-};
+// const getProfilePicture = async (pictureId: number) => {
+//   try {
+//     const data = await axios.get("/uploads/" + pictureId);
+//     return data.request.responseURL;
+//   } catch (error) {}
+// };
 
 const onFileChange = async (
   fileChangeEvent: any,
@@ -403,9 +403,17 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     usernameErrorMessage: "",
   });
 
-  useEffect(() => {
+  const updateOnLoad: any = useCallback(() => {
     onLoad(Number(userId), userInfo, setUserInfo, contextValue);
-  }, [userInfo, userId]);
+  }, [userInfo, userId, contextValue])
+
+  useEffect(() => {
+    updateOnLoad()
+  }, [userInfo, userId, updateOnLoad])
+
+  // useEffect(() => {
+  //   onLoad(Number(userId), userInfo, setUserInfo, contextValue);
+  // }, [userInfo, userId, contextValue]);
 
   if (!userInfo.doesUserExist) {
     return <div className="px-2 py-2 font-bold">This user does not exist</div>;

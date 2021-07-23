@@ -1,24 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // import Button from '../../components/utilities/Button';
 import axios from 'axios';
-import ChannelInformation from '../../components/chat/ChatInformation';
-import AppContext from '../../AppContext';
-import { ChannelRelationshipType } from '../../models/channel/ChannelRelationship';
 import ChannelCreateForm from '../../components/Forms/channelCreateForm';
 import CreateChannelDto from '../../models/channel/CreateChannel.dto';
-import JoinChannelDto from '../../models/channel/JoinChannel.dto';
 import { useForm } from 'react-hook-form';
 import { ChannelMode } from '../../models/channel/Channel';
-
-
-interface ChannelProps {
-}
-
-interface ChannelStates {
-
-}
-
 
 
 interface ICreateChannelFormValues {
@@ -34,8 +21,8 @@ function ChannelCreate() {
 
 
     const {
-        register,
-        handleSubmit,
+        // register,
+        // handleSubmit,
         setError,
         clearErrors,
         formState: { errors },
@@ -92,10 +79,10 @@ function ChannelCreate() {
                     );
                 }
                 else {
-                    const details = error.response?.data as {
-                        statusCode: number;
-                        message: string;
-                    };
+                    // const details = error.response?.data as {
+                    //     statusCode: number;
+                    //     message: string;
+                    // };
                     setError(
                         "channelName",
                         { message: 'Wrong channel name provided' },

@@ -1,6 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import AppContext from "../../AppContext";
+import { useCallback, useEffect, useState } from "react";
 import { ChannelMode } from "../../models/channel/Channel";
 import {
   ChannelRelationship,
@@ -240,8 +239,6 @@ interface ChannelElementStates {
 };
 
 function AdminChannelElement(props: ChannelElementProps) {
-  const contextValue = React.useContext(AppContext);
-
   const [adminChannelElementInfo, setAdminChannelElementInfo] = useState<ChannelElementStates>({
     channelRelationshipsList: [],
     showDestroyValidation: false,
@@ -250,14 +247,24 @@ function AdminChannelElement(props: ChannelElementProps) {
     myRole: props.myRole
   });
 
-  useEffect(() => {
+  const updateChannelIdAndRole = useCallback(() => {
     setAdminChannelElementInfo({
       ...adminChannelElementInfo,
       channel_id: props.id,
       myRole: props.myRole,
     })
-  }, [props.id, props.myRole])
+  }, [props.id, props.myRole, adminChannelElementInfo])
 
+  useEffect(() => {
+    // setAdminChannelElementInfo({
+    //   ...adminChannelElementInfo,
+    //   channel_id: props.id,
+    //   myRole: props.myRole,
+    // })
+    updateChannelIdAndRole()
+  }, [props.id, props.myRole, updateChannelIdAndRole])
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   setchannelRelationshipsList(props.id, adminChannelElementInfo, setAdminChannelElementInfo);
 

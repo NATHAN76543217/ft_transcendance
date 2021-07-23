@@ -29,7 +29,6 @@ import UserRelationship from "./models/user/UserRelationship";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
-import Test from "./pages/test/test";
 import FailedLogin from "./pages/failedLogin/failedLogin";
 
 // let change_bg_color_with_size =
@@ -205,15 +204,13 @@ class App extends React.Component<AppProps, AppState> {
           let inf = Number(relation.user1_id) === Number(this.state.user?.id);
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
-            let index;
             const dataUser = await axios.get("/api/users/" + friendId);
             console.log("dataUser");
             console.log(dataUser);
-            index = a.push({
+            a.push({
               user: dataUser.data,
               relationshipType: relation.type,
             });
-            // a[index - 1].relationshipType = relation.type;
             this.setState({ relationshipsList: a });
           } catch (error) {}
         });
@@ -273,9 +270,6 @@ class App extends React.Component<AppProps, AppState> {
             <Switch>
               <Route path="/health">
                 <h3 className="text-center">App is healthy!</h3>
-              </Route>
-              <Route path="/test">
-                <Test />
               </Route>
               <Route>
                 <Header />

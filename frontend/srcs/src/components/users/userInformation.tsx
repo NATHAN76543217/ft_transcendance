@@ -6,8 +6,7 @@ import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
 import React from "react";
 import AppContext from "../../AppContext";
 import UserPageState from "../../models/user/UserPageState";
-import { IUser, UserStatus } from "../../models/user/IUser";
-import UserSearchState from "../../models/user/UserSearchState";
+import { UserStatus } from "../../models/user/IUser";
 import { IAppContext } from "../../IAppContext";
 
 type UserProps = {

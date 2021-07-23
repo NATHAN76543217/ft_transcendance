@@ -45,7 +45,7 @@ export default function Login({ match }: LoginPageProps) {
 
       setUser(data);
 
-      const dataUpdate = await axios.patch(`/api/users/${data.id}`, {
+     await axios.patch(`/api/users/${data.id}`, {
         status: UserStatus.Online,
       });
       // console.log("data Update login: ",dataUpdate)

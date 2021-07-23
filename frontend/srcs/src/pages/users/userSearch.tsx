@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import UserInformation from "../../components/users/userInformation";
 import UserSearchForm from "../../components/Forms/userSearchForm";
@@ -242,9 +242,17 @@ function UserSearch() {
     username: ""
   })
 
-  useEffect(() => {
+  const updateFriendAndBlockBoolean: any = useCallback(() => {
     setFriendAndBlockBoolean(searchInfo, setSearchInfo, contextValue);
-  }, [searchInfo]);
+  }, [searchInfo, contextValue])
+
+  useEffect(() => {
+    updateFriendAndBlockBoolean()
+  }, [searchInfo, updateFriendAndBlockBoolean, contextValue])
+
+  // useEffect(() => {
+  //   setFriendAndBlockBoolean(searchInfo, setSearchInfo, contextValue);
+  // }, [searchInfo]);
 
   const localOnSubmit = (values: IUserSearchFormValues) => {
     onSubmit(values, searchInfo, setSearchInfo, contextValue);

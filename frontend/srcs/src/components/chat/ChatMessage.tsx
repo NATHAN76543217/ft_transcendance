@@ -22,7 +22,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div className="flex">
       <Link className="flex gap-2 m-2" to={senderProfileUrl}>
-        <img className="w-8" src={senderImgUrl}></img>
+        <img className="w-8" src={senderImgUrl} alt='sender-profile'></img>
         <span>{sender?.name ?? "Unknown"}</span>
       </Link>
       <span className="">{message.data}</span>
