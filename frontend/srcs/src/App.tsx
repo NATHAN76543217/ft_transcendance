@@ -25,7 +25,7 @@ import { AppState } from "./AppState";
 import { IAppContext } from "./IAppContext";
 import AppContext from "./AppContext";
 import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
-import UserRelationship from "./models/user/UserRelationship";
+import UserRelationship, { UserRelationshipType } from "./models/user/UserRelationship";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
@@ -34,10 +34,10 @@ import FailedLogin from "./pages/failedLogin/failedLogin";
 // let change_bg_color_with_size =
 //   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
 
-  let change_bg_color_with_size =
+let change_bg_color_with_size =
   "bg-gray-200"
 
-interface AppProps {}
+interface AppProps { }
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -138,7 +138,7 @@ class App extends React.Component<AppProps, AppState> {
               withCredentials: true,
             });
             this.setUser(res.data);
-          } catch (error) {}
+          } catch (error) { }
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
@@ -212,10 +212,38 @@ class App extends React.Component<AppProps, AppState> {
               relationshipType: relation.type,
             });
             this.setState({ relationshipsList: a });
-          } catch (error) {}
+          } catch (error) { }
         });
       }
-    } catch (error) {}
+    } catch (error) { }
+  }
+
+  updateOneRelationship = async (user_id: number, newType: UserRelationshipType) => {
+    console.log('updateOneRelationship - begin')
+      let a = this.state.relationshipsList.slice();
+      let index = a.findIndex((relation: AppUserRelationship) => {
+        return Number(relation.user.id) === Number(user_id)
+      })
+      console.log('index = ', index)
+      if (index !== -1) {
+        if (newType !== UserRelationshipType.null) {
+          a[index].relationshipType = newType
+        } else {
+          a.splice(index, 1)
+        }
+          this.setState({ relationshipsList: a });
+      } else if (newType !== UserRelationshipType.null) {
+        try {
+          const dataUser = await axios.get("/api/users/" + user_id);
+          a.push({
+            user: dataUser.data,
+            relationshipType: newType,
+          });
+          this.setState({ relationshipsList: a });
+        } catch (e) {
+          console.log(e)
+        }
+      }
   }
 
   displayAdminRoute(isAdmin: boolean) {
@@ -246,6 +274,7 @@ class App extends React.Component<AppProps, AppState> {
       user: this.state.user,
       setUser: this.setUser,
       updateAllRelationships: this.updateAllRelationships,
+      updateOneRelationship: this.updateOneRelationship,
       socket: this.state.socket,
     };
 
@@ -293,7 +322,7 @@ class App extends React.Component<AppProps, AppState> {
                           isAuth={this.state.user !== undefined}
                           path="/users"
                         >
-                          <User />
+                          <User relationshipsList={this.state.relationshipsList}/>
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
@@ -317,12 +346,15 @@ class App extends React.Component<AppProps, AppState> {
                         {this.displayAdminRoute(
                           // true
                           this.state.user?.role === UserRole.Admin ||
-                            this.state.user?.role === UserRole.Owner
+                          this.state.user?.role === UserRole.Owner
                         )}
                       </Switch>
                     </main>
                     <div className="flex-none hidden md:block">
-                      <FriendsBar logged={this.state.user !== undefined} />
+                      <FriendsBar
+                      logged={this.state.user !== undefined}
+                      relationshipsList={this.state.relationshipsList}
+                      />
                     </div>
                   </div>
                 </div>

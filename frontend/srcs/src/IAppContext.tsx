@@ -1,6 +1,7 @@
 import { Socket } from "socket.io-client";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
+import { UserRelationshipType } from "./models/user/UserRelationship";
 
 export interface IAppContext {
   relationshipsList: AppUserRelationship[];
@@ -8,5 +9,6 @@ export interface IAppContext {
   token?: string;
   setUser: (user?: AuthenticatedUser) => void;
   updateAllRelationships: () => void;
+  updateOneRelationship: (user_id: number, newType: UserRelationshipType) => void;
   socket?: Socket;
 }

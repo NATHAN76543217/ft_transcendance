@@ -3,11 +3,12 @@ import { NavLink } from "react-router-dom";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import ChangeNameUserForm from "../Forms/userChangeNameForm";
 import IUserChangeNameFormValues from "../../models/user/ChangeUserName.dto";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AppContext from "../../AppContext";
 import UserPageState from "../../models/user/UserPageState";
 import { UserStatus } from "../../models/user/IUser";
 import { IAppContext } from "../../IAppContext";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 
 type UserProps = {
   id: number; // optional ?
@@ -18,7 +19,7 @@ type UserProps = {
   imgPath: string;
   twoFactorAuth?: boolean | false;
   isMe?: boolean | false;
-  relationshipTypes: UserRelationshipType;
+  relationshipsList: AppUserRelationship[];
   idInf: boolean;
   isInSearch?: boolean | false;
   usernameErrorMessage?: string;
@@ -139,7 +140,7 @@ function displayFileChange(user: UserProps, setUser: any) {
   }
 }
 
-function displayFriendButton(user: UserProps, contextValue: IAppContext) {
+function displayFriendButton(user: UserProps, type: UserRelationshipType, contextValue: IAppContext) {
   const addFriend = async (id: number) => {
     await user.addFriend(id, user.userInfo, user.setUserInfo, contextValue);
     await contextValue.updateAllRelationships();
@@ -151,14 +152,14 @@ function displayFriendButton(user: UserProps, contextValue: IAppContext) {
   };
 
   let isPending = user.idInf
-    ? user.relationshipTypes & UserRelationshipType.pending_first_second
-    : user.relationshipTypes & UserRelationshipType.pending_second_first;
+    ? type & UserRelationshipType.pending_first_second
+    : type & UserRelationshipType.pending_second_first;
   let isFriend =
-    user.relationshipTypes & UserRelationshipType.pending_first_second &&
-    user.relationshipTypes & UserRelationshipType.pending_second_first;
+    type & UserRelationshipType.pending_first_second &&
+    type & UserRelationshipType.pending_second_first;
   let isAccept = user.idInf
-    ? user.relationshipTypes & UserRelationshipType.pending_second_first
-    : user.relationshipTypes & UserRelationshipType.pending_first_second;
+    ? type & UserRelationshipType.pending_second_first
+    : type & UserRelationshipType.pending_first_second;
   return (
     <div className="w-48 my-4 text-center">
       {!user.isMe ? (
@@ -208,7 +209,7 @@ function displayFriendButton(user: UserProps, contextValue: IAppContext) {
   );
 }
 
-function displayBlockButton(user: UserProps, contextValue: IAppContext) {
+function displayBlockButton(user: UserProps, type: UserRelationshipType, contextValue: IAppContext) {
   const blockUser = async (id: number) => {
     await user.blockUser(id, user.userInfo, user.setUserInfo, contextValue);
     await contextValue.updateAllRelationships();
@@ -220,8 +221,8 @@ function displayBlockButton(user: UserProps, contextValue: IAppContext) {
   };
 
   let isBlock = user.idInf
-    ? user.relationshipTypes & UserRelationshipType.block_first_second
-    : user.relationshipTypes & UserRelationshipType.block_second_first;
+    ? type & UserRelationshipType.block_first_second
+    : type & UserRelationshipType.block_second_first;
 
   return (
     <div className="w-48 my-4 text-center">
@@ -318,9 +319,26 @@ function displayUsername(user: UserProps) {
 }
 
 function UserInformation(user: UserProps) {
-  // const contextValue = React.useContext(App.appContext);
   const contextValue = React.useContext(AppContext);
 
+  const [userRelationshipType, setUserRelationshipType] = useState<UserRelationshipType>(
+    UserRelationshipType.null
+  )
+
+  useEffect(() => {
+    const setRelationshipType = async () => {
+    let relation = user.relationshipsList.find((relationElem) => {
+      return relationElem.user.id === user.id
+    })
+    const type = relation ? relation.relationshipType : UserRelationshipType.null
+    if (type !== userRelationshipType) {
+      setUserRelationshipType(type);
+    }
+  }
+  setRelationshipType();
+  }, [user.relationshipsList, setUserRelationshipType, userRelationshipType, user.id])
+
+  
   return (
     <div className="py-4 h-42 bg-neutral">
       <section className="flex flex-wrap items-center justify-center py-2 my-2">
@@ -339,8 +357,8 @@ function UserInformation(user: UserProps) {
 
         <div>{displayWinAndLose(user)}</div>
         <div>
-          {displayFriendButton(user, contextValue)}
-          {displayBlockButton(user, contextValue)}
+          {displayFriendButton(user, userRelationshipType, contextValue)}
+          {displayBlockButton(user, userRelationshipType, contextValue)}
         </div>
       </section>
       {displayChangeNameField(user, contextValue.setUser)}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import UserInformation from "../../components/users/userInformation";
 import UserSearchForm from "../../components/Forms/userSearchForm";
@@ -9,221 +9,22 @@ import { UserRelationshipType } from "../../models/user/UserRelationship";
 import AppContext from "../../AppContext";
 import UserSearchState from "../../models/user/UserSearchState";
 import { IAppContext } from "../../IAppContext";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 
 
 
-const setFriendAndBlockBoolean = async (searchInfo: UserSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-  searchInfo.list.map(async (elem, index) => {
-    let user = elem.user
-    let idInf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(user.id));
-    try {
-      let request = idInf ?
-        "/api/users/relationships/" + contextValue.user?.id + "/" + user.id :
-        "/api/users/relationships/" + user.id + "/" + contextValue.user?.id
-      const data = await axios.get(request);
-      if (Number(data.data.type) !== Number(elem.relationType)) {
-        let a = searchInfo.list.slice();
-        a[index].relationType = data.data.type;
-        setSearchInfo({
-          ...searchInfo,
-          list: a
-        });
-      }
-    } catch (error) {
-      if (Number(UserRelationshipType.null) !== Number(elem.relationType)) {
-        let a = searchInfo.list.slice();
-        a[index].relationType = UserRelationshipType.null;
-        setSearchInfo({
-          ...searchInfo,
-          list: a
-        });
-      }
-    }
-  });
-}
+// const updateRelationshipState = (id: number, newType: UserRelationshipType, userInfoForSearch: UserInfoForSearch, setSearchInfo: any) => {
+//   let a = userInfoForSearch.user.list.slice();
+//   let index = a.findIndex((elem) => Number(elem.user.id) === Number(id));
+//   a[index].relationType = newType;
+//   setSearchInfo({
+//     ...userInfoForSearch.user,
+//     list: a
+//   });
+// }
 
-const onSubmit = async (values: IUserSearchFormValues, searchInfo: UserSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-  try {
-    const data = await axios.get("/api/users?name=" + values.username);
-    let a = data.data.slice();
-    a.sort((user1: IUser, user2: IUser) =>
-      user1.name.localeCompare(user2.name)
-    );
-    await a.map(async (elem: any, index: number) => {
-      a[index] = {
-        user: elem,
-        relationType: UserRelationshipType.null,
-      }
-    })
-    setSearchInfo({
-      list: a,
-      username: values.username
-    });
-  } catch (error) { }
-};
 
-const updateRelationshipState = (id: number, newType: UserRelationshipType, userInfoForSearch: UserInfoForSearch, setSearchInfo: any) => {
-  let a = userInfoForSearch.user.list.slice();
-  let index = a.findIndex((elem) => Number(elem.user.id) === Number(id));
-  a[index].relationType = newType;
-  setSearchInfo({
-    ...userInfoForSearch.user,
-    list: a
-  });
-}
 
-const addFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
-  let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
-  try {
-    let request = inf ?
-      "/api/users/relationships/" + contextValue.user?.id + "/" + id :
-      "/api/users/relationships/" + id + "/" + contextValue.user?.id
-    const currentRel = await axios.get(request);
-    if (
-      !(
-        inf &&
-        currentRel.data.type & UserRelationshipType.pending_first_second
-      ) &&
-      !(
-        !inf &&
-        currentRel.data.type & UserRelationshipType.pending_second_first
-      )
-    ) {
-      let newType: UserRelationshipType = currentRel.data.type;
-      newType |= inf
-        ? UserRelationshipType.pending_first_second
-        : UserRelationshipType.pending_second_first;
-      try {
-        await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-          type: newType,
-        });
-        updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-      } catch (error) { }
-    }
-  } catch (error) {
-    let newType: UserRelationshipType = inf
-      ? UserRelationshipType.pending_first_second
-      : UserRelationshipType.pending_second_first;
-    try {
-      await axios.post("/api/users/relationships", {
-        user1_id: (inf ? contextValue.user?.id + "" : id + ""),
-        user2_id: (inf ? id + "" : contextValue.user?.id + ""),
-        type: newType,
-      });
-      updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-}
-
-const removeFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
-  let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
-  try {
-    let request = inf ?
-      "/api/users/relationships/" + contextValue.user?.id + "/" + id :
-      "/api/users/relationships/" + id + "/" + contextValue.user?.id
-    const currentRel = await axios.get(request);
-    if (currentRel.data.type & UserRelationshipType.friends) {
-      let newType: UserRelationshipType =
-        currentRel.data.type & ~UserRelationshipType.friends;
-      try {
-        if (newType === UserRelationshipType.null) {
-          await axios.delete(
-            "/api/users/relationships/" + currentRel.data.id
-          );
-          updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-        } else {
-          await axios.patch(
-            "/api/users/relationships/" + currentRel.data.id,
-            { type: newType }
-          );
-          updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-        }
-      } catch (error) { }
-    }
-  } catch (error) { }
-}
-
-const blockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
-  let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
-  try {
-    let request = inf ?
-      "/api/users/relationships/" + contextValue.user?.id + "/" + id :
-      "/api/users/relationships/" + id + "/" + contextValue.user?.id
-    const currentRel = await axios.get(request);
-    if (
-      !(
-        inf && currentRel.data.type & UserRelationshipType.block_first_second
-      ) &&
-      !(
-        !inf && currentRel.data.type & UserRelationshipType.block_second_first
-      )
-    ) {
-      let newType: UserRelationshipType = currentRel.data.type;
-      newType |= inf
-        ? UserRelationshipType.block_first_second
-        : UserRelationshipType.block_second_first;
-      try {
-        await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-          type: newType,
-        });
-        updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-      } catch (error) { }
-    }
-  } catch (error) {
-    let newType: UserRelationshipType = inf
-      ? UserRelationshipType.block_first_second
-      : UserRelationshipType.block_second_first;
-    try {
-      await axios.post("/api/users/relationships", {
-        user1_id: (inf ? contextValue.user?.id + "" : id + ""),
-        user2_id: (inf ? id + "" : contextValue.user?.id + ""),
-        type: newType,
-      });
-      updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-    } catch (error) { }
-  }
-}
-
-const unblockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
-  let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
-  try {
-    let request = inf ?
-      "/api/users/relationships/" + contextValue.user?.id + "/" + id :
-      "/api/users/relationships/" + id + "/" + contextValue.user?.id
-    const currentRel = await axios.get(request);
-    if (
-      !(
-        inf &&
-        !(currentRel.data.type & UserRelationshipType.block_first_second)
-      ) &&
-      !(
-        !inf &&
-        !(currentRel.data.type & UserRelationshipType.block_second_first)
-      )
-    ) {
-      let newType: UserRelationshipType = currentRel.data.type;
-      newType &= inf
-        ? ~UserRelationshipType.block_first_second
-        : ~UserRelationshipType.block_second_first;
-      try {
-        if (newType === UserRelationshipType.null) {
-          await axios.delete(
-            "/api/users/relationships/" + currentRel.data.id
-          );
-          updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-        } else {
-          await axios.patch(
-            "/api/users/relationships/" + currentRel.data.id,
-            { type: newType }
-          );
-          updateRelationshipState(id, newType, userInfoForSearch, setSearchInfo);
-        }
-      } catch (error) { }
-    }
-  } catch (error) { }
-}
 
 
 type UserInfoForSearch = {
@@ -242,16 +43,141 @@ function UserSearch() {
     username: ""
   })
 
-  const updateFriendAndBlockBoolean: any = useCallback(() => {
-    setFriendAndBlockBoolean(searchInfo, setSearchInfo, contextValue);
-  }, [searchInfo, contextValue])
+
+  const [userRelationshipsInfo, setUserRelationshipsInfo] = useState<AppUserRelationship[]>(
+    contextValue.relationshipsList
+  )
 
   useEffect(() => {
-    updateFriendAndBlockBoolean()
-  }, [searchInfo, updateFriendAndBlockBoolean, contextValue])
+    setUserRelationshipsInfo(contextValue.relationshipsList)
+  }, [contextValue.relationshipsList])
+
+
+  const onSubmit = async (values: IUserSearchFormValues, searchInfo: UserSearchState, setSearchInfo: any, contextValue: IAppContext) => {
+    console.log('contextValue', contextValue)
+    try {
+      const data = await axios.get("/api/users?name=" + values.username);
+      let a = data.data.slice();
+      a.sort((user1: IUser, user2: IUser) =>
+        user1.name.localeCompare(user2.name)
+      );
+      await a.map(async (elem: any, index: number) => {
+        let relation = userRelationshipsInfo.find((relationElem) => {
+          return relationElem.user.id === elem.id
+        })
+        const type = relation ? relation.relationshipType : UserRelationshipType.null
+        a[index] = {
+          user: elem,
+          relationType: type,
+        }
+      })
+      setSearchInfo({
+        list: a,
+        username: values.username
+      });
+    } catch (error) { }
+  };
+
+
+  const updateRelationship = async (user_id: number, type: UserRelationshipType) => {
+    contextValue.socket?.emit('updateRelationship-front', {
+      user_id: user_id,
+      type: type
+    });
+  }
+
+  const addFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
+    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = inf ? UserRelationshipType.pending_first_second : UserRelationshipType.pending_second_first;
+    if (relationship) {
+      newType |= relationship.relationshipType;
+    }
+    updateRelationship(id, newType)
+  }
+
+  const removeFriend = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = UserRelationshipType.null;
+    if (relationship) {
+      newType = relationship.relationshipType & ~UserRelationshipType.friends;
+    }
+    updateRelationship(id, newType)
+  }
+
+  const blockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
+    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = inf ? UserRelationshipType.block_first_second : UserRelationshipType.block_second_first;
+    if (relationship) {
+      newType |= relationship.relationshipType;
+    }
+    updateRelationship(id, newType)
+  }
+
+  const unblockUser = async (id: number, userInfoForSearch: UserInfoForSearch, setSearchInfo: any, contextValue: IAppContext) => {
+    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = UserRelationshipType.null;
+    if (relationship) {
+      const typeToRemove = inf ? UserRelationshipType.block_first_second : UserRelationshipType.block_second_first;
+      newType = relationship.relationshipType & ~typeToRemove;
+    }
+    updateRelationship(id, newType)
+  }
+
+  // const setFriendAndBlockBoolean = async () => {
+  //   let a = searchInfo.list.slice();
+  //   a.map(async (elem, index) => {
+  //     let relation = props.relationshipsList.find((relationElem) => {
+  //       return relationElem.user.id === elem.user.id
+  //     })
+  //     const type = relation ? relation.relationshipType : UserRelationshipType.null
+  //     a[index] = {
+  //       user: elem.user,
+  //       relationType: type,
+  //     }
+  //   });
+  //   setSearchInfo({
+  //     ...searchInfo,
+  //     list: a
+  //   });
+  // }
+
+  // const updateFriendAndBlockBoolean: any = useCallback(() => {
+  //   setFriendAndBlockBoolean(searchInfo, setSearchInfo, contextValue);
+  // }, [searchInfo, contextValue])
 
   // useEffect(() => {
-  //   setFriendAndBlockBoolean(searchInfo, setSearchInfo, contextValue);
+  //   updateFriendAndBlockBoolean()
+  // }, [searchInfo, updateFriendAndBlockBoolean, contextValue])
+
+  // useEffect(() => {
+  //   const setFriendAndBlockBoolean = async () => {
+  //     let a = searchInfo.list.slice();
+  //     a.map(async (elem, index) => {
+  //       let relation = props.relationshipsList.find((relationElem) => {
+  //         return relationElem.user.id === elem.user.id
+  //       })
+  //       const type = relation ? relation.relationshipType : UserRelationshipType.null
+  //       a[index] = {
+  //         user: elem.user,
+  //         relationType: type,
+  //       }
+  //     });
+  //     setSearchInfo({
+  //       ...searchInfo,
+  //       list: a
+  //     });
+  //   }
   // }, [searchInfo]);
 
   const localOnSubmit = (values: IUserSearchFormValues) => {
@@ -286,7 +212,7 @@ function UserSearch() {
                 nbWin={user.nbWin}
                 nbLoss={user.nbLoss}
                 imgPath={user.imgPath}
-                relationshipTypes={elem.relationType}
+                relationshipsList={userRelationshipsInfo}
                 idInf={idInf}
                 addFriend={addFriend}
                 removeFriend={removeFriend}

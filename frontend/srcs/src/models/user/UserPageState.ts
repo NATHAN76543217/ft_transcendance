@@ -7,6 +7,5 @@ export default interface UserPageState {
   // id: number;
   doesUserExist: boolean;
   user: IUser;
-  relationshipType: UserRelationshipType;
   usernameErrorMessage: string;
 }

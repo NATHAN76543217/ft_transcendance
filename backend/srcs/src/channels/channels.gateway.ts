@@ -21,13 +21,13 @@ import MessageService from 'src/messages/messages.service';
 import { MessageType } from 'src/messages/message.entity';
 import { UserStatus } from 'src/users/utils/userStatus';
 import UserRelationshipsService from 'src/users/relationships/user-relationships.service';
+import UpdateRelationshipDto from 'src/messages/dto/updateRelationship.dto';
 
 // TODO: Rename to EventsModule...
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/events' })
 export class ChannelsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
@@ -39,10 +39,34 @@ export class ChannelsGateway
     private readonly messageService: MessageService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
     private readonly userRelationshipService: UserRelationshipsService,
-  ) {}
+  ) { }
 
   afterInit(server: Server) {
     this.logger.log(`Listening at ${server.path()}`);
+  }
+
+  @SubscribeMessage('updateRelationship-front')
+  async handleUpdateRelationship(
+    @ConnectedSocket() socket: SocketWithUser,
+    @MessageBody() body: UpdateRelationshipDto,
+  ) {
+    const inf = socket.user.id < body.user_id
+    const user1_id = inf ? socket.user.id.toString() : body.user_id.toString()
+    const user2_id = inf ? body.user_id.toString() : socket.user.id.toString()
+    let relationship;
+    try {
+      relationship = await this.userRelationshipService.getUserRelationshipByIds(user1_id, user2_id)
+      this.userRelationshipService.updateUserRelationship(relationship.id, { type: body.type })
+    }
+    catch (error) {
+      relationship = await this.userRelationshipService.createUserRelationship({
+        user1_id: user1_id,
+        user2_id: user2_id,
+        type: body.type
+      })
+    }
+    socket.to(user1_id).emit("updateRelationship-back", { user_id: user2_id, type: body.type })
+    socket.to(user2_id).emit("updateRelationship-back", { user_id: user1_id, type: body.type })
   }
 
   async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
@@ -104,8 +128,7 @@ export class ChannelsGateway
     // Notify friends about status
 
     this.logger.debug(
-      `Client ${socket.user.id} connected with ${
-        socket.rooms.size - 2
+      `Client ${socket.user.id} connected with ${socket.rooms.size - 2
       } joined channels`,
     );
 

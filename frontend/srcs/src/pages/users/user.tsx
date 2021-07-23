@@ -5,16 +5,19 @@ import UserPage from "./userPage";
 import UserSearch from "./userSearch";
 import { Route, Switch } from "react-router";
 import UserDelete from "./userDelete";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 
-class User extends React.Component {
-  render() {
+function User (props: {relationshipsList: AppUserRelationship[]}) {
+  
     return (
       <div className="">
         <Switch>
           <Route exact path="/users" component={UserPage} />
 
           <Route exact path="/users/find">
-            <UserSearch />
+            <UserSearch
+            // relationshipsList={props.relationshipsList}
+            />
           </Route>
 
           {/* --------- TEST --------- */}
@@ -23,11 +26,13 @@ class User extends React.Component {
             <UserDelete />
           </Route>
           {/* ------------------------ */}
-          <Route path="/users/:id" component={UserPage} />
+          <Route path="/users/:id" component={UserPage}
+          // prop={props.relationshipsList}
+          />
         </Switch>
       </div>
     );
-  }
+  
 }
 
 export default User;

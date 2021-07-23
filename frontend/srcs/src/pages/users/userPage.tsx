@@ -11,6 +11,8 @@ import { UserRelationshipType } from "../../models/user/UserRelationship";
 import UserPageState from "../../models/user/UserPageState";
 import UserWelcome from "../../components/users/userWelcome";
 import { ExceptionData } from "../../models/exceptions/ExceptionData";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
+import { IAppContext } from "../../IAppContext";
 
 const onLoad = async (
   userId: number,
@@ -31,22 +33,8 @@ const onLoad = async (
         });
       }
 
-      // setFriendAndBlockBoolean(userInfo, setUserInfo, contextValue);
-      if (userInfo.user.id !== 0) {
-        await setFriendAndBlockBoolean(userInfo, setUserInfo, contextValue);
-      }
-    } else {
-      // setUserInfo({
-      //   ...userInfo,
-      //    doesUserExist: false
-      //  });
     }
-  } catch (error) {
-    // setUserInfo({
-    //   ...userInfo,
-    //    doesUserExist: false
-    //  });
-  }
+  } catch (error) { }
 };
 
 const handleClickTwoFactorAuth = async (
@@ -120,223 +108,17 @@ const submitForm = async (
   } catch (error) {}
 };
 
-const setFriendAndBlockBoolean = async (
-  userInfo: UserPageState,
-  setUserInfo: any,
-  contextValue: any
-) => {
-  let idInf =
-    contextValue.user === undefined
-      ? false
-      : Number(contextValue.user.id) < Number(userInfo.user.id);
-  try {
-    let request = idInf
-      ? "/api/users/relationships/" +
-        contextValue.user?.id +
-        "/" +
-        userInfo.user.id
-      : "/api/users/relationships/" +
-        userInfo.user.id +
-        "/" +
-        contextValue.user?.id;
+// const updateRelationshipState = async (
+//   newType: UserRelationshipType,
+//   userInfo: UserPageState,
+//   setUserInfo: any
+// ) => {
+//   setUserInfo({
+//     ...userInfo,
+//     relationshipType: newType,
+//   });
+// };
 
-    const data = await axios.get(request);
-
-    if (Number(data.data.type) !== Number(userInfo.relationshipType)) {
-      let a = { ...userInfo };
-      a.relationshipType = data.data.type;
-      setUserInfo(a);
-    }
-  } catch (error) {
-    if (userInfo.relationshipType !== UserRelationshipType.null) {
-      let a = { ...userInfo };
-      a.relationshipType = UserRelationshipType.null;
-      setUserInfo(a);
-    }
-  }
-};
-
-const updateRelationshipState = async (
-  newType: UserRelationshipType,
-  userInfo: UserPageState,
-  setUserInfo: any
-) => {
-  setUserInfo({
-    ...userInfo,
-    relationshipType: newType,
-  });
-};
-
-const addFriend = async (
-  id: number,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  contextValue: any
-) => {
-  // const contextValue = React.useContext(AppContext);
-  let inf = contextValue.user ? contextValue.user.id < id : false;
-  try {
-    let request = inf
-      ? `/api/users/relationships/${contextValue.user?.id}/${id}`
-      : `/api/users/relationships/${id}/${contextValue.user?.id}`;
-    const currentRel = await axios.get(request);
-    if (
-      !(
-        inf && currentRel.data.type & UserRelationshipType.pending_first_second
-      ) &&
-      !(
-        !inf && currentRel.data.type & UserRelationshipType.pending_second_first
-      )
-    ) {
-      let newType: UserRelationshipType = currentRel.data.type;
-      newType |= inf
-        ? UserRelationshipType.pending_first_second
-        : UserRelationshipType.pending_second_first;
-      try {
-        await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-          type: newType,
-        });
-        updateRelationshipState(newType, userInfo, setUserInfo);
-      } catch (error) {}
-    }
-  } catch (error) {
-    let newType: UserRelationshipType = inf
-      ? UserRelationshipType.pending_first_second
-      : UserRelationshipType.pending_second_first;
-    try {
-      await axios.post("/api/users/relationships", {
-        user1_id: id + "",
-        user2_id: contextValue.user?.id + "",
-        type: newType,
-      });
-      updateRelationshipState(newType, userInfo, setUserInfo);
-    } catch (error) {}
-  }
-};
-
-const removeFriend = async (
-  id: number,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  contextValue: any
-) => {
-  // const contextValue = React.useContext(AppContext);
-  let inf = contextValue.user ? contextValue.user.id < id : false;
-  try {
-    let request = inf
-      ? `/api/users/relationships/${contextValue.user?.id}/${id}`
-      : `/api/users/relationships/${id}/${contextValue.user?.id}`;
-    const currentRel = await axios.get(request);
-    if (currentRel.data.type & UserRelationshipType.friends) {
-      let newType: UserRelationshipType =
-        currentRel.data.type & ~UserRelationshipType.friends;
-      try {
-        if (newType === UserRelationshipType.null) {
-          await axios.delete("/api/users/relationships/" + currentRel.data.id);
-          setUserInfo({
-            ...userInfo,
-            user: {
-              ...userInfo.user,
-              relationshipType: newType,
-            },
-          });
-        } else {
-          await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-            type: newType,
-          });
-          updateRelationshipState(newType, userInfo, setUserInfo);
-        }
-      } catch (error) {}
-    }
-  } catch (error) {}
-};
-
-const blockUser = async (
-  id: number,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  contextValue: any
-) => {
-  // const contextValue = React.useContext(AppContext);
-  let inf = contextValue.user ? contextValue.user.id < id : false;
-  try {
-    let request = inf
-      ? `/api/users/relationships/${contextValue.user?.id}/${id}`
-      : `/api/users/relationships/${id}/${contextValue.user?.id}`;
-    const currentRel = await axios.get(request);
-    console.log("currentRel : " + currentRel.data);
-    if (
-      !(
-        inf && currentRel.data.type & UserRelationshipType.block_first_second
-      ) &&
-      !(!inf && currentRel.data.type & UserRelationshipType.block_second_first)
-    ) {
-      let newType: UserRelationshipType = currentRel.data.type;
-      newType |= inf
-        ? UserRelationshipType.block_first_second
-        : UserRelationshipType.block_second_first;
-      try {
-        await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-          type: newType,
-        });
-        updateRelationshipState(newType, userInfo, setUserInfo);
-      } catch (error) {}
-    }
-  } catch (error) {
-    let newType: UserRelationshipType = inf
-      ? UserRelationshipType.block_first_second
-      : UserRelationshipType.block_second_first;
-    try {
-      await axios.post("/api/users/relationships", {
-        user1_id: id + "",
-        user2_id: contextValue.user?.id,
-        type: newType,
-      });
-      updateRelationshipState(newType, userInfo, setUserInfo);
-    } catch (error) {}
-  }
-};
-
-const unblockUser = async (
-  id: number,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  contextValue: any
-) => {
-  // const contextValue = React.useContext(AppContext);
-  let inf = contextValue.user ? contextValue.user.id < id : false;
-  try {
-    let request = inf
-      ? `/api/users/relationships/${contextValue.user?.id}/${id}`
-      : `/api/users/relationships/${id}/${contextValue.user?.id}`;
-    const currentRel = await axios.get(request);
-    if (
-      !(
-        inf && !(currentRel.data.type & UserRelationshipType.block_first_second)
-      ) &&
-      !(
-        !inf &&
-        !(currentRel.data.type & UserRelationshipType.block_second_first)
-      )
-    ) {
-      let newType: UserRelationshipType = currentRel.data.type;
-      newType &= inf
-        ? ~UserRelationshipType.block_first_second
-        : ~UserRelationshipType.block_second_first;
-      try {
-        if (newType === UserRelationshipType.null) {
-          await axios.delete("/api/users/relationships/" + currentRel.data.id);
-          updateRelationshipState(newType, userInfo, setUserInfo);
-        } else {
-          await axios.patch("/api/users/relationships/" + currentRel.data.id, {
-            type: newType,
-          });
-          updateRelationshipState(newType, userInfo, setUserInfo);
-        }
-      } catch (error) {}
-    }
-  } catch (error) {}
-};
 
 const onSubmitChangeUsername = async (
   values: IUserChangeNameFormValues,
@@ -377,10 +159,19 @@ type UserPageParams = {
   id: string;
 };
 
-function UserPage({ match }: RouteComponentProps<UserPageParams>) {
+function UserPage({ match }: RouteComponentProps<UserPageParams>,
+  ) {
   const contextValue = React.useContext(AppContext);
   const userId =
     match.params.id !== undefined ? match.params.id : contextValue.user?.id;
+
+    const [userRelationshipsInfo, setUserRelationshipsInfo] = useState<AppUserRelationship[]>(
+      contextValue.relationshipsList
+    )
+
+    useEffect(() => {
+      setUserRelationshipsInfo(contextValue.relationshipsList)
+    }, [contextValue.relationshipsList])
 
   const [userInfo, setUserInfo] = useState({
     // id: 0,
@@ -399,7 +190,6 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       channels: [],
       idInf: false,
     },
-    relationshipType: UserRelationshipType.null,
     usernameErrorMessage: "",
   });
 
@@ -411,9 +201,60 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     updateOnLoad()
   }, [userInfo, userId, updateOnLoad])
 
-  // useEffect(() => {
-  //   onLoad(Number(userId), userInfo, setUserInfo, contextValue);
-  // }, [userInfo, userId, contextValue]);
+  const updateRelationship = async (user_id: number, type: UserRelationshipType) => {
+    contextValue.socket?.emit('updateRelationship-front', {
+      user_id: user_id,
+      type: type
+    });
+  }
+
+  const addFriend = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
+    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = inf ? UserRelationshipType.pending_first_second : UserRelationshipType.pending_second_first;
+    if (relationship) {
+      newType |= relationship.relationshipType;
+    }
+    updateRelationship(id, newType)
+  }
+
+  const removeFriend = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = UserRelationshipType.null;
+    if (relationship) {
+      newType = relationship.relationshipType & ~UserRelationshipType.friends;
+    }
+    updateRelationship(id, newType)
+  }
+
+  const blockUser = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
+    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = inf ? UserRelationshipType.block_first_second : UserRelationshipType.block_second_first;
+    if (relationship) {
+      newType |= relationship.relationshipType;
+    }
+    updateRelationship(id, newType)
+  }
+
+  const unblockUser = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
+    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+    let relationship = userRelationshipsInfo.find((relation) => {
+      return relation.user.id === id
+    })
+    let newType = UserRelationshipType.null;
+    if (relationship) {
+      const typeToRemove = inf ? UserRelationshipType.block_first_second : UserRelationshipType.block_second_first;
+      newType = relationship.relationshipType & ~typeToRemove;
+    }
+    updateRelationship(id, newType)
+  }
 
   if (!userInfo.doesUserExist) {
     return <div className="px-2 py-2 font-bold">This user does not exist</div>;
@@ -451,7 +292,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
           nbLoss={userInfo.user.nbLoss}
           imgPath={userInfo.user.imgPath}
           isMe={isMe}
-          relationshipTypes={userInfo.relationshipType} // A Gerer au niveau de l'update
+          relationshipsList={contextValue.relationshipsList} // A Gerer au niveau de l'update
           idInf={idInf}
           // isFriend
           twoFactorAuth={userInfo.user.twoFactorAuth}
