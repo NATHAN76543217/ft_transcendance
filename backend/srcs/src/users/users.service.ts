@@ -17,17 +17,32 @@ import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import * as bcrypt from 'bcrypt';
 import UserNameInvalid from './exception/UserNameNotFound.exception';
-import { UserRelationshipTypes } from './relationships/userRelationshipTypes';
 import { ChannelRelationshipType } from 'src/channels/relationships/channel-relationship.type';
+import { UserStatus } from './utils/userStatus';
 
 @Injectable()
 export default class UsersService {
+  private userStates = new Map<number, UserStatus>();
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @Inject(forwardRef(() => AuthenticationService))
     private authenticationService: AuthenticationService,
-  ) { }
+  ) {}
+
+  setUserStatus(userId: number, status: UserStatus) {
+    if (status !== UserStatus.null || !this.userStates.delete(userId))
+      this.userStates.set(userId, status);
+  }
+
+  getUserStatus(userId: number) {
+    return this.userStates.get(userId) || UserStatus.null;
+  }
+
+  private joinUserStatus(user: User) {
+    user.status = this.getUserStatus(user.id);
+  }
 
   async getUserFromSocket(socket: Socket): Promise<User> {
     const logger = new Logger();
@@ -68,20 +83,22 @@ export default class UsersService {
   }
 
   async getAllUsers(name: string) {
-    // const user = await this.getUserById(1);
-    // this.updateUser(1, {
-    //   ...user,
-    //   role: UserRoleTypes.owner})
+    let users: User[];
 
-    if (name === undefined) {
-      return await this.usersRepository.find({
+    if (!name) {
+      users = await this.usersRepository.find({
         relations: ['channels', 'channels.channel'],
         order: { name: 'ASC' },
       });
+    } else {
+      users = await this.usersRepository.find({
+        where: { name: Like('%' + name + '%') },
+      });
     }
-    return this.usersRepository.find({
-      where: { name: Like('%' + name + '%') },
-    });
+
+    users.forEach((user) => this.joinUserStatus(user));
+
+    return users;
   }
 
   // withChannels option joins channels and preview data
@@ -95,11 +112,10 @@ export default class UsersService {
 
     if (user) {
       if (user.channels) {
-
-        let len = user.channels.length
+        let len = user.channels.length;
         while (--len >= 0) {
           if (user.channels[len].type === ChannelRelationshipType.Banned) {
-            user.channels.splice(len, 1)
+            user.channels.splice(len, 1);
           }
         }
       }
@@ -158,12 +174,17 @@ export default class UsersService {
     throw new UserNameNotFoundException(name);
   }
 
-  async getUsersFiltertByName(name: string) {
-    const results = this.usersRepository.find({
+  /* async getUsersFiltertByName(name: string) {
+    const results = await this.usersRepository.find({
       where: { name: Like('%' + name + '%') },
     });
+
+    Logger.debug('Log');
+
+    results.forEach(this.joinUserStatus);
+
     return results;
-  }
+  } */
 
   async getUserBy42Id(id: number): Promise<User> {
     const user = await this.usersRepository.findOne({
@@ -222,7 +243,7 @@ export default class UsersService {
           userRelationshipsService.deleteUserRelationship(Number(relation.id));
         });
       }
-    } catch (error) { }
+    } catch (error) {}
 
     const deleteResponse = await this.usersRepository.delete(id);
     if (!deleteResponse.affected) {
