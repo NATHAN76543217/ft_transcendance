@@ -12,6 +12,8 @@ import {
     Socket
 } from "socket.io-client"
 
+// TO DO: Move to the front after fix server issue
+
 export default class ClassicPong extends PongClient
 {
     constructor(
