@@ -67,7 +67,7 @@ class App extends React.Component<AppProps, AppState> {
         user: user,
         socket: socket
       },
-      () => {this.updateAllRelationships()});
+        () => { this.updateAllRelationships() });
 
       // update cache
       try {
@@ -199,14 +199,14 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
-    if (prevState.user?.toString() !== this.state.user?.toString()) {
-      this.updateAllRelationships();
-    } else if (
-      prevState.relationshipsList.toString() !==
-      this.state.relationshipsList.toString()
-    ) {
-      this.sortRelationshipsList();
-    }
+    // if (prevState.user?.toString() !== this.state.user?.toString()) {
+    //   this.updateAllRelationships();
+    // } else if (
+    //   prevState.relationshipsList.toString() !==
+    //   this.state.relationshipsList.toString()
+    // ) {
+    //   this.sortRelationshipsList();
+    // }
     if (this.state.user !== undefined && this.state.socket === undefined) {
       const newSocket = this.getSocket();
       this.setState({
@@ -246,23 +246,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   updateOneRelationship = async (user_id: number, newType: UserRelationshipType) => {
-    console.log('updateOneRelationship - begin')
     let a = this.state.relationshipsList.slice();
-    console.log('a', a)
-    console.log('user_id', user_id)
-    console.log('newType', newType)
     let index = a.findIndex((relation: AppUserRelationship) => {
-      console.log(`findIndex - relation.user.id = ${relation.user.id}, user_id = ${user_id}, bool = ${Number(relation.user.id) === Number(user_id)}`)
       return (Number(relation.user.id) === Number(user_id));
     })
-    console.log('index = ', index)
     if (index !== -1) {
       if (Number(newType) !== Number(UserRelationshipType.null)) {
         a[index].relationshipType = newType
       } else {
-        console.log(`a before splice - id = ${user_id}`, a)
         a.splice(index, 1)
-        console.log(`a after splice - id = ${user_id}`, a)
       }
       this.setState({ relationshipsList: a });
     } else if (newType !== UserRelationshipType.null) {
@@ -272,6 +264,9 @@ class App extends React.Component<AppProps, AppState> {
           user: dataUser.data,
           relationshipType: newType,
         });
+        a.sort((user1: AppUserRelationship, user2: AppUserRelationship) =>
+          user1.user.name.localeCompare(user2.user.name)
+        );
         this.setState({ relationshipsList: a });
       } catch (e) {
         console.log(e)
