@@ -1,10 +1,13 @@
 import React from "react"
 
+type Setter = React.Dispatch<React.SetStateAction<number>>;
+
 export function Timer({
-    prefix
-} : { prefix? : string} )
-{
-    const [value, setValue] = React.useState<number>(0);
+    prefix,
+    value,
+    setValue
+} : { value : number, setValue : Setter, prefix? : string }
+){
     const prepended : string = prefix ? prefix : String();
 
     React.useEffect(() => {
