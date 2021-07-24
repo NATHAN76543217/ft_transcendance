@@ -247,22 +247,33 @@ function AdminChannelElement(props: ChannelElementProps) {
     myRole: props.myRole
   });
 
-  const updateChannelIdAndRole = useCallback(() => {
-    setAdminChannelElementInfo({
-      ...adminChannelElementInfo,
-      channel_id: props.id,
-      myRole: props.myRole,
-    })
-  }, [props.id, props.myRole, adminChannelElementInfo])
+  // const updateChannelIdAndRole = useCallback(() => {
+  //   setAdminChannelElementInfo({
+  //     ...adminChannelElementInfo,
+  //     channel_id: props.id,
+  //     myRole: props.myRole,
+  //   })
+  // }, [props.id, props.myRole, adminChannelElementInfo])
+
+  // useEffect(() => {
+  //   // setAdminChannelElementInfo({
+  //   //   ...adminChannelElementInfo,
+  //   //   channel_id: props.id,
+  //   //   myRole: props.myRole,
+  //   // })
+  //   updateChannelIdAndRole()
+  // }, [props.id, props.myRole, updateChannelIdAndRole])
 
   useEffect(() => {
-    // setAdminChannelElementInfo({
-    //   ...adminChannelElementInfo,
-    //   channel_id: props.id,
-    //   myRole: props.myRole,
-    // })
+    const updateChannelIdAndRole = () => {
+      setAdminChannelElementInfo({
+        ...adminChannelElementInfo,
+        channel_id: props.id,
+        myRole: props.myRole,
+      })
+    }
     updateChannelIdAndRole()
-  }, [props.id, props.myRole, updateChannelIdAndRole])
+  }, [props.id, props.myRole])
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
