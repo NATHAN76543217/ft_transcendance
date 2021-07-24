@@ -6,6 +6,8 @@ import ChannelRelationship from './channel-relationship.entity';
 import ChannelRelationshipNotFound from '../exception/ChannelRelationshipNotFound.exception';
 import UpdateChannelRelationshipDto from '../dto/UpdateChannelRelationship.dto';
 import CreateChannelRelationshipDto from '../dto/CreateChannelRelationship.dto';
+import ChannelRelationshipByIdsNotFound from '../exception/ChannelRelationshipByIdsNotFound.exception';
+import DeleteChannelRelationshipDto from '../dto/DeleteChannelRelationship.dto';
 
 // TODO: I want to remove this service, otherwise make it specific to a channel
 
@@ -28,25 +30,50 @@ export default class ChannelRelationshipsService {
     return data;
   }
 
+  async getChannelRelationshipByIds(channel_id: number, user_id: number) {
+    let channelRelationship = await this.channelRelationshipsRepository.find({
+      where: [{ channel_id: channel_id + '', user_id: user_id + '' }],
+    });
+    if (channelRelationship.length) {
+      return channelRelationship[0];
+    }
+    throw new ChannelRelationshipByIdsNotFound(channel_id, user_id);
+  }
+
   // async getUserRelationshipsFilteredByName(name: string) {
   //   let results = this.channelRelationshipsRepository.find({
   //     where: { 'name': Like('%' + name + '%') }});
   //     return results;
   // }
 
-  /* async updateChannelRelationship(
-    id: number,
-    channelRelationship: UpdateChannelRelationshipDto,
-  ) {
-    await this.channelRelationshipsRepository.update(id, channelRelationship);
-    const updatedChannelRelationship =
-      this.channelRelationshipsRepository.findOne(id);
+  async updateChannelRelationship(channelRelationship: UpdateChannelRelationshipDto) {
+    let relation = await this.getChannelRelationshipByIds(channelRelationship.channel_id, channelRelationship.user_id);
+    await this.channelRelationshipsRepository.update(relation, channelRelationship);
+    const updatedChannelRelationship = await this.getChannelRelationshipByIds(channelRelationship.channel_id, channelRelationship.user_id);
     if (updatedChannelRelationship) {
       return updatedChannelRelationship;
     }
-    throw new ChannelRelationshipNotFound(id);
+    throw new ChannelRelationshipByIdsNotFound(channelRelationship.channel_id, channelRelationship.user_id);
   }
 
+  async createChannelRelationship(channelRelationship: CreateChannelRelationshipDto) {
+    const newChannelRelationship = this.channelRelationshipsRepository.create(channelRelationship);
+    await this.channelRelationshipsRepository.save(newChannelRelationship);
+    return newChannelRelationship;
+  }
+
+  async deleteChannelRelationship(channelRelationship: DeleteChannelRelationshipDto) {
+    let relation = await this.getChannelRelationshipByIds(channelRelationship.channel_id, channelRelationship.user_id);
+    const deleteResponse = await this.channelRelationshipsRepository.delete({channel_id: relation.channel_id, user_id: relation.user_id});
+
+    console.log('deleteResponse', deleteResponse)
+
+    if (!deleteResponse.affected) {
+      throw new ChannelRelationshipByIdsNotFound(channelRelationship.channel_id, channelRelationship.user_id);
+    }
+  }
+
+  /*
   async createChannelRelationship(
     channelRelationship: CreateChannelRelationshipDto,
   ) {
@@ -56,10 +83,5 @@ export default class ChannelRelationshipsService {
     return newChannelRelationship;
   }
 
-  async deleteChannelRelationship(id: number) {
-    const deleteResponse = await this.channelRelationshipsRepository.delete(id);
-    if (!deleteResponse.affected) {
-      throw new ChannelRelationshipNotFound(id);
-    }
-  } */
+  */
 }

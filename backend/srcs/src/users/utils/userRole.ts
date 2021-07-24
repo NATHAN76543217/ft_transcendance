@@ -1,10 +1,10 @@
 export enum UserRole {
-  User = 0,
+  User = 1,
 
-  Owner = 1 << 0,
-  Admin = 1 << 1,
+  Owner = User << 1,
+  Admin = Owner << 1,
 
-  Banned = 1 << 2,
+  Banned = Admin << 1,
 
   Sanctioned = UserRole.Banned,
 }

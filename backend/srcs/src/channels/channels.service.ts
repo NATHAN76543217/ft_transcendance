@@ -26,6 +26,7 @@ import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
 import { Message } from 'src/messages/message.entity';
 import { parse } from 'cookie';
+import ChannelRelationshipsService from './relationships/channel-relationships.service';
 
 @Injectable()
 export default class ChannelsService {
@@ -39,7 +40,9 @@ export default class ChannelsService {
     private readonly messageRepository: Repository<Message>,
     @Inject(forwardRef(() => ChannelsGateway))
     private readonly channelsGateway: ChannelsGateway,
-  ) {}
+    private readonly channelRelationshipsService: ChannelRelationshipsService
+
+  ) { }
 
   async getUserFromSocket(socket: Socket, withChannels = true): Promise<User> {
     const cookie = socket.handshake.headers.cookie ?? '';
@@ -104,10 +107,10 @@ export default class ChannelsService {
     //   relations: ['users'],
     // });
 
+
     if (channel) {
       return channel;
     }
-
     throw new ChannelNotFound(id);
   }
 
@@ -115,6 +118,10 @@ export default class ChannelsService {
     plainTextPassword: string,
     hashedPassword: string,
   ) {
+
+    console.log(`plainTextPassword = ${plainTextPassword}`)
+    console.log(`hashedPassword = ${hashedPassword}`)
+
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
       hashedPassword,
@@ -186,6 +193,10 @@ export default class ChannelsService {
       channel_id: channelId,
       user_id: userId,
     });
+    // const channel = await this.channelRelationshipsService.getAllChannelRelationshipsFromChannelId(channelId.toString());
+    // if (!channel.length) {
+    //   this.deleteChannel(channelId);
+    // }
   }
 
   async updateChannelRelationship(
@@ -264,8 +275,10 @@ export default class ChannelsService {
   }
 
   async deleteChannel(id: number) {
-    const deleteResponse = await this.channelsRepository.delete(id);
+    const deleteResponseRelationships = await this.channelRelationshipRepository.delete({channel_id: id});
+    console.log('deleteResponseRelationships', deleteResponseRelationships)
 
+    const deleteResponse = await this.channelsRepository.delete(id);
     // TODO: Dispatch leave event on corresponding gateway room
 
     if (!deleteResponse.affected) {

@@ -1,6 +1,8 @@
 import { UserRole } from 'src/users/utils/userRole';
 
 export enum ChannelRelationshipType {
+  Null = 0,
+
   Member = UserRole.User,
 
   /** Channel owner */

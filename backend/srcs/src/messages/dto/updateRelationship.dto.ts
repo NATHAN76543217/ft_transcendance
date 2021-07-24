@@ -1,7 +1,7 @@
 import { UserRelationshipTypes } from 'src/users/relationships/userRelationshipTypes';
-import { MessageType } from '../message.entity';
 
 export default interface UpdateRelationshipDto {
+  channel_id: number;
   user_id: number;
   type: UserRelationshipTypes;
 }

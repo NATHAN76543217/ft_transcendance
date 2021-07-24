@@ -99,11 +99,11 @@ export default class ChannelsController {
   ) {
     const channel = await this.channelsService.createChannel(channelData);
     // console.log(channel)
-    const relation = await this.channelsService.createChannelRelationship(
-      channel.id,
-      req.user.id,
-      ChannelRelationshipType.Owner,
-    );
+    // const relation = await this.channelsService.createChannelRelationship(
+    //   channel.id,
+    //   req.user.id,
+    //   ChannelRelationshipType.Owner,
+    // );
     // console.log(relation)
     return channel;
   }
@@ -202,7 +202,6 @@ export default class ChannelsController {
       throw new HttpException('TODO: Relationship already exists!', 400);
     }
 
-    // TODO: Add check if password
     const channel = await this.channelsService.getChannelById(Number(channelId))
     if (channel.mode === ChannelMode.protected) {
       await this.channelsService.verifyPassword(joinChannelData.password, channel.password);

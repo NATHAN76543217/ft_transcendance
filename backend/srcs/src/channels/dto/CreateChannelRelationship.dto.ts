@@ -5,13 +5,13 @@ export default class CreateChannelRelationshipDto {
   // This should be fetched on creation after checking that the creating user
   // is allowed to manage this channel
 
-  /* @IsNumberString()
-    @IsNotEmpty()
-    public channel_id: string; */
-
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
-  public user_id: string;
+  public channel_id: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  public user_id: number;
 
   // This should be fetched on creation
   /*     @IsString()
