@@ -81,8 +81,8 @@ export class ChannelsGateway
       })
       console.log(`relationship not there - relation`, relationship)
     }
-    socket.to(user1_id).emit("updateRelationship-back", { user_id: user2_id, type: body.type })
-    socket.to(user2_id).emit("updateRelationship-back", { user_id: user1_id, type: body.type })
+    socket.emit("updateRelationship-back", { user_id: body.user_id.toString(), type: body.type })
+    socket.to(body.user_id.toString()).emit("updateRelationship-back", { user_id: socket.user.id.toString(), type: body.type })
     console.log(`updateRelationship-front - end`)
   }
   
