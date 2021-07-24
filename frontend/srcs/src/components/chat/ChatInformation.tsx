@@ -137,10 +137,10 @@ function ChannelInformation(channel: ChannelProps) {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
 
-  const displayJoinButton = (channel: ChannelProps, relationshipType: ChannelRelationshipType, contextValue: IAppContext, password: string, setPassword: any, showWrongPassword: boolean, setShowWrongPassword: any, showPassword: boolean, setShowPassword: any) => {
-    console.log('displayJoinButton - begin')
-    console.log('channel_id', channel.id)
-    console.log('type', relationshipType)
+  const displayJoinButton = (channel: ChannelProps, relationshipType: ChannelRelationshipType, password: string, setPassword: any, showWrongPassword: boolean, setShowWrongPassword: any, showPassword: boolean, setShowPassword: any) => {
+    // console.log('displayJoinButton - begin')
+    // console.log('channel_id', channel.id)
+    // console.log('type', relationshipType)
     
     let isInChannel = !(
       Number(relationshipType) === Number(ChannelRelationshipType.Null) ||
@@ -148,19 +148,14 @@ function ChannelInformation(channel: ChannelProps) {
       Number(relationshipType) === Number(ChannelRelationshipType.Invited)
       );
       let isBan = relationshipType === ChannelRelationshipType.Banned;
-      console.log('isInChannel', isInChannel)
   
     const joinChannel = async (channelPassword: string): Promise<boolean> => {
-      const res = await channel.joinChannel(channel.id, channel.channelInfo, channel.setChannelInfo, contextValue, channelPassword);
-      if (res) {
-        await contextValue.updateAllRelationships();
-      }
+      const res = await channel.joinChannel(channel.id, channelPassword);
       return res;
     };
   
     const leaveChannel = async (id: number) => {
-      await channel.leaveChannel(id, channel.channelInfo, channel.setChannelInfo, contextValue);
-      contextValue.updateAllRelationships();
+      await channel.leaveChannel(id);
     };
   
     const handleSubmit = (evt: any) => {
@@ -260,7 +255,7 @@ function ChannelInformation(channel: ChannelProps) {
             {getModeName(channel.mode)}
           </h1>
         </div>
-        <div>{displayJoinButton(channel, channelRelationshipType, contextValue, password, setPassword, showWrongPassword, setShowWrongPassword, showPassword, setShowPassword)}</div>
+        <div>{displayJoinButton(channel, channelRelationshipType, password, setPassword, showWrongPassword, setShowWrongPassword, showPassword, setShowPassword)}</div>
       </section>
     </div>
   );

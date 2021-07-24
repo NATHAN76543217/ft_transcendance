@@ -207,9 +207,6 @@ function ChannelSearch() {
 
   const joinChannel = async (
     id: number,
-    searchInfo: ChannelSearchState,
-    setSearchInfo: any,
-    contextValue: IAppContext,
     password: string
   ) => {
   
@@ -260,9 +257,8 @@ function ChannelSearch() {
 
   const leaveChannel = async (
     id: number,
-    searchInfo: ChannelSearchState,
-    setSearchInfo: any,
-    contextValue: IAppContext
+    // searchInfo: ChannelSearchState,
+    // setSearchInfo: any,
   ) => {
 
     contextValue.socket?.emit('leaveChannel-front', {

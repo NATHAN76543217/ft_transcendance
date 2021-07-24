@@ -386,12 +386,9 @@ class App extends React.Component<AppProps, AppState> {
       user: this.state.user,
       setUser: this.setUser,
       setUserInit: this.setUserInit,
-      updateAllRelationships: this.updateAllRelationships,
       updateOneRelationship: this.updateOneRelationship,
       socket: this.state.socket,
     };
-
-
 
     if (
       this.state.user !== undefined &&
