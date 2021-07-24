@@ -23,20 +23,7 @@ const getAllUsers = async (adminInfo: AdminState, setAdminInfo: any) => {
   } catch (error) { }
 }
 
-const setRole = async (id: number, role: UserRole, adminInfo: AdminState, setAdminInfo: any) => {
-  try {
-    await axios.patch(`/api/users/${id}`, { role });
-    getAllUsers(adminInfo, setAdminInfo);
-  } catch (error) { }
-};
 
-const banUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Banned, adminInfo, setAdminInfo);
-
-const unbanUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
-
-const setAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Admin, adminInfo, setAdminInfo);
-
-const unsetAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
 
 interface AdminState {
   list: IUser[]
@@ -48,6 +35,33 @@ function AdminUsers() {
   const [adminInfo, setAdminInfo] = useState<AdminState>({
     list: []
   });
+
+  const updateOneRole = async (user_id: number, newRole: UserRole) => {
+    let a = adminInfo.list.slice();
+    let index = a.findIndex((user: IUser) => {
+      return (Number(user.role) === user_id);
+    })
+    if (index !== -1) {
+      a[index].role = newRole
+    }
+    setAdminInfo({ list: a });
+  }
+
+  const setRole = async (id: number, role: UserRole, adminInfo: AdminState, setAdminInfo: any) => {
+    contextValue.socket?.emit('updateRole-front', {
+      user_id: id,
+      role: role
+    });
+    updateOneRole(id, role);
+  };
+
+  const banUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Banned, adminInfo, setAdminInfo);
+
+  const unbanUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
+
+  const setAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Admin, adminInfo, setAdminInfo);
+
+  const unsetAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
 
   getAllUsers(adminInfo, setAdminInfo);
 

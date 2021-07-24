@@ -4,7 +4,7 @@ import {
   ChannelRelationshipType,
 } from "../channel/ChannelRelationship";
 
-export enum UserRole {
+export enum  UserRole {
   User = 0,
 
   Owner = 1 << 0,

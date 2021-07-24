@@ -274,6 +274,14 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
+  updateRole = async (newRole: UserRole) => {
+    let newUser = this.state.user;
+    if (newUser) {
+      newUser.role = newRole;
+      this.setState({ user: newUser });
+    }
+  }
+
   displayAdminRoute(isAdmin: boolean) {
     if (isAdmin) {
       return (
@@ -301,6 +309,16 @@ class App extends React.Component<AppProps, AppState> {
         this.updateOneRelationship(data.user_id, data.type)
       }
       console.log(`received updated relationship from ${data?.user_id}: newType = ${data?.type}`)
+    })
+
+    socket.on('updateRole-back', (data: any) => {
+      console.log(`updateRole-back`)
+      console.log(`updateRole-back - data.user_id = ${data.user_id}, this.state.user?.id = ${this.state.user?.id}`)
+      if (data && data.user_id === this.state.user?.id) {
+        console.log(`updateRole-back - will update role`)
+        this.updateRole(data.role)
+      }
+      console.log(`received updated role from ${data?.user_id}: newRole = ${data?.role}`)
     })
 
     return socket;
