@@ -71,7 +71,7 @@ export default function GameFast()
         setOnAcceptClick(false);
         context.socket.emit(Mesages.DECLINE_MATCH, context.gameId, context.playerId);
         onCancelSearch();
-    }
+    };
 
     ////////////////////////////
     // SOCKET EVENT LISTENERS //
@@ -126,7 +126,7 @@ export default function GameFast()
         context.socket.on(Mesages.MATCH_FOUND_RESPONSE, onMatchFound);
         context.socket.on(Mesages.ON_READY_RESPONSE, onReadyResponse);
 
-        return () => { deleteListeners(); };
+        return deleteListeners;
     }, []);
 
     ///////////////////////////

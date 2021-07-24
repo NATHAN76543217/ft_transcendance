@@ -572,6 +572,12 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         this.server.to(otherPlayerid).emit(Mesages.ON_READY_RESPONSE, false);
         room.flags &= ~(State.PLAYER_ONE_READY | State.PLAYER_TWO_READY);
     }
+
+    @SubscribeMessage(Mesages.GAME_IS_INIT)
+    spectatorInitGame(client : Socket)
+    {
+        this.server.to(client.id).emit(Mesages.SPECTATOR_IS_INIT);
+    }
 }
 
 // TO DO:

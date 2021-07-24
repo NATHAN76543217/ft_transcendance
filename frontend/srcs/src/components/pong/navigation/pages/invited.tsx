@@ -230,8 +230,8 @@ export default function InvitedToGame()
     // ALWAYS EXECUTED //
     /////////////////////
 
-    context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
     context.socket.emit(Mesages.INIT_CUSTOMIZATION, context.gameId);
+    context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
 
     return (
         // TO DO: Use isReady for button style too
@@ -262,3 +262,9 @@ export default function InvitedToGame()
         </>
     );
 }
+
+// TO DO: See for a cleaner implementation
+// TO DO: Subscribe only on construction
+// TO DO: Free (unsbuscribe) all on destruction
+// TO DO: Check FastGame for exemple
+// TO DO: Comment like fast game (document all the code)
