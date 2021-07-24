@@ -1,5 +1,7 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
+import AppContext from "../../AppContext";
 import { ChannelMode } from "../../models/channel/Channel";
 import {
   ChannelRelationship,
@@ -76,7 +78,7 @@ const displayDestroyButton = (adminChannelElementInfo: ChannelElementStates, set
           onClick={localChangeDestroyValidationButtonState}
         >
           Destroy channel
-          </button>
+        </button>
       </div>
     );
   }
@@ -123,103 +125,40 @@ const translateRelationTypeToRole = (type: ChannelRelationshipType) => {
       return UserRole.Admin;
     case ChannelRelationshipType.Banned:
       return UserRole.Banned;
-      case ChannelRelationshipType.Muted:
-        return ChannelRelationshipType.Muted;
+    case ChannelRelationshipType.Muted:
+      return ChannelRelationshipType.Muted;
     default:
       return UserRole.User;
   }
 }
 
-const setChannelUserRelationship = async (
-  user_id: number,
-  type: ChannelRelationshipType,
-  adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
-) => {
-  try {
-    await axios.patch(`/api/channels/${adminChannelElementInfo.channel_id}/update/${user_id}`, {
-      type: type,
-    });
-    setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
-  } catch (error) { console.log(error) }
-}
+// const setChannelUserRelationship = async (
+//   user_id: number,
+//   type: ChannelRelationshipType,
+//   adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
+// ) => {
+//   try {
+//     await axios.patch(`/api/channels/${adminChannelElementInfo.channel_id}/update/${user_id}`, {
+//       type: type,
+//     });
+//     setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
+//   } catch (error) { console.log(error) }
+// }
 
-const kickUserFromChannel = async (
-  user_id: number,
-  adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
-) => {
-  try {
-    await axios.delete(`/api/channels/${adminChannelElementInfo.channel_id}/kick/${user_id}`,);
-    setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
-  } catch (error) { console.log(error) }
-}
+// const kickUserFromChannel = async (
+//   user_id: number,
+//   adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
+// ) => {
+//   try {
+//     await axios.delete(`/api/channels/${adminChannelElementInfo.channel_id}/kick/${user_id}`,);
+//     setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
+//   } catch (error) { console.log(error) }
+// }
 
 
-const banUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.Banned, adminChannelElementInfo, setAdminChannelElementInfo);
 
-const unbanUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
 
-const setAdminFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.Admin, adminChannelElementInfo, setAdminChannelElementInfo);
 
-const unsetAdminFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
-
-  const muteUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.Muted, adminChannelElementInfo, setAdminChannelElementInfo);
-
-  const unmuteUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  setChannelUserRelationship(user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
-
-  // const kickUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
-  // setChannelUserRelationship(user_id, ChannelRelationshipType.null, adminChannelElementInfo, setAdminChannelElementInfo);
-
-  
-const displayUsersList = (adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) => {
-  if (adminChannelElementInfo.showUsersList) {
-    return (
-      <div>
-        <ul className="relative w-auto pt-4 pl-4">
-          {adminChannelElementInfo.channelRelationshipsList.map((relation) => {
-            let translatedRole = translateRelationTypeToRole(
-              relation.type
-            );
-
-            if (!(relation.type & ChannelRelationshipType.Member)) {
-              return (
-                <li key={relation.user_id.toFixed()} className="">
-                  <AdminUserElement
-                    id={relation.user_id}
-                    name={relation.user.name}
-                    role={translatedRole}
-                    myRole={adminChannelElementInfo.myRole}
-                    banUser={banUserFromChannel}
-                    unbanUser={unbanUserFromChannel}
-                    setAdmin={setAdminFromChannel}
-                    unsetAdmin={unsetAdminFromChannel}
-                    muteUser={muteUserFromChannel}
-                    unmuteUser={unmuteUserFromChannel}
-                    kickUser={kickUserFromChannel}
-                    isChannelUserElement
-                    adminInfo={adminChannelElementInfo}
-                    setAdminInfo={setAdminChannelElementInfo}
-                  />
-                </li>
-              );
-            } else {
-              return (
-                <li key={relation.user_id} className="">
-                  <div></div>
-                </li>
-              );
-            }
-          })}
-        </ul>
-      </div>
-    );
-  }
-}
 
 interface ChannelElementProps {
   id: number;
@@ -235,16 +174,18 @@ interface ChannelElementStates {
   showDestroyValidation: boolean;
   showUsersList: boolean | undefined;
   channel_id: number;
-  myRole: ChannelRelationshipType
+  myRole: ChannelRelationshipType;
 };
 
 function AdminChannelElement(props: ChannelElementProps) {
+  const contextValue = React.useContext(AppContext);
+
   const [adminChannelElementInfo, setAdminChannelElementInfo] = useState<ChannelElementStates>({
     channelRelationshipsList: [],
     showDestroyValidation: false,
     showUsersList: props.isChannelSettings,
     channel_id: props.id,
-    myRole: props.myRole
+    myRole: props.myRole,
   });
 
   // const updateChannelIdAndRole = useCallback(() => {
@@ -272,10 +213,110 @@ function AdminChannelElement(props: ChannelElementProps) {
         myRole: props.myRole,
       })
     }
-    updateChannelIdAndRole()
-  }, [props.id, props.myRole])
-  
+    if (props.id !== adminChannelElementInfo.channel_id || props.myRole !== adminChannelElementInfo.myRole) {
+      updateChannelIdAndRole()
+    }
+  }, [props.id, props.myRole, adminChannelElementInfo, setAdminChannelElementInfo])
+
+  // useEffect(() => {
+  //   const test = () => {
+  //     // setAdminChannelElementInfo({
+  //     //   ...adminChannelElementInfo,
+  //     // })
+  //   }
+  //   test()
+  // }, [adminChannelElementInfo.channelRelationshipsList])
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
+
+  const updateOneRelationship = async (channel_id: number, user_id: number, newType: ChannelRelationshipType) => {
+    let a = adminChannelElementInfo.channelRelationshipsList.slice();
+    let index = a.findIndex((relation: ChannelRelationship) => {
+      return (Number(relation.channel_id) === channel_id && Number(relation.user_id === user_id));
+    })
+    if (index !== -1) {
+      a[index].type = newType
+    }
+    setAdminChannelElementInfo({
+      ...adminChannelElementInfo,
+      channelRelationshipsList: a
+    });
+  }
+
+  const setRole = async (channel_id: number, user_id: number, type: ChannelRelationshipType, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) => {
+    contextValue.socket?.emit('updateChannelRelationship-front', {
+      channel_id: channel_id,
+      user_id: user_id,
+      type: type
+    });
+    updateOneRelationship(channel_id, user_id, type);
+  };
+
+  const banUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Banned, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const unbanUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const setAdminFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Admin, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const unsetAdminFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const muteUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Muted, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const unmuteUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Member, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const kickUserFromChannel = async (user_id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) =>
+    setRole(props.id, user_id, ChannelRelationshipType.Null, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  const displayUsersList = (adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) => {
+    if (adminChannelElementInfo.showUsersList) {
+      return (
+        <div>
+          <ul className="relative w-auto pt-4 pl-4">
+            {adminChannelElementInfo.channelRelationshipsList.map((relation) => {
+              let translatedRole = translateRelationTypeToRole(
+                relation.type
+              );
+
+              if (!(relation.type & ChannelRelationshipType.Null)) {
+                return (
+                  <li key={relation.user_id.toFixed()} className="">
+                    <AdminUserElement
+                      id={relation.user_id}
+                      name={relation.user.name}
+                      role={translatedRole}
+                      myRole={adminChannelElementInfo.myRole}
+                      banUser={banUserFromChannel}
+                      unbanUser={unbanUserFromChannel}
+                      setAdmin={setAdminFromChannel}
+                      unsetAdmin={unsetAdminFromChannel}
+                      muteUser={muteUserFromChannel}
+                      unmuteUser={unmuteUserFromChannel}
+                      kickUser={kickUserFromChannel}
+                      isChannelUserElement
+                      adminInfo={adminChannelElementInfo}
+                      setAdminInfo={setAdminChannelElementInfo}
+                    />
+                  </li>
+                );
+              } else {
+                return (
+                  <li key={relation.user_id} className="">
+                    <div></div>
+                  </li>
+                );
+              }
+            })}
+          </ul>
+        </div>
+      );
+    }
+  }
 
   setchannelRelationshipsList(props.id, adminChannelElementInfo, setAdminChannelElementInfo);
 

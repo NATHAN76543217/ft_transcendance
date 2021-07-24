@@ -16,7 +16,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser, UserRole } from "./models/user/IUser";
+import { IUser, UserChannelRelationship, UserRole } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -30,6 +30,7 @@ import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import FailedLogin from "./pages/failedLogin/failedLogin";
+import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
 
 // let change_bg_color_with_size =
 //   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -282,6 +283,46 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
+  updateChannelRelationship = async (channel_id: number, newType : ChannelRelationshipType = ChannelRelationshipType.Null) => {
+    if (this.state.user) {
+      let a = this.state.user.channels.slice();
+      let index = a.findIndex((channel: any) => {
+        return (Number(channel.channel.id) === Number(channel_id));
+      })
+      if (index !== -1) {
+        if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
+          a[index].type = newType
+        } else {
+          a.splice(index, 1)
+        }
+        const newUser = {
+          ...this.state.user,
+          channels: a
+        }
+        this.setState({ user: newUser });
+      } else if (newType !== ChannelRelationshipType.Null) {
+        try {
+          const dataChannel = await axios.get("/api/channels/" + channel_id);
+          a.push({
+            channel: dataChannel.data,
+            type: newType,
+          });
+          a.sort((channel1: UserChannelRelationship, channel2: UserChannelRelationship) =>
+            channel1.channel.name.localeCompare(channel2.channel.name)
+          );
+          const newUser = {
+            ...this.state.user,
+            channels: a
+          }
+          this.setState({ user: newUser });
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
+
+  }
+
   displayAdminRoute(isAdmin: boolean) {
     if (isAdmin) {
       return (
@@ -304,21 +345,34 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     socket.on('updateRelationship-back', (data: any) => {
-      console.log(`updateRelationship-back`)
       if (data) {
         this.updateOneRelationship(data.user_id, data.type)
       }
-      console.log(`received updated relationship from ${data?.user_id}: newType = ${data?.type}`)
     })
 
     socket.on('updateRole-back', (data: any) => {
-      console.log(`updateRole-back`)
-      console.log(`updateRole-back - data.user_id = ${data.user_id}, this.state.user?.id = ${this.state.user?.id}`)
-      if (data && data.user_id === this.state.user?.id) {
-        console.log(`updateRole-back - will update role`)
+      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
         this.updateRole(data.role)
       }
-      console.log(`received updated role from ${data?.user_id}: newRole = ${data?.role}`)
+    })
+
+    socket.on('updateChannelRelationship-back', (data: any) => {
+      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
+        this.updateChannelRelationship(data.channel_id, data.type)
+      }
+    })
+
+    socket.on('joinChannel-back', (data: any) => {
+      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
+        this.updateChannelRelationship(data.channel_id, data.type)
+      }
+    })
+
+    socket.on('leaveChannel-back', (data: any) => {
+      if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
+        const newType = data.type ? data.type : ChannelRelationshipType.Null
+        this.updateChannelRelationship(data.channel_id, newType)
+      }
     })
 
     return socket;

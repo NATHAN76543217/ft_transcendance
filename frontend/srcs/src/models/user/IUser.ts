@@ -5,13 +5,12 @@ import {
 } from "../channel/ChannelRelationship";
 
 export enum  UserRole {
-  User = 0,
+  User = 1,
 
-  Owner = 1 << 0,
-  Admin = 1 << 1,
+  Owner = User << 1,
+  Admin = Owner << 1,
 
-  Banned = 1 << 2,
-  //Muted = 1 << 3,
+  Banned = Admin << 1,
 }
 
 export enum UserStatus {
@@ -40,5 +39,5 @@ export type IUser = {
   twoFactorAuth: boolean;
   status: UserStatus;
   role: UserRole;
-  channels: ChannelRelationship[];
+  channels: UserChannelRelationship[];
 };

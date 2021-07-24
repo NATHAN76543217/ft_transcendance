@@ -7,8 +7,7 @@ import { useForm } from "react-hook-form";
 import { TextInput } from "../utilities/TextInput";
 import { Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
-import { UserRole } from "../../models/user/IUser";
-import { ChannelRelationship } from "../../models/channel/ChannelRelationship";
+import { UserChannelRelationship, UserRole } from "../../models/user/IUser";
 
 type ChatViewProps = {
   className: string;
@@ -127,7 +126,7 @@ function AdminActions({ channelId }: AdminActionsProps) {
 
 type ChatActionsProps = {
   userRole?: UserRole;
-  relation?: ChannelRelationship;
+  relation?: UserChannelRelationship;
 };
 
 function ChatActions({ userRole, relation }: ChatActionsProps) {

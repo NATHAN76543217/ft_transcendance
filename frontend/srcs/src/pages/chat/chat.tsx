@@ -9,13 +9,13 @@ import { ChatNavBar } from "../../components/chat/ChatNavBar";
 import { ChatView } from "../../components/chat/ChatView";
 import ChannelSearch from "./channelSearch";
 import ChannelSettings from "./channelSettings";
-import { ChannelRelationship } from "../../models/channel/ChannelRelationship";
 import ChannelCreate from "./channelCreate";
+import { UserChannelRelationship } from "../../models/user/IUser";
 //import ChannelSearch from "./channelSearch";
 
 type ChatPageContextProps = {
-  channelRels: Map<number, ChannelRelationship>;
-  currentChannelRel?: ChannelRelationship;
+  channelRels: Map<number, UserChannelRelationship>;
+  currentChannelRel?: UserChannelRelationship;
   //socket?: Socket;
 };
 
@@ -41,8 +41,8 @@ export default function ChatPage({
   const chatIdParam = Number(match.params.id);
 
   const [currentChannelRel, setCurrentChannelRel] = useState<
-    ChannelRelationship | undefined
-  >(channelRels.get(chatIdParam));
+    UserChannelRelationship | undefined
+    >(channelRels.get(chatIdParam));
   useEffect(() => {
     setChannelRels(new Map(user?.channels.map((rel) => [rel.channel.id, rel])));
   }, [user?.channels]);

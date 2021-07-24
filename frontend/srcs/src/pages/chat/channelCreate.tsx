@@ -6,6 +6,8 @@ import ChannelCreateForm from '../../components/Forms/channelCreateForm';
 import CreateChannelDto from '../../models/channel/CreateChannel.dto';
 import { useForm } from 'react-hook-form';
 import { ChannelMode } from '../../models/channel/Channel';
+import React from 'react';
+import AppContext from '../../AppContext';
 
 
 interface ICreateChannelFormValues {
@@ -16,7 +18,7 @@ interface ICreateChannelFormValues {
 }
 
 function ChannelCreate() {
-
+    const contextValue = React.useContext(AppContext);
     const [showCreationValidation, setShowCreationValidation] = useState(false)
 
 
@@ -41,8 +43,11 @@ function ChannelCreate() {
             return ;
         }
         try {
-            const data = await axios.post("/api/channels", values);
-            console.log(data);
+            const newChannel = await axios.post("/api/channels", values);
+            console.log('newChannel created', newChannel);
+            contextValue.socket?.emit('joinChannel-front', {
+                channel_id: newChannel.data.id,
+              });
             setShowCreationValidation(true);
         }
         catch (error) {

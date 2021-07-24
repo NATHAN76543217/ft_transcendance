@@ -8,3 +8,8 @@ export default interface ChannelSearchState {
   }[];
   channelName: string;
 }
+
+export interface ChannelSearchListElement {
+  channel: Channel,
+  relationType: ChannelRelationshipType
+};

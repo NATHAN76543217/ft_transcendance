@@ -1,10 +1,11 @@
 import axios from "axios";
 import React from "react";
 
-import { Channel, ChannelMode } from "../../models/channel/Channel";
+import { Channel } from "../../models/channel/Channel";
 import { IUser } from "../../models/user/IUser";
 import AdminChannelElement from "../../components/admin/adminChannelElement";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import AppContext from "../../AppContext";
 
 interface AdminChannelProps {
   isOwner?: boolean | false;
@@ -26,6 +27,8 @@ class AdminChannels extends React.Component<
     };
   }
 
+  static contextType = AppContext;
+
   componentDidMount() {
     this.setAllChannels();
   }
@@ -44,7 +47,7 @@ class AdminChannels extends React.Component<
         user1.name.localeCompare(user2.name)
       );
       this.setState({ list: a });
-    } catch (error) {}
+    } catch (error) { }
   }
 
   setAllChannels = async () => {
@@ -57,69 +60,74 @@ class AdminChannels extends React.Component<
         user1.name.localeCompare(user2.name)
       );
       this.setState({ list: a });
-    } catch (error) {}
+    } catch (error) { }
   };
 
-  async deleteChannelRelationship(id: number) {
+  removeOneChannel = async (channel_id: number) => {
     try {
-      await axios.delete(`/api/channels/leave/${id}`, {
+      await axios.get("/api/channels", {
         withCredentials: true,
       });
-    } catch (error) {}
-  }
-
-  destroyChannel = async (id: number) => {
-    try {
-      // TODO: This should be handled on the backend directly
-      /* const dataRelations = await axios.get(
-        `/api/channels/${id}/`,
-        { withCredentials: true }
-      );
-      dataRelations.data.map(async (relation: ChannelRelationship) => {
-        this.deleteChannelRelationship(relation.user_id);
-      }); */
-      console.log("Deleting channel " + id);
-      await axios.delete(`/api/channels/${id}`, { withCredentials: true });
-    } catch (error) {}
-    this.setAllChannels();
+      let a = this.state.list.slice();
+      const index = a.findIndex((channel) => {
+        return (Number(channel.id === channel_id))
+      })
+      if (index !== -1) {
+        a.splice(index, 1);
+      }
+      this.setState({ list: a });
+    } catch (error) { }
   };
 
-  async createChannel(name: string, mode: ChannelMode) {
-    try {
-      await axios.post(
-        "/api/channels",
-        {
-          name: name,
-          password: "password",
-          mode: mode,
-        },
-        { withCredentials: true }
-      );
-    } catch (error) {}
-  }
+  destroyChannel = async (channel_id: number) => {
+    console.log("Deleting channel " + channel_id);
 
-  async createChannelRelationship(
-    channel_id: string,
-    user_id: string,
-    type: ChannelRelationshipType
-  ) {
-    try {
-      const dataUser = await axios.get("/api/users/" + user_id, {
-        withCredentials: true,
-      });
-      const user_name = dataUser.data.name;
-      await axios.post(
-        "/api/channels/join",
-        {
-          channel_id: channel_id,
-          user_id: user_id,
-          user_name: user_name,
-          type: type,
-        },
-        { withCredentials: true }
-      );
-    } catch (error) {}
-  }
+    this.context.socket?.emit('destroyChannel-front', {
+      channel_id: channel_id,
+    });
+    this.removeOneChannel(channel_id)
+  };
+
+  // async createChannel(name: string, mode: ChannelMode) {
+  //   try {
+  //     const newChannel = await axios.post(
+  //       "/api/channels",
+  //       {
+  //         name: name,
+  //         password: "password",
+  //         mode: mode,
+  //       },
+  //       { withCredentials: true }
+  //     );
+  //     console.log('new channel created', newChannel)
+  //     this.context.socket?.emit('joinChannel-front', {
+  //       channel_id: newChannel.data.id,
+  //     });
+  //   } catch (error) { }
+  // }
+
+  // async createChannelRelationship(
+  //   channel_id: string,
+  //   user_id: string,
+  //   type: ChannelRelationshipType
+  // ) {
+  //   try {
+  //     const dataUser = await axios.get("/api/users/" + user_id, {
+  //       withCredentials: true,
+  //     });
+  //     const user_name = dataUser.data.name;
+  //     await axios.post(
+  //       "/api/channels/join",
+  //       {
+  //         channel_id: channel_id,
+  //         user_id: user_id,
+  //         user_name: user_name,
+  //         type: type,
+  //       },
+  //       { withCredentials: true }
+  //     );
+  //   } catch (error) { }
+  // }
 
   render() {
     // this.displayChannelsData();

@@ -7,7 +7,7 @@ import ChannelSearchDto from "../../models/channel/ChannelSearch.dto";
 import ChatInformation from "../../components/chat/ChatInformation";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import AppContext from "../../AppContext";
-import ChannelSearchState from "../../models/channel/ChannelSearchState";
+import ChannelSearchState, { ChannelSearchListElement } from "../../models/channel/ChannelSearchState";
 import { IAppContext } from "../../IAppContext";
 import { Channel } from "../../models/channel/Channel";
 
@@ -25,7 +25,7 @@ const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
       return ChannelRelationshipType.Member;
     }
   } catch (error) {
-    return ChannelRelationshipType.Member;
+    return ChannelRelationshipType.Null;
   }
 };
 
@@ -86,95 +86,26 @@ const onSubmit = async (
   } catch (error) {}
 };
 
-const updateRelationshipState = (
-  id: number,
-  newType: ChannelRelationshipType,
-  searchInfo: ChannelSearchState,
-  setSearchInfo: any
-) => {
-  let a = searchInfo.list.slice();
-  let index = a.findIndex((elem) => Number(elem.channel.id) === Number(id));
-  if (index !== -1) {
-    a[index].relationType = newType;
-  }
-  setSearchInfo({
-    list: a,
-    channelName: searchInfo.channelName,
-  });
-};
+// const updateRelationshipState = (
+//   id: number,
+//   newType: ChannelRelationshipType,
+//   searchInfo: ChannelSearchState,
+//   setSearchInfo: any
+// ) => {
+//   let a = searchInfo.list.slice();
+//   let index = a.findIndex((elem) => Number(elem.channel.id) === Number(id));
+//   if (index !== -1) {
+//     a[index].relationType = newType;
+//   }
+//   setSearchInfo({
+//     list: a,
+//     channelName: searchInfo.channelName,
+//   });
+// };
 
-const joinChannel = async (
-  id: number,
-  searchInfo: ChannelSearchState,
-  setSearchInfo: any,
-  contextValue: IAppContext,
-  password: string
-): Promise<boolean> => {
-  try {
-    const data = await axios.get(`/api/channels/${id}`);
-    let index = data.data.users.findIndex(
-      (channelRelation: any) =>
-        channelRelation.user_id === contextValue.user?.id
-    );
 
-    if (index === -1) {
-      await axios.post(`/api/channels/${id}/join`, {
-        type: ChannelRelationshipType.Member,
-        password: password,
-        //TODO - add password
-      });
-      updateRelationshipState(
-        id,
-        ChannelRelationshipType.Member,
-        searchInfo,
-        setSearchInfo
-      );
-    }
-    return true;
-  } catch (error) {
-    // if (error.response) {
-    //   console.log(error.response.data);
-    //   console.log(error.response.status);
-    //   console.log(error.response.headers);
-    // }
-    return false;
-    // const joinValues: JoinChannelDto = {
-    //   type: ChannelRelationshipType.member
-    // }
-    // axios.post(`/api/channels/${id}/join`, {
-    //   // joinValues
-    //   //TODO - add password and joinValues
-    // });
-    // updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
-  }
-};
 
-const leaveChannel = async (
-  id: number,
-  searchInfo: ChannelSearchState,
-  setSearchInfo: any,
-  contextValue: IAppContext
-) => {
-  try {
-    const data = await axios.get(`/api/channels/${id}`);
-    let index = data.data.users.findIndex(
-      (channelRelation: any) =>
-        channelRelation.user_id === contextValue.user?.id
-    );
-    if (
-      index !== -1 &&
-      data.data.users[index].type !== ChannelRelationshipType.Banned
-    ) {
-      await axios.delete(`/api/channels/${id}/leave`);
-      updateRelationshipState(
-        id,
-        ChannelRelationshipType.Member,
-        searchInfo,
-        setSearchInfo
-      );
-    }
-  } catch (error) {}
-};
+
 
 // const banUserFromChannel = async (channel_id: number, user_id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
 //   try {
@@ -242,6 +173,7 @@ const leaveChannel = async (
 //   relationshipType: ChannelRelationshipType,
 // }
 
+
 function ChannelSearch() {
   const contextValue = React.useContext(AppContext);
 
@@ -258,6 +190,108 @@ function ChannelSearch() {
     onSubmit(values, searchInfo, setSearchInfo, contextValue);
   };
 
+  const updateOneRelationship = async (channel_id: number) => {
+    let a = searchInfo.list.slice();
+    let index = a.findIndex((relation: ChannelSearchListElement) => {
+      return (Number(relation.channel.id) === channel_id);
+    })
+    if (index !== -1) {
+      let relationshipType = await getRelationshipType(channel_id, contextValue);
+      a[index].relationType = relationshipType
+    }
+    setSearchInfo({
+      ...searchInfo,
+      list: a
+    });
+  }
+
+  const joinChannel = async (
+    id: number,
+    searchInfo: ChannelSearchState,
+    setSearchInfo: any,
+    contextValue: IAppContext,
+    password: string
+  ) => {
+  
+    contextValue.socket?.emit('joinChannel-front', {
+      channel_id: id,
+      user_id: contextValue.user?.id,
+      password: password
+    });
+    updateOneRelationship(id);
+  
+    // try {
+    //   const data = await axios.get(`/api/channels/${id}`);
+    //   let index = data.data.users.findIndex(
+    //     (channelRelation: any) =>
+    //       channelRelation.user_id === contextValue.user?.id
+    //   );
+  
+    //   if (index === -1) {
+    //     await axios.post(`/api/channels/${id}/join`, {
+    //       type: ChannelRelationshipType.Member,
+    //       password: password,
+    //     });
+    //     updateRelationshipState(
+    //       id,
+    //       ChannelRelationshipType.Member,
+    //       searchInfo,
+    //       setSearchInfo
+    //     );
+    //   }
+    //   return true;
+    // } catch (error) {
+      // if (error.response) {
+      //   console.log(error.response.data);
+      //   console.log(error.response.status);
+      //   console.log(error.response.headers);
+      // }
+      // return false;
+      // const joinValues: JoinChannelDto = {
+      //   type: ChannelRelationshipType.member
+      // }
+      // axios.post(`/api/channels/${id}/join`, {
+      //   // joinValues
+      //   //TODO - add password and joinValues
+      // });
+      // updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
+    // }
+  };
+
+  const leaveChannel = async (
+    id: number,
+    searchInfo: ChannelSearchState,
+    setSearchInfo: any,
+    contextValue: IAppContext
+  ) => {
+
+    contextValue.socket?.emit('leaveChannel-front', {
+      channel_id: id,
+      user_id: contextValue.user?.id,
+    });
+    updateOneRelationship(id);
+
+    // try {
+    //   const data = await axios.get(`/api/channels/${id}`);
+    //   let index = data.data.users.findIndex(
+    //     (channelRelation: any) =>
+    //       channelRelation.user_id === contextValue.user?.id
+    //   );
+    //   if (
+    //     index !== -1 &&
+    //     data.data.users[index].type !== ChannelRelationshipType.Banned
+    //   ) {
+    //     await axios.delete(`/api/channels/${id}/leave`);
+    //     updateRelationshipState(
+    //       id,
+    //       ChannelRelationshipType.Member,
+    //       searchInfo,
+    //       setSearchInfo
+    //     );
+    //   }
+    // } catch (error) {}
+  };
+
   return (
     <div className="flex flex-col items-center flex-grow">
       <ChannelSearchForm onSubmit={localOnSubmit} />
@@ -272,7 +306,7 @@ function ChannelSearch() {
                   name={channel.name}
                   mode={channel.mode}
                   // imgPath="",
-                  relationshipTypes={elem.relationType}
+                  relationshipTypeList={searchInfo.list}
                   // isInSearch={true}
                   joinChannel={joinChannel}
                   leaveChannel={leaveChannel}
