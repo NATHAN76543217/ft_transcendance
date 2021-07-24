@@ -8,6 +8,7 @@ export interface IAppContext {
   user?: AuthenticatedUser;
   token?: string;
   setUser: (user?: AuthenticatedUser) => void;
+  setUserInit: (user?: AuthenticatedUser) => void;
   updateAllRelationships: () => void;
   updateOneRelationship: (user_id: number, newType: UserRelationshipType) => void;
   socket?: Socket;

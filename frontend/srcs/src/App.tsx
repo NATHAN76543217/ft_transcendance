@@ -48,24 +48,53 @@ class App extends React.Component<AppProps, AppState> {
       socket: undefined,
       user: this.getCachedUser(),
     };
-    this.updateAllRelationships = this.updateAllRelationships.bind(this);
   }
+
+  setUserInit = (user?: AuthenticatedUser) => {
+    if (user !== this.state.user) {
+      // if the user is undefined, he is not logged
+      const logged = user !== undefined;
+      let socket;
+      if (logged) {
+        socket = this.getSocket();
+      } else {
+        socket = undefined;
+        this.state.socket?.close();
+      }
+
+      // update state
+      this.setState({
+        user: user,
+        socket: socket
+      },
+      () => {this.updateAllRelationships()});
+
+      // update cache
+      try {
+        if (user === undefined) localStorage.removeItem("user");
+        else localStorage.setItem("user", JSON.stringify(user));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
 
   // We do not need to bind when using the equal form
   setUser = (user?: AuthenticatedUser) => {
     if (user !== this.state.user) {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
-
-      if (logged) {
-        this.setState({ socket: this.getSocket() });
-      } else {
+      let socket = this.state.socket;
+      if (!logged) {
+        socket = undefined;
         this.state.socket?.close();
-        this.setState({ socket: undefined });
       }
 
       // update state
-      this.setState({ user });
+      this.setState({
+        user: user,
+        socket: socket
+      });
 
       // update cache
       try {
@@ -126,9 +155,9 @@ class App extends React.Component<AppProps, AppState> {
         withCredentials: true,
       });
 
-      this.setUser(res.data);
+      this.setUserInit(res.data);
     } catch (e) {
-      this.setUser();
+      this.setUserInit();
       // TODO: Handle refresh token if status 401 (Unauthorized)
       if (axios.isAxiosError(e)) {
         if (e.response?.status === 401) {
@@ -137,7 +166,7 @@ class App extends React.Component<AppProps, AppState> {
             const res = await axios.get<AuthenticatedUser>(`/api/users/me`, {
               withCredentials: true,
             });
-            this.setUser(res.data);
+            this.setUserInit(res.data);
           } catch (error) { }
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
@@ -156,9 +185,9 @@ class App extends React.Component<AppProps, AppState> {
   };*/
 
   componentDidMount() {
-    this.getCachedUser();
+    // this.getCachedUser();
     this.getCurrentUser();
-    this.updateAllRelationships();
+    // this.updateAllRelationships();
   }
 
   async sortRelationshipsList() {
@@ -185,15 +214,14 @@ class App extends React.Component<AppProps, AppState> {
         socket: newSocket,
       });
     }
-    console.log("state", this.state);
+    console.log("componentDidUpdate - state", this.state);
   }
 
-  async updateAllRelationships() {
+  updateAllRelationships = async () => {
     try {
       const dataRel = await axios.get(
         "/api/users/relationships/" + this.state.user?.id
       );
-
       // console.log("dataRel", dataRel)
 
       let a: AppUserRelationship[] = [];
@@ -205,8 +233,7 @@ class App extends React.Component<AppProps, AppState> {
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
             const dataUser = await axios.get("/api/users/" + friendId);
-            console.log("dataUser");
-            console.log(dataUser);
+            console.log("dataUser", dataUser);
             a.push({
               user: dataUser.data,
               relationshipType: relation.type,
@@ -220,30 +247,36 @@ class App extends React.Component<AppProps, AppState> {
 
   updateOneRelationship = async (user_id: number, newType: UserRelationshipType) => {
     console.log('updateOneRelationship - begin')
-      let a = this.state.relationshipsList.slice();
-      let index = a.findIndex((relation: AppUserRelationship) => {
-        return Number(relation.user.id) === Number(user_id)
-      })
-      console.log('index = ', index)
-      if (index !== -1) {
-        if (newType !== UserRelationshipType.null) {
-          a[index].relationshipType = newType
-        } else {
-          a.splice(index, 1)
-        }
-          this.setState({ relationshipsList: a });
-      } else if (newType !== UserRelationshipType.null) {
-        try {
-          const dataUser = await axios.get("/api/users/" + user_id);
-          a.push({
-            user: dataUser.data,
-            relationshipType: newType,
-          });
-          this.setState({ relationshipsList: a });
-        } catch (e) {
-          console.log(e)
-        }
+    let a = this.state.relationshipsList.slice();
+    console.log('a', a)
+    console.log('user_id', user_id)
+    console.log('newType', newType)
+    let index = a.findIndex((relation: AppUserRelationship) => {
+      console.log(`findIndex - relation.user.id = ${relation.user.id}, user_id = ${user_id}, bool = ${Number(relation.user.id) === Number(user_id)}`)
+      return (Number(relation.user.id) === Number(user_id));
+    })
+    console.log('index = ', index)
+    if (index !== -1) {
+      if (Number(newType) !== Number(UserRelationshipType.null)) {
+        a[index].relationshipType = newType
+      } else {
+        console.log(`a before splice - id = ${user_id}`, a)
+        a.splice(index, 1)
+        console.log(`a after splice - id = ${user_id}`, a)
       }
+      this.setState({ relationshipsList: a });
+    } else if (newType !== UserRelationshipType.null) {
+      try {
+        const dataUser = await axios.get("/api/users/" + user_id);
+        a.push({
+          user: dataUser.data,
+          relationshipType: newType,
+        });
+        this.setState({ relationshipsList: a });
+      } catch (e) {
+        console.log(e)
+      }
+    }
   }
 
   displayAdminRoute(isAdmin: boolean) {
@@ -259,24 +292,39 @@ class App extends React.Component<AppProps, AppState> {
   getSocket = () => {
     console.log("Initiating socket connection...");
 
-    return io("", {
+    const socket = io("", {
       path: "/api/socket.io/events",
       rejectUnauthorized: false, // This disables certificate authority verification
       withCredentials: true,
     }).on("authenticated", () => {
       console.log("Socket connection authenticated!");
     });
+
+    socket.on('updateRelationship-back', (data: any) => {
+      console.log(`updateRelationship-back`)
+      if (data) {
+        this.updateOneRelationship(data.user_id, data.type)
+      }
+      console.log(`received updated relationship from ${data?.user_id}: newType = ${data?.type}`)
+    })
+
+    return socket;
   };
+
+
 
   render() {
     let contextValue: IAppContext = {
       relationshipsList: this.state.relationshipsList,
       user: this.state.user,
       setUser: this.setUser,
+      setUserInit: this.setUserInit,
       updateAllRelationships: this.updateAllRelationships,
       updateOneRelationship: this.updateOneRelationship,
       socket: this.state.socket,
     };
+
+
 
     if (
       this.state.user !== undefined &&
@@ -322,7 +370,7 @@ class App extends React.Component<AppProps, AppState> {
                           isAuth={this.state.user !== undefined}
                           path="/users"
                         >
-                          <User relationshipsList={this.state.relationshipsList}/>
+                          <User relationshipsList={this.state.relationshipsList} />
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success">
@@ -352,8 +400,8 @@ class App extends React.Component<AppProps, AppState> {
                     </main>
                     <div className="flex-none hidden md:block">
                       <FriendsBar
-                      logged={this.state.user !== undefined}
-                      relationshipsList={this.state.relationshipsList}
+                        logged={this.state.user !== undefined}
+                        relationshipsList={this.state.relationshipsList}
                       />
                     </div>
                   </div>

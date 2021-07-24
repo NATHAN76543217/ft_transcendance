@@ -143,12 +143,10 @@ function displayFileChange(user: UserProps, setUser: any) {
 function displayFriendButton(user: UserProps, type: UserRelationshipType, contextValue: IAppContext) {
   const addFriend = async (id: number) => {
     await user.addFriend(id, user.userInfo, user.setUserInfo, contextValue);
-    await contextValue.updateAllRelationships();
   };
 
   const removeFriend = async (id: number) => {
     await user.removeFriend(id, user.userInfo, user.setUserInfo, contextValue);
-    await contextValue.updateAllRelationships();
   };
 
   let isPending = user.idInf
@@ -212,12 +210,10 @@ function displayFriendButton(user: UserProps, type: UserRelationshipType, contex
 function displayBlockButton(user: UserProps, type: UserRelationshipType, contextValue: IAppContext) {
   const blockUser = async (id: number) => {
     await user.blockUser(id, user.userInfo, user.setUserInfo, contextValue);
-    await contextValue.updateAllRelationships();
   };
 
   const unblockUser = async (id: number) => {
     await user.unblockUser(id, user.userInfo, user.setUserInfo, contextValue);
-    await contextValue.updateAllRelationships();
   };
 
   let isBlock = user.idInf

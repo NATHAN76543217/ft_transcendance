@@ -6,7 +6,7 @@ import AppContext from "../../AppContext";
 import { UserStatus } from "../../models/user/IUser";
 
 export default function LogoutButton() {
-  const { setUser, user } = useContext(AppContext);
+  const { setUserInit, user } = useContext(AppContext);
   const onLogout = async () => {
     const userId = user?.id
     try {
@@ -29,7 +29,7 @@ export default function LogoutButton() {
       }
     } finally {
 
-      setUser(undefined);
+      setUserInit(undefined);
       // This should be done by api
       //Cookies.set("Authentication", "");
       window.location.href = "/";

@@ -33,20 +33,20 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     offlineFriends: true,
   });
 
-  contextValue.socket?.on('updateRelationship-back', (data: any) => {
-    // let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
-    // let relationship = contextValue.relationshipsList.find((relation: any) => {
-    //   return relation.user.id === data?.user_id
-    // })
-    // if (relationship) {
+  // contextValue.socket?.on('updateRelationship-back', (data: any) => {
+  //   // let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+  //   // let relationship = contextValue.relationshipsList.find((relation: any) => {
+  //   //   return relation.user.id === data?.user_id
+  //   // })
+  //   // if (relationship) {
       
-    // }
-    if (data) {
-        contextValue.updateOneRelationship(data.user_id, data.type)
-    }
-    // console.log(`received updated relationship `, data)
-    console.log(`received updated relationship from ${data?.user_id}: newType = ${data?.type}`)
-  })
+  //   // }
+  //   if (data) {
+  //       contextValue.updateOneRelationship(data.user_id, data.type)
+  //   }
+  //   // console.log(`received updated relationship `, data)
+  //   console.log(`received updated relationship from ${data?.user_id}: newType = ${data?.type}`)
+  // })
 
   const getDisplayBoolean = (sectionName: UserStatus) => {
     switch (sectionName) {

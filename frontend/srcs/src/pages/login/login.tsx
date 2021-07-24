@@ -24,7 +24,7 @@ type LoginPageProps = RouteComponentProps<LoginPageParams>;
 
 export default function Login({ match }: LoginPageProps) {
   const history = useHistory();
-  const { setUser } = useContext(AppContext);
+  const { setUserInit } = useContext(AppContext);
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -43,7 +43,7 @@ export default function Login({ match }: LoginPageProps) {
       );
       console.log("Setting user data: ", data);
 
-      setUser(data);
+      setUserInit(data);
 
      await axios.patch(`/api/users/${data.id}`, {
         status: UserStatus.Online,

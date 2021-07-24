@@ -4,6 +4,7 @@ import { UserRelationshipType } from "./models/user/UserRelationship";
 
 const AppContext = React.createContext<IAppContext>({
   setUser: () => {},
+  setUserInit: () => {},
   relationshipsList: [],
   updateAllRelationships: () => {},
   updateOneRelationship: (user_id: number, newType: UserRelationshipType) => {},
