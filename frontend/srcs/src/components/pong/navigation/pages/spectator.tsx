@@ -15,10 +15,8 @@ export default function Spectator()
 {
     const context = React.useContext(PongContext);
 
-    const [isGameinit, setIsGameInit] = React.useState<boolean>(false);
-
-    context.socket.on(Mesages.RECEIVE_SPECTATOR_DATA, (data : ISpectatorDataDto) => {
-
+    // Handler for GET_SPECTATOR_DATA's response listener
+    const onReceiveData = (data : ISpectatorDataDto) => {
         const libsNames : Array<LibNames> = [
             LibNames.LIB_HORIZONTAL_MULTI,
             LibNames.LIB_VERTICAL_MULTI
@@ -55,15 +53,30 @@ export default function Spectator()
             .gameStatus.playerTwo.style.data = data.customization.playerTwoColor;
         context.setPongIndex(index);
 
-        setIsGameInit(true);
-    });
+        context.socket.emit(Mesages.GAME_IS_INIT);
+    };
 
-    if (isGameinit == false)
-    {
+    // Handler for GAME_IS_INIT's response listener
+    const onSpectatorIsInit = () => {
+        context.goToPongGame();
+    };
+
+     // Unsubcribe all listeners
+    const deleteListeners = () => {
+        context.socket.off(Mesages.RECEIVE_SPECTATOR_DATA, onReceiveData);
+        context.socket.off(Mesages.SPECTATOR_IS_INIT, onSpectatorIsInit);
+    }
+
+    // Executed on construction only
+    React.useEffect(() => {
+        context.socket.on(Mesages.RECEIVE_SPECTATOR_DATA, onReceiveData);
+        context.socket.on(Mesages.SPECTATOR_IS_INIT, onSpectatorIsInit);
+
         context.socket.emit(Mesages.JOIN_SPECTATOR, context.gameId, context.playerId);
         context.socket.emit(Mesages.GET_SPECTATOR_DATA, context.gameId);
-    }
-    else
-        context.goToPongGame();
+
+        return deleteListeners;
+    }, []);
+
     return <></>;
 }
