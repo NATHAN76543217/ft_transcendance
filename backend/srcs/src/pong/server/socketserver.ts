@@ -302,22 +302,22 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
 
             // The game can now start
             this.launchGame(client, idRoom);
-            this.server.to(client.id).emit(Mesages.RECEIVE_ROOM_ID, idRoom);
+
+
+            //this.server.to(client.id).emit(Mesages.RECEIVE_ROOM_ID, idRoom);
+            this.server.to(client.id).emit(Mesages.MATCH_FOUND_RESPONSE, idRoom);
         }
     }
 
     // NOTE: If idRoom param is filled the room already exists and both player joined it
     @SubscribeMessage(Mesages.CANCEL_QUEUE)
-    cancelQueue(client : Socket, idPlayer : string, idRoom? : string)
+    cancelQueue(client : Socket, idPlayer : string, callback : Function)
     {
-        if (idRoom !== undefined)
-            this.queue.filter(room => room.key != idPlayer);
-        else
-        {
-            // TO DO: A can let this or just if you joined a game you can't quit (you were to slow !)
-            //this.leaveRoom(client, idRoom, idPlayer);
-            // If i let this i shoud quit both clients and destroy the room
-        }
+        this.queue.filter(room => room.key != idPlayer);
+        const status = this.queue.find(room => room.key == idPlayer);
+        callback({
+            res: status ? false : true
+        } as {res : boolean});
     }
 
     @SubscribeMessage(Mesages.IS_IN_QUEUE)
@@ -533,6 +533,44 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idPlayerTwo: room.idPlayerTwo
             }
         } as IInvitedDataDto);
+    }
+
+    @SubscribeMessage(Mesages.ACCEPT_MATCH)
+    clientAcceptedMatch(client : Socket, roomId : string, playerId : string)
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+
+        if (playerId == room.idPlayerOne)
+            room.flags |= State.PLAYER_ONE_READY;
+        else if (playerId == room.idPlayerTwo)
+            room.flags |= State.PLAYER_TWO_READY;
+        else
+            throw new Error(); // Unspected error
+
+        if (room.flags & State.PLAYER_ONE_READY
+        && room.flags & State.PLAYER_TWO_READY)
+        {
+            this.server.to(room.idPlayerOne).emit(Mesages.ON_READY_RESPONSE, true);
+            this.server.to(room.idPlayerTwo).emit(Mesages.ON_READY_RESPONSE, true);
+            room.flags &= ~(State.PLAYER_ONE_READY | State.PLAYER_TWO_READY);
+        }
+    }
+
+    @SubscribeMessage(Mesages.DECLINE_MATCH)
+    clientDeclinedMatch(client : Socket, roomId : string, playerId : string)
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+        let otherPlayerid : string;
+
+        if (playerId == room.idPlayerOne)
+            otherPlayerid = room.idPlayerTwo;
+        else if (playerId == room.idPlayerTwo)
+            otherPlayerid = room.idPlayerOne;
+        else
+            throw new Error(); // unspected error
+
+        this.server.to(otherPlayerid).emit(Mesages.ON_READY_RESPONSE, false);
+        room.flags &= ~(State.PLAYER_ONE_READY | State.PLAYER_TWO_READY);
     }
 }
 
