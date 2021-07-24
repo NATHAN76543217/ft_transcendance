@@ -22,6 +22,7 @@ import { MessageType } from 'src/messages/message.entity';
 import { UserStatus } from 'src/users/utils/userStatus';
 import UserRelationshipsService from 'src/users/relationships/user-relationships.service';
 import UpdateRelationshipDto from 'src/messages/dto/updateRelationship.dto';
+import { UserRelationshipTypes } from 'src/users/relationships/userRelationshipTypes';
 
 // TODO: Rename to EventsModule...
 @Injectable()
@@ -50,25 +51,41 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRelationshipDto,
   ) {
+    console.log(`updateRelationship-front - begin`)
+    console.log(`senderId = ${socket.user.id}`)
+    console.log(`receiverId = ${body.user_id}`)
+    console.log(`type = ${body.type}`)
     const inf = socket.user.id < body.user_id
+    console.log(`inf = ${inf}`)
     const user1_id = inf ? socket.user.id.toString() : body.user_id.toString()
     const user2_id = inf ? body.user_id.toString() : socket.user.id.toString()
+    console.log(`user1_id = ${user1_id}`)
+    console.log(`user2_id = ${user2_id}`)
     let relationship;
     try {
       relationship = await this.userRelationshipService.getUserRelationshipByIds(user1_id, user2_id)
-      this.userRelationshipService.updateUserRelationship(relationship.id, { type: body.type })
+      console.log(`relationship found - relation`, relationship)
+      if (body.type !== UserRelationshipTypes.null) {
+        this.userRelationshipService.updateUserRelationship(relationship.id, { type: body.type })
+      } else {
+        this.userRelationshipService.deleteUserRelationship(relationship.id);
+      }
+      console.log(`relationship found - update OK`)
     }
     catch (error) {
+      console.log(`relationship not there`)
       relationship = await this.userRelationshipService.createUserRelationship({
         user1_id: user1_id,
         user2_id: user2_id,
         type: body.type
       })
+      console.log(`relationship not there - relation`, relationship)
     }
     socket.to(user1_id).emit("updateRelationship-back", { user_id: user2_id, type: body.type })
     socket.to(user2_id).emit("updateRelationship-back", { user_id: user1_id, type: body.type })
+    console.log(`updateRelationship-front - end`)
   }
-
+  
   async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
     const rels =
       await this.userRelationshipService.getAllUserRelationshipsFromOneUser(
