@@ -153,7 +153,7 @@ export default function InvitedToGame()
 
         const index : number = libsNames.findIndex(elem => elem == data.libName);
         if (index === undefined)
-            throw new Unspected("Unspected error on RECEIVE_INVITED_CUSTOMIZATION listener");
+            throw new Unspected("Unspected error on SUMMIT_CUSTOMIZATION listener");
         
         context.pongSpetializations[index][1].gameStatus.playerOne.id =
             data.ids.idPlayerOne == context.playerId ? data.ids.idPlayerTwo : data.ids.idPlayerOne;
@@ -167,14 +167,8 @@ export default function InvitedToGame()
         context.pongSpetializations[index][1].gameStatus.playerOne.style.data = sliderShared.playerOneColor;
         context.pongSpetializations[index][1].gameStatus.playerTwo.width = sliderShared.playerTwoWidth;
         context.pongSpetializations[index][1].gameStatus.playerTwo.height = sliderShared.playerTwoHeight;
-        context.pongSpetializations[index][1].gameStatus.playerTwo.style.data = AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue({
-            limits: {
-                min: 0x00000000,
-                max: 0x00FFFFFF
-            },
-            value: parseInt(sliderShared.playerTwoColor, 16)
-        }));
-
+        context.pongSpetializations[index][1].gameStatus.playerTwo.style.data = sliderShared.playerTwoColor;
+        
         context.setPongIndex(index);
 
         context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
@@ -200,6 +194,7 @@ export default function InvitedToGame()
         context.socket.on(Mesages.OTHER_IS_READY, onOtherPlayerIsReady);
         context.socket.on(Mesages.SUMMIT_CUSTOMIZATION, onSummit);
 
+        context.socket.emit(Mesages.JOIN_ROOM, context.gameId, context.playerId);
         context.socket.emit(Mesages.INIT_CUSTOMIZATION, context.gameId);
         context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
 
@@ -210,6 +205,7 @@ export default function InvitedToGame()
     // REACT EVENT LISTENERS //
     ///////////////////////////
 
+    // Update the shared slider, emit to host every time is updated
     React.useEffect(() => {
         context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
             ballSpeed: Number(),
