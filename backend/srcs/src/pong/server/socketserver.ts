@@ -51,8 +51,8 @@ import {
     ISpectatorDataDto
 } from "shared-pong/dto/spectator.dto"
 import {
-    IInvitedDataDto
-} from "shared-pong/dto/invited.dto"
+    ISummitDto
+} from "shared-pong/dto/summit.dto"
 
 interface IRoomDto extends IRoomDtobase
 {
@@ -122,6 +122,20 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
         if (room === undefined)
             throw new RoomNotFound(idRoom);
         return (room);
+    }
+
+    private getOtherPlayer(roomId : string, playerid : string) : string
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+        let otherPlayerId : string;
+
+        if (playerid == room.idPlayerOne)
+            otherPlayerId = room.idPlayerTwo;
+        else if (playerid == room.idPlayerTwo)
+            otherPlayerId = room.idPlayerOne;
+        else
+            throw new Unspected("getOtherPlayer in pong server");
+        return (otherPlayerId);
     }
 
     afterInit(server : Server)
@@ -461,18 +475,25 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     updateSharedClientsData(client : Socket, idRoom : string, idPlayer : string, data : ICustomGame)
     {
         const room : IRoomDto = this.getRoom(idRoom);
+        let otherPlayer : string;
 
         if (idPlayer == room.idPlayerOne)
         {
             const rememberColor : string = room.info.playerTwoColor;
             room.info = data;
             room.info.playerTwoColor = rememberColor;
+            otherPlayer = room.idPlayerTwo;
         }
         else if (idPlayer == room.idPlayerTwo)
+        {
             room.info.playerTwoColor = data.playerTwoColor;
+            otherPlayer = room.idPlayerOne;
+        }
         else
             throw new Unspected("Unspected error in updateSharedClientsData");
+
         this.rooms.set(idPlayer, room);
+        this.server.to(otherPlayer).emit(Mesages.RECEIVE_GAME_CUSTOMIZATION, room.info);
     }
 
     @SubscribeMessage(Mesages.GET_CUSTOMIZATION)
@@ -480,7 +501,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     {
         const room : IRoomDto = this.getRoom(roomId);
 
-        this.server.to(client.id).emit(Mesages.RECEIVE_GAME_STYLE, room.info);
+        this.server.to(client.id).emit(Mesages.RECEIVE_GAME_CUSTOMIZATION, room.info);
     }
 
     @SubscribeMessage(Mesages.GET_PLAYERS_IDS)
@@ -532,7 +553,7 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idPlayerOne: room.idPlayerOne,
                 idPlayerTwo: room.idPlayerTwo
             }
-        } as IInvitedDataDto);
+        } as ISummitDto);
     }
 
     @SubscribeMessage(Mesages.ACCEPT_MATCH)
@@ -554,29 +575,46 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
             this.server.to(room.idPlayerTwo).emit(Mesages.ON_READY_RESPONSE, true);
             room.flags &= ~(State.PLAYER_ONE_READY | State.PLAYER_TWO_READY);
         }
+        this.rooms.set(roomId, room);
     }
 
     @SubscribeMessage(Mesages.DECLINE_MATCH)
     clientDeclinedMatch(client : Socket, roomId : string, playerId : string)
     {
         const room : IRoomDto = this.getRoom(roomId);
-        let otherPlayerid : string;
-
-        if (playerId == room.idPlayerOne)
-            otherPlayerid = room.idPlayerTwo;
-        else if (playerId == room.idPlayerTwo)
-            otherPlayerid = room.idPlayerOne;
-        else
-            throw new Error(); // unspected error
+        const otherPlayerid : string = this.getOtherPlayer(roomId, playerId);
 
         this.server.to(otherPlayerid).emit(Mesages.ON_READY_RESPONSE, false);
         room.flags &= ~(State.PLAYER_ONE_READY | State.PLAYER_TWO_READY);
+        this.rooms.set(roomId, room);
     }
 
     @SubscribeMessage(Mesages.GAME_IS_INIT)
     spectatorInitGame(client : Socket)
     {
         this.server.to(client.id).emit(Mesages.SPECTATOR_IS_INIT);
+    }
+
+    @SubscribeMessage(Mesages.NOTIFY_IS_READY)
+    notifyOtherClient(client : Socket, roomId : string, playerId : string, state : boolean)
+    {
+        const otherPlayerid : string = this.getOtherPlayer(roomId, playerId);
+
+        this.server.to(otherPlayerid).emit(Mesages.OTHER_IS_READY, state);
+    }
+
+    @SubscribeMessage(Mesages.SYNC_READY_PLAYERS)
+    syncReadyPlayers(client : Socket, roomId : string)
+    {
+        const room : IRoomDto = this.getRoom(roomId);
+    
+        this.server.to(roomId).emit(Mesages.SUMMIT_CUSTOMIZATION, {
+            libName: room.libName,
+            ids: {
+                idPlayerOne: room.idPlayerOne,
+                idPlayerTwo: room.idPlayerTwo
+            }
+        } as ISummitDto);
     }
 }
 

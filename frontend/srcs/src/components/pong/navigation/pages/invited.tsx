@@ -24,8 +24,8 @@ import {
     CustomValue,
 } from "../../components/customization"
 import {
-    IInvitedDataDto
-} from "shared-pong/dto/invited.dto"
+    ISummitDto
+} from "shared-pong/dto/summit.dto"
 
 type IInvitedCustomization = {
     sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]>;
@@ -39,14 +39,15 @@ export const InvitedCustomizationContext = React.createContext<IInvitedCustomiza
 
 export default function InvitedToGame()
 {
-
     const context = React.useContext(PongContext);
 
-    /////////////////
-    // REACT STATE //
-    /////////////////
+    // True if the client is ready
+    const [isReady, setIsReady] = React.useState<boolean>(false);
 
-    // A Map holding the sliders state
+    // True if the opponent is ready
+    const [otherIsReady, setOtherisReady] = React.useState<boolean>(false);
+
+    // A Map holding the sliders state (value & setter)
     let sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> =
         new Map();
 
@@ -70,17 +71,36 @@ export default function InvitedToGame()
         }))
     });
 
-    // Represent the state of the "Ready" button
-    const [isReady, setIsReady] = React.useState<boolean>(false);
+    ////////////////////
+    // BUTTON ONCLICK //
+    ////////////////////
 
-    /////////////////////
-    // EVENT LISTENERS //
-    /////////////////////
-    
-    // NOTE: Listeners are defined by execution order
+    // Handler for "Ready" button
+    const onClientIsReady = () => {
+        setIsReady(!isReady);
+        context.socket.emit(Mesages.NOTIFY_IS_READY, context.gameId, context.playerId, isReady);
+        if (otherIsReady && isReady)
+        {
+            const seconds : number = 2;
+            setTimeout(() => {
+                if (otherIsReady && isReady)
+                    context.socket.emit(Mesages.SYNC_READY_PLAYERS, context.gameId);
+            }, 1000 * seconds);
+        }
+    };
 
-    // Initialise the customization range sliders with normalised data
-    context.socket.on(Mesages.RECEIVE_INIT_CUSTOMIZATION, () => {
+    // Handler for "Quit" button
+    const onQuit = () => {
+        context.socket.emit(Mesages.LEAVE_ROOM, context.gameId, context.playerId);
+        context.goToSelection();
+    }
+
+    ////////////////////////////
+    // SOCKET EVENT LISTENERS //
+    ////////////////////////////
+
+    // Handler for INIT_CUSTOMIZATION's response listener
+    const onInitCustomjzation = () => {
         sliders = new Map([
             [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
                 .settingsLimits.ballSpeed, sliderShared.ballSpeed))],
@@ -103,10 +123,10 @@ export default function InvitedToGame()
             [CustomValue.PLAYER_TWO_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[context.pongIndex][1]
                 .settingsLimits.colorLimit, context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()))],
         ]);
-    });
+    };
 
-    // Update the customziation range sliders
-    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customization : ICustomGame) => {
+    // Handler for SYNC_CUSTOMIZATION's response listener
+    const onReceiveGameCustomization = (customization : ICustomGame) => {
         setSliderShared(customization);
         sliders.get(CustomValue.BALL_SPEED)?.[1](sliderShared.ballSpeed);
         sliders.get(CustomValue.BALL_COLOR)?.[1](parseInt(sliderShared.ballColor, 16));
@@ -117,16 +137,15 @@ export default function InvitedToGame()
         sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[1](parseInt(sliderShared.playerOneColor, 16));
         sliders.get(CustomValue.PLAYER_TWO_WIDTH)?.[1](sliderShared.playerOneWidth);
         sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[1](sliderShared.playerOneHeight);
-    });
+    };
 
-    // When both players are ready, makes server will emit SUMMIT_INVITED_CUSTOMIZATION
-    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, () => {
-        context.socket.emit(Mesages.SYNC_INVITED_CUSTOMIZATION, context.gameId);
-    });
-
-    // Summit the current customization & init pong engine
-    context.socket.on(Mesages.SUMMIT_INVITED_CUSTOMIZATION, (data : IInvitedDataDto) => {
-        
+    // Handler for NOTIFY_IS_READY's respose listener
+    const onOtherPlayerIsReady = (state : boolean) => {
+        setOtherisReady(state);
+    };
+    
+    // Handler for SYNC_READY_PLAYERS's response listener
+    const onSummit = (data : ISummitDto) => {
         const libsNames : Array<LibNames> = [
             LibNames.LIB_HORIZONTAL_MULTI,
             LibNames.LIB_VERTICAL_MULTI
@@ -159,21 +178,39 @@ export default function InvitedToGame()
         context.setPongIndex(index);
 
         context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
-    });
 
-    // When all is syncronized, summited & both players are ready go to the game 
-    context.socket.on(Mesages.RECEIVE_PONG_IS_READY, () => {
-        context.goToPongGame();
-    });
+        const seconds : number = 2;
+        setTimeout(() => {
+            context.goToPongGame();
+        }, 1000 * seconds);
+    }
 
-    /////////////////
-    // REACT HOOKS //
-    /////////////////
+    // Unsubcribe all listeners
+    const deleteListeners = () => {
+        context.socket.off(Mesages.RECEIVE_INIT_CUSTOMIZATION, onInitCustomjzation);
+        context.socket.off(Mesages.RECEIVE_GAME_CUSTOMIZATION, onReceiveGameCustomization);
+        context.socket.off(Mesages.OTHER_IS_READY, onOtherPlayerIsReady);
+        context.socket.off(Mesages.SUMMIT_CUSTOMIZATION, onSummit);
+    }
 
-    // TO DO: Need to update render when other user does too
+    // Subscribe on the listeners, then on destruction unsubscribe them (and init customization)
     React.useEffect(() => {
-        // Send playerTwo color to host
-        // Receive others customization values from host
+        context.socket.on(Mesages.RECEIVE_INIT_CUSTOMIZATION, onInitCustomjzation);
+        context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, onReceiveGameCustomization);
+        context.socket.on(Mesages.OTHER_IS_READY, onOtherPlayerIsReady);
+        context.socket.on(Mesages.SUMMIT_CUSTOMIZATION, onSummit);
+
+        context.socket.emit(Mesages.INIT_CUSTOMIZATION, context.gameId);
+        context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
+
+        return deleteListeners;
+    }, []);
+
+    ///////////////////////////
+    // REACT EVENT LISTENERS //
+    ///////////////////////////
+
+    React.useEffect(() => {
         context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
             ballSpeed: Number(),
             ballColor: String(),
@@ -192,46 +229,7 @@ export default function InvitedToGame()
                 value: Number(sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[0])
             }))
         });
-        // Receive lastest shared customization update it
-        context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
     }, [sliderShared]);
-
-    ////////////////////
-    // BUTTON ONCLICK //
-    ////////////////////
-
-    // Handler for "Ready" button
-    const onReady = () => {
-        
-        // User clicked on "Ready" button (activating it)
-        if (isReady == false)
-        {
-            context.socket.emit(Mesages.PLAYER_IS_READY, context.gameId, context.playerId);
-            setIsReady(true);
-        }
-        // User clicked on "Ready" botton (desactivating it)
-        else
-        {
-            context.socket.emit(Mesages.PLAYER_ISNT_READY, context.gameId, context.playerId);
-            setIsReady(false);
-        }
-        // If both players are ready load custom & launch game
-        context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId);
-    };
-
-    // Handler for "Quit" button
-    const onQuit = () => {
-
-        context.socket.emit(Mesages.LEAVE_ROOM, context.gameId, context.playerId);
-        context.goToSelection();
-    }
-
-    /////////////////////
-    // ALWAYS EXECUTED //
-    /////////////////////
-
-    context.socket.emit(Mesages.INIT_CUSTOMIZATION, context.gameId);
-    context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
 
     return (
         // TO DO: Use isReady for button style too
@@ -251,7 +249,7 @@ export default function InvitedToGame()
                 content="Ready"
                 divClassName=""
                 buttonClassName=""
-                onClickHandler={onReady}
+                onClickHandler={onClientIsReady}
             />
             <ButtonPong
                 content="Quit"
@@ -263,8 +261,3 @@ export default function InvitedToGame()
     );
 }
 
-// TO DO: See for a cleaner implementation
-// TO DO: Subscribe only on construction
-// TO DO: Free (unsbuscribe) all on destruction
-// TO DO: Check FastGame for exemple
-// TO DO: Comment like fast game (document all the code)
