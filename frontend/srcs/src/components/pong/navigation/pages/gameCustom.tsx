@@ -29,6 +29,9 @@ import {
 import {
     Mesages
 } from "shared-pong/utils/messages"
+import {
+    ISummitDto
+} from "shared-pong/dto/summit.dto"
 
 type IPongStyleSelectorContext = {
     pongSpetializations : Readonly<Array<[string, PongGenerator]>>;
@@ -53,6 +56,13 @@ export const CustomizationContext = React.createContext<ICustomizationContext>({
 });
 
 // TO DO: Finish a game and call server's endGame
+// TO DO: Set in host and invited if the other player clicked on ready
+
+// TO DO: What happens if host invites a client and then host click on SINGLE PLAYER ?!?!
+// -> Can be an alert
+// -> If user click on 'ok' invited player will be kicked out
+
+// TO DO: IN second use effects in "REACT EVENT LISTENERS"
 
 export default function GameCustom()
 {
@@ -61,65 +71,17 @@ export default function GameCustom()
     // Handle SINGLEPLAYER, MULTIPLAYER mode value
     const [gameMode, setGameMode] = React.useState<GameMode>(GameMode.MULTI_PLAYER);
 
-    const [allReady, setAllReady] = React.useState<boolean>(false);
-
-    context.socket.on(Mesages.RECEIVE_PLAYERS_ARE_READY, (status : boolean) => {
-        setAllReady(true);
-    });
-
-    // Create a room in the server
-    context.socket.emit(Mesages.CREATE_ROOM, {
-        idRoom: context.playerId,
-        idPlayerOne: context.playerId,
-        idPlayerTwo: String(),
-        config: { },
-        libName: String(),
-        mode: gameMode,
-        customization: { },
-        info: { },
-    } as IRoomDto);
-
-    context.setGameId(context.playerId);
-
-    // Handle "Ready" value
+    // True if the client is ready
     const [isReady, setIsReady] = React.useState<boolean>(false);
 
-    // Init sliders data using the preloaded config in the context (context.pongSpetializations[context.pongIndex])
-    const sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> = new Map([
-        [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.ballSpeed,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.ball.speed))],
-        [CustomValue.BALL_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.colorLimit,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.ball.style.toNumber()))],
-        [CustomValue.COURT_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.colorLimit,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.court.style.toNumber()))],
-        [CustomValue.NET_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.colorLimit,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.net.style.toNumber()))],
-        [CustomValue.PLAYER_ONE_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.playerOneWidth,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.playerOne.width))],
-        [CustomValue.PLAYER_ONE_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.playerOneHeight,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.playerOne.height))],
-        [CustomValue.PLAYER_ONE_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.colorLimit,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.playerOne.style.toNumber()))],
-        [CustomValue.PLAYER_TWO_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.playerTwoHeight,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.width))],
-        [CustomValue.PLAYER_TWO_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.playerTwoHeight,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.height))],
-        [CustomValue.PLAYER_TWO_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
-            context.pongIndex][1].settingsLimits.colorLimit,
-            context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()))],
-        [CustomValue.BOT_LEVEL, React.useState(RangeSlider.toRange({ min: 0.1, max: 0.7 }, 0.1 ))], // TO DO: Can be better performed ?
-    ]);
+    // True if the opponent is ready
+    const [otherIsReady, setOtherisReady] = React.useState<boolean>(false);
 
-    // Handle shared customization
+    // A Map holding the sliders state (value & setter)
+    let sliders : Map<CustomValue, [number, React.Dispatch<React.SetStateAction<number>>]> =
+        new Map();
+
+    // An Object holding the customization
     const [sliderShared, setSliderShared] = React.useState<ICustomGame>({
         ballSpeed: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
             context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.BALL_SPEED)?.[0]))),
@@ -144,40 +106,23 @@ export default function GameCustom()
         // TO DO: Add bot level here, no ?
     });
 
-    context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, (customimzation : ICustomGame) => {
-        setSliderShared(customimzation);
-    });
+    ////////////////////
+    // BUTTON ONCLICK //
+    ////////////////////
 
-    // TO DO: This is not real time sync with invited (need to update to see invited upadtes ...)
-    // Every time a slider is mofied: send changes to the server
-    React.useEffect(() => {
-        context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
-            ballSpeed: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.BALL_SPEED)?.[0]))),
-            ballColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.BALL_COLOR)?.[0])))),
-            courtColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.COURT_COLOR)?.[0])))),
-            netColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.NET_COLOR)?.[0])))),
-            playerOneWidth: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_ONE_WIDTH)?.[0]))),
-            playerOneHeight: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_ONE_HEIGHT)?.[0]))),
-            playerOneColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[0])))),
-            playerTwoWidth: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_TWO_WIDTH)?.[0]))),
-            playerTwoHeight: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
-                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[0]))),
-            playerTwoColor: String()
-        });
-        context.socket.emit(Mesages.GET_CUSTOMIZATION, context.gameId);
-
-        // TO DO: Somehow syncronize server-client before using sliderShared
-
-        sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[1](parseInt(sliderShared.playerTwoColor, 16));
-    }, [sliders, sliderShared]);
+    // Handler for "Ready" button
+    const onClientIsReady = () => {
+        setIsReady(!isReady);
+        context.socket.emit(Mesages.NOTIFY_IS_READY, context.gameId, context.playerId, isReady);
+        if (otherIsReady && isReady)
+        {
+            const seconds : number = 2;
+            setTimeout(() => {
+                if (otherIsReady && isReady)
+                    context.socket.emit(Mesages.SYNC_READY_PLAYERS, context.gameId);
+            }, 1000 * seconds);
+        }
+    };
 
     // Handler for "Single Player" button
     const onSinglePlayer = () => {
@@ -202,19 +147,67 @@ export default function GameCustom()
         // gameMode to SINGLE_PLAYER the invited player is kicked out
     };
 
-    // Send the pong style (whitch pong user wanna play)
-    const summitGameStyle = () => {
-        const libs : Array<[LibNames, LibNames]> = [
-            [LibNames.LIB_HORIZONTAL_SINGLE, LibNames.LIB_HORIZONTAL_MULTI],
-            [LibNames.LIB_VERTICAL_SINGLE, LibNames.LIB_VERTICAL_MULTI]
-        ];
-
-        context.socket.emit(Mesages.SET_UP_GAME_STYLE,
-            libs[context.pongIndex][Number(gameMode == GameMode.MULTI_PLAYER)]);
+    // Handler for "Quit" button
+    const onQuit = () => {
+        context.socket.emit(Mesages.LEAVE_ROOM, context.gameId);
+        context.goToSelection();
     };
 
-    // Apply all the customization to the selected pong
-    const summitGameCustomization = () => {
+    ////////////////////////////
+    // SOCKET EVENT LISTENERS //
+    ////////////////////////////
+
+    // Handler for INIT_CUSTOMIZATION's response listener
+    const onInitCustomjzation = () => {
+        sliders = new Map([
+            [CustomValue.BALL_SPEED, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.ball.speed))],
+            [CustomValue.BALL_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.colorLimit,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.ball.style.toNumber()))],
+            [CustomValue.COURT_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.colorLimit,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.court.style.toNumber()))],
+            [CustomValue.NET_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.colorLimit,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.net.style.toNumber()))],
+            [CustomValue.PLAYER_ONE_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.playerOneWidth,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.playerOne.width))],
+            [CustomValue.PLAYER_ONE_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.playerOneHeight,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.playerOne.height))],
+            [CustomValue.PLAYER_ONE_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.colorLimit,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.playerOne.style.toNumber()))],
+            [CustomValue.PLAYER_TWO_WIDTH, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.playerTwoHeight,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.width))],
+            [CustomValue.PLAYER_TWO_HEIGHT, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.playerTwoHeight,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.height))],
+            [CustomValue.PLAYER_TWO_COLOR, React.useState(RangeSlider.toRange(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.colorLimit,
+                context.pongSpetializations[context.pongIndex][1].gameStatus.playerTwo.style.toNumber()))],
+            [CustomValue.BOT_LEVEL, React.useState(RangeSlider.toRange({ min: 0.1, max: 0.7 }, 0.1 ))], // TO DO: Can be better performed ?
+        ]);
+    };
+
+    // Handler for SYNC_CUSTOMIZATION's response listener
+    const onReceiveGameCustomization = (customization : ICustomGame) => {
+        sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[1](parseInt(customization.playerTwoColor, 16))
+    };
+
+    // Handler for NOTIFY_IS_READY's respose listener
+    const onOtherPlayerIsReady = (state : boolean) => {
+        setOtherisReady(state);
+    };
+
+    // Handler for SYNC_READY_PLAYERS's response listener
+    const onSummit = (data : ISummitDto) => {
+        context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerOne.id = context.playerId;
         context.pongSpetializations[context.pongIndex][1]
             .gameStatus.ball.speed = sliderShared.ballSpeed;
         context.pongSpetializations[context.pongIndex][1]
@@ -240,65 +233,98 @@ export default function GameCustom()
 
         if (gameMode == GameMode.SINGLE_PLAYER)
             context.socket.emit(Mesages.SET_UP_BOT_LEVEL, context.gameId, RangeSlider.RangeSliderValue({
-                limits: { min: 0, max: 1 }, value: Number(sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[0])
+                limits: {
+                    min: 0,
+                    max: 1
+                },
+                value: Number(sliders.get(CustomValue.PLAYER_TWO_COLOR)?.[0])
             }));
-    };
-
-    // Handler for "Ready" button
-    // TO DO: Somehow indicate if the other player is ready
-    const onReady = () => {
-        
-        // User clicked on "Ready" button (activating it)
-        if (isReady == false)
-        {
-            context.socket.emit(Mesages.PLAYER_IS_READY, context.gameId, context.playerId);
-            setIsReady(true);
-        }
-        // User clicked on "Ready" botton (desactivating it)
         else
-        {
-            context.socket.emit(Mesages.PLAYER_ISNT_READY, context.gameId, context.playerId);
-            setIsReady(false);
-        }
+            context.pongSpetializations[context.pongIndex][1]
+            .gameStatus.playerTwo.id = data.ids.idPlayerOne == context.playerId ?
+            data.ids.idPlayerTwo : data.ids.idPlayerOne;
 
-        context.socket.emit(Mesages.ARE_PLAYERS_READY, context.gameId);
+        context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
 
-        // TO DO: Sync alReady
-
-        // If both are readdy ...
-        if (allReady)
-        {
-            summitGameStyle();
-            summitGameCustomization();
-
-            context.socket.emit(Mesages.GET_OTHER_PLAYER_ID, context.gameId, context.playerId);
-
-            let otherPlayerId : string | undefined = undefined;
-
-            context.socket.on(Mesages.RECEIVE_OTHER_PLAYER_ID, (id : string) => {
-                otherPlayerId = id;
-            });
-
-            if (otherPlayerId === undefined)
-                throw new Error(); // TO DO: Just sync need an await for sockets
-
-            if (gameMode == GameMode.MULTI_PLAYER)
-                context.pongSpetializations[context.pongIndex][1]
-                    .gameStatus.playerTwo.id = otherPlayerId;
-
-            // TO DO: do i need this ?
-            context.socket.emit(Mesages.UPDATE_CONFIG,
-                context.pongSpetializations[context.pongIndex][1].gameStatus);
-            
-            context.socket.emit(Mesages.LAUNCH_GAME, context.gameId);
+        const seconds : number = 2;
+        setTimeout(() => {
             context.goToPongGame();
-        }
+        }, 1000 * seconds);
     };
 
-    const onQuit = () => {
-        context.socket.emit(Mesages.LEAVE_ROOM, context.gameId);
-        context.goToSelection();
-    };
+    // Unsubcribe all listeners
+    const deleteListeners = () => {
+        context.socket.off(Mesages.RECEIVE_INIT_CUSTOMIZATION, onInitCustomjzation);
+        context.socket.off(Mesages.RECEIVE_GAME_CUSTOMIZATION, onReceiveGameCustomization);
+        context.socket.off(Mesages.OTHER_IS_READY, onOtherPlayerIsReady);
+        context.socket.off(Mesages.SUMMIT_CUSTOMIZATION, onSummit);
+    }
+
+    // Subscribe on the listeners, then on destruction unsubscribe them (and init customization)
+    React.useEffect(() => {
+        context.socket.on(Mesages.RECEIVE_INIT_CUSTOMIZATION, onInitCustomjzation);
+        context.socket.on(Mesages.RECEIVE_GAME_CUSTOMIZATION, onReceiveGameCustomization);
+        context.socket.on(Mesages.OTHER_IS_READY, onOtherPlayerIsReady);
+        context.socket.on(Mesages.SUMMIT_CUSTOMIZATION, onSummit);
+
+        // Create a room in the server
+        context.socket.emit(Mesages.CREATE_ROOM, {
+            idRoom: context.playerId,
+            idPlayerOne: context.playerId,
+            idPlayerTwo: String(),
+            config: { },
+            libName: String(),
+            mode: gameMode,
+            customization: { },
+            info: { },
+        } as IRoomDto);
+        context.socket.emit(Mesages.INIT_CUSTOMIZATION, context.gameId);
+        context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, sliderShared);
+
+        context.setGameId(context.playerId);
+
+        return deleteListeners;
+    }, []);
+
+    ///////////////////////////
+    // REACT EVENT LISTENERS //
+    ///////////////////////////
+
+    // Update the shared slider, emit to invited every time is updated
+    React.useEffect(() => {
+        context.socket.emit(Mesages.SYNC_CUSTOMIZATION, context.gameId, context.playerId, {
+            ballSpeed: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.BALL_SPEED)?.[0]))),
+            ballColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.BALL_COLOR)?.[0])))),
+            courtColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.COURT_COLOR)?.[0])))),
+            netColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.NET_COLOR)?.[0])))),
+            playerOneWidth: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_ONE_WIDTH)?.[0]))),
+            playerOneHeight: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_ONE_HEIGHT)?.[0]))),
+            playerOneColor: AStyle.NumbertoHexStr(RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_ONE_COLOR)?.[0])))),
+            playerTwoWidth: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_TWO_WIDTH)?.[0]))),
+            playerTwoHeight: RangeSlider.RangeSliderValue(new RangeSlider(context.pongSpetializations[
+                context.pongIndex][1].settingsLimits.ballSpeed, Number(sliders.get(CustomValue.PLAYER_TWO_HEIGHT)?.[0]))),
+            playerTwoColor: String()
+        });
+    }, [sliderShared]);
+
+    // Update the pong engine in the server each time the pong style changes
+    React.useEffect(() => {
+        const libs : Array<[LibNames, LibNames]> = [
+            [LibNames.LIB_HORIZONTAL_SINGLE, LibNames.LIB_HORIZONTAL_MULTI],
+            [LibNames.LIB_VERTICAL_SINGLE, LibNames.LIB_VERTICAL_MULTI]
+        ];
+        // TO DO: Emit to the invited if gameMode == MULTI & update invited brief (in the server)
+        context.socket.emit(Mesages.SET_UP_GAME_STYLE,
+            libs[context.pongIndex][Number(gameMode == GameMode.MULTI_PLAYER)]);
+    }, [context.pongIndex, gameMode]);
 
     return (
         <>
@@ -350,7 +376,7 @@ export default function GameCustom()
                         content="Ready"
                         divClassName=""
                         buttonClassName=""
-                        onClickHandler={onReady}
+                        onClickHandler={onClientIsReady}
                     />
                 </div>
             </div>
