@@ -54,6 +54,7 @@ class ConfigService {
 }
 
 const configService = new ConfigService(process.env).ensureValues([
+  'PORT',
   'POSTGRES_HOST',
   'POSTGRES_PORT',
   'POSTGRES_USER',
