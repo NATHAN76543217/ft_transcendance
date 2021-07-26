@@ -1,5 +1,5 @@
 import {
-    IVector2D
+    IBaseVector2D
 } from "../shapes/vector2d"
 
 interface IDynamicScore
@@ -7,14 +7,14 @@ interface IDynamicScore
     points : number;
 }
 
-export interface IDynamicPlayerDto extends IVector2D
+export interface IDynamicPlayerDto extends IBaseVector2D
 {
     score : IDynamicScore;
 }
 
-export interface IDynamicBallDto extends IVector2D
+export interface IDynamicBallDto extends IBaseVector2D
 {
-    velocity : IVector2D;
+    velocity : IBaseVector2D;
     speed : number;
 }
 

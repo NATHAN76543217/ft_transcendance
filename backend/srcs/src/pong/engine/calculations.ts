@@ -5,6 +5,10 @@ import {
 import {
     APolimorphicLib
 } from "./polimorphiclib"
+import {
+    IVector2D
+} from "shared-pong/shapes/vector2d"
+import { stat } from "fs";
 
 export default function calcGameStatus(status : DynamicDto, lib : APolimorphicLib)
 {
@@ -16,7 +20,8 @@ export default function calcGameStatus(status : DynamicDto, lib : APolimorphicLi
         lib.onLaterallBallColision(status);
 
     // Mouve the ball
-    status.ball.add(status.ball.velocity);
+    status.ball.x += status.ball.velocity.x;
+    status.ball.y += status.ball.velocity.y;
 
     // Mouve the players
     lib.updatePlayerOnePos(status.playerOne);

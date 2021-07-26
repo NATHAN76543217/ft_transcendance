@@ -63,7 +63,7 @@ interface IRoomDto extends IRoomDtobase
 
 function SellectLib(
     name : LibNames,
-    sockServ : PongSocketServer,
+    sockServ : PongGateway,
     gameConfig : IStaticDto,
     ballSpeedIncrememnt : number,
     mode : GameMode,
@@ -91,7 +91,7 @@ enum State {
 }
 
 @WebSocketGateway()
-export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+export class PongGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
     @WebSocketServer()
     public server : Server;
@@ -298,7 +298,6 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
                 idRoom: null,
                 idPlayerOne: this.queue[0].key,
                 idPlayerTwo: null,
-                // TO DO: Check how i did for host-client or build a listener
                 config: new ClassicPongGameConfig(this.queue[0].key, null),
                 lib: null,
                 libName: LibNames.LIB_HORIZONTAL_MULTI,
@@ -426,8 +425,10 @@ export class PongSocketServer implements OnGatewayInit, OnGatewayConnection, OnG
     @SubscribeMessage(Mesages.CALC_GAME_STATUS)
     calcPongStatus(client : Socket, idRoom : string, status : IDynamicDto)
     {
+        const room : IRoomDto = this.getRoom(idRoom);
+
         this.server.to(client.id).volatile.emit(Mesages.RECEIVE_GAMESTATUS, 
-            calcGameStatus(status, this.getRoom(idRoom).lib));
+            calcGameStatus(status, room.lib));
     }
 
     @SubscribeMessage(Mesages.SEND_MOUSE_POS)

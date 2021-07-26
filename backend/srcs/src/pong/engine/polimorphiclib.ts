@@ -1,5 +1,6 @@
 import {
-    IVector2D
+    IVector2D,
+    IBaseVector2D
 } from "shared-pong/shapes/vector2d"
 import {
     IDynamicBallDto,
@@ -27,7 +28,7 @@ export abstract class APolimorphicLib
     )
     { }
 
-    public abstract updatePlayerOnePos(playerOne : IVector2D) : void;
+    public abstract updatePlayerOnePos(playerOne : IBaseVector2D) : void;
     public abstract updatePlayerTwoPos(status : IDynamicDto, level? : number) : void;
     public abstract isBallOnLeftSide(status : IDynamicBallDto) : boolean;
     public abstract calcBallReboundOnPaddle(ball : IDynamicBallDto, player : IDynamicPlayerDto) : number;

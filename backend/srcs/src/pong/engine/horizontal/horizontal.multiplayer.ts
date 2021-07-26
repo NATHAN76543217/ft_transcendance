@@ -1,5 +1,6 @@
 import {
-    Vector2D
+    Vector2D,
+    IBaseVector2D
 } from "shared-pong/shapes/vector2d"
 import {
     GameMode
@@ -27,7 +28,8 @@ export default class HorizontalMultiPlayerLib extends AHorizontalLib
 
     async updatePlayerTwoPos(status : IDynamicDto)
     {
-        (status.playerTwo as Partial<Vector2D>) =
-        await this.sockServ.getMousePosClient(this.gameConfig.playerTwo.id);
+        (status.playerTwo as IBaseVector2D) =
+            this.sockServ.getMousePosClient(this.gameConfig.playerTwo.id);
+        // TO DO: Normalize pos in a range using the limits 
     }
 }

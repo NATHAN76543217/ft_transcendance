@@ -10,7 +10,8 @@ import {
     IStaticDto
 } from "shared-pong/dto/static.dto";
 import {
-    IVector2D
+    IVector2D,
+    IBaseVector2D
 } from "shared-pong/shapes/vector2d"
 import {
     APolimorphicLib
@@ -34,7 +35,7 @@ export default abstract class AVerticalLib extends APolimorphicLib
 
     abstract updatePlayerTwoPos(status : IDynamicDto, level? : number) : void;
 
-    updatePlayerOnePos(playerOne : IVector2D)
+    updatePlayerOnePos(playerOne : IBaseVector2D)
     {
         
     }

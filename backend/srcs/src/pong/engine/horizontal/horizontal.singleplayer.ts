@@ -24,7 +24,8 @@ export default class HorizontalSinglePlayerLib extends AHorizontalLib
 
     updatePlayerTwoPos(status : IDynamicDto, level? : number)
     {
-        status.playerTwo.y += (status.ball.y
+        status.playerTwo.y = (status.ball.y
             - (status.playerTwo.y + this.gameConfig.playerTwo.height / 2)) * level;
+        // Same: Normalize usign a range too (even if this is a bot)
     }   
 }

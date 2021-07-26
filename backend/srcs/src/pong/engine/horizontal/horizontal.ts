@@ -10,7 +10,8 @@ import {
     IStaticDto
 } from "shared-pong/dto/static.dto"
 import {
-    IVector2D
+    IVector2D,
+    IBaseVector2D
 } from "shared-pong/shapes/vector2d"
 import {
     APolimorphicLib
@@ -34,8 +35,11 @@ export default abstract class AHorizontalLib extends APolimorphicLib
 
     abstract updatePlayerTwoPos(status : IDynamicDto, level? : number) : void;
 
-    updatePlayerOnePos(playerOne : IVector2D)
-    { playerOne = this.sockServ.getMousePosClient(this.gameConfig.playerOne.id) as IVector2D; }
+    updatePlayerOnePos(playerOne : IBaseVector2D)
+    {
+        playerOne = this.sockServ.getMousePosClient(this.gameConfig.playerOne.id) as IVector2D;
+        // TO DO: Normalize values using the limits (or just send coherent mouse's pos to the server)
+    }
 
     isBallOnLeftSide(ball : IDynamicBallDto)
     { return ball.x + this.gameConfig.ball.rad < this.gameConfig.court.width / 2; }

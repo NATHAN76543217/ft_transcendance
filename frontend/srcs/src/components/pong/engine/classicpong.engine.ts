@@ -1,18 +1,9 @@
-
-// TO DO: import shared from module
-
-import {
-    GameStatus
-} from "../../game/status"
-
-import ClassicPongGameConfig from "./customization/classicpong.gameconfig"
-import PongClient from "../../engine/engine"
-import SettingsLimits from "../classicpong/customization/classicpong.settings"
+import ClassicPongGameConfig from "shared-pong/specilizations/classicpong/customization/classicpong.gameconfig"
+import PongClient from "../engine/client"
+import SettingsLimits from "shared-pong/specilizations/classicpong/customization/classicpong.settings"
 import {
     Socket
 } from "socket.io-client"
-
-// TO DO: Move to the front after fix server issue
 
 export default class ClassicPong extends PongClient
 {
