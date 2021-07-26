@@ -13,6 +13,7 @@ import UserWelcome from "../../components/users/userWelcome";
 import { ExceptionData } from "../../models/exceptions/ExceptionData";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 import { IAppContext } from "../../IAppContext";
+import Loading from "../../components/loading/loading";
 
 const onLoad = async (
   userId: number,
@@ -54,7 +55,7 @@ const handleClickTwoFactorAuth = async (
         twoFactorAuth: newTwoFactorAuth,
       },
     });
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // const getProfilePicture = async (pictureId: number) => {
@@ -105,7 +106,7 @@ const submitForm = async (
       await axios.delete("/api/photos/" + oldImgPath);
     }
     setUser(dataUser.data);
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // const updateRelationshipState = async (
@@ -160,18 +161,18 @@ type UserPageParams = {
 };
 
 function UserPage({ match }: RouteComponentProps<UserPageParams>,
-  ) {
+) {
   const contextValue = React.useContext(AppContext);
   const userId =
     match.params.id !== undefined ? match.params.id : contextValue.user?.id;
 
-    const [userRelationshipsInfo, setUserRelationshipsInfo] = useState<AppUserRelationship[]>(
-      contextValue.relationshipsList
-    )
+  const [userRelationshipsInfo, setUserRelationshipsInfo] = useState<AppUserRelationship[]>(
+    contextValue.relationshipsList
+  )
 
-    useEffect(() => {
-      setUserRelationshipsInfo(contextValue.relationshipsList)
-    }, [contextValue.relationshipsList])
+  useEffect(() => {
+    setUserRelationshipsInfo(contextValue.relationshipsList)
+  }, [contextValue.relationshipsList])
 
   const [userInfo, setUserInfo] = useState({
     // id: 0,
@@ -257,7 +258,14 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
   }
 
   if (!userInfo.doesUserExist) {
-    return <div className="px-2 py-2 font-bold">This user does not exist</div>;
+    return (
+      <div className="justify-center px-2 py-2 font-bold text-center">
+            <Loading/>
+        <span className="relative grid pt-16">
+          This user does not exist
+            </span>
+      </div>
+    );
   }
 
   let isMe = false;

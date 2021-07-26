@@ -437,6 +437,9 @@ class App extends React.Component<AppProps, AppState> {
                           <User relationshipsList={this.state.relationshipsList} />
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
+                        <Route exact path="/login/success/first">
+                          <Redirect to="/users" />
+                        </Route>
                         <Route exact path="/login/success">
                           <Redirect to="/" />
                         </Route>
