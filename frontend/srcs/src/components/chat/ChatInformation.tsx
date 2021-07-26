@@ -2,7 +2,6 @@ import CustomButton from "../utilities/CustomButton";
 import { NavLink } from "react-router-dom";
 import { ChannelMode } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
-import { IAppContext } from "../../IAppContext";
 import React, { useEffect, useState } from "react";
 import AppContext from "../../AppContext";
 import { ChannelSearchListElement } from "../../models/channel/ChannelSearchState";
