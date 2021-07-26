@@ -71,6 +71,7 @@ services:
     volumes:
       - ./frontend/srcs/:/app
       - /app/node_modules
+    restart: always
     networks:
       - pong_frontend_network
     healthcheck:
