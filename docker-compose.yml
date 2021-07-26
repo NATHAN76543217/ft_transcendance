@@ -9,6 +9,7 @@ services:
     networks:
       - pong_database_network
     restart: always
+    stop_signal: SIGINT
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
