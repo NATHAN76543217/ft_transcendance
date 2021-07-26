@@ -47,6 +47,7 @@ function ChannelCreate() {
             console.log('newChannel created', newChannel);
             contextValue.socket?.emit('joinChannel-front', {
                 channel_id: newChannel.data.id,
+                password: values.password
               });
             setShowCreationValidation(true);
         }
