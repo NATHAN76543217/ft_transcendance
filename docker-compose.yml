@@ -72,6 +72,7 @@ services:
       - ./frontend/srcs/:/app
       - /app/node_modules
     restart: always
+    stop_grace_period: 1m
     networks:
       - pong_frontend_network
     healthcheck:
