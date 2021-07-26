@@ -32,4 +32,6 @@ export class CreateChannelDto {
   @IsNotEmpty()
   @IsOptional()
   mode: ChannelMode;
+
+  
 }

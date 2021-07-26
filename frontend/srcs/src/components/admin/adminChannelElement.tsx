@@ -17,8 +17,8 @@ const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: 
     const data = await axios.get(
       `/api/channels/${id}`
     );
+    console.log('setchannelRelationshipsList', data)
     let a = data.data.users.slice();
-
     a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
       relation1.user.name.localeCompare(relation2.user.name)
     ).reverse();
@@ -127,6 +127,8 @@ const translateRelationTypeToRole = (type: ChannelRelationshipType) => {
       return UserRole.Banned;
     case ChannelRelationshipType.Muted:
       return ChannelRelationshipType.Muted;
+    case ChannelRelationshipType.Invited:
+      return ChannelRelationshipType.Invited;
     default:
       return UserRole.User;
   }

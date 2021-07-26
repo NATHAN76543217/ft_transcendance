@@ -33,6 +33,8 @@ function displayRole(role: UserRole | ChannelRelationshipType) {
       return <div className={divClass + "text-red-600"}>Banned</div>;
     case ChannelRelationshipType.Muted:
       return <div className={divClass + "text-purple-600"}>Muted</div>;
+    case ChannelRelationshipType.Invited:
+      return <div className={divClass + "text-blue-300"}>Invited</div>;
     default:
       return <div className={divClass + "text-gray-700"}>standard</div>;
   }
@@ -248,9 +250,9 @@ function AdminUserElement(user: UserElementProps) {
 }
 
 AdminUserElement.defaultProps = {
-  muteUser: () => {},
-  unmuteUser: () => {},
-  kickUser: () => {},
+  muteUser: () => { },
+  unmuteUser: () => { },
+  kickUser: () => { },
 };
 
 export default AdminUserElement;

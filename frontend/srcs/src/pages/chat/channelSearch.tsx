@@ -68,6 +68,7 @@ const onSubmit = async (
 ) => {
   try {
     const data = await axios.get("/api/channels?name=" + values.channelName);
+    console.log('ChannelSearch', data)
     let a = data.data.slice();
     a.sort((channel1: Channel, channel2: Channel) =>
       channel1.name.localeCompare(channel2.name)
@@ -216,43 +217,6 @@ function ChannelSearch() {
       password: password
     });
     updateOneRelationship(id);
-  
-    // try {
-    //   const data = await axios.get(`/api/channels/${id}`);
-    //   let index = data.data.users.findIndex(
-    //     (channelRelation: any) =>
-    //       channelRelation.user_id === contextValue.user?.id
-    //   );
-  
-    //   if (index === -1) {
-    //     await axios.post(`/api/channels/${id}/join`, {
-    //       type: ChannelRelationshipType.Member,
-    //       password: password,
-    //     });
-    //     updateRelationshipState(
-    //       id,
-    //       ChannelRelationshipType.Member,
-    //       searchInfo,
-    //       setSearchInfo
-    //     );
-    //   }
-    //   return true;
-    // } catch (error) {
-      // if (error.response) {
-      //   console.log(error.response.data);
-      //   console.log(error.response.status);
-      //   console.log(error.response.headers);
-      // }
-      // return false;
-      // const joinValues: JoinChannelDto = {
-      //   type: ChannelRelationshipType.member
-      // }
-      // axios.post(`/api/channels/${id}/join`, {
-      //   // joinValues
-      //   //TODO - add password and joinValues
-      // });
-      // updateRelationshipState(id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
-    // }
   };
 
   const leaveChannel = async (

@@ -26,7 +26,8 @@ function SideMenuButton({ name, href, icon, iconStyle }: SideMenuButtonProps) {
 				to={href}
 				exact={true}
 				className="relative flex items-center justify-center h-full text-center hover:bg-gray-300"
-				activeClassName="bg-neutral-dark">
+				activeClassName="bg-neutral-dark"
+			>
 				<i className={`z-0 fa-2x ${iconStyle} ${icon} group-hover:hidden`}></i>
 				<i className={`hidden w-16 fa-lg ${iconStyle} ${icon} group-hover:inline-block`}></i>
 				<div className="absolute w-full font-semibold uppercase opacity-0 group-hover:relative group-hover:block group-hover:opacity-100">{name}</div>

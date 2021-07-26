@@ -336,8 +336,8 @@ function UserInformation(user: UserProps) {
 
   
   return (
-    <div className="py-4 px-8 h-42 bg-neutral">
-      <section className="flex flex-wrap items-center justify-center py-2 my-2">
+    <div className="px-8 py-4 rounded-sm h-42 bg-neutral">
+      <section className="flex flex-wrap items-center justify-center py-2 my-2 ">
         <div className="w-32 mx-4">
           {displayProfilePicture(user)}
           {displayFileChange(user, contextValue.setUser)}

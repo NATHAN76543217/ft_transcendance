@@ -99,7 +99,7 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
   ]
 
   return (
-    <section className="flex flex-col max-w-sm p-4 m-auto bg-neutral w-80">
+    <section className="flex flex-col max-w-sm p-4 m-auto rounded-md bg-neutral w-80">
       <form onSubmit={handleSubmit(props.onSubmit)} className="py-2">
         <div className="relative w-96">
 

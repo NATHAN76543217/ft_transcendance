@@ -18,6 +18,7 @@ import ChannelRelationship from 'src/channels/relationships/channel-relationship
 import * as bcrypt from 'bcrypt';
 import UserNameInvalid from './exception/UserNameNotFound.exception';
 import { UserRelationshipTypes } from './relationships/userRelationshipTypes';
+import { ChannelRelationshipType } from 'src/channels/relationships/channel-relationship.type';
 
 @Injectable()
 export default class UsersService {
@@ -26,7 +27,7 @@ export default class UsersService {
     private usersRepository: Repository<User>,
     @Inject(forwardRef(() => AuthenticationService))
     private authenticationService: AuthenticationService,
-  ) {}
+  ) { }
 
   async getUserFromSocket(socket: Socket): Promise<User> {
     const logger = new Logger();
@@ -93,15 +94,24 @@ export default class UsersService {
     const user = await query.getOne();
 
     if (user) {
+      if (user.channels) {
+
+        let len = user.channels.length
+        while (--len >= 0) {
+          if (user.channels[len].type === ChannelRelationshipType.Banned) {
+            user.channels.splice(len, 1)
+          }
+        }
+      }
       return user;
     }
-
     throw new UserNotFound(id);
   }
 
   private joinChannels(query: SelectQueryBuilder<User>): void {
     query
       .leftJoin('user.channels', 'channelRelation')
+      // .where('channelRelation.type != :banned', {banned: ChannelRelationshipType.Banned})
       .addSelect('channelRelation.type')
       .addSelect('channelRelation.last_read_message_id', 'last_read_message_id')
       .leftJoin('channelRelation.channel', 'channel')
@@ -212,7 +222,7 @@ export default class UsersService {
           userRelationshipsService.deleteUserRelationship(Number(relation.id));
         });
       }
-    } catch (error) {}
+    } catch (error) { }
 
     const deleteResponse = await this.usersRepository.delete(id);
     if (!deleteResponse.affected) {

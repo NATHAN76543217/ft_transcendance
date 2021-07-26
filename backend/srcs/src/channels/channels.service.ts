@@ -64,20 +64,14 @@ export default class ChannelsService {
 
   // TODO: getVisibleChannels instead
   // Admins can see all channels
-  async getAllChannels(name: string) {
-    if (name === undefined) {
-      //   const channels = await this.channelsRepository.createQueryBuilder("channel")
-      // .leftJoinAndMapOne("channel.relationshipType", "channels.users", "relationshipType", "user.id = user_id")
-      // .where("channel.name = :name", { name: name })
-      // .getOne();
-
-      // return channels
-
-      return await this.channelsRepository.find({ relations: ['users'] });
-    }
-    return this.channelsRepository.find({
-      where: { name: Like('%' + name + '%') },
-    });
+  async getAllChannels(channelName: string) {
+      return await this.channelsRepository
+      .createQueryBuilder('channel')
+      .leftJoinAndSelect('channel.users', 'users')
+      .leftJoin('users.user', 'channelUser')
+      .addSelect('channelUser.name')
+      .where("channel.name like :name", { name:`%${channelName}%` })
+      .getMany();
   }
 
   // async getChannelById(id: number) {

@@ -26,6 +26,7 @@ import {
 import { JoinChannelDto } from './dto/joinChannel.dto';
 import { join } from 'path';
 import { ChannelMode } from './utils/channelModeTypes';
+import UsersController from 'src/users/users.controller';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthenticationGuard)
@@ -45,9 +46,26 @@ export default class ChannelsController {
   //@UseGuards(PoliciesGuard)
   //@CheckPolicies(new ReadChannelPolicyHandler())
   getChannels(
-    // @Req() req: RequestWithUser,
+    @Req() req: RequestWithUser,
     @Query('name') name: string) {
-    return this.channelsService.getAllChannels(name);
+    let channels = this.channelsService.getAllChannels(name);
+    channels.then((array) => {
+      let len = array.length;
+      while (--len >= 0) {
+        let users = array[len].users;
+        let relationType = ChannelRelationshipType.Null;
+        users.map((elem) => {
+          if (req.user.id === elem.user_id) {
+            relationType = elem.type;
+          }
+        })
+        if (relationType === ChannelRelationshipType.Banned ||
+          array[len].mode === ChannelMode.private && relationType === ChannelRelationshipType.Null) {
+            array.splice(len, 1);
+          }
+      }
+    })
+    return channels;
   }
 
   // TODO: Check if user has a positive relation and CASL read permission

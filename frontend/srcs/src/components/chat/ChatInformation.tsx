@@ -45,14 +45,24 @@ function getModeName(mode: ChannelMode) {
   }
 }
 
+const getImgPath = (mode: ChannelMode) => {
+  switch (mode) {
+    case ChannelMode.public:
+      return "public-channel.png";
+    case ChannelMode.private:
+      return "private-channel.png";
+    case ChannelMode.protected:
+      return "protected-channel.png";
+    default:
+      return "";
+  }
+}
+
 function displayChannelPicture(channel: ChannelProps) {
-  let path =
-    channel.imgPath === ""
-      ? "/api/uploads/default-profile-picture.png"
-      : "/api/uploads/" + channel.imgPath;
+  const path = "/api/uploads/" + getImgPath(channel.mode);
   return (
     <img
-      className="object-contain w-32 h-full"
+      className="object-contain w-20 h-full"
       src={path}
       alt="channel"
       onClick={() => { }}
@@ -180,7 +190,7 @@ function ChannelInformation(channel: ChannelProps) {
     const displayShowPasswordButton = (show: boolean, setShow: any) => {
       return (
         <div
-          className="absolute right-0 items-center justify-between cursor-pointer top-1"
+          className="absolute items-center justify-between cursor-pointer right-2 top-1"
           onClick={() => setShow(!show)}
         >
           <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
@@ -237,20 +247,20 @@ function ChannelInformation(channel: ChannelProps) {
   }
 
   return (
-    <div className="py-4 h-42 bg-neutral">
+    <div className="px-2 py-4 rounded-sm h-42 bg-neutral">
       <section className="flex flex-wrap items-center justify-center py-2 my-2">
-        <div className="relative w-32 mx-4">
+        <div className="w-20 ml-4">
           {displayChannelPicture(channel)}
         </div>
 
-        <div className="w-40 mx-2 text-center">
+        <div className="w-40 mr-4 text-center">
           <NavLink
             to={"/chat/" + channel.id}
-            className="relative text-xl font-bold"
+            className="text-xl font-bold "
           >
             {channel.name}
           </NavLink>
-          <h1 className={"relative font-bold " + getModeColor(channel.mode)}>
+          <h1 className={" font-bold " + getModeColor(channel.mode)}>
             {getModeName(channel.mode)}
           </h1>
         </div>

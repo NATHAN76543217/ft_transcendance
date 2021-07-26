@@ -105,7 +105,7 @@ function ChannelSettingsProperties(props: ChannelProps) {
             changeDestroyValidationButtonState(adminChannelElementInfo, setAdminChannelElementInfo)
         }
 
-        if (!adminChannelElementInfo.showDestroyValidation) {
+        if (!adminChannelElementInfo.showDestroyValidation && props.myRole & ChannelRelationshipType.Owner) {
             return (
                 <div className="relative flex justify-center w-full h-8">
                     <button
@@ -130,7 +130,7 @@ function ChannelSettingsProperties(props: ChannelProps) {
         const localChangeDestroyValidationButtonState = () => {
             changeDestroyValidationButtonState(adminChannelElementInfo, setAdminChannelElementInfo)
         }
-        if (adminChannelElementInfo.showDestroyValidation) {
+        if (adminChannelElementInfo.showDestroyValidation && props.myRole & ChannelRelationshipType.Owner) {
             return (
                 <div className="relative items-center w-full h-8 text-center">
                     <CustomButton

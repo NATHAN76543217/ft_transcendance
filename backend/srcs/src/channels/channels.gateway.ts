@@ -149,7 +149,6 @@ export class ChannelsGateway
     let newType = ChannelRelationshipType.Member;
     try {
       channel = await this.channelsService.getChannelById(body.channel_id);
-      console.log('join channel', channel)
       if (!channel.users.length) {
         newType = ChannelRelationshipType.Owner;
       }
@@ -160,7 +159,7 @@ export class ChannelsGateway
       const relationship = await this.channelRelationshipsService.getChannelRelationshipByIds(body.channel_id, socket.user.id)
       if (relationship.type === ChannelRelationshipType.Banned) {
         throw new HttpException('You are banned from this channel', 400);
-      } else {
+      } else if (relationship.type !== ChannelRelationshipType.Invited) {
         newType = relationship.type;
       }
     }

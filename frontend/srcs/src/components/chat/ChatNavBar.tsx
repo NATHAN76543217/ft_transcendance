@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { Channel } from "../../models/channel/Channel";
+import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import chatContext from "../../pages/chat/chatContext";
 import { ChatTitle } from "./ChatTitle";
 
@@ -76,14 +77,17 @@ ChatNotificationCounter.defaultProps = {
 export function ChatBarItem({ chat }: ChatBarItemProps) {
   // TODO: Chat image, public chat, user chat
   return (
-    <NavLink
-      className="relative flex bg-gray-200 border-l-4 hover:border-blue-400"
-      activeClassName="border-red-500 hover:border-red-500 text-red-500"
-      to={`/chat/${chat.id}`}
-    >
-      <ChatNotificationCounter count={5} />
-      <ChatTitle chat={chat}></ChatTitle>
-    </NavLink>
+    <div className="border-b-2 border-gray-300">
+
+      <NavLink
+        className="relative flex py-1 bg-gray-100 border-l-4 hover:border-blue-400"
+        activeClassName="bg-gray-300 border-red-500 hover:border-red-500 text-red-500"
+        to={`/chat/${chat.id}`}
+      >
+        <ChatNotificationCounter count={5} />
+        <ChatTitle chat={chat}></ChatTitle>
+      </NavLink>
+    </div>
   );
 }
 
@@ -95,19 +99,39 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
   const chatContextValue = useContext(chatContext);
 
   return (
-    <nav className={`flex flex-col divide-black divide-double p2 ${className}`}>
+    <nav className={`flex flex-col divide-black divide-double p2 border-r-2 border-gray-300 ${className}`}>
       <div>
-        <IconLinkButton name="Find..." icon="fa-search" href="/chat/find" />
-        <IconLinkButton
-          name="Create..."
-          icon="fa-plus-circle"
-          href="/chat/create"
-        />
+        <NavLink
+          to="/chat/find"
+          exact={true}
+          className="relative flex py-1 bg-gray-100"
+          activeClassName="bg-blue-300"
+        >
+          <div className="flex items-center py-1 pl-2">
+            <i className="fas fa-search" />
+            <div className="pl-2 font-semibold">Find channels</div>
+          </div>
+        </NavLink>
+        <NavLink
+          to="/chat/create"
+          exact={true}
+          className="relative flex py-1 bg-gray-100"
+          activeClassName="bg-green-200"
+        >
+          <div className="flex items-center py-1 pl-2">
+            <i className="fas fa-plus-circle" />
+            <div className="pl-2 font-semibold">Create a channel</div>
+          </div>
+        </NavLink>
       </div>
       <ul>
-        {Array.from(chatContextValue.channelRels.values()).map((rel) => (
-          <li key={rel.channel.id}>{ChatBarItem({ chat: rel.channel })}</li>
-        ))}
+        {Array.from(chatContextValue.channelRels.values()).map((rel) => {
+          if (rel.type !== ChannelRelationshipType.Invited) {
+            return <li key={rel.channel.id}>{ChatBarItem({ chat: rel.channel })}</li>
+          } else {
+            return <div></div>
+          }
+        })}
       </ul>
     </nav>
   );

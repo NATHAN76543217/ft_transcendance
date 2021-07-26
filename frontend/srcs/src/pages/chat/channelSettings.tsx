@@ -33,6 +33,8 @@ function ChannelSettings({
     users: [],
   });
 
+  console.log('chatContext', chatContextValue)
+
   const setChannel = async () => {
     try {
       // const dataChannel = await axios.get(`/api/channels/${channelId}`, {

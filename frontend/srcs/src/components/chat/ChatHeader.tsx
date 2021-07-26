@@ -16,8 +16,11 @@ export function ChatHeader({ children }: ChatHeaderProps) {
 
   if (currentChat) {
     return (
-      <header className="flex justify-between w-full h-10 p-2 bg-gray-200">
-        <ChatTitle chat={currentChat}></ChatTitle>
+      <header className="flex justify-between w-full h-10 p-4 bg-gray-300 border-b-2 border-gray-300">
+        <ChatTitle
+          chat={currentChat}
+          isInHeader
+        />
         <div className="flex items-center space-x-2">{children}</div>
       </header>
     );
