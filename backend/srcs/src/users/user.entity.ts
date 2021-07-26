@@ -39,9 +39,6 @@ class User {
   @Column({ nullable: true, default: false })
   public twoFactorAuth: boolean;
 
-  @Column({ nullable: true, default: UserStatus.offline })
-  public status: UserStatus;
-
   @Column({ default: UserRole.User })
   public role: UserRole;
 
@@ -62,6 +59,9 @@ class User {
 
   // @OneToMany(() => UserRelationship, userRelationship => userRelationship.user2_id)
   // public userRelationship2: UserRelationship[]
+
+  //@Column({ nullable: true, default: UserStatus.offline })
+  public status: UserStatus;
 
   public jwt: string;
 }

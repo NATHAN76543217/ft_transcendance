@@ -102,7 +102,7 @@ export default class UsersController {
 
   @Patch('relationships/:id')
   async updateUserRelationship(
-    @Param('id') id: FindOneParam,
+    @Param('id') id: string,
     @Body() userRelationship: UpdateUserRelationshipDto,
   ) {
     return this.userRelationshipsService.updateUserRelationship(
