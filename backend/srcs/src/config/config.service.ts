@@ -68,6 +68,7 @@ const configService = new ConfigService(process.env).ensureValues([
   'OAUTH_42_SECRET',
   'OAUTH_GOOGLE_UID',
   'OAUTH_GOOGLE_SECRET',
+  'TWO_FACTOR_AUTHENTICATION_APP_NAME',
 ]);
 
 export { configService };
