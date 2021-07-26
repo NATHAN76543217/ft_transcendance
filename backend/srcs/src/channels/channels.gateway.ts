@@ -355,6 +355,7 @@ export class ChannelsGateway
 
     this.server.to(roomName).emit('leaveChannel-back', {
       channel_id: id.toString(),
+      user_id: '-1'
     });
     const socketIds = await this.server.in(roomName).allSockets();
 
