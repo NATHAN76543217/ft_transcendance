@@ -52,7 +52,7 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
   const displayShowPasswordButton = (show: boolean, setShow: any) => {
     return (
       <div
-        className="absolute items-center justify-between cursor-pointer right-28 top-8"
+        className="absolute items-center justify-between cursor-pointer right-20 top-8"
         onClick={() =>
           setShow(!show)
         }
@@ -74,12 +74,12 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
   let radioSpanClassName = "ml-1 font-semibold"
 
   return (
-    <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 rounded-md bg-neutral ">
+    <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 rounded-md bg-neutral w-80">
       <h1 className="flex justify-center mb-2 ">
         <span className="text-2xl font-bold">Create channel</span>
       </h1>
       <form onSubmit={handleSubmit(props.onSubmit)} className="py-2">
-        <div className="relative pl-4 w-96">
+        <div className="relative pl-4 w-80">
           <TextInput
             name="name"
             register={register}
@@ -133,7 +133,7 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
             {displayShowPasswordButton(showPasswordConfirmation, setShowPasswordConfirmation)}
           </div>
 
-          <div className="w-full pr-4 text-center ">
+          <div className="flex justify-center pr-4 ">
             <input
               type="submit"
               value="Create channel"
