@@ -51,7 +51,11 @@ export class Oauth2Controller {
       // response.setHeader('Access-Control-Allow-Origin', "https://localhost/, https://api.intra.42.fr");
 
       user.password = undefined;
-      response.redirect('https://localhost/login/success/');
+
+      const first =
+        user.imgPath === "default-profile-picture.png" ? "/first" : "";
+
+      response.redirect('https://localhost/login/success' + first);
     } catch (error) {
       response.redirect('https://localhost/login/failure');
     }
@@ -82,7 +86,11 @@ export class Oauth2Controller {
       // res.cookie('Authentication', jwt);
       // console.log(jwt);
       user.password = undefined;
-      res.redirect('https://localhost/login/success');
+
+      const first =
+        user.imgPath === "default-profile-picture.png" ? "/first" : "";
+
+      res.redirect('https://localhost/login/success' + first);
     }
     catch (error) {
       res.redirect('https://localhost/login/failure');
