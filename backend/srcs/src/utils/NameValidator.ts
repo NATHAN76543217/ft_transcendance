@@ -9,7 +9,7 @@ export const NameValidator = (fieldName: string) => {
     Length(minLength, maxLength, {
       message: `${fieldName} length must be between ${minLength} and ${maxLength}!`,
     }) &&
-    Matches('^([0-9a-z\\-\\_])+', undefined, {
+    Matches('^([0-9a-z\\-\\_])+$', undefined, {
       message: `${fieldName} is invalid!`,
     })
   );

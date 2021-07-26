@@ -6,12 +6,21 @@ import {
   IsBoolean,
   IsNumber,
   Length,
+  Matches,
 } from 'class-validator';
 import { NameValidator } from 'src/utils/NameValidator';
 import { UserStatus } from '../utils/userStatus';
 
+const fieldName = 'Username'
+
 export default class CreateUserDto {
-  @NameValidator('Username')
+  // @NameValidator('Username')
+  @IsString({ message: `${fieldName} is invalid!` })
+  @IsNotEmpty({ message: `${fieldName} cannot be empty!` })
+  @Matches('^([0-9a-z\\-\\_])+$', undefined, {
+    message: `${fieldName} is invalid!`
+  })
+  @Length(1, 15)
   public name: string;
 
   @IsString()
