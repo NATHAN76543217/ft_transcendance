@@ -80,8 +80,11 @@ export class AuthenticationService {
     return this.usersService.getUserById(payload.userId, withChannels);
   }
 
-  public getCookieWithJwtToken(userId: number) {
-    const payload: TokenPayload = { userId };
+  public getCookieWithJwtToken(
+    userId: number,
+    isSecondFactorAuthenticated = false,
+  ) {
+    const payload: TokenPayload = { userId, isSecondFactorAuthenticated };
     const expirationTime = this.configService.get('JWT_EXPIRATION_TIME');
 
     const token = this.jwtService.sign(payload);
@@ -115,13 +118,4 @@ export class AuthenticationService {
       'Refresh=; HttpOnly; Path=/; Max-Age=0',
     ];
   }
-
-  // public setUserStatus(user: User, userStatus: UserStatus) {
-  //   let usersService = new UsersService();
-  //   let userDto: UpdateUserDto = {
-  //     ...user,
-  //     status: userStatus
-  //   }
-  //   usersService.updateUser(user.id, userDto)
-  // }
 }

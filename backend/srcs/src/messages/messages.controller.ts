@@ -8,13 +8,12 @@ import {
 } from '@nestjs/common';
 
 import MessagesService from './messages.service';
-import CreateMessageDto from './dto/createMessage.dto';
 import UpdateMessageDto from './dto/updateMessage.dto';
-import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
+import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
 
 // TODO: Message CASL
 @Controller('messages')
-@UseGuards(JwtAuthenticationGuard)
+@UseGuards(JwtTwoFactorGuard)
 export default class MessagesController {
   constructor(private readonly messageService: MessagesService) {}
 

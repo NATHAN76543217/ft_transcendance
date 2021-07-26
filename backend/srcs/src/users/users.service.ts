@@ -19,8 +19,7 @@ import * as bcrypt from 'bcrypt';
 import UserNameInvalid from './exception/UserNameNotFound.exception';
 import { ChannelRelationshipType } from 'src/channels/relationships/channel-relationship.type';
 import { UserStatus } from './utils/userStatus';
-import { Message, MessageType } from 'src/messages/message.entity';
-import Channel from 'src/channels/channel.entity';
+import { Message } from 'src/messages/message.entity';
 import ChannelsService from 'src/channels/channels.service';
 import { ChannelMode } from 'src/channels/utils/channelModeTypes';
 
@@ -36,9 +35,8 @@ export default class UsersService {
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
     @Inject(forwardRef(() => ChannelsService))
-    private readonly channelsService: ChannelsService
+    private readonly channelsService: ChannelsService,
   ) {}
-
   setUserStatus(userId: number, status: UserStatus) {
     if (status !== UserStatus.null || !this.userStates.delete(userId))
       this.userStates.set(userId, status);
@@ -50,6 +48,17 @@ export default class UsersService {
 
   private joinUserStatus(user: User) {
     user.status = this.getUserStatus(user.id);
+  }
+  async enableTwoFactorAuthentication(userId: number) {
+    return this.usersRepository.update(userId, {
+      twoFactorAuthEnabled: true,
+    });
+  }
+
+  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+    return this.usersRepository.update(userId, {
+      twoFactorAuthSecret: secret,
+    });
   }
 
   async getUserFromSocket(socket: Socket): Promise<User> {
@@ -238,8 +247,8 @@ export default class UsersService {
       this.channelsService.createChannel({
         name: 'private_users',
         password: 'Users_private_SecreT',
-        mode: ChannelMode.users
-      })
+        mode: ChannelMode.users,
+      });
     }
     await this.usersRepository.save(newUser);
     return newUser;

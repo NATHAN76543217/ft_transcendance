@@ -13,7 +13,7 @@ export const mockedUser: User = {
   school42id: null,
   googleid: null,
   jwt: '',
-  twoFactorAuth: false,
+  twoFactorAuthEnabled: false,
   status: UserStatus.null,
   role: UserRole.User,
   channels: [],

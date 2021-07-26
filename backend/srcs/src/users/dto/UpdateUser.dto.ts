@@ -7,11 +7,10 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import { NameValidator } from 'src/utils/NameValidator';
 import { UserRole } from '../utils/userRole';
 import { UserStatus } from '../utils/userStatus';
 
-const fieldName = 'Username'
+const fieldName = 'Username';
 
 export default class UpdateUserDto {
   @IsOptional()
@@ -19,41 +18,44 @@ export default class UpdateUserDto {
   @IsString({ message: `${fieldName} is invalid!` })
   @IsNotEmpty({ message: `${fieldName} cannot be empty!` })
   @Matches('^([0-9a-z\\-\\_])+$', undefined, {
-    message: `${fieldName} is invalid!`
+    message: `${fieldName} is invalid!`,
   })
   @Length(1, 15)
-  public name: string;
+  public name?: string;
 
   @IsString()
   @IsOptional()
   @IsNotEmpty()
   @Length(4, 64)
-  public password: string;
+  public password?: string;
 
   @IsOptional()
   @IsNumberString()
-  public nbWin: number;
+  public nbWin?: number;
 
   @IsOptional()
   @IsNumberString()
-  public nbLoss: number;
+  public nbLoss?: number;
 
   @IsOptional()
   @IsNumberString()
-  public stats: number;
+  public stats?: number;
 
   @IsOptional()
   @IsString()
-  public imgPath: string;
+  public imgPath?: string;
 
+  // TODO: I do not think we should allow toggling this directly
+  /* 
   @IsOptional()
   // @IsBooleanString()
   @IsBoolean()
-  public twoFactorAuth: boolean;
+  public twoFactorAuth?: boolean; */
 
-  @IsOptional()
+  // TODO: I think we removed this
+  /*   @IsOptional()
   // @IsNumber()
-  public status: UserStatus;
+  public status: UserStatus; */
 
   @IsOptional()
   // @IsNumber()

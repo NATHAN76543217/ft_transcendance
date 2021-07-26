@@ -5,13 +5,15 @@ import { AuthenticationController } from './authentication.controller';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { School42Strategy } from './oauth2/school42/school42.strategy';
 import { GoogleStrategy } from './oauth2/google/google.strategy';
 import { Oauth2Controller } from './oauth2/oauth2.controller';
-import UsersService from 'src/users/users.service';
 import { JwtRefreshTokenStrategy } from './jwt-refresh.strategy';
+import { TwoFactorAuthenticationController } from './two-factor/twoFactorAuthentication.controller';
+import { TwoFactorAuthenticationService } from './two-factor/twoFactorAuthentication.service';
+import { JwtTwoFactorStrategy } from './two-factor/jwt-two-factor.strategy';
 
 @Module({
   imports: [
@@ -23,9 +25,6 @@ import { JwtRefreshTokenStrategy } from './jwt-refresh.strategy';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
-        // verifyOptions: {
-        //   ignoreExpiration: true, // TODO: Remove in production!
-        // },
         signOptions: {
           expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s`,
         },
@@ -39,8 +38,14 @@ import { JwtRefreshTokenStrategy } from './jwt-refresh.strategy';
     JwtRefreshTokenStrategy,
     School42Strategy,
     GoogleStrategy,
+    TwoFactorAuthenticationService,
+    JwtTwoFactorStrategy,
   ],
-  controllers: [AuthenticationController, Oauth2Controller],
+  controllers: [
+    AuthenticationController,
+    Oauth2Controller,
+    TwoFactorAuthenticationController,
+  ],
   exports: [AuthenticationService, JwtModule],
 })
 export class AuthenticationModule {}
