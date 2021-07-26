@@ -39,14 +39,18 @@ import { ChannelMode } from './utils/channelModeTypes';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
 import ChannelRelationshipByIdsNotFound from './exception/ChannelRelationshipByIdsNotFound.exception';
 import { DestroyChannelDto } from './dto/DestroyChannel.dto';
-import { ChannelMessageAction, ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability.factory';
+import {
+  ChannelMessageAction,
+  ChannelMessageCaslAbilityFactory,
+} from './channel-message-casl-ability.factory';
 import UpdateUserInfoDto from 'src/messages/dto/updateUserInfo.dto';
 
 // TODO: Rename to EventsModule...
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/events' })
 export class ChannelsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   private readonly server: Server;
 
@@ -62,7 +66,7 @@ export class ChannelsGateway
     private readonly userRelationshipService: UserRelationshipsService,
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
-  ) { }
+  ) {}
 
   afterInit(server: Server) {
     this.logger.log(`Listening at ${server.path()}`);
@@ -83,9 +87,6 @@ export class ChannelsGateway
           user1_id,
           user2_id,
         );
-        if (!body.name) {
-          // body.name = relationship.
-        }
       if (body.type !== UserRelationshipTypes.null) {
         this.userRelationshipService.updateUserRelationship(relationship.id, {
           type: body.type,
@@ -104,12 +105,10 @@ export class ChannelsGateway
       user_id: body.user_id.toString(),
       type: body.type,
     });
-    socket
-      .to(body.user_id.toString())
-      .emit('updateRelationship-back', {
-        user_id: socket.user.id.toString(),
-        type: body.type,
-      });
+    socket.to(body.user_id.toString()).emit('updateRelationship-back', {
+      user_id: socket.user.id.toString(),
+      type: body.type,
+    });
   }
 
   @SubscribeMessage('updateUserInfo-front')
@@ -117,30 +116,41 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateUserInfoDto,
   ) {
+    console.log('updateUserInfo-front');
 
-    console.log('updateUserInfo-front')
-
-    const user_id = socket.user.id
+    const user_id = socket.user.id;
     // try {
-      // let user;
-      // user = await this.usersService.getUserById(user_id);
-      // const name = body.name ? body.name : user.name;
-      // const imgPath = body.imgPath ? body.imgPath : user.imgPath;
-      // this.usersService.updateUser(user.id, {
-      //   ...user,
-      //   name: name,
-      //   imgPath: imgPath,
-      // });
-      socket.emit('updateUserInfo-back', { user_id: user_id, name: body.name, imgPath: body.imgPath  });
-      const relations = await this.userRelationshipService.getAllUserRelationshipsFromOneUser(user_id.toString())
-      relations.forEach((rel) => {
-        const friend_id = user_id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id
-        socket
-          .to(friend_id.toString())
-          .emit('updateUserInfo-back', { user_id: user_id, name: body.name, imgPath: body.imgPath });
-      })
+    // let user;
+    // user = await this.usersService.getUserById(user_id);
+    // const name = body.name ? body.name : user.name;
+    // const imgPath = body.imgPath ? body.imgPath : user.imgPath;
+    // this.usersService.updateUser(user.id, {
+    //   ...user,
+    //   name: name,
+    //   imgPath: imgPath,
+    // });
+    socket.emit('updateUserInfo-back', {
+      user_id: user_id,
+      name: body.name,
+      imgPath: body.imgPath,
+    });
+    const relations =
+      await this.userRelationshipService.getAllUserRelationshipsFromOneUser(
+        user_id.toString(),
+      );
+    relations.forEach((rel) => {
+      const friend_id =
+        user_id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id;
+      socket
+        .to(friend_id.toString())
+        .emit('updateUserInfo-back', {
+          user_id: user_id,
+          name: body.name,
+          imgPath: body.imgPath,
+        });
+    });
     // } catch (error) {
-      // console.log(error);
+    // console.log(error);
     // }
   }
 
@@ -149,9 +159,8 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRoleDto,
   ) {
-    let user;
     try {
-      user = await this.usersService.getUserById(body.user_id);
+      const user = await this.usersService.getUserById(body.user_id);
       this.usersService.updateUser(user.id, {
         ...user,
         role: body.role,
@@ -202,13 +211,11 @@ export class ChannelsGateway
       user_id: body.user_id.toString(),
       type: body.type,
     });
-    socket
-      .to(body.user_id.toString())
-      .emit('updateChannelRelationship-back', {
-        channel_id: body.channel_id.toString(),
-        user_id: body.user_id.toString(),
-        type: body.type,
-      });
+    socket.to(body.user_id.toString()).emit('updateChannelRelationship-back', {
+      channel_id: body.channel_id.toString(),
+      user_id: body.user_id.toString(),
+      type: body.type,
+    });
   }
 
   @SubscribeMessage('joinChannel-front')
@@ -238,7 +245,7 @@ export class ChannelsGateway
       } else if (relationship.type !== ChannelRelationshipType.Invited) {
         newType = relationship.type;
       }
-    } catch (error) { }
+    } catch (error) {}
     if (channel.mode === ChannelMode.protected) {
       await this.channelsService.verifyPassword(
         body.password,
@@ -251,7 +258,7 @@ export class ChannelsGateway
       type: newType,
     });
 
-    this.joinChannel(socket, body.channel_id, newType)
+    this.joinChannel(socket, body.channel_id, newType);
     // socket.emit('joinChannel-back', {
     //   channel_id: body.channel_id.toString(),
     //   user_id: socket.user.id.toString(),
@@ -305,7 +312,6 @@ export class ChannelsGateway
         );
       }
 
-
       this.leaveChannel(socket, body.channel_id, newType);
 
       // socket.emit('leaveChannel-back', {
@@ -347,7 +353,7 @@ export class ChannelsGateway
       } else {
         throw new HttpException('TODO: Unauthorized delete', 400);
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
@@ -414,7 +420,8 @@ export class ChannelsGateway
     // Notify friends about status
 
     this.logger.debug(
-      `Client ${socket.user.id} connected with ${socket.rooms.size - 2
+      `Client ${socket.user.id} connected with ${
+        socket.rooms.size - 2
       } joined channels`,
     );
 
@@ -444,7 +451,7 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
-    console.log('message-channel', body)
+    console.log('message-channel', body);
     // const author = socket.user;
     // const channel = socket.user.channels.find((channel) => {
     //   return channel.channel_id === body.channel_id;
@@ -452,7 +459,7 @@ export class ChannelsGateway
     const channel = await this.channelsService.getChannelById(body.channel_id);
     const author = channel.users.find((user) => {
       return user.user_id === socket.user.id;
-    })
+    });
     // const canSend = (author.type & ChannelRelationshipType.Member ||
     //   author.type & ChannelRelationshipType.Admin ||
     //   author.type & ChannelRelationshipType.Owner)
@@ -460,7 +467,8 @@ export class ChannelsGateway
 
     // console.log('author', author)
     // const abilities = this.abilityFactory.createForUser(author);
-    const abilities = this.messageAbilityFactory.createForChannelRelationship(author);
+    const abilities =
+      this.messageAbilityFactory.createForChannelRelationship(author);
 
     body.receiver_id = 0;
     const roomName = `#${body.channel_id}`;
@@ -470,17 +478,18 @@ export class ChannelsGateway
       // canSend
       abilities.can(ChannelMessageAction.Create, channel)
     ) {
-      const message = await this.messageService.createMessage(body, socket.user.id);
+      const message = await this.messageService.createMessage(
+        body,
+        socket.user.id,
+      );
 
-      console.log('message created', message)
+      console.log('message created', message);
 
-      this.server
-        .to(roomName)
-        .emit('message-channel', JSON.stringify(message));
+      this.server.to(roomName).emit('message-channel', JSON.stringify(message));
       this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
       this.logger.debug(`${socket.user.name}: ${body.data}`);
-      console.log("can't speak")
+      console.log("can't speak");
     }
   }
 
@@ -489,22 +498,24 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
-
     body.channel_id = 1;
-    console.log('message-user', body)
+    console.log('message-user', body);
 
     const author = socket.user;
     // const channel = await this.channelsService.getChannelById(body.channel_id);
     // const abilities = this.abilityFactory.createForUser(author);
 
     try {
-      const relation = await
-        this.userRelationshipService.getUserRelationshipByIds(body.receiver_id.toString(), socket.user.id.toString());
+      const relation =
+        await this.userRelationshipService.getUserRelationshipByIds(
+          body.receiver_id.toString(),
+          socket.user.id.toString(),
+        );
       if (relation.type !== UserRelationshipTypes.friends) {
-        return
+        return;
       }
     } catch (error) {
-      return
+      return;
     }
 
     const roomName = `${body.receiver_id}`;
@@ -514,9 +525,7 @@ export class ChannelsGateway
     ) {
       const message = await this.messageService.createMessage(body, author.id);
 
-      this.server
-        .to(roomName)
-        .emit('message-user', JSON.stringify(message));
+      this.server.to(roomName).emit('message-user', JSON.stringify(message));
       this.server
         .to(socket.user.id.toString())
         .emit('message-user', JSON.stringify(message));
@@ -551,7 +560,11 @@ export class ChannelsGateway
     socket.to(roomName).emit('connected', { username: socket.user.name });
   }
 
-  async joinChannel(socket: SocketWithUser, channel_id: number, type: ChannelRelationshipType) {
+  async joinChannel(
+    socket: SocketWithUser,
+    channel_id: number,
+    type: ChannelRelationshipType,
+  ) {
     const roomName = `#${channel_id}`;
     this.logger.log(`User joining channel ${channel_id}`);
 
@@ -561,17 +574,21 @@ export class ChannelsGateway
     socket.emit('joinChannel-back', {
       channel_id: channel_id,
       user_id: socket.user.id,
-      type: type
+      type: type,
     });
 
     socket.to(roomName).emit('joinChannel-back', {
       channel_id: channel_id,
       user_id: socket.user.id,
-      type: type
+      type: type,
     });
   }
 
-  async leaveChannel(socket: SocketWithUser, channel_id: number, type: ChannelRelationshipType) {
+  async leaveChannel(
+    socket: SocketWithUser,
+    channel_id: number,
+    type: ChannelRelationshipType,
+  ) {
     const roomName = `#${channel_id}`;
     this.logger.log(`User leaving channel ${channel_id}`);
 
@@ -581,13 +598,13 @@ export class ChannelsGateway
     socket.emit('leaveChannel-back', {
       channel_id: channel_id,
       user_id: socket.user.id,
-      type: type
+      type: type,
     });
 
     socket.to(roomName).emit('leaveChannel-back', {
       channel_id: channel_id,
       user_id: socket.user.id,
-      type: type
+      type: type,
     });
   }
 }

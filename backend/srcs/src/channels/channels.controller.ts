@@ -14,7 +14,6 @@ import {
 import ChannelsService from './channels.service';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
-import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
 
 import UpdateChannelRelationshipDto from './dto/UpdateChannelRelationship.dto';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
@@ -24,13 +23,15 @@ import {
   ChannelCaslAbilityFactory,
 } from './channel-casl-ability.factory';
 import { JoinChannelDto } from './dto/joinChannel.dto';
-import { join } from 'path';
 import { ChannelMode } from './utils/channelModeTypes';
-import UsersController from 'src/users/users.controller';
-import { ChannelMessageAction, ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability.factory';
+import {
+  ChannelMessageAction,
+  ChannelMessageCaslAbilityFactory,
+} from './channel-message-casl-ability.factory';
+import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthenticationGuard)
+@UseGuards(JwtTwoFactorGuard)
 /* @SerializeOptions({
   strategy: 'exposeAll',
   // strategy: 'excludeAll'
@@ -40,8 +41,7 @@ export default class ChannelsController {
     private readonly channelsService: ChannelsService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
     private readonly messageAbilityFactory: ChannelMessageCaslAbilityFactory,
-  ) { }
-
+  ) {}
 
   @Get(':id/messages')
   async getMessagesById(
@@ -55,20 +55,20 @@ export default class ChannelsController {
     );
     const relation = channel.users.find((user) => {
       return user.user_id === req.user.id;
-    })
+    });
     // const abilities = this.abilityFactory.createForUser(req.user);
-    const abilities = this.messageAbilityFactory.createForChannelRelationship(relation);
+    const abilities =
+      this.messageAbilityFactory.createForChannelRelationship(relation);
 
     if (abilities.can(ChannelMessageAction.Read, channel)) {
-
       return this.channelsService.getMessagesById(
         channel.id,
         beforeId ? Number(beforeId) : undefined,
         afterId ? Number(afterId) : undefined,
-        );
-      } else {
-        return [];
-      }
+      );
+    } else {
+      return [];
+    }
     throw new HttpException('TODO: Unauthorized read', 400);
   }
 
@@ -78,10 +78,9 @@ export default class ChannelsController {
     @Req() req: RequestWithUser,
     @Param('id') channelId: string,
   ) {
-
     const channel = await this.channelsService.getChannelById(
       Number(channelId),
-      );
+    );
     const abilities = this.abilityFactory.createForUser(req.user);
 
     if (abilities.can(ChannelAction.Read, channel)) {
@@ -90,22 +89,17 @@ export default class ChannelsController {
     throw new HttpException('TODO: Unauthorized read', 400);
   }
 
-
-
   // TODO: Nobody should be able to read all channels besides admin
   // Maybe this should only get channels with CASL read permissions
   @Get()
   //@UseGuards(PoliciesGuard)
   //@CheckPolicies(new ReadChannelPolicyHandler())
-  getChannels(
-    @Req() req: RequestWithUser,
-    @Query('name') name: string) {
+  getChannels(@Req() req: RequestWithUser, @Query('name') name: string) {
     if (!name) {
-      name = "";
+      name = '';
     }
     let channels = this.channelsService.getAllChannels(name);
     channels.then((array) => {
-
       let len = array.length;
       while (--len >= 0) {
         let users = array[len].users;
@@ -114,13 +108,16 @@ export default class ChannelsController {
           if (req.user.id === elem.user_id) {
             relationType = elem.type;
           }
-        })
-        if (relationType === ChannelRelationshipType.Banned ||
-          array[len].mode === ChannelMode.private && relationType === ChannelRelationshipType.Null) {
+        });
+        if (
+          relationType === ChannelRelationshipType.Banned ||
+          (array[len].mode === ChannelMode.private &&
+            relationType === ChannelRelationshipType.Null)
+        ) {
           array.splice(len, 1);
         }
       }
-    })
+    });
     return channels;
   }
 
@@ -146,7 +143,6 @@ export default class ChannelsController {
     return channel;
   }
 
-
   // TODO: Check if user has CASL update permission, and if target is owner
   // @Patch('update')
   @Patch(':channelId/update/:userId')
@@ -156,8 +152,7 @@ export default class ChannelsController {
     @Param('userId') user_id: string,
     @Body() channelRelationship: UpdateChannelRelationshipDto,
   ) {
-
-    console.log("--------------", channelRelationship)
+    console.log('--------------', channelRelationship);
 
     const channel = await this.channelsService.getChannelById(
       Number(channel_id),
@@ -226,7 +221,6 @@ export default class ChannelsController {
     @Param('id') channelId: string,
     @Body() joinChannelData: JoinChannelDto,
   ) {
-
     const relationship = await this.channelsService.getChannelRelationship(
       Number(channelId),
       req.user.id,
@@ -240,9 +234,14 @@ export default class ChannelsController {
       throw new HttpException('TODO: Relationship already exists!', 400);
     }
 
-    const channel = await this.channelsService.getChannelById(Number(channelId))
+    const channel = await this.channelsService.getChannelById(
+      Number(channelId),
+    );
     if (channel.mode === ChannelMode.protected) {
-      await this.channelsService.verifyPassword(joinChannelData.password, channel.password);
+      await this.channelsService.verifyPassword(
+        joinChannelData.password,
+        channel.password,
+      );
     }
 
     await this.channelsService.createChannelRelationship(
@@ -250,7 +249,6 @@ export default class ChannelsController {
       req.user.id,
       ChannelRelationshipType.Member,
     );
-
   }
 
   @Delete(':id/leave')
@@ -305,11 +303,4 @@ export default class ChannelsController {
       Number(userId),
     );
   }
-
-  // @Post(':id/invite')
-
-  // Otherwise we need to specify it as a parameter
-
-
-
 }

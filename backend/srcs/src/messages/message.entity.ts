@@ -16,7 +16,7 @@ export enum MessageType {
   GameSpectate,
   FriendInvite,
   RoleUpdate,
-  PrivateMessage
+  PrivateMessage,
 }
 
 @Entity()
@@ -29,7 +29,7 @@ export class Message {
 
   @Column()
   public channel_id: number;
- 
+
   @Column()
   public receiver_id: number;
 
@@ -45,7 +45,9 @@ export class Message {
   @Column()
   public data: string;
 
-  @ManyToOne(() => Channel, (channel: Channel) => channel.messages, {nullable: true})
+  @ManyToOne(() => Channel, (channel: Channel) => channel.messages, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'channel_id', referencedColumnName: 'id' })
   public channel?: Channel;
 

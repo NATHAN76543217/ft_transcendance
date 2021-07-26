@@ -6,7 +6,6 @@ import { Exclude } from 'class-transformer';
 // import { Message } from 'src/messages/message.entity';
 
 @Entity()
-//@Unique('name', ['name'])
 class User {
   @PrimaryGeneratedColumn()
   public id: number;
@@ -14,8 +13,9 @@ class User {
   @Column({ unique: true })
   public name: string;
 
+  // TODO: Should these fields be nullable?
+  // TODO: Can we login if we use empty password on oauth accounts?
   @Column({ nullable: true, default: '', select: false })
-  // @Exclude()
   public password: string;
 
   @Column({ nullable: true, default: 0 })
@@ -24,7 +24,7 @@ class User {
   @Column({ nullable: true, default: 0 })
   public nbLoss: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 0 })
   public stats: number;
 
   @Column({ nullable: true, default: 'default-profile-picture.png' })
@@ -36,34 +36,32 @@ class User {
   @Column({ unique: true, nullable: true })
   public googleid: string;
 
-  @Column({ nullable: true, default: false })
-  public twoFactorAuth: boolean;
-
   @Column({ default: UserRole.User })
   public role: UserRole;
 
   @Column({
     nullable: true,
+    select: false,
   })
-  @Exclude()
   public currentHashedRefreshToken?: string;
 
+  @Column({
+    default: false,
+  })
+  public twoFactorAuthEnabled: boolean;
+
+  @Column({
+    nullable: true,
+    default: null,
+    select: false,
+  })
+  public twoFactorAuthSecret?: string;
   @OneToMany(
     () => ChannelRelationship,
     (relationship: ChannelRelationship) => relationship.user,
   )
   public channels: ChannelRelationship[];
 
-  // @OneToMany(() => Message, (message: Message) => message.channel)
-  // public messages: Message[];
-
-  // @OneToMany(() => UserRelationship, userRelationship => userRelationship.user1_id)
-  // public userRelationship1: UserRelationship[]
-
-  // @OneToMany(() => UserRelationship, userRelationship => userRelationship.user2_id)
-  // public userRelationship2: UserRelationship[]
-
-  //@Column({ nullable: true, default: UserStatus.offline })
   public status: UserStatus;
 
   public jwt: string;

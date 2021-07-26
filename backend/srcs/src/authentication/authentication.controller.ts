@@ -23,6 +23,7 @@ import { ApiCookieAuth } from '@nestjs/swagger';
 import { UserStatus } from 'src/users/utils/userStatus';
 import UsersService from 'src/users/users.service';
 import JwtRefreshGuard from './jwt-refresh.guard';
+import { JwtTwoFactorGuard } from './two-factor/jwt-two-factor.guard';
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -68,16 +69,18 @@ export class AuthenticationController {
       user.id,
     );
 
-    // response.setHeader('Set-Cookie', cookie);
-    request.res.setHeader('Set-Cookie', [
+    response.setHeader('Set-Cookie', [
       accessTokenCookie,
       refreshTokenCookie.cookie,
     ]);
+
+    if (user.twoFactorAuthEnabled) {
+      return;
+    }
+
     user.password = undefined;
     user.status = UserStatus.online;
     response.send(user);
-    // this.usersGateway.handleConnection()
-    // this.usersGateway.server.emit('connection');
   }
 
   @Post('logout')
@@ -85,18 +88,17 @@ export class AuthenticationController {
   @UseGuards(JwtAuthenticationGuard)
   async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
     await this.usersService.removeRefreshToken(request.user.id);
-    request.res.setHeader(
+
+    response.setHeader(
       'Set-Cookie',
       this.authenticationService.getCookieForLogOut(),
     );
 
-    // It doesn't hurt to reset cookies
     response.send();
-    // this.usersGateway.server.emit('disconnection');
   }
 
   @Get()
-  @UseGuards(JwtAuthenticationGuard)
+  @UseGuards(JwtTwoFactorGuard)
   @ApiCookieAuth()
   authenticate(@Req() request: RequestWithUser) {
     const { user } = request;

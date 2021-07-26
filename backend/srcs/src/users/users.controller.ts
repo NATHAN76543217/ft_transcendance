@@ -18,20 +18,20 @@ import { FindOneParam } from './utils/findOneParams';
 import UserRelationshipsService from './relationships/user-relationships.service';
 import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
 import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
-import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import { UserRelationshipTypes } from './relationships/userRelationshipTypes';
+import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
 
 @Controller('users')
 @SerializeOptions({
   strategy: 'exposeAll',
 })
-@UseGuards(JwtAuthenticationGuard)
+@UseGuards(JwtTwoFactorGuard)
 export default class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userRelationshipsService: UserRelationshipsService,
-  ) { }
+  ) {}
 
   @Get()
   getUsers(@Query('name') name: string) {
@@ -51,9 +51,7 @@ export default class UsersController {
     @Query('beforeId') beforeId: string,
     @Query('afterId') afterId: string,
   ) {
-
-
-    console.log('get :id1/:id2/messages - begin')
+    console.log('get :id1/:id2/messages - begin');
     // const channel = await this.channelsService.getChannelById(
     //   Number(channelId),
     // );
@@ -62,7 +60,11 @@ export default class UsersController {
     //TODO use abilites
     // if (abilities.can(ChannelAction.Read, channel))
     try {
-      const relation = await this.userRelationshipsService.getUserRelationshipByIds(user1_id, user2_id);
+      const relation =
+        await this.userRelationshipsService.getUserRelationshipByIds(
+          user1_id,
+          user2_id,
+        );
       if (relation.type !== UserRelationshipTypes.friends) {
         return [];
       }
@@ -76,7 +78,7 @@ export default class UsersController {
       beforeId ? Number(beforeId) : undefined,
       afterId ? Number(afterId) : undefined,
     );
-    console.log('messages', messages)
+    console.log('messages', messages);
     return messages;
     // throw new HttpException('TODO: Unauthorized read', 400);
   }

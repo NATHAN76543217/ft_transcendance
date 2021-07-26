@@ -11,8 +11,8 @@ export default interface User {
   nbLoss: number;
   stats: number;
   imgPath: string;
-  twoFactorAuth: boolean;
   status: UserStatus;
   role: UserRole;
   channels: ChannelRelationship[];
+  twoFactorAuthEnabled: boolean;
 }
