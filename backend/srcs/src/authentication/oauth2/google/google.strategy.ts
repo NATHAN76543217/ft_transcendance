@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { config } from 'dotenv';
 
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import UsersService from 'src/users/users.service';
 import UserNameAlreadyExistsException from 'src/authentication/exception/UserNameAlreadyExists.exception';
 import UserOauthIdNotFoundException from 'src/users/exception/UserOauthIdNotFound.exception';
@@ -13,7 +13,7 @@ config();
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
 
-  constructor( private usersService : UsersService ) {
+  constructor(private usersService: UsersService) {
     super({
       clientID: process.env.OAUTH_GOOGLE_UID,
       clientSecret: process.env.OAUTH_GOOGLE_SECRET,
@@ -23,36 +23,52 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  async validate (accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
+  async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
     try {
       let user = await this.usersService.getUserByGoogleId(profile.id);
       console.log(user);
       done(null, user);
     }
-    catch (error)
-    {
-      if (error instanceof UserOauthIdNotFoundException )
-      {
-        console.log("Create user account for: ", profile.name.givenName, "(google)");
-        if (profile.name.givenName == undefined)
-          throw new UserNameAlreadyExistsException(undefined);
-        let user = await this.usersService.createUser({
-          name: profile.name.givenName,
-          password: profile.password,
-          googleid: profile.id
-        });
-        user.password = undefined;
-        done(null, user);
-      }
-      else if (error?.code === PostgresErrorCode.UniqueViolation) {
-        throw new UserNameAlreadyExistsException(profile.login);
-        //TODO handle this error then ask for user enter a custom name
+    catch (error) {
+      if (error instanceof UserOauthIdNotFoundException) {
+        let nbTry = 0;
+        const nbTryMax = 20;
+        while (nbTry < nbTryMax && nbTry >= 0) {
+          try {
+            if (profile.name.givenName == undefined) {
+              throw new UserNameAlreadyExistsException(undefined);
+            }
+            let name = profile.name.givenName.substring(0, 13);
+            if (nbTry) {
+              name = name + nbTry;
+            }
+            console.log("Create user account for: ", name, "(google)");
+            let user = await this.usersService.createUser({
+              name: name,
+              password: profile.password,
+              googleid: profile.id
+            });
+            user.password = undefined;
+            done(null, user);
+            nbTry = -1;
+          } catch (e) {
+            if (e?.code === PostgresErrorCode.UniqueViolation) {
+              // throw new UserNameAlreadyExistsException(profile.login);
+            }
+            nbTry++;
+          }
+        }
+        if (nbTry === nbTryMax) {
+          throw new UserNameAlreadyExistsException(profile.name.givenName.substring(0, 13));
+        }
       }
       else {
         console.log("error");
-        done(error, false);
-        // throw error;
+        throw new HttpException(
+          'Something went wrong',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
-    } 
+    }
   }
 }
