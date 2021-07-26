@@ -3,7 +3,7 @@ import React from 'react'
 import {
     GameMode
 } from "shared-pong/utils/gamemode"
-import PongGenerator from "shared-pong/engine/engine"
+import PongClient from "../../engine/client"
 import {
     IRoomDto
 } from "shared-pong/dto/room.dto"
@@ -34,7 +34,7 @@ import {
 } from "shared-pong/dto/summit.dto"
 
 type IPongStyleSelectorContext = {
-    pongSpetializations : Readonly<Array<[string, PongGenerator]>>;
+    pongSpetializations : Readonly<Array<[string, PongClient]>>;
     pongIndex : Readonly<number>;
     setPongIndex : React.Dispatch<React.SetStateAction<number>>;
 }
