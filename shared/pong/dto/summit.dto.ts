@@ -3,7 +3,7 @@ import {
     IIds
 } from "./spectator.dto"
 
-export interface IInvitedDataDto
+export interface ISummitDto
 {
     libName : LibNames;
     ids : IIds;

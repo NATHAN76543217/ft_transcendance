@@ -39,4 +39,19 @@ export enum Mesages {
     RECEIVE_INIT_CUSTOMIZATION = "client:receiveInitCustomization",
     SUMMIT_INVITED_CUSTOMIZATION = "client:summitClientCustomization",
     RECEIVE_PONG_IS_READY = "client:receivePongisready",
+
+    // lastest 24/07
+    MATCH_FOUND_RESPONSE = "client:matchFoundRespose",
+    ON_READY_RESPONSE = "client:onReadyResponse",
+    SPECTATOR_IS_INIT = "client:spectatorIsReady",
+    CLIENT_IS_READY = "client:playerIsReady",
+    OTHER_IS_READY = "client:otherPayerIsReady",
+    SUMMIT_CUSTOMIZATION = "client:summitCustomization",
+
+
+    ACCEPT_MATCH = "server:acceptMatch",
+    DECLINE_MATCH = "server:declineMatch",
+    GAME_IS_INIT = "server:gameIsInit",
+    NOTIFY_IS_READY = "server:NotifyIsReady",
+    SYNC_READY_PLAYERS = "server:SyncReadyPlayers",
 }

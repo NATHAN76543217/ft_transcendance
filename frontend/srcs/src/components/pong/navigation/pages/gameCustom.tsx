@@ -64,6 +64,12 @@ export const CustomizationContext = React.createContext<ICustomizationContext>({
 
 // TO DO: IN second use effects in "REACT EVENT LISTENERS"
 
+// TO DO: TO DO In StaticDto (shared-pong/dto)
+
+// TO DO: TO DO In Horizontal/Multiplayer (correct for all the engine in backend)
+// Same in Horizontal.ts
+// OR: Just send coherents mouses pos to the server
+
 export default function GameCustom()
 {
     const context = React.useContext(PongContext);

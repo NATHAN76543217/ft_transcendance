@@ -12,7 +12,6 @@ import {
 import {
     Timer
 } from "../../components/timer"
-import { set } from "js-cookie";
 
 export default function GameFast()
 {

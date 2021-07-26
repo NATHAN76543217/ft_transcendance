@@ -34,7 +34,6 @@ import MatchesModule from './matches/matches.module'
     ChannelsModule,
     MessagesModule,
     PhotosModule,
-    
     MatchesModule
   ],
   controllers: [AppController],

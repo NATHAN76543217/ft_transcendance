@@ -1,6 +1,3 @@
-
-// TO DO: import shared from module
-
 import {
     AStyle,
     ColorStyle

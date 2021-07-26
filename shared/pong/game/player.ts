@@ -61,14 +61,14 @@ export class Player extends Paddle implements IPlayer
     {
         super(
             polimorph instanceof IPlayer ? new Vector2D(polimorph.x, polimorph.y) : polimorph,
-            polimorph instanceof IPlayer ? polimorph.width : width,
-            polimorph instanceof IPlayer ? polimorph.height : height,
-            polimorph instanceof IPlayer ? polimorph.style : style,
-            polimorph instanceof IPlayer ? polimorph.limitLeft : limitLeft,
-            polimorph instanceof IPlayer ? polimorph.limitRight : limitRight
+            polimorph instanceof IPlayer ? polimorph.width : width ? width : 0,
+            polimorph instanceof IPlayer ? polimorph.height : height ? height : 0,
+            polimorph instanceof IPlayer ? polimorph.style : style ? style : {} as AStyle,
+            polimorph instanceof IPlayer ? polimorph.limitLeft : limitLeft ? limitLeft : {} as IVector2D,
+            polimorph instanceof IPlayer ? polimorph.limitRight : limitRight ? limitRight : {} as IVector2D
         );
 
-        this.score = polimorph instanceof IPlayer ? polimorph.score : score;
-        this.id = polimorph instanceof IPlayer ? polimorph.id : id;
+        this.score = polimorph instanceof IPlayer ? polimorph.score : score ? score : {} as Score;
+        this.id = polimorph instanceof IPlayer ? polimorph.id : id ? id : String();
     }
 }

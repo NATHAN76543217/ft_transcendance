@@ -8,6 +8,7 @@ import {
 import {
     AStyle
 } from "../render/style";
+import Unspected from "shared-pong/game/exceptions/unspected.exception"
 
 export interface ICourt extends IRectangleRender
 {
@@ -20,10 +21,10 @@ export interface ICourt extends IRectangleRender
 
 export class Court extends RectangleRender implements ICourt
 {
-    public readonly canvas : HTMLCanvasElement
-    public readonly ctx : CanvasRenderingContext2D
-    public readonly width : number
-    public readonly height : number
+    public readonly canvas : HTMLCanvasElement;
+    public readonly ctx : CanvasRenderingContext2D;
+    public readonly width : number;
+    public readonly height : number;
 
     constructor(
         canvasId : string,
@@ -31,9 +32,18 @@ export class Court extends RectangleRender implements ICourt
     )
     {
         super(new Vector2D(0, 0), 0, 0, style);
-        (this.canvas as HTMLElement) = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext("2d");
-        super.width = this.canvas.clientWidth;
-        super.height = this.canvas.clientHeight;
+
+        const canvas : HTMLElement | null = document.getElementById(canvasId);
+        if (canvas && canvas != null)
+            this.canvas = canvas as HTMLCanvasElement;
+        else
+            throw new Unspected("Court: canvas not found");
+        const context : CanvasRenderingContext2D | null = this.canvas.getContext("2d");
+        if (context && context != null)
+            this.ctx = context;
+        else
+            throw new Unspected("Court: erronious context");
+        this.width = this.canvas.clientWidth;
+        this.height = this.canvas.clientHeight;
     }
 }

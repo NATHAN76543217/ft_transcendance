@@ -26,8 +26,8 @@ export class Score extends Vector2D
     )
     {
         super(polimorph.x, polimorph.y);
-        this.color = polimorph instanceof IScore ? polimorph.color : color;
-        this.font = polimorph instanceof IScore ? polimorph.font : font;
+        this.color = polimorph instanceof IScore ? polimorph.color : color ? color : String();
+        this.font = polimorph instanceof IScore ? polimorph.font : font ? font : String();
     }
 
     private static wrappedDraw(ctx : any, score : Score) : void

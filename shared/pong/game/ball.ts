@@ -1,6 +1,7 @@
 import {
     Vector2D,
-    IVector2D
+    IVector2D,
+    IBaseVector2D
 } from "../shapes/vector2d"
 import {
     AStyle
@@ -16,7 +17,7 @@ export interface IDefaultBall
 {
     x : number;
     y : number;
-    velocity : IVector2D;
+    velocity : IBaseVector2D;
     speed : number;
 }
 
@@ -58,20 +59,20 @@ export class Ball extends CircleRender implements IBall
     {
         super(
             polimorph.toVector2D(),
-            polimorph instanceof IBall ? polimorph.rad : rad,
-            polimorph instanceof IBall ? polimorph.style : style
+            polimorph instanceof IBall ? polimorph.rad : rad ? rad : 0,
+            polimorph instanceof IBall ? polimorph.style : style ? style : {} as AStyle
         );
 
-        this.velocity = polimorph instanceof IBall ? polimorph.velocity : velocity;
-        this.speed = polimorph instanceof IBall ? polimorph.speed : speed;
-        this.defaultBall = polimorph instanceof IBall ? polimorph.defaultBall : defaultBall;
+        this.velocity = polimorph instanceof IBall ? polimorph.velocity : velocity ? velocity : {} as IVector2D;
+        this.speed = polimorph instanceof IBall ? polimorph.speed : speed ? speed : 0;
+        this.defaultBall = polimorph instanceof IBall ? polimorph.defaultBall : defaultBall ? defaultBall : {} as IDefaultBall;
     }
 
     public reset()
     {
         this.x = this.defaultBall.x;
         this.y = this.defaultBall.y;
-        this.velocity = this.defaultBall.velocity;
+        this.velocity = this.defaultBall.velocity as IVector2D;
         this.speed = this.defaultBall.speed;
     }
 }

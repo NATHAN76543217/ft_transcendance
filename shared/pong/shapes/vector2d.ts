@@ -1,7 +1,12 @@
-export interface IVector2D
+
+export interface IBaseVector2D
 {
     x : number;
     y : number;
+}
+
+export interface IVector2D extends IBaseVector2D
+{
     add(other : IVector2D) : void;
     sub(other : IVector2D) : void;
     mul(scale : number) : void;

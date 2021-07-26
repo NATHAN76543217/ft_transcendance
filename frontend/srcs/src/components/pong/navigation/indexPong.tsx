@@ -6,8 +6,8 @@ import GameFast from "./pages/gameFast"
 import InvitedToGame from "./pages/invited"
 import Pong from "./pages/pong"
 import Spectator from "./pages/spectator"
-import PongClient from "shared-pong/engine/engine"
-import  ClassicPong from "shared-pong/specilizations/classicpong/classicpong.engine"
+import PongClient from "../engine/client"
+import  ClassicPong from "../engine/classicpong.engine"
 import Unspected from "shared-pong/game/exceptions/unspected.exception"
 import {
     Socket,
@@ -84,6 +84,9 @@ export default function PongIndex({
     roomId
 } : IPongIndexProps)
 {
+
+    // TO DO: TO I USE playerId as or the socket.id (i think is better player id)
+
     // Handle pages changes
     const [currentPage, setCurrentPage] = React.useState<Pages>(getFirstPage(role));
     const goToFastGame : Function = () => { setCurrentPage(Pages.FAST_GAME); };

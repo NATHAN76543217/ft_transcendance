@@ -1,5 +1,5 @@
 import {
-    IVector2D
+    IBaseVector2D
 } from "../shapes/vector2d"
 import {
     IDefaultBall
@@ -13,9 +13,9 @@ export interface IStaticPlayerDto
     id : string;
     width : number;
     height : number;
-    limitLeft : IVector2D;
-    limitRight : IVector2D;
-    score: number | Score
+    limitLeft : IBaseVector2D;
+    limitRight : IBaseVector2D;
+    score: number | Score; // TO DO: FIX THIS, WHY DO I NEED SCORE FOR STATIC DTO ? 
 }
 
 export interface IStaticBallDto

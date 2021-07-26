@@ -43,11 +43,11 @@ export class Net extends Rectangle implements INet
     {
         super(
             new Vector2D(polimorph.x, polimorph.y),
-            polimorph instanceof INet ? polimorph.width : width,
-            polimorph instanceof INet ? polimorph.height : height
+            polimorph instanceof INet ? polimorph.width : width ? width : 0,
+            polimorph instanceof INet ? polimorph.height : height ? height : 0
         );
-        this.style = polimorph instanceof INet ? polimorph.style : style;
-        this.direction = polimorph instanceof INet ? polimorph.direction : direction;
+        this.style = polimorph instanceof INet ? polimorph.style : style ? style : {} as AStyle;
+        this.direction = polimorph instanceof INet ? polimorph.direction : direction ? direction : {} as Direction;
     }
 
     private static *generatePos(start : number, step : number, end : number) : Generator<number, void, unknown>
@@ -59,14 +59,17 @@ export class Net extends Rectangle implements INet
 
 	private static wrappedDraw(ctx : any, courtWidth : number, net : Net) : void
 	{
-		for (const i of Net.generatePos(0, 15, courtWidth))
-		{
-			net.style.apply(ctx);
+        const iter = Net.generatePos(0, 15, courtWidth);
+        let curr = iter.next();
+        while (!curr.done)
+        {
+            net.style.apply(ctx);
 			const targetPos : IVector2D = new Vector2D(
-				net.direction == Direction.VERTICAL ? net.x : net.x + i,
-				net.direction == Direction.VERTICAL ? net.y + i : net.x);
+				net.direction == Direction.VERTICAL ? net.x : net.x + curr.value,
+				net.direction == Direction.VERTICAL ? net.y + curr.value : net.x);
 			ctx.fillRect(targetPos.x, targetPos.y, net.width, net.height);
-		}
+            curr = iter.next();
+        }
 	}
 
 	public draw(ctx : any, courtWidth : number) : void
