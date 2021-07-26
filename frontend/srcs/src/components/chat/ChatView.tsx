@@ -1,13 +1,13 @@
 import { useContext } from "react";
 import { ChatMessageList } from "../../components/chat/ChatMessageList";
 import { ChatHeader } from "../../components/chat/ChatHeader";
-import { ChatPageContext } from "../../pages/chat/chat";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
 import { useForm } from "react-hook-form";
 import { TextInput } from "../utilities/TextInput";
 import { Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
 import { UserChannelRelationship, UserRole } from "../../models/user/IUser";
+import chatContext from "../../pages/chat/chatContext";
 
 type ChatViewProps = {
   className: string;
@@ -49,7 +49,7 @@ const sendMessage = (socket: Socket, channelId: number, data: string) => {
 
 export function ChatInput({ className }: ChatInputProps) {
   const { socket } = useContext(AppContext);
-  const chatContext = useContext(ChatPageContext);
+  const chatContextValue = useContext(chatContext);
 
   const {
     register,
@@ -65,11 +65,11 @@ export function ChatInput({ className }: ChatInputProps) {
       onSubmit={handleSubmit((values) => {
         if (
           socket !== undefined &&
-          chatContext.currentChannelRel !== undefined
+          chatContextValue.currentChannelRel !== undefined
         ) {
           sendMessage(
             socket,
-            chatContext.currentChannelRel.channel.id,
+            chatContextValue.currentChannelRel.channel.id,
             values.message
           );
           reset();
@@ -141,7 +141,7 @@ function ChatActions({ userRole, relation }: ChatActionsProps) {
 
 export function ChatView({ className }: ChatViewProps) {
   const appContext = useContext(AppContext);
-  const { currentChannelRel } = useContext(ChatPageContext);
+  const { currentChannelRel } = useContext(chatContext);
 
   console.log(currentChannelRel);
   return (

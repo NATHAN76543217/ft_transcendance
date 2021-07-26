@@ -2,7 +2,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import AppContext from "../../AppContext";
 import { Message } from "../../models/channel/Channel";
-import { ChatPageContext } from "../../pages/chat/chat";
+import chatContext from "../../pages/chat/chatContext";
 import { ChatMessage } from "./ChatMessage";
 
 async function fetchMessages(
@@ -26,7 +26,7 @@ async function fetchMessages(
 function useChatMessages() {
   //channelId?: number
   const { socket } = useContext(AppContext);
-  const { currentChannelRel } = useContext(ChatPageContext);
+  const { currentChannelRel } = useContext(chatContext);
   const [messages, setMessages] = useState<Message[]>([]);
 
   // This will be used to fetch more past messages

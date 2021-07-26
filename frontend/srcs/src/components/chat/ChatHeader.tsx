@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { ChatPageContext } from "../../pages/chat/chat";
+import chatContext from "../../pages/chat/chatContext";
 import { ChatTitle } from "./ChatTitle";
 
 type ChatHeaderProps = {
@@ -7,11 +7,11 @@ type ChatHeaderProps = {
 };
 
 export function ChatHeader({ children }: ChatHeaderProps) {
-  const chatContext = useContext(ChatPageContext);
+  const chatContextValue = useContext(chatContext);
 
   const currentChat =
-    chatContext.currentChannelRel !== undefined
-      ? chatContext.currentChannelRel.channel
+    chatContextValue.currentChannelRel !== undefined
+      ? chatContextValue.currentChannelRel.channel
       : undefined;
 
   if (currentChat) {

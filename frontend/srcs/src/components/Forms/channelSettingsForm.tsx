@@ -99,7 +99,7 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
   ]
 
   return (
-    <section className="flex flex-col max-w-sm p-4 m-auto bg-neutral">
+    <section className="flex flex-col max-w-sm p-4 m-auto bg-neutral w-80">
       <form onSubmit={handleSubmit(props.onSubmit)} className="py-2">
         <div className="relative w-96">
 
@@ -108,7 +108,7 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
             <div className="relative ">
               {modeList.map((elem) => {
                 return (
-                  <label className={radioLabelClassName}>
+                  <label className={radioLabelClassName} key={elem.name}>
                 <input
                   checked={Number(selectedMode) === elem.mode}
                   // defaultChecked={Number(props.mode) === elem.mode}

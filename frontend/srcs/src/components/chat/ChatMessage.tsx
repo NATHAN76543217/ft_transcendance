@@ -1,14 +1,14 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Message } from "../../models/channel/Channel";
-import { ChatPageContext } from "../../pages/chat/chat";
+import chatContext from "../../pages/chat/chatContext";
 
 type ChatMessageProps = {
   message: Message;
 };
 
 export function ChatMessage({ message }: ChatMessageProps) {
-  const { currentChannelRel } = useContext(ChatPageContext);
+  const { currentChannelRel } = useContext(chatContext);
 
   const sender = currentChannelRel?.channel.users.find((rel) => {
     return rel.user.id === message.sender_id;

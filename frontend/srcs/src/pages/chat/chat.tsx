@@ -11,17 +11,15 @@ import ChannelSearch from "./channelSearch";
 import ChannelSettings from "./channelSettings";
 import ChannelCreate from "./channelCreate";
 import { UserChannelRelationship } from "../../models/user/IUser";
+import chatContext from "./chatContext";
 //import ChannelSearch from "./channelSearch";
 
-type ChatPageContextProps = {
-  channelRels: Map<number, UserChannelRelationship>;
-  currentChannelRel?: UserChannelRelationship;
-  //socket?: Socket;
-};
-
-export const ChatPageContext = React.createContext<ChatPageContextProps>({
-  channelRels: new Map(), // TODO: Use local storage
-});
+// type ChatPageContextProps = {
+//   channelRels: Map<number, UserChannelRelationship>;
+//   currentChannelRel?: UserChannelRelationship;
+//   setChannelRels: any
+//   //socket?: Socket;
+// };
 
 type ChatPageParams = {
   id: string;
@@ -53,10 +51,12 @@ export default function ChatPage({
   // TODO: Redirect or 404 for invalid id
 
   return (
-    <ChatPageContext.Provider
+    <chatContext.Provider
       value={{
         channelRels,
         currentChannelRel,
+        setChannelRels,
+        setCurrentChannelRel
       }}
     >
       <div className="flex h-full">
@@ -74,6 +74,6 @@ export default function ChatPage({
           </Route>
         </Switch>
       </div>
-    </ChatPageContext.Provider>
+    </chatContext.Provider>
   );
 }

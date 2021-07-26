@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
-import { ChatPageContext } from "../../pages/chat/chat";
 import { Channel } from "../../models/channel/Channel";
+import chatContext from "../../pages/chat/chatContext";
 import { ChatTitle } from "./ChatTitle";
 
 type IconButtonProps = {
@@ -92,7 +92,7 @@ export type ChatNavBarProps = {
 };
 
 export function ChatNavBar({ className }: ChatNavBarProps) {
-  const chatContext = useContext(ChatPageContext);
+  const chatContextValue = useContext(chatContext);
 
   return (
     <nav className={`flex flex-col divide-black divide-double p2 ${className}`}>
@@ -105,7 +105,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
         />
       </div>
       <ul>
-        {Array.from(chatContext.channelRels.values()).map((rel) => (
+        {Array.from(chatContextValue.channelRels.values()).map((rel) => (
           <li key={rel.channel.id}>{ChatBarItem({ chat: rel.channel })}</li>
         ))}
       </ul>
@@ -116,3 +116,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
 ChatNavBar.defaultProps = {
   className: "",
 };
+// function ChatPageContext(ChatPageContext: any) {
+//   throw new Error("Function not implemented.");
+// }
+

@@ -9,6 +9,7 @@ import {
 } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import ChannelSettingsProperties from "./channelSettingsProperties";
+import chatContext from "./chatContext";
 
 type ChannelSettingsParams = {
   id: string;
@@ -18,6 +19,7 @@ function ChannelSettings({
   match,
 }: RouteComponentProps<ChannelSettingsParams>) {
   const contextValue = React.useContext(AppContext);
+  const chatContextValue = React.useContext(chatContext);
   const channelId = match.params.id !== undefined ? Number(match.params.id) : 4;
 
   const history = useHistory();
@@ -57,18 +59,18 @@ function ChannelSettings({
         messages: [],
         users: dataChannel.data.users,
       });
-    } catch (error) {}
+    } catch (error) { }
   };
 
-  const destroyChannel = async (id: number) => {
-    if (channelInfo.myRole & ChannelRelationshipType.Owner) {
-      try {
-        // console.log("Deleting channel " + id);
-        await axios.delete(`/api/channels/${id}`, { withCredentials: true });
-        history.push("/chat");
-      } catch (error) {}
-    } else {
-    }
+
+  const destroyChannel = async (channel_id: number) => {
+    console.log("Deleting channel " + channel_id);
+
+    contextValue.socket?.emit('destroyChannel-front', {
+      channel_id: channel_id,
+    });
+    chatContextValue.setCurrentChannelRel(undefined);
+    history.push('/chat');
   };
 
   if (channelInfo.id !== channelId) {
