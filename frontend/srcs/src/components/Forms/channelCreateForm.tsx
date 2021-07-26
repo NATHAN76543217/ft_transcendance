@@ -74,12 +74,12 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
   let radioSpanClassName = "ml-1 font-semibold"
 
   return (
-    <section className="flex flex-col max-w-sm p-4 m-auto mt-32 bg-neutral">
-      <h1 className="mb-2">
-        <span className="ml-8 text-xl font-bold">Create channel</span>
+    <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 rounded-md bg-neutral ">
+      <h1 className="flex justify-center mb-2 ">
+        <span className="text-2xl font-bold">Create channel</span>
       </h1>
       <form onSubmit={handleSubmit(props.onSubmit)} className="py-2">
-        <div className="relative w-96">
+        <div className="relative pl-4 w-96">
           <TextInput
             name="name"
             register={register}
@@ -121,28 +121,28 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
           </div>
 
           <div className="relative">
-          <TextInput
-            name="passwordConfirmation"
-            register={register}
-            type={showPasswordConfirmation ? "text" : "password"}
-            inputClass=" left"
-            labelName="Confirm password"
-            placeHolder="Enter password again"
-            error={props.errors.passwordConfirmation}
-          />
-          {displayShowPasswordButton(showPasswordConfirmation, setShowPasswordConfirmation)}
+            <TextInput
+              name="passwordConfirmation"
+              register={register}
+              type={showPasswordConfirmation ? "text" : "password"}
+              inputClass=" left"
+              labelName="Confirm password"
+              placeHolder="Enter password again"
+              error={props.errors.passwordConfirmation}
+            />
+            {displayShowPasswordButton(showPasswordConfirmation, setShowPasswordConfirmation)}
           </div>
 
-          <div className="relative w-3/4 text-center">
+          <div className="w-full pr-4 text-center ">
             <input
               type="submit"
               value="Create channel"
-              className="relative h-8 px-4 py-1 mt-4 mb-8 font-semibold bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+              className="h-10 px-4 py-1 mt-4 mb-8 text-lg font-semibold bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
             ></input>
           </div>
           {displayCreationValidationMessage(props.showCreationValidation)}
         </div>
       </form>
-    </section>
+    </div>
   );
 }

@@ -100,7 +100,7 @@ function ChannelCreate() {
 
 
     return (
-        <div className="">
+        <div className="flex flex-col items-center flex-grow">
             <ChannelCreateForm
                 onSubmit={onSubmit}
                 errors={errors}
