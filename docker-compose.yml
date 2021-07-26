@@ -22,7 +22,7 @@ services:
   pgadmin:
     depends_on:
       - db
-    build: ./database/pgadmin
+    build: ./pgadmin
     container_name: pong_pgadmin_cnt
     restart: always
     volumes:
