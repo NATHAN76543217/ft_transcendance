@@ -63,6 +63,10 @@ const configService = new ConfigService(process.env).ensureValues([
   'JWT_EXPIRATION_TIME',
   'JWT_REFRESH_SETCRET',
   'JWT_REFRESH_EXPIRATION_TIME',
+  'OAUTH_42_UID',
+  'OAUTH_42_SECRET',
+  'OAUTH_GOOGLE_UID',
+  'OAUTH_GOOGLE_SECRET',
 ]);
 
 export { configService };
