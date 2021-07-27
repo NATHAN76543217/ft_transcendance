@@ -45,7 +45,6 @@
     "dotenv": "^10.0.0",
     "express-session": "^1.17.2",
     "file-system": "^2.2.2",
-    "ngx-socket-io": "^4.0.0",
     "passport": "^0.4.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.0",
@@ -56,6 +55,7 @@
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6",
     "socket.io": "^4.1.2",
+    "socket.io-client": "^4.0.0",
     "swagger-ui-express": "^4.1.6",
     "typeorm": "^0.2.33"
   },

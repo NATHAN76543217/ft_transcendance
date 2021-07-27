@@ -10,6 +10,7 @@ import { ChannelsModule } from './channels/channels.module';
 import { MessagesModule } from './messages/messages.module';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { PhotosModule } from './photos/photos.module';
+import MatchesModule from './matches/matches.module'
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { PhotosModule } from './photos/photos.module';
     ChannelsModule,
     MessagesModule,
     PhotosModule,
-    
+    MatchesModule
   ],
   controllers: [AppController],
   providers: [AppService],
