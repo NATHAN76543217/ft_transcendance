@@ -10,6 +10,7 @@ import ChannelSearch from "./channelSearch";
 import ChannelCreate from "./channelCreate";
 import { UserChannelRelationship } from "../../models/user/IUser";
 import chatContext from "./chatContext";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 //import ChannelSearch from "./channelSearch";
 
 // type ChatPageContextProps = {
@@ -26,27 +27,69 @@ type ChatPageParams = {
 export default function ChatPage({
   match,
 }: RouteComponentProps<ChatPageParams>) {
-  const { user } = useContext(AppContext);
+  const { user, relationshipsList } = useContext(AppContext);
 
   const [channelRels, setChannelRels] = useState(
     new Map(user?.channels.map((rel) => [rel.channel.id, rel]))
   );
 
-  // const [socket, setSocket] = useState<Socket | undefined>(undefined);
+  // console.log('match.params.id ', match.params)
 
-  const chatIdParam = Number(match.params.id);
+  // const [socket, setSocket] = useState<Socket | undefined>(undefined);
+  let channelIdParam = match.params.id && match.params.id[0] === 'c' ? Number(match.params.id.substring(1)) : Number('c');
+  let userIdParam = match.params.id ? Number(match.params.id) : Number('c');
+  // if (match.params.id) {
+  //   userIdParam = Number(match.params.id)
+  //   if (match.params.id[0] === 'c') {
+  //     channelIdParam = Number(match.params.id.substring(1));
+  //   } else {
+  //     channelIdParam = Number('c');
+  //   }
+  // }
+
+  const getUserRel = (userId: number) => {
+    const index = relationshipsList.findIndex((rel) => {
+      return rel.user.id === userId
+    })
+    if (index !== -1) {
+      return relationshipsList[index];
+    } else {
+      return undefined
+    }
+  }
 
   const [currentChannelRel, setCurrentChannelRel] = useState<
     UserChannelRelationship | undefined
-  >(channelRels.get(chatIdParam));
+  >(channelRels.get(channelIdParam));
+
+
+  const [currentUserRel, setCurrentUserRel] = useState<
+    AppUserRelationship | undefined
+  >(getUserRel(userIdParam));
+
   useEffect(() => {
     setChannelRels(new Map(user?.channels.map((rel) => [rel.channel.id, rel])));
   }, [user?.channels]);
 
   useEffect(() => {
-    if (!isNaN(chatIdParam)) setCurrentChannelRel(channelRels.get(chatIdParam));
-  }, [channelRels, chatIdParam]);
+    console.log('--- useEffect --- match.params.id', match.params.id)
+    console.log('channelIdParam', channelIdParam)
+    console.log('userIdParam', userIdParam)
+    console.log('currentUserRel', currentUserRel)
+    let paramChannel = undefined;
+    let paramUser = undefined;
+    if (!isNaN(channelIdParam)) {
+      paramChannel = channelRels.get(channelIdParam)
+    }
+    if (!isNaN(userIdParam)) {
+      paramUser = getUserRel(userIdParam);
+    }
+    setCurrentChannelRel(paramChannel);
+    setCurrentUserRel(paramUser);
+  }, [channelRels, channelIdParam, userIdParam]);
   // TODO: Redirect or 404 for invalid id
+
+
 
   return (
     <chatContext.Provider
@@ -54,11 +97,13 @@ export default function ChatPage({
         channelRels,
         currentChannelRel,
         setChannelRels,
-        setCurrentChannelRel
+        setCurrentChannelRel,
+        currentUserRel,
+        setCurrentUserRel
       }}
     >
       <div className="flex h-full">
-        <ChatNavBar className="hidden w-48 h-full bg-white divide-y-4 md:block" />
+        <ChatNavBar className="flex-none hidden w-48 h-full bg-white divide-y-4 md:block " />
         <Switch>
           <Route exact path="/chat/find">
             <ChannelSearch />

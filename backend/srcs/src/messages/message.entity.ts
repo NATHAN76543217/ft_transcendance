@@ -1,3 +1,4 @@
+import User from 'src/users/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -15,6 +16,7 @@ export enum MessageType {
   GameSpectate,
   FriendInvite,
   RoleUpdate,
+  PrivateMessage
 }
 
 @Entity()
@@ -27,6 +29,9 @@ export class Message {
 
   @Column()
   public channel_id: number;
+ 
+  @Column()
+  public receiver_id: number;
 
   @CreateDateColumn()
   public created_at: Date;
@@ -40,7 +45,10 @@ export class Message {
   @Column()
   public data: string;
 
-  @ManyToOne(() => Channel, (channel: Channel) => channel.messages)
+  @ManyToOne(() => Channel, (channel: Channel) => channel.messages, {nullable: true})
   @JoinColumn({ name: 'channel_id', referencedColumnName: 'id' })
-  public channel: Channel;
+  public channel?: Channel;
+
+  // @ManyToOne(type => Parent, parent => parent.children, { nullable: false })
+  // parent!: Parent;
 }

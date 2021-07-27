@@ -19,6 +19,10 @@ import * as bcrypt from 'bcrypt';
 import UserNameInvalid from './exception/UserNameNotFound.exception';
 import { ChannelRelationshipType } from 'src/channels/relationships/channel-relationship.type';
 import { UserStatus } from './utils/userStatus';
+import { Message, MessageType } from 'src/messages/message.entity';
+import Channel from 'src/channels/channel.entity';
+import ChannelsService from 'src/channels/channels.service';
+import { ChannelMode } from 'src/channels/utils/channelModeTypes';
 
 @Injectable()
 export default class UsersService {
@@ -29,6 +33,10 @@ export default class UsersService {
     private usersRepository: Repository<User>,
     @Inject(forwardRef(() => AuthenticationService))
     private authenticationService: AuthenticationService,
+    @InjectRepository(Message)
+    private readonly messageRepository: Repository<Message>,
+    @Inject(forwardRef(() => ChannelsService))
+    private readonly channelsService: ChannelsService
   ) {}
 
   setUserStatus(userId: number, status: UserStatus) {
@@ -227,6 +235,11 @@ export default class UsersService {
     const nbUsers = await this.usersRepository.count();
     if (!nbUsers) {
       newUser.role = UserRole.Owner;
+      this.channelsService.createChannel({
+        name: 'private_users',
+        password: 'Users_private_SecreT',
+        mode: ChannelMode.users
+      })
     }
     await this.usersRepository.save(newUser);
     return newUser;
@@ -264,5 +277,31 @@ export default class UsersService {
     return this.usersRepository.update(userId, {
       currentHashedRefreshToken: null,
     });
+  }
+
+  async getMessagesById(
+    user1_id: number,
+    user2_id: number,
+    beforeId?: number,
+    afterId?: number,
+  ) {
+    const maxCount = 20;
+
+    const query = this.messageRepository
+      .createQueryBuilder('message')
+      .where('message.receiver_id = :user1_id', { user1_id })
+      .andWhere('message.sender_id = :user2_id', { user2_id })
+      .orWhere('message.receiver_id = :user2_id', { user2_id })
+      .andWhere('message.sender_id = :user1_id', { user1_id })
+      // .andWhere('message.type = :type', { type: MessageType.PrivateMessage })
+      .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
+      .take(maxCount);
+
+    if (beforeId !== undefined && !isNaN(beforeId))
+      query.andWhere('message.id < :beforeId', { beforeId });
+    if (afterId !== undefined && !isNaN(afterId))
+      query.andWhere('message.id > :afterId', { afterId });
+
+    return query.getMany();
   }
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import ChannelsController from './channels.controller';
 import ChannelsService from './channels.service';
 import Channel from './channel.entity';
@@ -13,12 +13,13 @@ import { MessagesModule } from 'src/messages/messages.module';
 import MessageService from 'src/messages/messages.service';
 import UserRelationshipsService from 'src/users/relationships/user-relationships.service';
 import UsersModule from 'src/users/users.module';
+import UsersService from 'src/users/users.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Channel, ChannelRelationship, Message]),
     AuthenticationModule,
-    UsersModule,
+    forwardRef(() => UsersModule),
     MessagesModule,
   ],
   controllers: [ChannelsController],
@@ -29,5 +30,6 @@ import UsersModule from 'src/users/users.module';
     ChannelsService,
     ChannelsGateway,
   ],
+  exports: [ChannelsService]
 })
 export class ChannelsModule {}

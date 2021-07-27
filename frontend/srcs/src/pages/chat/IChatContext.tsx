@@ -1,3 +1,4 @@
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 import { UserChannelRelationship } from "../../models/user/IUser";
 
 export interface IChatContext {
@@ -5,4 +6,6 @@ export interface IChatContext {
   currentChannelRel?: UserChannelRelationship;
   setChannelRels: any
   setCurrentChannelRel: any
+  currentUserRel?: AppUserRelationship;
+  setCurrentUserRel: any
 }

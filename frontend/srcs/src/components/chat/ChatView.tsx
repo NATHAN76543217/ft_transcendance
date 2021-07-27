@@ -14,15 +14,20 @@ import ChannelInviteDto from "../../models/channel/ChannelInvite.dto";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import axios from "axios";
 import ChannelSettings from "../../pages/chat/channelSettings";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 
 enum MessageType {
-  text,
-  gameInvite,
-  gameSpectate,
+  Text,
+  GameInvite,
+  GameSpectate,
+  FriendInvite,
+  RoleUpdate,
+  PrivateMessage
 }
 
 type MessageEventDto = {
-  channel_id: number;
+  channel_id?: number;
+  receiver_id?: number;
   // Ommitted in client:
   //sender_id: number;
   type: MessageType;
@@ -33,23 +38,31 @@ interface IMessageFormValues {
   message: string;
 }
 
-type ChatInputProps = {
-  className: string;
-};
-
-const sendMessage = (socket: Socket, channelId: number, data: string) => {
+const sendMessageChannel = (socket: Socket, channelId: number, data: string) => {
   const message: MessageEventDto = {
     channel_id: channelId,
-    type: MessageType.text,
+    type: MessageType.Text,
     data,
   };
 
   console.log(message);
 
-  socket.emit("message", message);
+  socket.emit("message-channel", message);
 };
 
-export function ChatInput({ className }: ChatInputProps) {
+const sendMessageUser = (socket: Socket, user_id: number, data: string) => {
+  const message: MessageEventDto = {
+    receiver_id: user_id,
+    type: MessageType.PrivateMessage,
+    data,
+  };
+
+  console.log('sendMessageUser', message);
+
+  socket.emit("message-user", message);
+};
+
+export function ChatInput() {
   const { socket } = useContext(AppContext);
   const chatContextValue = useContext(chatContext);
 
@@ -61,21 +74,29 @@ export function ChatInput({ className }: ChatInputProps) {
     reset,
   } = useForm<IMessageFormValues>();
 
+  const className="bg-gray-100 border-t-2 border-gray-400"
+
   return (
     <form
       className={`${className}`}
       onSubmit={handleSubmit((values) => {
-        if (
-          socket !== undefined &&
-          chatContextValue.currentChannelRel !== undefined
-        ) {
-          sendMessage(
+        if (socket && chatContextValue.currentChannelRel)
+         {
+          sendMessageChannel(
             socket,
             chatContextValue.currentChannelRel.channel.id,
             values.message
           );
           reset();
-        }
+        } else if (socket && chatContextValue.currentUserRel)
+        {
+          sendMessageUser(
+           socket,
+           chatContextValue.currentUserRel.user.id,
+           values.message
+         );
+         reset();
+       }
       })}
     >
       <TextInput
@@ -141,7 +162,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
     });
 
     console.log('setRole')
-    history.push(`/chat/${channel_id}/refresh`);
+    history.push(`/chat/c${channel_id}/refresh`);
     // updateOneRelationship(channel_id, user_id, type);
   };
 
@@ -180,7 +201,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
       <TooltipIconButton
         tooltip="Settings"
         icon="fa-cog"
-        href={`/chat/${channelId}/settings`}
+        href={`/chat/c${channelId}/settings`}
       />
     </>
   );
@@ -188,7 +209,8 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
 
 type ChatActionsProps = {
   // userRole?: UserRole;
-  relation?: UserChannelRelationship;
+  channelRelation?: UserChannelRelationship;
+  userRelation?: AppUserRelationship;
 };
 
 const getNbUsers = (relation: UserChannelRelationship) => {
@@ -203,26 +225,26 @@ const getNbUsers = (relation: UserChannelRelationship) => {
   return nbUsers;
 }
 
-function ChatActions({ relation }: ChatActionsProps) {
-  const nbUsers = relation ? getNbUsers(relation) : 0;
-  const userRole = relation ? relation.type : UserRole.User;
-  if (userRole === undefined || relation === undefined) {
+function ChatActions({ channelRelation, userRelation }: ChatActionsProps) {
+  const nbUsers = channelRelation ? getNbUsers(channelRelation) : 0;
+  const userRole = channelRelation ? channelRelation.type : UserRole.User;
+  if (userRole === undefined || channelRelation === undefined) {
     return <></>;
   }
   switch (userRole) {
     case UserRole.Admin:
       return <AdminActions
-        channelId={relation.channel.id}
+        channelId={channelRelation.channel.id}
         nbUsers={nbUsers}
       />;
     case UserRole.Owner:
       return <AdminActions
-        channelId={relation.channel.id}
+        channelId={channelRelation.channel.id}
         nbUsers={nbUsers}
       />;
     default:
       return <UserActions
-        channelId={relation.channel.id}
+        channelId={channelRelation.channel.id}
         nbUsers={nbUsers}
       />;
   }
@@ -232,35 +254,77 @@ type ChatPageParams = {
   id: string;
 };
 
+// function ChatMessageListAndInput({ match }: RouteComponentProps<ChatPageParams>) {
+//   return (
+//     <div className={className}>
+//       <ul>
+//         {messages.map((m) => {
+//           return (
+//             <li key={m.id}>
+//               <ChatMessage message={m} />
+//             </li>
+//           );
+//         })}
+//       </ul>
+//     </div>
+//   );
+// }
+
 export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
 ) {
   // const appContext = useContext(AppContext);
   const { currentChannelRel } = useContext(chatContext);
 
-  // const channelId = match.params.id !== undefined ? match.params.id : currentChannelRel;
+  const chatId = match.params.id !== undefined ? match.params.id : undefined;
 
-  console.log(currentChannelRel);
+  let isChannel = false;
+  if (chatId && chatId[0] === 'c') {
+    isChannel = true;
+  }
 
-  const redirPath = `/chat/${currentChannelRel?.channel.id}/settings`
-  
+  // console.log('isChannel', isChannel)
+  // console.log('currentChannelRel', currentChannelRel);
+
+  // const redirPath = `/chat/${currentChannelRel?.channel.id}/settings`
+  const redirPath = `/chat/${chatId}/settings`
+
+  const displaySettings = () => {
+    if (isChannel) {
+      return (
+          <Route exact path="/chat/:id/settings" component={ChannelSettings} />
+      )
+    }
+  }
+
+  const displaySettingsRefresh = () => {
+    if (isChannel) {
+      return (
+          <Route exact path="/chat/:id/refresh">
+            <Redirect to={redirPath} />
+          </Route>
+      )
+    }
+  }
+
   return (
 
     <div className={`flex flex-col flex-grow `}>
       <ChatHeader>
         <ChatActions
           // userRole={appContext.user?.role}
-          relation={currentChannelRel}
+          channelRelation={currentChannelRel}
         />
       </ChatHeader>
       <Switch>
-        <Route path="/chat/:id/settings" component={ChannelSettings} />
+        {/* <Route path="/chat/:id/settings" component={ChannelSettings} />
         <Route exact path="/chat/:id/refresh">
-          {/* <Redirect to="/chat/:id/settings" /> */}
           <Redirect to={redirPath} />
-        </Route>
+        </Route> */}
+        {displaySettings()}
+        {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <ChatMessageList className="flex-grow overflow-y-scroll bg-gray-200" />
-          <ChatInput className="bg-gray-100 border-t-2 border-gray-400" />
+          <ChatMessageList/>
+          <ChatInput />
         </Route>
       </Switch>
     </div>

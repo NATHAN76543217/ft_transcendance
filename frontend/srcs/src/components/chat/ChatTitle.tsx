@@ -1,11 +1,13 @@
 import { Channel, ChannelMode } from "../../models/channel/Channel";
+import { IUser } from "../../models/user/IUser";
 
 type ChatTitleProps = {
-  chat: Channel;
+  channel?: Channel;
+  user?: IUser;
   isInHeader?: boolean | undefined
 };
 
-export function ChatTitle({ chat, isInHeader }: ChatTitleProps) {
+export function ChatTitle({ channel, user, isInHeader }: ChatTitleProps) {
 
   const getImgPath = (mode: ChannelMode) => {
     switch (mode) {
@@ -19,10 +21,11 @@ export function ChatTitle({ chat, isInHeader }: ChatTitleProps) {
         return "";
     }
   }
-  const imgPath =
-  "/api/uploads/" + getImgPath(chat.mode);
+  const imgPath = channel ? `/api/uploads/${getImgPath(channel.mode)}`
+                          : `/api/uploads/${user?.imgPath}`
 
-  const name = isInHeader || chat.name.length <= 10 ? chat.name : chat.name.substring(0,10) + '...'
+  let name = channel ? channel.name : (user ? user.name : "")
+  name = isInHeader || name.length <= 10 ? name : name.substring(0,10) + '...'
   return (
     <div className="flex items-center">
       <img className="h-8" alt="chat" src={imgPath} />

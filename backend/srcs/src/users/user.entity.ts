@@ -3,7 +3,7 @@ import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import { UserStatus } from './utils/userStatus';
 import { Exclude } from 'class-transformer';
-import UserRelationship from './relationships/user-relationship.entity';
+// import { Message } from 'src/messages/message.entity';
 
 @Entity()
 //@Unique('name', ['name'])
@@ -53,6 +53,9 @@ class User {
     (relationship: ChannelRelationship) => relationship.user,
   )
   public channels: ChannelRelationship[];
+
+  // @OneToMany(() => Message, (message: Message) => message.channel)
+  // public messages: Message[];
 
   // @OneToMany(() => UserRelationship, userRelationship => userRelationship.user1_id)
   // public userRelationship1: UserRelationship[]

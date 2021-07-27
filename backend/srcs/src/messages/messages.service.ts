@@ -25,6 +25,11 @@ export default class MessageService {
   } */
 
   async createMessage(message: CreateMessageDto, senderId: number) {
+
+console.log('--------------- createMessage ----------------', message)
+    // if (!message.channel_id) {
+    //   message.channel_id = 0;
+    // }
     const newMessage = this.messageRepository.create({
       ...message,
       sender_id: senderId,

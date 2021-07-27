@@ -20,7 +20,7 @@ class Channel {
   @Column({ default: ChannelMode.public })
   public mode: ChannelMode;
 
-  @OneToMany(() => Message, (message: Message) => message.channel)
+  @OneToMany(() => Message, (message: Message) => message.channel, {nullable: true})
   public messages: Message[];
 
   // TODO: (Insertion does not seem to be so useful after all)

@@ -17,6 +17,7 @@ export const mockedUser: User = {
   status: UserStatus.null,
   role: UserRole.User,
   channels: [],
+  // messages: [],
   // userRelationship1: [],
   // userRelationship2: []
 };

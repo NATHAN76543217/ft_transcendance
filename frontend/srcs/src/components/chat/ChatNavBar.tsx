@@ -1,7 +1,11 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { NavLink } from "react-router-dom";
+import AppContext from "../../AppContext";
 import { Channel } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
+import { IUser, UserChannelRelationship } from "../../models/user/IUser";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 import chatContext from "../../pages/chat/chatContext";
 import { ChatTitle } from "./ChatTitle";
 
@@ -52,7 +56,8 @@ ImageLinkButton.defaultProps = {
 };
 
 type ChatBarItemProps = {
-  chat: Channel;
+  channel?: Channel;
+  user?: IUser;
 };
 
 type ChatNotificationCounterProps = {
@@ -74,29 +79,126 @@ ChatNotificationCounter.defaultProps = {
   count: 0,
 };
 
-export function ChatBarItem({ chat }: ChatBarItemProps) {
+export function ChatBarItem({ channel, user }: ChatBarItemProps) {
   // TODO: Chat image, public chat, user chat
+  const redirect = channel ? `/chat/c${channel.id}` : (user ? `/chat/${user.id}` : `/chat`)
   return (
     <div className="border-b-2 border-gray-300">
 
       <NavLink
         className="relative flex py-1 bg-gray-100 border-l-4 hover:border-blue-400"
-        activeClassName="bg-gray-300 border-red-500 hover:border-red-500 text-red-500"
-        to={`/chat/${chat.id}`}
+        activeClassName="bg-gray-300 border-red-500 border-l-4 text-red-500 hover:border-red-500"
+        to={redirect}
       >
         <ChatNotificationCounter count={5} />
-        <ChatTitle chat={chat}></ChatTitle>
+        <ChatTitle channel={channel} user={user}></ChatTitle>
       </NavLink>
     </div>
   );
 }
 
+
+
 export type ChatNavBarProps = {
   className: string;
 };
 
+
+
 export function ChatNavBar({ className }: ChatNavBarProps) {
   const chatContextValue = useContext(chatContext);
+  const contextValue = useContext(AppContext);
+
+  const [displaySection, setDisplaySection] = useState({
+    channels: true,
+    friends: true,
+  });
+
+  const displayChannel = (rel: UserChannelRelationship, displayBoolean: boolean) => {
+    if (displayBoolean && rel.type !== ChannelRelationshipType.Invited) {
+      return <li key={rel.channel.id}>{ChatBarItem({ channel: rel.channel })}</li>
+    } else {
+      return <div></div>;
+    }
+  }
+
+  const displayChannelList = () => {
+    return (
+      <div>
+
+        <button
+          className={`flex items-center justify-between w-full py-2 pr-4 bg-yellow-200`}
+          onClick={() =>
+            setDisplaySection({
+              ...displaySection,
+              channels: !displaySection.channels
+            })
+          }
+        >
+          <i
+            className={
+              "pl-4 fas " +
+              (displaySection.channels
+                ? "fa-chevron-down"
+                : "fa-chevron-right")
+            }
+          ></i>
+          <h3 className="w-full text-lg font-semibold text-center first-letter:uppercase">
+            Channels
+          </h3>
+        </button>
+        <ul>
+          {Array.from(chatContextValue.channelRels.values()).map((rel) => {
+            return displayChannel(rel, displaySection.channels)
+          })}
+        </ul>
+      </div>
+    )
+  }
+
+  const displayRelationList = () => {
+    return (
+      <div>
+
+        <button
+          className={`flex items-center justify-between w-full py-2 pr-4 bg-blue-200`}
+          onClick={() =>
+            setDisplaySection({
+              ...displaySection,
+              friends: !displaySection.friends
+            })
+          }
+        >
+          <i
+            className={
+              "pl-4 fas " +
+              (displaySection.friends
+                ? "fa-chevron-down"
+                : "fa-chevron-right")
+            }
+          ></i>
+          <h3 className="w-full text-lg font-semibold text-center first-letter:uppercase">
+            Friends
+          </h3>
+        </button>
+        <ul>
+          {Array.from(contextValue.relationshipsList).map((rel: AppUserRelationship) => {
+            return displayRelation(rel, displaySection.friends)
+          })}
+        </ul>
+      </div>
+    )
+  }
+
+  const displayRelation = (rel: AppUserRelationship, displayBoolean: boolean) => {
+    if (displayBoolean &&
+      rel.relationshipType & UserRelationshipType.pending_first_second &&
+      rel.relationshipType & UserRelationshipType.pending_second_first) {
+      return <li key={rel.user.id}>{ChatBarItem({ user: rel.user })}</li>
+    } else {
+      return <div></div>;
+    }
+  }
 
   return (
     <nav className={`flex flex-col divide-black divide-double p2 border-r-2 border-gray-300 ${className}`}>
@@ -124,15 +226,8 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
           </div>
         </NavLink>
       </div>
-      <ul>
-        {Array.from(chatContextValue.channelRels.values()).map((rel) => {
-          if (rel.type !== ChannelRelationshipType.Invited) {
-            return <li key={rel.channel.id}>{ChatBarItem({ chat: rel.channel })}</li>
-          } else {
-            return <div></div>
-          }
-        })}
-      </ul>
+      {displayChannelList()}
+      {displayRelationList()}
     </nav>
   );
 }

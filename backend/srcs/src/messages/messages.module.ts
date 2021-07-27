@@ -10,5 +10,6 @@ import MessageService from './messages.service';
   imports: [TypeOrmModule.forFeature([Message])],
   controllers: [MessagesController],
   providers: [MessageService, ChannelCaslAbilityFactory],
+  exports: [MessageService]
 })
 export class MessagesModule {}

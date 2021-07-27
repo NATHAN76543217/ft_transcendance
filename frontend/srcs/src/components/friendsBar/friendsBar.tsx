@@ -39,7 +39,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
   //   //   return relation.user.id === data?.user_id
   //   // })
   //   // if (relationship) {
-      
+
   //   // }
   //   if (data) {
   //       contextValue.updateOneRelationship(data.user_id, data.type)
@@ -98,8 +98,8 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     // console.log("displayPendingRequests",)
     // // TODO: This will be relation.user_id
     let inf = contextValue.user === undefined ? undefined : Number(contextValue.user.id) < Number(relation.user.id);
-    if (((inf && relation.relationshipType === UserRelationshipType.pending_second_first) ||
-      (!inf && relation.relationshipType === UserRelationshipType.pending_first_second)) &&
+    if (((inf && (relation.relationshipType & UserRelationshipType.pending_second_first) && !(relation.relationshipType & UserRelationshipType.pending_first_second)) ||
+      (!inf && (relation.relationshipType & UserRelationshipType.pending_first_second) && !(relation.relationshipType & UserRelationshipType.pending_second_first))) &&
       displaySection.pendingRequests
     ) {
       // console.log("displayPendingRequests - TRUE")
@@ -116,11 +116,15 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
   }
 
   const displayRelation = (relation: AppUserRelationship, statusFilter: UserStatus, displayBoolean: boolean) => {
-    // console.log(`displayRelationList - ${statusFilter}`)
+    // console.log(`displayRelationList -`, relation)
     if (
-      relation.relationshipType & UserRelationshipType.friends &&
-      relation.user.status === statusFilter &&
-      displayBoolean
+      relation.relationshipType & UserRelationshipType.pending_first_second &&
+      relation.relationshipType & UserRelationshipType.pending_second_first && (
+        relation.user.status === statusFilter ||
+        (relation.relationshipType & UserRelationshipType.block_both &&
+          statusFilter === UserStatus.Offline)
+      )
+      && displayBoolean
     ) {
       return (
         <FriendItem
@@ -161,15 +165,21 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           </h3>
         </button>
         <ul>
-          {props.relationshipsList.map((relation) => (
-            <div key={relation.user.name}>
-              {/* {true ? displayPendingRequests( */}
-              {statusFilter === UserStatus.Null ? displayPendingRequests(
-                relation,
-              ) :
-                displayRelation(relation, statusFilter, displayBoolean)}
-            </div>
-          ))}
+          {props.relationshipsList.map((relation) => {
+            const inf = contextValue.user ? contextValue.user.id < relation.user.id : false;
+            // console.log('inf', inf)
+            const isPending = inf ? (relation.relationshipType & UserRelationshipType.pending_second_first && !(relation.relationshipType & UserRelationshipType.pending_first_second))
+              : (relation.relationshipType & UserRelationshipType.pending_first_second && !(relation.relationshipType & UserRelationshipType.pending_second_first))
+            return (
+              <div key={relation.user.name}>
+                {/* {true ? displayPendingRequests( */}
+                {isPending && statusFilter === UserStatus.Null ? displayPendingRequests(
+                  relation,
+                ) :
+                  displayRelation(relation, statusFilter, displayBoolean)}
+              </div>
+            )
+          })}
         </ul>
       </section>
     )

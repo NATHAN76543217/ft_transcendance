@@ -5,7 +5,9 @@ export const chatContext = React.createContext<IChatContext>({
   channelRels: new Map(), // TODO: Use local storage
   currentChannelRel: undefined,
   setChannelRels: () => {},
-  setCurrentChannelRel: () => {}
+  setCurrentChannelRel: () => {},
+  currentUserRel: undefined,
+  setCurrentUserRel: () => {}
 });
 
 export const chatProvider = chatContext.Provider;

@@ -20,7 +20,13 @@ function ChannelSettings({
 }: RouteComponentProps<ChannelSettingsParams>) {
   const contextValue = React.useContext(AppContext);
   const chatContextValue = React.useContext(chatContext);
-  const channelId = match.params.id !== undefined ? Number(match.params.id) : 4;
+
+  let channelId: number;
+  if (match.params.id && match.params.id[0] === 'c') {
+    channelId = Number(match.params.id.substring(1));
+  } else {
+    channelId = Number('c');
+  }
 
   const history = useHistory();
 

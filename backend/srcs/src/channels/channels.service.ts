@@ -40,7 +40,6 @@ export default class ChannelsService {
     private readonly messageRepository: Repository<Message>,
     @Inject(forwardRef(() => ChannelsGateway))
     private readonly channelsGateway: ChannelsGateway,
-    private readonly channelRelationshipsService: ChannelRelationshipsService
 
   ) { }
 
@@ -71,6 +70,7 @@ export default class ChannelsService {
       .leftJoin('users.user', 'channelUser')
       .addSelect('channelUser.name')
       .where("channel.name like :name", { name:`%${channelName}%` })
+      .andWhere('channel.mode != :mode', { mode: ChannelMode.users})
       .getMany();
   }
 
@@ -95,6 +95,7 @@ export default class ChannelsService {
       .leftJoin('users.user', 'channelUser')
       .addSelect('channelUser.name')
       .where('channel.id = :id', { id: id })
+      .andWhere('channel.mode != :mode', { mode: ChannelMode.users})
       .getOne();
 
     // .findOne(id, {

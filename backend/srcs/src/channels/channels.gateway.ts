@@ -57,8 +57,8 @@ export class ChannelsGateway
     private readonly channelRelationshipsService: ChannelRelationshipsService,
     private readonly messageService: MessageService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
-    private readonly userService: UsersService,
     private readonly userRelationshipService: UserRelationshipsService,
+    @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
   ) {}
 
@@ -309,7 +309,7 @@ export class ChannelsGateway
   }
 
   async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
-    this.userService.setUserStatus(socket.user.id, status);
+    this.usersService.setUserStatus(socket.user.id, status);
 
     const rels =
       await this.userRelationshipService.getAllUserRelationshipsFromOneUser(
@@ -398,8 +398,8 @@ export class ChannelsGateway
     }
   }
 
-  @SubscribeMessage('message')
-  async handleMessage(
+  @SubscribeMessage('message-channel')
+  async handleMessageChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
@@ -407,18 +407,54 @@ export class ChannelsGateway
     const channel = await this.channelsService.getChannelById(body.channel_id);
     const abilities = this.abilityFactory.createForUser(author);
 
+    body.receiver_id = 0;
+    const roomName = `#${body.channel_id}`;
     if (
       body.type === MessageType.Text &&
       abilities.can(ChannelAction.Speak, channel)
     ) {
       const message = await this.messageService.createMessage(body, author.id);
 
+      console.log('message created', message)
+
       this.server
-        .to(channel.id.toFixed())
-        .emit('message', JSON.stringify(message));
+        .to(roomName)
+        .emit('message-channel', JSON.stringify(message));
       this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
     } else {
       this.logger.debug(`${author.name}: ${body.data}`);
+    }
+  }
+
+  @SubscribeMessage('message-user')
+  async handleMessageUser(
+    @ConnectedSocket() socket: SocketWithUser,
+    @MessageBody() body: CreateMessageDto,
+  ) {
+
+    body.channel_id = 1;
+    console.log('message-user', body)
+
+    const author = socket.user;
+    // const channel = await this.channelsService.getChannelById(body.channel_id);
+    // const abilities = this.abilityFactory.createForUser(author);
+
+    const roomName = `${body.receiver_id}`;
+    if (
+      body.type === MessageType.PrivateMessage
+      // && abilities.can(ChannelAction.Speak, channel)
+    ) {
+      const message = await this.messageService.createMessage(body, author.id);
+
+      this.server
+        .to(roomName)
+        .emit('message-user', JSON.stringify(message));
+      this.server
+        .to(socket.user.id.toString())
+        .emit('message-user', JSON.stringify(message));
+      // this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
+    } else {
+      // this.logger.debug(`${author.name}: ${body.data}`);
     }
   }
 

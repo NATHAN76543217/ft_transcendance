@@ -42,6 +42,35 @@ export default class UsersController {
     return this.usersService.getUserById(req.user.id, true);
   }
 
+  @Get(':id1/:id2/messages')
+  async getMessagesById(
+    @Req() req: RequestWithUser,
+    @Param('id1') user1_id: string,
+    @Param('id2') user2_id: string,
+    @Query('beforeId') beforeId: string,
+    @Query('afterId') afterId: string,
+  ) {
+
+
+    console.log('get :id1/:id2/messages - begin')
+    // const channel = await this.channelsService.getChannelById(
+    //   Number(channelId),
+    // );
+    // const abilities = this.abilityFactory.createForUser(req.user);
+
+    //TODO use abilites
+    // if (abilities.can(ChannelAction.Read, channel))
+      const messages = await this.usersService.getMessagesById(
+        Number(user1_id),
+        Number(user2_id),
+        beforeId ? Number(beforeId) : undefined,
+        afterId ? Number(afterId) : undefined,
+      );
+      console.log('messages', messages)
+      return messages;
+    // throw new HttpException('TODO: Unauthorized read', 400);
+  }
+
   @Get(':id')
   getUserById(@Req() req: RequestWithUser, @Param('id') id: FindOneParam) {
     const withChannels = req.user.id === Number(id);
