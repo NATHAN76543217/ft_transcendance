@@ -37,7 +37,7 @@ export default class UsersService {
   }
 
   getUserStatus(userId: number) {
-    return this.userStates.get(userId) || UserStatus.null;
+    return this.userStates.get(userId) || UserStatus.offline;
   }
 
   private joinUserStatus(user: User) {
@@ -111,6 +111,7 @@ export default class UsersService {
     const user = await query.getOne();
 
     if (user) {
+      user.status = this.getUserStatus(user.id);
       if (user.channels) {
         let len = user.channels.length;
         while (--len >= 0) {

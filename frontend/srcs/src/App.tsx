@@ -16,7 +16,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser, UserChannelRelationship, UserRole } from "./models/user/IUser";
+import { IUser, UserChannelRelationship, UserRole, UserStatus } from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -234,7 +234,10 @@ class App extends React.Component<AppProps, AppState> {
           let friendId = inf ? relation.user2_id : relation.user1_id;
           try {
             const dataUser = await axios.get("/api/users/" + friendId);
-            console.log("dataUser", dataUser);
+            if (relation.type & UserRelationshipType.block_both) {
+              dataUser.data.status = UserStatus.Offline;
+            }
+            // console.log("dataUser", dataUser);
             a.push({
               user: dataUser.data,
               relationshipType: relation.type,
@@ -246,7 +249,7 @@ class App extends React.Component<AppProps, AppState> {
     } catch (error) { }
   }
 
-  updateOneRelationship = async (user_id: number, newType: UserRelationshipType) => {
+  updateOneRelationshipType = async (user_id: number, newType: UserRelationshipType) => {
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
       return (Number(relation.user.id) === Number(user_id));
@@ -271,6 +274,22 @@ class App extends React.Component<AppProps, AppState> {
         this.setState({ relationshipsList: a });
       } catch (e) {
         console.log(e)
+      }
+    }
+  }
+
+  updateOneRelationshipStatus = async (user_id: number, newStatus: UserStatus) => {
+    let a = this.state.relationshipsList.slice();
+    let index = a.findIndex((relation: AppUserRelationship) => {
+      return (Number(relation.user.id) === Number(user_id));
+    })
+    if (index !== -1 && this.state.user) {
+      if (a[index].relationshipType & UserRelationshipType.block_both) {
+        newStatus = UserStatus.Offline;
+      }
+      if (Number(newStatus) !== Number(UserStatus.Null)) {
+        a[index].user.status = newStatus
+        this.setState({ relationshipsList: a });
       }
     }
   }
@@ -346,7 +365,7 @@ class App extends React.Component<AppProps, AppState> {
 
     socket.on('updateRelationship-back', (data: any) => {
       if (data) {
-        this.updateOneRelationship(data.user_id, data.type)
+        this.updateOneRelationshipType(data.user_id, data.type)
       }
     })
 
@@ -375,6 +394,10 @@ class App extends React.Component<AppProps, AppState> {
       }
     })
 
+    socket.on('statusChanged', (data: any) => {
+      this.updateOneRelationshipStatus(data.user_id, data.status);
+    })
+
     return socket;
   };
 
@@ -386,7 +409,7 @@ class App extends React.Component<AppProps, AppState> {
       user: this.state.user,
       setUser: this.setUser,
       setUserInit: this.setUserInit,
-      updateOneRelationship: this.updateOneRelationship,
+      updateOneRelationshipType: this.updateOneRelationshipType,
       socket: this.state.socket,
     };
 

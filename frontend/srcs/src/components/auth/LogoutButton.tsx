@@ -3,19 +3,18 @@ import axios from "axios";
 import { useContext } from "react";
 //import Cookies from "js-cookie";
 import AppContext from "../../AppContext";
-import { UserStatus } from "../../models/user/IUser";
 
 export default function LogoutButton() {
-  const { setUserInit, user } = useContext(AppContext);
+  const { setUserInit } = useContext(AppContext);
   const onLogout = async () => {
-    const userId = user?.id
+    // const userId = user?.id
     try {
-      const dataUpdate = await axios.patch(
-        `/api/users/${userId}`,
-        { status: UserStatus.Offline },
-        // { withCredentials: true }
-      );
-      console.log("data Update logout: ",dataUpdate)
+      // const dataUpdate = await axios.patch(
+      //   `/api/users/${userId}`,
+      //   { status: UserStatus.Offline },
+      //   // { withCredentials: true }
+      // );
+      // console.log("data Update logout: ",dataUpdate)
 
       await axios.post("/api/authentication/logout", {
         withCredentials: true,

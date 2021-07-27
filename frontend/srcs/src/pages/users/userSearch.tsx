@@ -57,6 +57,7 @@ function UserSearch() {
     console.log('contextValue', contextValue)
     try {
       const data = await axios.get("/api/users?name=" + values.username);
+      console.log('search', data)
       let a = data.data.slice();
       a.sort((user1: IUser, user2: IUser) =>
         user1.name.localeCompare(user2.name)

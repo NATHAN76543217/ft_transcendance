@@ -118,7 +118,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
   const displayRelation = (relation: AppUserRelationship, statusFilter: UserStatus, displayBoolean: boolean) => {
     // console.log(`displayRelationList - ${statusFilter}`)
     if (
-      relation.relationshipType === UserRelationshipType.friends &&
+      relation.relationshipType & UserRelationshipType.friends &&
       relation.user.status === statusFilter &&
       displayBoolean
     ) {

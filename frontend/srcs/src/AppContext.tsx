@@ -6,7 +6,7 @@ const AppContext = React.createContext<IAppContext>({
   setUser: () => {},
   setUserInit: () => {},
   relationshipsList: [],
-  updateOneRelationship: (user_id: number, newType: UserRelationshipType) => {},
+  updateOneRelationshipType: (user_id: number, newType: UserRelationshipType) => {},
   socket: undefined,
 });
 
