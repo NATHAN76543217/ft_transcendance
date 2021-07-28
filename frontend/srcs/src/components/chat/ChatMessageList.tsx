@@ -44,14 +44,56 @@ async function fetchUserMessages(
 }
 
 
-function useChatMessages() {
 
+
+export type ChatMessageListProps = {
+  id: string;
+};
+
+
+type ChatMessageParams = {
+  id: string;
+};
+
+
+export function ChatMessageList(props: ChatMessageListProps) {
+
+  // let chatId = match.params.id !== undefined ? match.params.id : undefined;
+
+  // let isChannel = false;
+  // if (chatId && chatId[0] === 'c') {
+  //   isChannel = true;
+  // }
+
+  const className = "flex-grow overflow-y-scroll bg-gray-200 "
+
+  console.log('................ ChatMessageList', props)
+
+
+
+  // const getOlderMessages = async () => {
+  //   if (currentChannelRel) {
+  //     return await fetchChannelMessages(currentChannelRel.channel.id);
+  //   } else if (currentUserRel && user) {
+  //     return await fetchUserMessages(user?.id, currentUserRel.user.id);
+  //   } else {
+  //     return [];
+  //   }
+  // }
 
   //channelId?: number
   const { socket, user } = useContext(AppContext);
   const { currentChannelRel, currentUserRel } = useContext(chatContext);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [convId, setConvId] = useState<string>('');
+  
+  const isChannel = props.id && props.id[0] === 'c' ? true : false;
 
+  console.log('convId', convId)
+  if (convId !== props.id) {
+    console.log('set convId', props.id)
+    setConvId(props.id)
+  }
   // This will be used to fetch more past messages
   /*   const oldestMessageId = messages.length
     ? messages[messages.length - 1].id
@@ -74,8 +116,8 @@ function useChatMessages() {
       if (
         (currentUserRel && currentUserRel.user.id === Number(parsedData.receiver_id)) ||
         (currentUserRel && currentUserRel.user.id === Number(parsedData.sender_id))
-        ) {
-          console.log("message update:");
+      ) {
+        console.log("message update:");
         setMessages((olderMessages) => [...olderMessages, parsedData]);
       }
     });
@@ -87,50 +129,31 @@ function useChatMessages() {
 
   }, [socket]);
 
+
   // This fetches previous messages
   useEffect(() => {
     console.log('useEffect currentChannelRel', currentChannelRel)
     console.log('useEffect currentUserRel', currentUserRel)
 
     async function appendOlderMessages() {
-      if (currentChannelRel) {
-        const olderMessages = await fetchChannelMessages(currentChannelRel.channel.id);
+      if (isChannel) {
+        const olderMessages = await fetchChannelMessages(Number(props.id.substring(1)));
         setMessages(olderMessages);
-      } else if (currentUserRel && user) {
-        const olderMessages = await fetchUserMessages(user?.id, currentUserRel.user.id);
+      } else if (user && !isNaN(Number(props.id))) {
+        const olderMessages = await fetchUserMessages(user?.id, Number(props.id));
         setMessages(olderMessages);
       } else {
         setMessages([])
       }
     }
     appendOlderMessages();
-  }, [currentChannelRel, currentUserRel]);
+  }, [props.id]);
+  // }, [currentChannelRel, currentUserRel, convId]);
 
-  return messages;
-}
-
-export type ChatMessageListProps = {
-  className: string;
-};
+  // return messages;
 
 
-type ChatMessageParams = {
-  id: string;
-};
-
-
-export function ChatMessageList() {
-
-  // let chatId = match.params.id !== undefined ? match.params.id : undefined;
-
-  // let isChannel = false;
-  // if (chatId && chatId[0] === 'c') {
-  //   isChannel = true;
-  // }
-
-  const className = "flex-grow overflow-y-scroll bg-gray-200 "
-
-  const messages = useChatMessages();
+  // const messages = useChatMessages();
 
   console.log(`Rendering ${messages.length} messages!`);
 
@@ -149,6 +172,6 @@ export function ChatMessageList() {
   );
 }
 
-ChatMessageList.defaultProps = {
-  className: "",
-};
+// ChatMessageList.defaultProps = {
+//   className: "",
+// };

@@ -1,8 +1,7 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import AppContext from "../../AppContext";
-import { ChannelUserRelationship, Message, MessageType } from "../../models/channel/Channel";
-import { AppUserRelationship } from "../../models/user/AppUserRelationship";
+import { Message, MessageType } from "../../models/channel/Channel";
 import { UserChannelRelationship } from "../../models/user/IUser";
 import chatContext from "../../pages/chat/chatContext";
 
@@ -13,11 +12,11 @@ type ChatMessageProps = {
 
 
 export function ChatMessage({ message }: ChatMessageProps) {
-  const { currentChannelRel, channelRels } = useContext(chatContext);
+  const { currentChannelRel } = useContext(chatContext);
   const { relationshipsList, user } = useContext(AppContext);
 
-  console.log('ChatMessage', message, user, currentChannelRel)
-  console.log('channelRels', channelRels)
+  // console.log('ChatMessage', message, user, currentChannelRel)
+  // console.log('channelRels', channelRels)
 
   const isPrivate = message.type === MessageType.PrivateMessage;
   const isMe = message.sender_id === user?.id;
@@ -71,14 +70,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const senderProfileUrl = `/users/${sender?.id ?? ""}`;
   const senderName = sender ? sender.name : 'Unknown'
 
-  const classMe = 'pl-2 ml-16'
-  const classOthers = 'pl-2 border-gray-400 mr-16'
+  const classMe = 'ml-16'
+  const classOthers = 'border-gray-400 mr-16'
   // const className = 
   const classMessageMe = 'px-4 py-1 bg-blue-300 rounded-md '
   const classMessageOthers = 'px-4 py-1 bg-gray-300 rounded-md '
 
   return (
-    <div className={`items-center mx-2 py-2 ${isMe ? classMe : classOthers}`}>
+    <div className={`items-center py-2 px-2 ${isMe ? classMe : classOthers}`}>
       {displaySenderName(sender)}
       <div className='flex items-center w-full'>
         {displaySenderImage(sender)}

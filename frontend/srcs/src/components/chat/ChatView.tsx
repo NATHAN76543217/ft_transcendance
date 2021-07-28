@@ -323,7 +323,7 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <ChatMessageList/>
+          <ChatMessageList id={match.params.id}/>
           <ChatInput />
         </Route>
       </Switch>
