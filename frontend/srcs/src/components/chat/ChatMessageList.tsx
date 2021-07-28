@@ -64,27 +64,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
     : undefined; */
 
   useEffect(() => {
-    // console.log('---- useEffect - socket ----')
-    
-    // socket?.on("message-channel", (data) => {
-    //   console.log("Incoming message:", data);
-    //   if (currentChannelRel && currentChannelRel.channel.id === Number(data.channel_id)) {
-    //     setMessages((olderMessages) => [...olderMessages, JSON.parse(data)]);
-    //   }
-    // });
-
-    // socket?.on("message-user", (data) => {
-    //   console.log("Incoming message:", JSON.parse(data));
-    //   console.log('currentUserRel', currentUserRel)
-    //   const parsedData = JSON.parse(data)
-    //   if (
-    //     (currentUserRel && currentUserRel.user.id === Number(parsedData.receiver_id)) ||
-    //     (currentUserRel && currentUserRel.user.id === Number(parsedData.sender_id))
-    //   ) {
-    //     console.log("message update:");
-    //     setMessages((olderMessages) => [...olderMessages, parsedData]);
-    //   }
-    // });
+    console.log('---- useEffect - socket ----')
 
     socket?.on("message-channel", (data) => {
       const parsedData = JSON.parse(data)
@@ -115,7 +95,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
   // This fetches previous messages
   useEffect(() => {
-    // console.log('---- useEffect - props.id ----')
+    console.log('---- useEffect - props.id ----')
 
     async function appendOlderMessages() {
       if (isChannel) {

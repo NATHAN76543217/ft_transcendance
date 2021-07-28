@@ -42,8 +42,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const senderProfileUrl = `/users/${sender?.id ?? ""}`;
   const senderName = sender ? sender.name : 'Unknown user'
   
-  console.log('message', message)
-  console.log('sender', sender)
+  // console.log('message', message)
+  // console.log('sender', sender)
   
   const displaySenderName = () => {
     if (!isMe) {

@@ -31,6 +31,7 @@ import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import FailedLogin from "./pages/failedLogin/failedLogin";
 import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
+import { ChannelUser } from "./models/channel/Channel";
 
 // let change_bg_color_with_size =
 //   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
@@ -302,7 +303,7 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
-  updateChannelRelationship = async (channel_id: number, newType : ChannelRelationshipType = ChannelRelationshipType.Null) => {
+  updateChannelRelationship = async (channel_id: number, user_id: number, newType: ChannelRelationshipType = ChannelRelationshipType.Null) => {
     console.log('updateChannelRelationship')
     if (this.state.user) {
       let a = this.state.user.channels.slice();
@@ -311,11 +312,34 @@ class App extends React.Component<AppProps, AppState> {
       })
       console.log('updateChannelRelationship - index: ', index)
       if (index !== -1) {
+        if (user_id === this.state.user.id) {
+          if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
+            a[index].type = newType
+          } else {
+            a.splice(index, 1)
+          }
 
-        if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
-          a[index].type = newType
         } else {
-          a.splice(index, 1)
+          const userIndex = a[index].channel.users.findIndex((elem) => {
+            return elem.user.id === user_id
+          })
+          if (userIndex !== -1) {
+            if (newType === ChannelRelationshipType.Null) {
+              a[index].channel.users.splice(userIndex, 1);
+            } else {
+              a[index].channel.users[userIndex].type = newType;
+            }
+          } else {
+            const dataUser = await axios.get('/api/users/' + user_id);
+            a[index].channel.users.push({
+              type: newType,
+              user: {
+                id: dataUser.data.id,
+                name: dataUser.data.name,
+                imgPath: dataUser.data.imgPath
+              }
+            })
+          }
         }
         const newUser = {
           ...this.state.user,
@@ -387,15 +411,18 @@ class App extends React.Component<AppProps, AppState> {
 
     socket.on('joinChannel-back', (data: any) => {
       console.log('joinChannel-back', data)
-      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-        this.updateChannelRelationship(data.channel_id, data.type)
+      // if (data && Number(data.user_id) === Number(this.state.user?.id)) {
+      if (data) {
+        this.updateChannelRelationship(data.channel_id, data.user_id, data.type)
       }
     })
 
     socket.on('leaveChannel-back', (data: any) => {
-      if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
+        
+      // if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
+      if (data) {
         const newType = data.type ? data.type : ChannelRelationshipType.Null
-        this.updateChannelRelationship(data.channel_id, newType)
+        this.updateChannelRelationship(data.channel_id, data.user_id, newType)
       }
     })
 

@@ -44,8 +44,7 @@ import { DestroyChannelDto } from './dto/DestroyChannel.dto';
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/events' })
 export class ChannelsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
@@ -60,7 +59,7 @@ export class ChannelsGateway
     private readonly userRelationshipService: UserRelationshipsService,
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   afterInit(server: Server) {
     this.logger.log(`Listening at ${server.path()}`);
@@ -201,7 +200,7 @@ export class ChannelsGateway
       } else if (relationship.type !== ChannelRelationshipType.Invited) {
         newType = relationship.type;
       }
-    } catch (error) {}
+    } catch (error) { }
     if (channel.mode === ChannelMode.protected) {
       await this.channelsService.verifyPassword(
         body.password,
@@ -214,18 +213,19 @@ export class ChannelsGateway
       type: newType,
     });
 
-    socket.emit('joinChannel-back', {
-      channel_id: body.channel_id.toString(),
-      user_id: socket.user.id.toString(),
-      type: newType,
-    });
-    socket
-      .to(socket.user.id.toString())
-      .emit('joinChannel-back', {
-        channel_id: body.channel_id.toString(),
-        user_id: socket.user.id.toString(),
-        type: newType,
-      });
+    this.joinChannel(socket, body.channel_id, newType)
+    // socket.emit('joinChannel-back', {
+    //   channel_id: body.channel_id.toString(),
+    //   user_id: socket.user.id.toString(),
+    //   type: newType,
+    // });
+    // socket
+    //   .to(socket.user.id.toString())
+    //   .emit('joinChannel-back', {
+    //     channel_id: body.channel_id.toString(),
+    //     user_id: socket.user.id.toString(),
+    //     type: newType,
+    //   });
   }
 
   @SubscribeMessage('leaveChannel-front')
@@ -233,7 +233,7 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
   ) {
-    console.log(`leaveChannel-front`);
+    console.log(`leaveChannel-front`, body);
 
     try {
       const channel = await this.channelsService.getChannelById(
@@ -266,18 +266,22 @@ export class ChannelsGateway
           socket.user.id,
         );
       }
-      socket.emit('leaveChannel-back', {
-        channel_id: body.channel_id.toString(),
-        user_id: socket.user.id.toString(),
-        type: newType,
-      });
-      socket
-        .to(socket.user.id.toString())
-        .emit('leaveChannel-back', {
-          channel_id: body.channel_id.toString(),
-          user_id: socket.user.id.toString(),
-          type: newType,
-        });
+
+
+      this.leaveChannel(socket, body.channel_id, newType);
+
+      // socket.emit('leaveChannel-back', {
+      //   channel_id: body.channel_id.toString(),
+      //   user_id: socket.user.id.toString(),
+      //   type: newType,
+      // });
+      // socket
+      //   .to(socket.user.id.toString())
+      //   .emit('leaveChannel-back', {
+      //     channel_id: body.channel_id.toString(),
+      //     user_id: socket.user.id.toString(),
+      //     type: newType,
+      //   });
     } catch (error) {
       throw new ChannelRelationshipByIdsNotFound(
         body.channel_id,
@@ -305,7 +309,7 @@ export class ChannelsGateway
       } else {
         throw new HttpException('TODO: Unauthorized delete', 400);
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
@@ -359,7 +363,7 @@ export class ChannelsGateway
     socket.join(socket.user.id.toString());
     // Join user channels
     socket.user.channels.forEach((c) => {
-      this.joinChannel(socket, c.channel.id);
+      this.connectChannel(socket, c.channel.id);
       // const channel = `#${c.channel!.id}`;
       // this.logger.log(`User joining ${channel}`);
 
@@ -372,8 +376,7 @@ export class ChannelsGateway
     // Notify friends about status
 
     this.logger.debug(
-      `Client ${socket.user.id} connected with ${
-        socket.rooms.size - 2
+      `Client ${socket.user.id} connected with ${socket.rooms.size - 2
       } joined channels`,
     );
 
@@ -486,13 +489,53 @@ export class ChannelsGateway
     });
   }
 
-  async joinChannel(socket: SocketWithUser, channel_id: number) {
+  async connectChannel(socket: SocketWithUser, channel_id: number) {
+    const roomName = `#${channel_id}`;
+    this.logger.log(`User connecting to channel ${channel_id}`);
+
+    socket.join(roomName);
+    // TODO: Check which data to send on join
+    // TODO: Use a status event and set connected as its value
+    socket.to(roomName).emit('connected', { username: socket.user.name });
+  }
+
+  async joinChannel(socket: SocketWithUser, channel_id: number, type: ChannelRelationshipType) {
     const roomName = `#${channel_id}`;
     this.logger.log(`User joining channel ${channel_id}`);
 
     socket.join(roomName);
     // TODO: Check which data to send on join
     // TODO: Use a status event and set connected as its value
-    socket.to(roomName).emit('connected', { username: socket.user.name });
+    socket.emit('joinChannel-back', {
+      channel_id: channel_id,
+      user_id: socket.user.id,
+      type: type
+    });
+
+    socket.to(roomName).emit('joinChannel-back', {
+      channel_id: channel_id,
+      user_id: socket.user.id,
+      type: type
+    });
+  }
+
+  async leaveChannel(socket: SocketWithUser, channel_id: number, type: ChannelRelationshipType) {
+    const roomName = `#${channel_id}`;
+    this.logger.log(`User leaving channel ${channel_id}`);
+    
+    socket.leave(roomName);
+    // TODO: Check which data to send on join
+    // TODO: Use a status event and set connected as its value
+    socket.emit('leaveChannel-back', {
+      channel_id: channel_id,
+      user_id: socket.user.id,
+      type: type
+    });
+
+    socket.to(roomName).emit('leaveChannel-back', {
+      channel_id: channel_id,
+      user_id: socket.user.id,
+      type: type
+    });
   }
 }
