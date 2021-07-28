@@ -29,37 +29,6 @@ const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
   }
 };
 
-// const setJoinBoolean = async (searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-
-//   searchInfo.list.map(async (elem, index) => {
-//     let channel = elem.channel
-//     try {
-//       const data = await axios.get(
-//         `/api/channels/${channel.id}`
-//       ); // TODO: A CHANGER a remettre quand ca marchera
-
-//       let a = searchInfo.list.slice();
-//       let indexData = data.data.users.findIndex(
-//         (channelRelation: any) => Number(channelRelation.user_id) === Number(contextValue.user?.id) // Number ?
-//       );
-//       if (indexData !== -1) {
-//         a[index].relationType = data.data.users[indexData].type;
-//       } else {
-//         a[index].relationType = ChannelRelationshipType.null;
-//       }
-
-//       if (Number(data.data.users[indexData].type) !== Number(elem.relationType)) {
-//         // if (this.state.list[index].type !== a[index].type) {
-//         setSearchInfo({
-//           ...searchInfo,
-//           list: a
-//         });
-//         // }
-//       }
-//     } catch (error) {  }
-//   });
-// }
-
 const onSubmit = async (
   values: ChannelSearchDto,
   searchInfo: ChannelSearchState,
@@ -87,93 +56,6 @@ const onSubmit = async (
   } catch (error) {}
 };
 
-// const updateRelationshipState = (
-//   id: number,
-//   newType: ChannelRelationshipType,
-//   searchInfo: ChannelSearchState,
-//   setSearchInfo: any
-// ) => {
-//   let a = searchInfo.list.slice();
-//   let index = a.findIndex((elem) => Number(elem.channel.id) === Number(id));
-//   if (index !== -1) {
-//     a[index].relationType = newType;
-//   }
-//   setSearchInfo({
-//     list: a,
-//     channelName: searchInfo.channelName,
-//   });
-// };
-
-
-
-
-
-// const banUserFromChannel = async (channel_id: number, user_id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-//   try {
-//     const data = await axios.get(`/api/channels/${channel_id}/relationships`);
-//     let index = data.data.findIndex(
-//       (channelRelation: any) => channelRelation.user_id === user_id
-//     );
-//     if (index !== -1) {
-//       await axios.patch(`/api/channels/${channel_id}/update/${user_id}`, {
-//         type: ChannelRelationshipType.banned,
-//       });
-//       updateRelationshipState(channel_id, ChannelRelationshipType.banned, searchInfo, setSearchInfo);
-//     }
-//   } catch (error) { }
-// }
-
-// const unbanUserFromChannel = async (channel_id: number, user_id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-//   try {
-//     const data = await axios.get(`/api/channels/${channel_id}/relationships`);
-//     let index = data.data.findIndex(
-//       (channelRelation: any) => channelRelation.user_id === user_id
-//     );
-//     if (index !== -1) {
-//       await axios.patch(`/api/channels/${channel_id}/update/${user_id}`, {
-//         type: ChannelRelationshipType.member,
-//       });
-//       updateRelationshipState(channel_id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
-//     }
-//   } catch (error) { }
-// }
-
-// const setAdminUserFromChannel = async (channel_id: number, user_id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-//   try {
-//     const data = await axios.get(`/api/channels/${channel_id}/relationships`);
-//     let index = data.data.findIndex(
-//       (channelRelation: any) => channelRelation.user_id === user_id
-//     );
-//     if (index !== -1) {
-//       await axios.patch(`/api/channels/${channel_id}/update/${user_id}`, {
-//         type: ChannelRelationshipType.admin,
-//       });
-//       updateRelationshipState(channel_id, ChannelRelationshipType.admin, searchInfo, setSearchInfo);
-//     }
-//   } catch (error) { }
-// }
-
-// const unsetAdminUserFromChannel = async (channel_id: number, user_id: number, searchInfo: ChannelSearchState, setSearchInfo: any, contextValue: IAppContext) => {
-//   try {
-//     const data = await axios.get(`/api/channels/${channel_id}/relationships`);
-//     let index = data.data.findIndex(
-//       (channelRelation: any) => channelRelation.user_id === user_id
-//     );
-//     if (index !== -1) {
-//       await axios.patch(`/api/channels/${channel_id}/update/${user_id}`, {
-//         type: ChannelRelationshipType.member,
-//       });
-//       updateRelationshipState(channel_id, ChannelRelationshipType.member, searchInfo, setSearchInfo);
-//     }
-//   } catch (error) { }
-// }
-
-// type ChannelInfoForSearch = {
-//   // doesUserExist: boolean,
-//   channel: ChannelSearchState,
-//   relationshipType: ChannelRelationshipType,
-// }
-
 
 function ChannelSearch() {
   const contextValue = React.useContext(AppContext);
@@ -183,9 +65,6 @@ function ChannelSearch() {
     channelName: "",
   });
 
-  // useEffect(() => {
-  //   setJoinBoolean(searchInfo, setSearchInfo, contextValue);
-  // }, [searchInfo]);
 
   const localOnSubmit = (values: ChannelSearchDto) => {
     onSubmit(values, searchInfo, setSearchInfo, contextValue);
@@ -221,8 +100,6 @@ function ChannelSearch() {
 
   const leaveChannel = async (
     id: number,
-    // searchInfo: ChannelSearchState,
-    // setSearchInfo: any,
   ) => {
 
     contextValue.socket?.emit('leaveChannel-front', {
@@ -230,26 +107,6 @@ function ChannelSearch() {
       user_id: contextValue.user?.id,
     });
     updateOneRelationship(id);
-
-    // try {
-    //   const data = await axios.get(`/api/channels/${id}`);
-    //   let index = data.data.users.findIndex(
-    //     (channelRelation: any) =>
-    //       channelRelation.user_id === contextValue.user?.id
-    //   );
-    //   if (
-    //     index !== -1 &&
-    //     data.data.users[index].type !== ChannelRelationshipType.Banned
-    //   ) {
-    //     await axios.delete(`/api/channels/${id}/leave`);
-    //     updateRelationshipState(
-    //       id,
-    //       ChannelRelationshipType.Member,
-    //       searchInfo,
-    //       setSearchInfo
-    //     );
-    //   }
-    // } catch (error) {}
   };
 
   return (
@@ -258,9 +115,9 @@ function ChannelSearch() {
       <ul >
         {searchInfo.list.map((elem) => {
           let channel = elem.channel;
-          if (channel !== undefined) {
+          if (channel) {
             return (
-              <li key={channel?.id} className="max-w-xl my-4 ">
+              <li key={channel.id} className="max-w-xl my-4 ">
                 <ChatInformation
                   id={channel.id}
                   name={channel.name}

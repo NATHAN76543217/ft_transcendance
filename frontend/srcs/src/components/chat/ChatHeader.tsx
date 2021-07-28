@@ -18,7 +18,7 @@ type UserActionsProps = {
   nbUsers: number;
 };
 
-function UserActions({ channelId, nbUsers }: UserActionsProps) {
+function UserActions({ nbUsers }: UserActionsProps) {
   const nbUsersSpan = nbUsers && nbUsers > 1 ? nbUsers + ' users' : '1 user'
   return (
     <>
@@ -145,7 +145,7 @@ type ChatHeaderProps = {
 
 export function ChatHeader({ myRole, isChannel }: ChatHeaderProps) {
   const chatContextValue = useContext(chatContext);
-  const contextValue = useContext(AppContext);
+  // const contextValue = useContext(AppContext);
 
   const currentChat =
     chatContextValue.currentChannelRel !== undefined
