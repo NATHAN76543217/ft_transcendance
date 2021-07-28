@@ -15,9 +15,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const { currentChannelRel } = useContext(chatContext);
   const { relationshipsList, user } = useContext(AppContext);
 
-  // console.log('ChatMessage', message, user, currentChannelRel)
-  // console.log('channelRels', channelRels)
-
   const isPrivate = message.type === MessageType.PrivateMessage;
   const isMe = message.sender_id === user?.id;
 
@@ -26,7 +23,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       return rel.user?.id === message.sender_id;
     })?.user;
   }
-
+  
   const getPrivateSender = (message: Message) => {
     if (isMe) {
       return user;
@@ -37,22 +34,32 @@ export function ChatMessage({ message }: ChatMessageProps) {
       })?.user;
     }
   }
-
-  const displaySenderName = (sender: any) => {
+  
+  
+  const sender = isPrivate ? getPrivateSender(message) : getChannelSender(currentChannelRel, message);
+  
+  const senderImgUrl = sender ? "/api/uploads/" + sender?.imgPath : "/api/uploads/default-profile-picture.png"
+  const senderProfileUrl = `/users/${sender?.id ?? ""}`;
+  const senderName = sender ? sender.name : 'Unknown user'
+  
+  console.log('message', message)
+  console.log('sender', sender)
+  
+  const displaySenderName = () => {
     if (!isMe) {
       return (
-        <Link className="flex-none w-32 " to={senderProfileUrl}>
-          <div className='flex items-center pl-12 '>
-            <span className="font-semibold ">{senderName}</span>
-          </div>
-        </Link>
+        <div className='flex-none'>
+            <div className='flex items-center pl-12 '>
+              <span className="font-semibold ">{senderName}</span>
+            </div>
+        </div>
       );
     } else {
       return (<div></div>)
     }
   }
 
-  const displaySenderImage = (sender: any) => {
+  const displaySenderImage = () => {
     if (!isMe) {
       return (
         <Link className="flex w-8 mr-2 " to={senderProfileUrl}>
@@ -64,12 +71,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
     }
   }
 
-  const sender = isPrivate ? getPrivateSender(message) : getChannelSender(currentChannelRel, message);
-
-  const senderImgUrl = "/api/uploads/" + sender?.imgPath
-  const senderProfileUrl = `/users/${sender?.id ?? ""}`;
-  const senderName = sender ? sender.name : 'Unknown'
-
   const classMe = 'ml-16'
   const classOthers = 'border-gray-400 mr-16'
   // const className = 
@@ -78,9 +79,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   return (
     <div className={`items-center py-2 px-2 ${isMe ? classMe : classOthers}`}>
-      {displaySenderName(sender)}
+      {displaySenderName()}
       <div className='flex items-center w-full'>
-        {displaySenderImage(sender)}
+        {displaySenderImage()}
         <span className={`flex items-center w-full ${isMe ? classMessageMe : classMessageOthers}`}>
           {message.data}
         </span>
