@@ -20,18 +20,18 @@ export function ChatMessage({ message }: ChatMessageProps) {
   console.log('channelRels', channelRels)
 
   const isPrivate = message.type === MessageType.PrivateMessage;
+  const isMe = message.sender_id === user?.id;
 
   const getChannelSender = (channelRel: UserChannelRelationship | undefined, message: Message) => {
     return channelRel?.channel.users.find((rel) => {
       return rel.user?.id === message.sender_id;
     })?.user;
   }
-  
+
   const getPrivateSender = (message: Message) => {
-    if (message.sender_id === user?.id ) {
+    if (isMe) {
       return user;
     } else {
-
       return relationshipsList.find((rel) => {
         // return rel.user.id === userRel?.user.id
         return rel.user.id === message.sender_id
@@ -39,25 +39,53 @@ export function ChatMessage({ message }: ChatMessageProps) {
     }
   }
 
-  const sender = isPrivate ? getPrivateSender(message) : getChannelSender(currentChannelRel, message);
+  const displaySenderName = (sender: any) => {
+    if (!isMe) {
+      return (
+        <Link className="flex-none w-32 " to={senderProfileUrl}>
+          <div className='flex items-center pl-12 '>
+            <span className="font-semibold ">{senderName}</span>
+          </div>
+        </Link>
+      );
+    } else {
+      return (<div></div>)
+    }
+  }
 
-  // const sender = currentChannelRel?.channel.users.find((rel) => {
-  //   return rel.user.id === message.sender_id;
-  // })?.user;
+  const displaySenderImage = (sender: any) => {
+    if (!isMe) {
+      return (
+        <Link className="flex w-8 mr-2 " to={senderProfileUrl}>
+          <div className='flex items-center '>
+            <img className="w-8 mr-2" src={senderImgUrl} alt='sender-profile'></img>
+          </div>
+        </Link>
+      );
+    }
+  }
+
+  const sender = isPrivate ? getPrivateSender(message) : getChannelSender(currentChannelRel, message);
 
   const senderImgUrl = "/api/uploads/" + sender?.imgPath
   const senderProfileUrl = `/users/${sender?.id ?? ""}`;
+  const senderName = sender ? sender.name : 'Unknown'
 
-  const senderName = sender
-    ? (sender.name.length <= 10 ? sender.name : sender.name.substring(0,10) + '...')
-    : 'Unknown'
+  const classMe = 'pl-2 ml-16'
+  const classOthers = 'pl-2 border-gray-400 mr-16'
+  // const className = 
+  const classMessageMe = 'px-4 py-1 bg-blue-300 rounded-md '
+  const classMessageOthers = 'px-4 py-1 bg-gray-300 rounded-md '
+
   return (
-    <div className="flex">
-      <Link className="flex items-center w-40 gap-2 m-2 border-r-2 border-gray-300" to={senderProfileUrl}>
-        <img className="w-8" src={senderImgUrl} alt='sender-profile'></img>
-        <span className="font-semibold">{senderName}</span>
-      </Link>
-      <span className="flex items-center">{message.data}</span>
+    <div className={`items-center mx-2 py-2 ${isMe ? classMe : classOthers}`}>
+      {displaySenderName(sender)}
+      <div className='flex items-center w-full'>
+        {displaySenderImage(sender)}
+        <span className={`flex items-center w-full ${isMe ? classMessageMe : classMessageOthers}`}>
+          {message.data}
+        </span>
+      </div>
     </div>
   );
 }
