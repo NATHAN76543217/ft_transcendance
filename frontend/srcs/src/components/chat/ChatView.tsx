@@ -38,33 +38,14 @@ interface IMessageFormValues {
   message: string;
 }
 
-const sendMessageChannel = (socket: Socket, channelId: number, data: string) => {
-  const message: MessageEventDto = {
-    channel_id: channelId,
-    type: MessageType.Text,
-    data,
-  };
 
-  console.log(message);
-
-  socket.emit("message-channel", message);
+export type ChatInputProps = {
+  id: string;
 };
 
-const sendMessageUser = (socket: Socket, user_id: number, data: string) => {
-  const message: MessageEventDto = {
-    receiver_id: user_id,
-    type: MessageType.PrivateMessage,
-    data,
-  };
-
-  console.log('sendMessageUser', message);
-
-  socket.emit("message-user", message);
-};
-
-export function ChatInput() {
+export function ChatInput(props: ChatInputProps) {
   const { socket } = useContext(AppContext);
-  const chatContextValue = useContext(chatContext);
+  // const chatContextValue = useContext(chatContext);
 
   const {
     register,
@@ -74,29 +55,53 @@ export function ChatInput() {
     reset,
   } = useForm<IMessageFormValues>();
 
-  const className="bg-gray-100 border-t-2 border-gray-400"
+  const className = "bg-gray-100 border-t-2 border-gray-400"
+
+  const isChannel = props.id && props.id[0] === 'c' ? true : false;
+
+  const sendMessageChannel = (socket: Socket, channelId: number, data: string) => {
+    const message: MessageEventDto = {
+      channel_id: channelId,
+      type: MessageType.Text,
+      data,
+    };
+
+    console.log(message);
+
+    socket.emit("message-channel", message);
+  };
+
+  const sendMessageUser = (socket: Socket, user_id: number, data: string) => {
+    const message: MessageEventDto = {
+      receiver_id: user_id,
+      type: MessageType.PrivateMessage,
+      data,
+    };
+
+    console.log('sendMessageUser', message);
+
+    socket.emit("message-user", message);
+  };
 
   return (
     <form
       className={`${className}`}
       onSubmit={handleSubmit((values) => {
-        if (socket && chatContextValue.currentChannelRel)
-         {
+        if (socket && isChannel) {
           sendMessageChannel(
             socket,
-            chatContextValue.currentChannelRel.channel.id,
+            Number(props.id.substring(1)),
             values.message
           );
           reset();
-        } else if (socket && chatContextValue.currentUserRel)
-        {
+        } else if (socket && !isNaN(Number(props.id))) {
           sendMessageUser(
-           socket,
-           chatContextValue.currentUserRel.user.id,
-           values.message
-         );
-         reset();
-       }
+            socket,
+            Number(props.id),
+            values.message
+          );
+          reset();
+        }
       })}
     >
       <TextInput
@@ -291,7 +296,7 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
   const displaySettings = () => {
     if (isChannel) {
       return (
-          <Route exact path="/chat/:id/settings" component={ChannelSettings} />
+        <Route exact path="/chat/:id/settings" component={ChannelSettings} />
       )
     }
   }
@@ -299,9 +304,9 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
   const displaySettingsRefresh = () => {
     if (isChannel) {
       return (
-          <Route exact path="/chat/:id/refresh">
-            <Redirect to={redirPath} />
-          </Route>
+        <Route exact path="/chat/:id/refresh">
+          <Redirect to={redirPath} />
+        </Route>
       )
     }
   }
@@ -323,8 +328,8 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <ChatMessageList id={match.params.id}/>
-          <ChatInput />
+          <ChatMessageList id={match.params.id} />
+          <ChatInput id={match.params.id} />
         </Route>
       </Switch>
     </div>

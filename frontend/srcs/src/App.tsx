@@ -403,6 +403,10 @@ class App extends React.Component<AppProps, AppState> {
       this.updateOneRelationshipStatus(data.user_id, data.status);
     })
 
+    // socket.on('message-user', (data: any) => {
+    //   // this.updateOneRelationshipStatus(data.user_id, data.status);
+    // })
+
     return socket;
   };
 

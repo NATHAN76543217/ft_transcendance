@@ -72,6 +72,18 @@ export default function ChatPage({
   }, [user?.channels]);
 
   useEffect(() => {
+
+  const getUserRelEffect = (userId: number) => {
+    const index = relationshipsList.findIndex((rel) => {
+      return rel.user.id === userId
+    })
+    if (index !== -1) {
+      return relationshipsList[index];
+    } else {
+      return undefined
+    }
+  }
+
     console.log('--- useEffect --- match.params.id', match.params.id)
     console.log('channelIdParam', channelIdParam)
     console.log('userIdParam', userIdParam)
@@ -82,11 +94,11 @@ export default function ChatPage({
       paramChannel = channelRels.get(channelIdParam)
     }
     if (!isNaN(userIdParam)) {
-      paramUser = getUserRel(userIdParam);
+      paramUser = getUserRelEffect(userIdParam);
     }
     setCurrentChannelRel(paramChannel);
     setCurrentUserRel(paramUser);
-  }, [channelRels, channelIdParam, userIdParam]);
+  }, [channelRels, currentUserRel, channelIdParam, userIdParam, match.params.id, relationshipsList]);
   // TODO: Redirect or 404 for invalid id
 
 
