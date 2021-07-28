@@ -303,12 +303,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   updateChannelRelationship = async (channel_id: number, newType : ChannelRelationshipType = ChannelRelationshipType.Null) => {
+    console.log('updateChannelRelationship')
     if (this.state.user) {
       let a = this.state.user.channels.slice();
       let index = a.findIndex((channel: any) => {
         return (Number(channel.channel.id) === Number(channel_id));
       })
+      console.log('updateChannelRelationship - index: ', index)
       if (index !== -1) {
+
         if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
           a[index].type = newType
         } else {
@@ -322,6 +325,7 @@ class App extends React.Component<AppProps, AppState> {
       } else if (newType !== ChannelRelationshipType.Null) {
         try {
           const dataChannel = await axios.get("/api/channels/" + channel_id);
+          console.log('dataChannel', dataChannel)
           a.push({
             channel: dataChannel.data,
             type: newType,
@@ -382,6 +386,7 @@ class App extends React.Component<AppProps, AppState> {
     })
 
     socket.on('joinChannel-back', (data: any) => {
+      console.log('joinChannel-back', data)
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
         this.updateChannelRelationship(data.channel_id, data.type)
       }

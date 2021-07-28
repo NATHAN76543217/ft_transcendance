@@ -403,26 +403,39 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
-    const author = socket.user;
+    console.log('message-channel', body, socket)
+    // const author = socket.user;
+    // const channel = socket.user.channels.find((channel) => {
+    //   return channel.channel_id === body.channel_id;
+    // });
     const channel = await this.channelsService.getChannelById(body.channel_id);
-    const abilities = this.abilityFactory.createForUser(author);
+    const author = channel.users.find((user) => {
+      return user.user_id === socket.user.id;
+    })
+    const canSend = (author.type & ChannelRelationshipType.Member ||
+      author.type & ChannelRelationshipType.Admin ||
+      author.type & ChannelRelationshipType.Owner)
+    // const author = socket.user;
+    // const abilities = this.abilityFactory.createForUser(author);
 
     body.receiver_id = 0;
     const roomName = `#${body.channel_id}`;
+
     if (
       body.type === MessageType.Text &&
-      abilities.can(ChannelAction.Speak, channel)
+      canSend
+      // abilities.can(ChannelAction.Speak, channel)
     ) {
-      const message = await this.messageService.createMessage(body, author.id);
+      const message = await this.messageService.createMessage(body, socket.user.id);
 
       console.log('message created', message)
 
       this.server
         .to(roomName)
         .emit('message-channel', JSON.stringify(message));
-      this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
+      this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
-      this.logger.debug(`${author.name}: ${body.data}`);
+      this.logger.debug(`${socket.user.name}: ${body.data}`);
     }
   }
 

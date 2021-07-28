@@ -40,55 +40,6 @@ export default class ChannelsController {
     private readonly abilityFactory: ChannelCaslAbilityFactory,
   ) { }
 
-  // TODO: Nobody should be able to read all channels besides admin
-  // Maybe this should only get channels with CASL read permissions
-  @Get()
-  //@UseGuards(PoliciesGuard)
-  //@CheckPolicies(new ReadChannelPolicyHandler())
-  getChannels(
-    @Req() req: RequestWithUser,
-    @Query('name') name: string) {
-      if (!name) {
-        name = "";
-      }
-    let channels = this.channelsService.getAllChannels(name);
-    channels.then((array) => {
-
-
-console.log('getAllChannels', channels)
-
-      let len = array.length;
-      while (--len >= 0) {
-        let users = array[len].users;
-        let relationType = ChannelRelationshipType.Null;
-        users.map((elem) => {
-          if (req.user.id === elem.user_id) {
-            relationType = elem.type;
-          }
-        })
-        if (relationType === ChannelRelationshipType.Banned ||
-          array[len].mode === ChannelMode.private && relationType === ChannelRelationshipType.Null) {
-            array.splice(len, 1);
-          }
-      }
-    })
-    return channels;
-  }
-
-  // TODO: Check if user has a positive relation and CASL read permission
-  @Get(':id')
-  async getChannelById(
-    @Req() req: RequestWithUser,
-    @Param('id') channelId: string,
-  ) {
-    const channel = await this.channelsService.getChannelById(
-      Number(channelId),
-    );
-    const abilities = this.abilityFactory.createForUser(req.user);
-
-    if (abilities.can(ChannelAction.Read, channel)) return channel;
-    throw new HttpException('TODO: Unauthorized read', 400);
-  }
 
   @Get(':id/messages')
   async getMessagesById(
@@ -109,6 +60,58 @@ console.log('getAllChannels', channels)
         afterId ? Number(afterId) : undefined,
       );
     throw new HttpException('TODO: Unauthorized read', 400);
+  }
+
+  // TODO: Check if user has a positive relation and CASL read permission
+  @Get(':id')
+  async getChannelById(
+    @Req() req: RequestWithUser,
+    @Param('id') channelId: string,
+  ) {
+
+    const channel = await this.channelsService.getChannelById(
+      Number(channelId),
+      );
+    const abilities = this.abilityFactory.createForUser(req.user);
+
+    if (abilities.can(ChannelAction.Read, channel)) {
+      return channel;
+    }
+    throw new HttpException('TODO: Unauthorized read', 400);
+  }
+
+
+
+  // TODO: Nobody should be able to read all channels besides admin
+  // Maybe this should only get channels with CASL read permissions
+  @Get()
+  //@UseGuards(PoliciesGuard)
+  //@CheckPolicies(new ReadChannelPolicyHandler())
+  getChannels(
+    @Req() req: RequestWithUser,
+    @Query('name') name: string) {
+    if (!name) {
+      name = "";
+    }
+    let channels = this.channelsService.getAllChannels(name);
+    channels.then((array) => {
+
+      let len = array.length;
+      while (--len >= 0) {
+        let users = array[len].users;
+        let relationType = ChannelRelationshipType.Null;
+        users.map((elem) => {
+          if (req.user.id === elem.user_id) {
+            relationType = elem.type;
+          }
+        })
+        if (relationType === ChannelRelationshipType.Banned ||
+          array[len].mode === ChannelMode.private && relationType === ChannelRelationshipType.Null) {
+          array.splice(len, 1);
+        }
+      }
+    })
+    return channels;
   }
 
   // @Get()

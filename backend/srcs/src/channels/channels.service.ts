@@ -93,7 +93,9 @@ export default class ChannelsService {
       .createQueryBuilder('channel')
       .leftJoinAndSelect('channel.users', 'users')
       .leftJoin('users.user', 'channelUser')
+      .addSelect('channelUser.id')
       .addSelect('channelUser.name')
+      .addSelect('channelUser.imgPath')
       .where('channel.id = :id', { id: id })
       .andWhere('channel.mode != :mode', { mode: ChannelMode.users})
       .getOne();

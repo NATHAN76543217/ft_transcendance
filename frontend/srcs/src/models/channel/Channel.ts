@@ -25,8 +25,14 @@ export type ChannelUserRelationship =
       user: ChannelUser;
     };
 
-export enum MessageType {}
-// TODO
+export enum MessageType {
+  Text,
+  GameInvite,
+  GameSpectate,
+  FriendInvite,
+  RoleUpdate,
+  PrivateMessage
+}
 
 export type Message = {
   id: number;
