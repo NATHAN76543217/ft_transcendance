@@ -48,8 +48,15 @@ export default class ChannelsController {
   getChannels(
     @Req() req: RequestWithUser,
     @Query('name') name: string) {
+      if (!name) {
+        name = "";
+      }
     let channels = this.channelsService.getAllChannels(name);
     channels.then((array) => {
+
+
+console.log('getAllChannels', channels)
+
       let len = array.length;
       while (--len >= 0) {
         let users = array[len].users;
