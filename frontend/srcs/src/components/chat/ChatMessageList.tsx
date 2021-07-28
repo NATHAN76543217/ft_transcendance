@@ -13,13 +13,11 @@ async function fetchChannelMessages(
       `/api/channels/${channelId}/messages/`,
       { params: { beforeId } }
     );
-
     return res.data;
   } catch (e) {
-    // TODO: Handle error
+    return []
   }
 
-  return [];
 }
 
 async function fetchUserMessages(
@@ -32,13 +30,10 @@ async function fetchUserMessages(
       `/api/users/${user1_id}/${user2_id}/messages/`,
       { params: { beforeId } }
     );
-
     return res.data;
   } catch (e) {
-    // TODO: Handle error
+    return []
   }
-
-  return [];
 }
 
 

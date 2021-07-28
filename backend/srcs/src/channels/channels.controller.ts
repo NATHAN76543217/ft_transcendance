@@ -27,6 +27,7 @@ import { JoinChannelDto } from './dto/joinChannel.dto';
 import { join } from 'path';
 import { ChannelMode } from './utils/channelModeTypes';
 import UsersController from 'src/users/users.controller';
+import { ChannelMessageAction, ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability.factory';
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtAuthenticationGuard)
@@ -38,6 +39,7 @@ export default class ChannelsController {
   constructor(
     private readonly channelsService: ChannelsService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
+    private readonly messageAbilityFactory: ChannelMessageCaslAbilityFactory,
   ) { }
 
 
@@ -51,14 +53,22 @@ export default class ChannelsController {
     const channel = await this.channelsService.getChannelById(
       Number(channelId),
     );
-    const abilities = this.abilityFactory.createForUser(req.user);
+    const relation = channel.users.find((user) => {
+      return user.user_id === req.user.id;
+    })
+    // const abilities = this.abilityFactory.createForUser(req.user);
+    const abilities = this.messageAbilityFactory.createForChannelRelationship(relation);
 
-    if (abilities.can(ChannelAction.Read, channel))
+    if (abilities.can(ChannelMessageAction.Read, channel)) {
+
       return this.channelsService.getMessagesById(
         channel.id,
         beforeId ? Number(beforeId) : undefined,
         afterId ? Number(afterId) : undefined,
-      );
+        );
+      } else {
+        return [];
+      }
     throw new HttpException('TODO: Unauthorized read', 400);
   }
 

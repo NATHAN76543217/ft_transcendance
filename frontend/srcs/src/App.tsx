@@ -31,7 +31,6 @@ import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import FailedLogin from "./pages/failedLogin/failedLogin";
 import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
-import { ChannelUser } from "./models/channel/Channel";
 
 // let change_bg_color_with_size =
 //   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing

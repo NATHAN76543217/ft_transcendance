@@ -39,6 +39,7 @@ import { ChannelMode } from './utils/channelModeTypes';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
 import ChannelRelationshipByIdsNotFound from './exception/ChannelRelationshipByIdsNotFound.exception';
 import { DestroyChannelDto } from './dto/DestroyChannel.dto';
+import { ChannelMessageAction, ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability.factory';
 
 // TODO: Rename to EventsModule...
 @Injectable()
@@ -56,6 +57,7 @@ export class ChannelsGateway
     private readonly channelRelationshipsService: ChannelRelationshipsService,
     private readonly messageService: MessageService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
+    private readonly messageAbilityFactory: ChannelMessageCaslAbilityFactory,
     private readonly userRelationshipService: UserRelationshipsService,
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: UsersService,
@@ -406,7 +408,7 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
-    console.log('message-channel', body, socket)
+    console.log('message-channel', body)
     // const author = socket.user;
     // const channel = socket.user.channels.find((channel) => {
     //   return channel.channel_id === body.channel_id;
@@ -415,19 +417,22 @@ export class ChannelsGateway
     const author = channel.users.find((user) => {
       return user.user_id === socket.user.id;
     })
-    const canSend = (author.type & ChannelRelationshipType.Member ||
-      author.type & ChannelRelationshipType.Admin ||
-      author.type & ChannelRelationshipType.Owner)
+    // const canSend = (author.type & ChannelRelationshipType.Member ||
+    //   author.type & ChannelRelationshipType.Admin ||
+    //   author.type & ChannelRelationshipType.Owner)
     // const author = socket.user;
+
+    // console.log('author', author)
     // const abilities = this.abilityFactory.createForUser(author);
+    const abilities = this.messageAbilityFactory.createForChannelRelationship(author);
 
     body.receiver_id = 0;
     const roomName = `#${body.channel_id}`;
 
     if (
       body.type === MessageType.Text &&
-      canSend
-      // abilities.can(ChannelAction.Speak, channel)
+      // canSend
+      abilities.can(ChannelMessageAction.Create, channel)
     ) {
       const message = await this.messageService.createMessage(body, socket.user.id);
 
@@ -439,6 +444,7 @@ export class ChannelsGateway
       this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
       this.logger.debug(`${socket.user.name}: ${body.data}`);
+      console.log("can't speak")
     }
   }
 
@@ -454,6 +460,16 @@ export class ChannelsGateway
     const author = socket.user;
     // const channel = await this.channelsService.getChannelById(body.channel_id);
     // const abilities = this.abilityFactory.createForUser(author);
+
+    try {
+      const relation = await
+        this.userRelationshipService.getUserRelationshipByIds(body.receiver_id.toString(), socket.user.id.toString());
+      if (relation.type !== UserRelationshipTypes.friends) {
+        return
+      }
+    } catch (error) {
+      return
+    }
 
     const roomName = `${body.receiver_id}`;
     if (
@@ -522,7 +538,7 @@ export class ChannelsGateway
   async leaveChannel(socket: SocketWithUser, channel_id: number, type: ChannelRelationshipType) {
     const roomName = `#${channel_id}`;
     this.logger.log(`User leaving channel ${channel_id}`);
-    
+
     socket.leave(roomName);
     // TODO: Check which data to send on join
     // TODO: Use a status event and set connected as its value

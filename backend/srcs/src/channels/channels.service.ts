@@ -133,13 +133,14 @@ export default class ChannelsService {
     beforeId?: number,
     afterId?: number,
   ) {
-    const maxCount = 20;
+    const maxCount = 50;
 
     const query = this.messageRepository
       .createQueryBuilder('message')
       .where('message.channel_id = :channelId', { channelId })
+      .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
+      .take(maxCount)
       .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
-      .take(maxCount);
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });

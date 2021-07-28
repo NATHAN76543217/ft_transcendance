@@ -14,6 +14,7 @@ import MessageService from 'src/messages/messages.service';
 import UserRelationshipsService from 'src/users/relationships/user-relationships.service';
 import UsersModule from 'src/users/users.module';
 import UsersService from 'src/users/users.service';
+import { ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability.factory';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import UsersService from 'src/users/users.service';
   providers: [
     MessageService,
     ChannelCaslAbilityFactory,
+    ChannelMessageCaslAbilityFactory,
     ChannelRelationshipsService,
     ChannelsService,
     ChannelsGateway,

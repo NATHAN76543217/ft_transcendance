@@ -20,6 +20,7 @@ import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
 import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
+import { UserRelationshipTypes } from './relationships/userRelationshipTypes';
 
 @Controller('users')
 @SerializeOptions({
@@ -30,7 +31,7 @@ export default class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userRelationshipsService: UserRelationshipsService,
-  ) {}
+  ) { }
 
   @Get()
   getUsers(@Query('name') name: string) {
@@ -60,14 +61,23 @@ export default class UsersController {
 
     //TODO use abilites
     // if (abilities.can(ChannelAction.Read, channel))
-      const messages = await this.usersService.getMessagesById(
-        Number(user1_id),
-        Number(user2_id),
-        beforeId ? Number(beforeId) : undefined,
-        afterId ? Number(afterId) : undefined,
-      );
-      console.log('messages', messages)
-      return messages;
+    try {
+      const relation = await this.userRelationshipsService.getUserRelationshipByIds(user1_id, user2_id);
+      if (relation.type !== UserRelationshipTypes.friends) {
+        return [];
+      }
+    } catch (error) {
+      return [];
+    }
+
+    const messages = await this.usersService.getMessagesById(
+      Number(user1_id),
+      Number(user2_id),
+      beforeId ? Number(beforeId) : undefined,
+      afterId ? Number(afterId) : undefined,
+    );
+    console.log('messages', messages)
+    return messages;
     // throw new HttpException('TODO: Unauthorized read', 400);
   }
 

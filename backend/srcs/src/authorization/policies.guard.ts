@@ -7,10 +7,14 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
+import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import User from 'src/users/user.entity';
 
 export interface IAbilityFactory<T extends Ability> {
   createForUser(user: User): T;
+}
+export interface IChannelMessageAbilityFactory<T extends Ability> {
+  createForChannelRelationship(relation: ChannelRelationship): T;
 }
 
 export interface IPolicyHandler<T extends Ability> {

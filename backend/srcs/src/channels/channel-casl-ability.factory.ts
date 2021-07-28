@@ -10,6 +10,7 @@ import { IAbilityFactory } from 'src/authorization/policies.guard';
 import User from 'src/users/user.interface';
 import { UserRole } from 'src/users/utils/userRole';
 import Channel from './channel.entity';
+import ChannelRelationship from './relationships/channel-relationship.interface';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
 import { ChannelMode } from './utils/channelModeTypes';
 
@@ -42,7 +43,7 @@ export class ChannelCaslAbilityFactory
     } else {
       // User abilities
       can(ChannelAction.Create, 'all');
-      can(ChannelAction.Read, 'all');
+      // can(ChannelAction.Read, 'all');
     }
 
     // Can join channel if public
@@ -77,8 +78,14 @@ export class ChannelCaslAbilityFactory
       },
     });
 
+    can(ChannelAction.Read, Channel, {
+      users: {
+        user_id: user.id,
+      },
+    });
+
     // Banned members can't join or speak
-    cannot([ChannelAction.Join, ChannelAction.Speak], Channel, {
+    cannot([ChannelAction.Join, ChannelAction.Speak, ChannelAction.Read], Channel, {
       users: {
         $elemMatch: { user_id: user.id, type: ChannelRelationshipType.Banned },
       },
