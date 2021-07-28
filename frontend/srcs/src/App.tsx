@@ -307,17 +307,19 @@ class App extends React.Component<AppProps, AppState> {
     if (this.state.user) {
       let a = this.state.user.channels.slice();
       let index = a.findIndex((channel: any) => {
-        return (Number(channel.channel.id) === Number(channel_id));
+        return (Number(channel.channel.id) === channel_id);
       })
       console.log('updateChannelRelationship - index: ', index)
       if (index !== -1) {
+        console.log('user_id === this.state.user.id', user_id === this.state.user.id)
+        console.log('user_id', user_id)
+        console.log('this.state.user.id', this.state.user.id)
         if (user_id === this.state.user.id) {
           if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
             a[index].type = newType
           } else {
             a.splice(index, 1)
           }
-
         } else {
           const userIndex = a[index].channel.users.findIndex((elem) => {
             return elem.user.id === user_id
@@ -344,6 +346,9 @@ class App extends React.Component<AppProps, AppState> {
           ...this.state.user,
           channels: a
         }
+
+console.log('---- newUser', newUser);
+
         this.setState({ user: newUser });
       } else if (newType !== ChannelRelationshipType.Null) {
         try {
@@ -403,8 +408,9 @@ class App extends React.Component<AppProps, AppState> {
     })
 
     socket.on('updateChannelRelationship-back', (data: any) => {
+      console.log('updateChannelRelationship-back', data)
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-        this.updateChannelRelationship(data.channel_id, data.type)
+        this.updateChannelRelationship(Number(data.channel_id), Number(data.user_id), data.type)
       }
     })
 
@@ -412,7 +418,7 @@ class App extends React.Component<AppProps, AppState> {
       console.log('joinChannel-back', data)
       // if (data && Number(data.user_id) === Number(this.state.user?.id)) {
       if (data) {
-        this.updateChannelRelationship(data.channel_id, data.user_id, data.type)
+        this.updateChannelRelationship(Number(data.channel_id), Number(data.user_id), data.type)
       }
     })
 
@@ -421,7 +427,7 @@ class App extends React.Component<AppProps, AppState> {
       // if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
       if (data) {
         const newType = data.type ? data.type : ChannelRelationshipType.Null
-        this.updateChannelRelationship(data.channel_id, data.user_id, newType)
+        this.updateChannelRelationship(Number(data.channel_id), Number(data.user_id), newType)
       }
     })
 
