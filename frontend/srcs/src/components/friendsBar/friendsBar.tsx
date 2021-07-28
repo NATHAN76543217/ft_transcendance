@@ -131,6 +131,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           name={relation.user.name}
           status={relation.user.status}
           imgPath={relation.user.imgPath}
+          id={relation.user.id}
         />
       );
     } else {
