@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { TextInput } from "../utilities/TextInput";
 import { Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
+import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 
 enum MessageType {
   Text,
@@ -29,6 +30,7 @@ interface IMessageFormValues {
 
 export type ChatInputProps = {
   id: string;
+  myRole: ChannelRelationshipType;
 };
 
 export function ChatInput(props: ChatInputProps) {
@@ -71,33 +73,40 @@ export function ChatInput(props: ChatInputProps) {
     socket.emit("message-user", message);
   };
 
-  return (
-    <form
-      className={`${className}`}
-      onSubmit={handleSubmit((values) => {
-        if (socket && isChannel) {
-          sendMessageChannel(
-            socket,
-            Number(props.id.substring(1)),
-            values.message
-          );
-          reset();
-        } else if (socket && !isNaN(Number(props.id))) {
-          sendMessageUser(
-            socket,
-            Number(props.id),
-            values.message
-          );
-          reset();
-        }
-      })}
-    >
-      <TextInput
-        name="message"
-        register={register}
-        required={true}
-        error={errors.message}
-      />
-    </form>
-  );
+  if (
+    props.myRole &
+    (ChannelRelationshipType.Owner | ChannelRelationshipType.Admin | ChannelRelationshipType.Member)
+  ) {
+    return (
+      <form
+        className={`${className}`}
+        onSubmit={handleSubmit((values) => {
+          if (socket && isChannel) {
+            sendMessageChannel(
+              socket,
+              Number(props.id.substring(1)),
+              values.message
+            );
+            reset();
+          } else if (socket && !isNaN(Number(props.id))) {
+            sendMessageUser(
+              socket,
+              Number(props.id),
+              values.message
+            );
+            reset();
+          }
+        })}
+      >
+        <TextInput
+          name="message"
+          register={register}
+          required={true}
+          error={errors.message}
+        />
+      </form>
+    );
+  } else {
+    return <div></div>;
+  }
 }

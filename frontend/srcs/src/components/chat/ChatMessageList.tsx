@@ -59,7 +59,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
     : undefined; */
 
   useEffect(() => {
-    console.log('---- useEffect - socket ----')
+    // console.log('---- useEffect - socket ----')
 
     socket?.on("message-channel", (data) => {
       const parsedData = JSON.parse(data)
@@ -90,7 +90,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
   // This fetches previous messages
   useEffect(() => {
-    console.log('---- useEffect - props.id ----')
+    // console.log('---- useEffect - props.id ----')
 
     async function appendOlderMessages() {
       if (isChannel) {
@@ -113,7 +113,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
   // const messages = useChatMessages();
 
-  console.log(`Rendering ${messages.length} messages!`);
+  // console.log(`Rendering ${messages.length} messages!`);
 
   return (
     <div className={className}>

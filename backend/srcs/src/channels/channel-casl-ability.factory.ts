@@ -43,7 +43,7 @@ export class ChannelCaslAbilityFactory
     } else {
       // User abilities
       can(ChannelAction.Create, 'all');
-      // can(ChannelAction.Read, 'all');
+      can(ChannelAction.Read, 'all');
     }
 
     // Can join channel if public

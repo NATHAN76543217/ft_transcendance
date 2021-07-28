@@ -17,7 +17,7 @@ function FriendItem({ name, status, imgPath, id }: FriendsProps) {
     const displayProfilePicture = () => {
         if (id) {
             return (
-                <Link className="inline w-10 h-10 mx-4 my-auto bg-white " to={friendUrl}>
+                <Link className="inline w-10 h-10 mx-4 my-auto " to={friendUrl}>
                     <img
                         src={path}
                         alt='friends_1_avatar'
@@ -29,7 +29,7 @@ function FriendItem({ name, status, imgPath, id }: FriendsProps) {
                 <img
                     src={path}
                     alt='friends_1_avatar'
-                    className='inline w-10 h-10 mx-4 my-auto bg-white rounded-full' />
+                    className='inline w-10 h-10 mx-4 my-auto rounded-full' />
             )
         }
     }

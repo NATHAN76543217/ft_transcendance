@@ -69,7 +69,7 @@ export function ChatNotificationCounter({
 }: ChatNotificationCounterProps) {
   if (count === 0) return <div></div>;
   return (
-    <div className="absolute h-auto px-2 text-center text-white bg-red-600 rounded-full ring-2 ring-white top-2 right-2">
+    <div className="absolute h-auto px-2 text-center text-white bg-red-600 rounded-full ring-2 ring-white top-2 right-1">
       {count}
     </div>
   );
@@ -90,8 +90,8 @@ export function ChatBarItem({ channel, user }: ChatBarItemProps) {
         activeClassName="bg-gray-300 border-red-500 border-l-4 text-red-500 hover:border-red-500"
         to={redirect}
       >
-        <ChatNotificationCounter count={5} />
         <ChatTitle channel={channel} user={user}></ChatTitle>
+        <ChatNotificationCounter count={5} />
       </NavLink>
     </div>
   );

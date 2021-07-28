@@ -27,8 +27,8 @@ export function ChatTitle({ channel, user, isInHeader }: ChatTitleProps) {
   let name = channel ? channel.name : (user ? user.name : "")
   name = isInHeader || name.length <= 10 ? name : name.substring(0,10) + '...'
   return (
-    <div className="flex items-center">
-      <img className="h-8" alt="chat" src={imgPath} />
+    <div className="flex items-center pl-1">
+      <img className="w-8 h-8 rounded-full" alt="chat" src={imgPath} />
       <div className="pl-2 font-semibold">{name}</div>
     </div>
   );

@@ -84,10 +84,10 @@ export default function ChatPage({
     }
   }
 
-    console.log('--- useEffect --- match.params.id', match.params.id)
-    console.log('channelIdParam', channelIdParam)
-    console.log('userIdParam', userIdParam)
-    console.log('currentUserRel', currentUserRel)
+    // console.log('--- useEffect --- match.params.id', match.params.id)
+    // console.log('channelIdParam', channelIdParam)
+    // console.log('userIdParam', userIdParam)
+    // console.log('currentUserRel', currentUserRel)
     let paramChannel = undefined;
     let paramUser = undefined;
     if (!isNaN(channelIdParam)) {
