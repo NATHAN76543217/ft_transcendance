@@ -1,5 +1,7 @@
 FROM  node:16.2.0-alpine3.13
 
+# TODO update front packages
+# TODO bdd seeder implementation
 # Prepare workdir
 RUN     npm install -g npm@7.19.1
 COPY    --chown=node:node srcs/package*.json    /app/

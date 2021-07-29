@@ -1,4 +1,4 @@
-import User from 'src/users/user.entity';
+import User from '../../users/user.entity';
 import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import Channel from '../channel.entity';
 import { ChannelRelationshipTypes } from './channelRelationshipTypes';
