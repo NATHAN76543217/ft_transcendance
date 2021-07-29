@@ -4,4 +4,5 @@ export default interface UpdateRelationshipDto {
   channel_id: number;
   user_id: number;
   type: UserRelationshipTypes;
+  name: string;
 }

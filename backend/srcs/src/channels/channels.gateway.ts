@@ -40,6 +40,7 @@ import ChannelNotFound from './exception/ChannelNotFound.exception';
 import ChannelRelationshipByIdsNotFound from './exception/ChannelRelationshipByIdsNotFound.exception';
 import { DestroyChannelDto } from './dto/DestroyChannel.dto';
 import { ChannelMessageAction, ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability.factory';
+import UpdateUserInfoDto from 'src/messages/dto/updateUserInfo.dto';
 
 // TODO: Rename to EventsModule...
 @Injectable()
@@ -82,6 +83,9 @@ export class ChannelsGateway
           user1_id,
           user2_id,
         );
+        if (!body.name) {
+          // body.name = relationship.
+        }
       if (body.type !== UserRelationshipTypes.null) {
         this.userRelationshipService.updateUserRelationship(relationship.id, {
           type: body.type,
@@ -106,6 +110,38 @@ export class ChannelsGateway
         user_id: socket.user.id.toString(),
         type: body.type,
       });
+  }
+
+  @SubscribeMessage('updateUserInfo-front')
+  async handleUpdateUserInfo(
+    @ConnectedSocket() socket: SocketWithUser,
+    @MessageBody() body: UpdateUserInfoDto,
+  ) {
+
+    console.log('updateUserInfo-front')
+
+    const user_id = socket.user.id
+    // try {
+      // let user;
+      // user = await this.usersService.getUserById(user_id);
+      // const name = body.name ? body.name : user.name;
+      // const imgPath = body.imgPath ? body.imgPath : user.imgPath;
+      // this.usersService.updateUser(user.id, {
+      //   ...user,
+      //   name: name,
+      //   imgPath: imgPath,
+      // });
+      socket.emit('updateUserInfo-back', { user_id: user_id, name: body.name, imgPath: body.imgPath  });
+      const relations = await this.userRelationshipService.getAllUserRelationshipsFromOneUser(user_id.toString())
+      relations.forEach((rel) => {
+        const friend_id = user_id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id
+        socket
+          .to(friend_id.toString())
+          .emit('updateUserInfo-back', { user_id: user_id, name: body.name, imgPath: body.imgPath });
+      })
+    // } catch (error) {
+      // console.log(error);
+    // }
   }
 
   @SubscribeMessage('updateRole-front')

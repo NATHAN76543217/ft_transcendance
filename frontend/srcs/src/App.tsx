@@ -294,6 +294,35 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
+  updateOneRelationshipNameAndImgPath = async (user_id: number, newName: string, newImgPath: string) => {
+    let a = this.state.relationshipsList.slice();
+    let index = a.findIndex((relation: AppUserRelationship) => {
+      return (Number(relation.user.id) === Number(user_id));
+    })
+    if (index !== -1 && this.state.user) {
+      if (newName) {
+        a[index].user.name = newName
+      }
+      if (newImgPath) {
+        a[index].user.imgPath = newImgPath
+      }
+      this.setState({ relationshipsList: a });
+    }
+  }
+
+  updateNameAndImgPath = async (newName: string, newImgPath: string) => {
+    let newUser = this.state.user;
+    if (newUser) {
+      if (newName) {
+        newUser.name = newName;
+      }
+      if (newImgPath) {
+        newUser.imgPath = newImgPath;
+      }
+      this.setState({ user: newUser });
+    }
+  }
+
   updateRole = async (newRole: UserRole) => {
     let newUser = this.state.user;
     if (newUser) {
@@ -398,6 +427,17 @@ console.log('---- newUser', newUser);
     socket.on('updateRelationship-back', (data: any) => {
       if (data) {
         this.updateOneRelationshipType(data.user_id, data.type)
+      }
+    })
+
+    socket.on('updateUserInfo-back', (data: any) => {
+      console.log('updateUserInfo', data)
+      if (data) {
+        if (Number(data.user_id) === this.state.user?.id) {
+          this.updateNameAndImgPath(data.name, data.imgPath)
+        } else {
+          this.updateOneRelationshipNameAndImgPath(Number(data.user_id), data.name, data.imgPath);
+        }
       }
     })
 

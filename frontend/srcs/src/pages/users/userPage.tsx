@@ -65,49 +65,7 @@ const handleClickTwoFactorAuth = async (
 //   } catch (error) {}
 // };
 
-const onFileChange = async (
-  fileChangeEvent: any,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  setUser: any
-) => {
-  submitForm(fileChangeEvent.target.files[0], userInfo, setUserInfo, setUser);
-};
 
-const submitForm = async (
-  valuesCurrentFile: any,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  setUser: any
-) => {
-  if (!valuesCurrentFile) {
-    return false;
-  }
-
-  let formData = new FormData();
-
-  formData.append("photo", valuesCurrentFile, valuesCurrentFile.name);
-
-  try {
-    const data = await axios.post("/api/photos/upload", formData);
-    let oldImgPath = userInfo.user.imgPath;
-    let newImgPath = data.data.path.replace("uploads/", "");
-    setUserInfo({
-      ...userInfo,
-      user: {
-        ...userInfo.user,
-        imgPath: newImgPath,
-      },
-    });
-    const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
-      imgPath: newImgPath,
-    });
-    if (oldImgPath !== "default-profile-picture.png") {
-      await axios.delete("/api/photos/" + oldImgPath);
-    }
-    setUser(dataUser.data);
-  } catch (error) { }
-};
 
 // const updateRelationshipState = async (
 //   newType: UserRelationshipType,
@@ -121,40 +79,7 @@ const submitForm = async (
 // };
 
 
-const onSubmitChangeUsername = async (
-  values: IUserChangeNameFormValues,
-  userInfo: UserPageState,
-  setUserInfo: any,
-  setUser: any
-) => {
-  try {
-    const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
-      name: values.username,
-    });
 
-    console.log("dataUser", dataUser);
-
-    setUserInfo({
-      ...userInfo,
-      user: {
-        ...userInfo.user,
-        name: values.username,
-      },
-      usernameErrorMessage: "",
-    });
-    setUser(dataUser.data);
-    return true;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 400) {
-        setUserInfo({
-          ...userInfo,
-          usernameErrorMessage: (error.response?.data as ExceptionData).message,
-        });
-      }
-    }
-  }
-};
 
 type UserPageParams = {
   id: string;
@@ -193,6 +118,99 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
     },
     usernameErrorMessage: "",
   });
+
+
+  const onSubmitChangeUsername = async (
+    values: IUserChangeNameFormValues,
+    userInfo: UserPageState,
+    setUserInfo: any,
+    setUser: any
+  ) => {
+    
+    
+    try {
+      const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
+        name: values.username,
+      });
+  
+      console.log("dataUser", dataUser);
+  
+      contextValue.socket?.emit('updateUserInfo-front', {
+        name: values.username
+      })
+    
+
+      // setUserInfo({
+      //   ...userInfo,
+      //   user: {
+      //     ...userInfo.user,
+      //     name: values.username,
+      //   },
+      //   usernameErrorMessage: "",
+      // });
+      // setUser(dataUser.data);
+      return true;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          setUserInfo({
+            ...userInfo,
+            usernameErrorMessage: (error.response?.data as ExceptionData).message,
+          });
+        }
+      }
+    }
+  };
+
+  const onFileChange = async (
+    fileChangeEvent: any,
+    userInfo: UserPageState,
+    setUserInfo: any,
+    setUser: any
+  ) => {
+    submitForm(fileChangeEvent.target.files[0], userInfo, setUserInfo, setUser);
+  };
+  
+  const submitForm = async (
+    valuesCurrentFile: any,
+    userInfo: UserPageState,
+    setUserInfo: any,
+    setUser: any
+  ) => {
+    if (!valuesCurrentFile) {
+      return false;
+    }
+  
+    let formData = new FormData();
+  
+    formData.append("photo", valuesCurrentFile, valuesCurrentFile.name);
+  
+    try {
+      const data = await axios.post("/api/photos/upload", formData);
+      let oldImgPath = userInfo.user.imgPath;
+      let newImgPath = data.data.path.replace("uploads/", "");
+
+      // setUserInfo({
+        //   ...userInfo,
+        //   user: {
+          //     ...userInfo.user,
+          //     imgPath: newImgPath,
+          //   },
+          // });
+          const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
+            imgPath: newImgPath,
+          });
+          // setUser(dataUser.data);
+          
+          contextValue.socket?.emit('updateUserInfo-front', {
+            imgPath: newImgPath
+          })
+      
+      if (oldImgPath !== "default-profile-picture.png") {
+        await axios.delete("/api/photos/" + oldImgPath);
+      }
+    } catch (error) { }
+  };
 
   const updateOnLoad: any = useCallback(() => {
     onLoad(Number(userId), userInfo, setUserInfo, contextValue);
