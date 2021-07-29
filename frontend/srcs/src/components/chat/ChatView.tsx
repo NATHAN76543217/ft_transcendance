@@ -108,7 +108,7 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
   }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel])
 
   return (
-    <div className={`flex flex-col flex-grow `}>
+    <div className={`flex flex-col flex-grow`}>
       <ChatHeader
         myRole={channelInfo.myRole}
         isChannel={isChannel}

@@ -7,11 +7,12 @@ import chatContext from "../../pages/chat/chatContext";
 
 type ChatMessageProps = {
   message: Message;
+  sameSender: boolean;
 };
 
 
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, sameSender }: ChatMessageProps) {
   const { currentChannelRel } = useContext(chatContext);
   const { relationshipsList, user } = useContext(AppContext);
 
@@ -42,11 +43,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const senderProfileUrl = `/users/${sender?.id ?? ""}`;
   const senderName = sender ? sender.name : 'Unknown user'
   
-  // console.log('message', message)
-  // console.log('sender', sender)
-  
   const displaySenderName = () => {
-    if (!isMe) {
+    if (!isMe && !sameSender) {
       return (
         <div className='flex-none'>
             <div className='flex items-center pl-12 '>
@@ -60,7 +58,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
   }
 
   const displaySenderImage = () => {
-    if (!isMe) {
+    if (!isMe && !sameSender) {
       return (
         <Link className="flex w-8 mr-2 " to={senderProfileUrl}>
           <div className='flex items-center '>
@@ -68,21 +66,28 @@ export function ChatMessage({ message }: ChatMessageProps) {
           </div>
         </Link>
       );
+    } else {
+      return (
+        <div className='w-8 mr-2'></div>
+      )
     }
   }
 
-  const classMe = 'ml-16'
-  const classOthers = 'border-gray-400 mr-16'
-  // const className = 
-  const classMessageMe = 'px-4 py-1 bg-blue-300 rounded-md '
-  const classMessageOthers = 'px-4 py-1 bg-gray-300 rounded-md '
+  const classMe = ''
+  const classOthers = ''
+
+  const classBlockMe = 'justify-end'
+  const classBlockOthers = ''
+  
+  const classMessageMe = 'bg-blue-300 '
+  const classMessageOthers = 'bg-gray-300 '
 
   return (
-    <div className={`items-center py-2 px-2 ${isMe ? classMe : classOthers}`}>
+    <div className={` w-full object-right pb-2 px-2 ${isMe ? classMe : classOthers}`}>
       {displaySenderName()}
-      <div className='flex items-center w-full'>
+      <div className={`flex flex-shrink   ${isMe ? classBlockMe : classBlockOthers}`}>
         {displaySenderImage()}
-        <span className={`flex items-center w-full ${isMe ? classMessageMe : classMessageOthers}`}>
+        <span className={`px-2 break-words py-1 w-auto lg:max-w-lg md:max-w-sm max-w-sm rounded-md ${isMe ? classMessageMe : classMessageOthers}`}>
           {message.data}
         </span>
       </div>
