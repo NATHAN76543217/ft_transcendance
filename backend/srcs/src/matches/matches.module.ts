@@ -4,7 +4,7 @@ import MatchesService from "./matches.service"
 import Match from "./matches.entity"
 import {
     PongGateway
-} from "../pong/server/socketserver"
+} from "../pong/gateway"
 
 import { TypeOrmModule } from "@nestjs/typeorm"
 
