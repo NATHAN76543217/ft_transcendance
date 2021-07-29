@@ -11,13 +11,12 @@ import { UserRole } from "../../models/user/IUser";
 import CustomButton from "../utilities/CustomButton";
 import AdminUserElement from "./adminUserElement";
 
-
 const setchannelRelationshipsList = async (id: number, adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any) => {
   try {
     const data = await axios.get(
       `/api/channels/${id}`
     );
-    console.log('setchannelRelationshipsList', data)
+    // console.log('setchannelRelationshipsList - ' + data.data.id, data)
     let a = data.data.users.slice();
     a.sort((relation1: ChannelRelationship, relation2: ChannelRelationship) =>
       relation1.user.name.localeCompare(relation2.user.name)
@@ -134,34 +133,6 @@ const translateRelationTypeToRole = (type: ChannelRelationshipType) => {
   }
 }
 
-// const setChannelUserRelationship = async (
-//   user_id: number,
-//   type: ChannelRelationshipType,
-//   adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
-// ) => {
-//   try {
-//     await axios.patch(`/api/channels/${adminChannelElementInfo.channel_id}/update/${user_id}`, {
-//       type: type,
-//     });
-//     setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
-//   } catch (error) { console.log(error) }
-// }
-
-// const kickUserFromChannel = async (
-//   user_id: number,
-//   adminChannelElementInfo: ChannelElementStates, setAdminChannelElementInfo: any
-// ) => {
-//   try {
-//     await axios.delete(`/api/channels/${adminChannelElementInfo.channel_id}/kick/${user_id}`,);
-//     setchannelRelationshipsList(adminChannelElementInfo.channel_id, adminChannelElementInfo, setAdminChannelElementInfo)
-//   } catch (error) { console.log(error) }
-// }
-
-
-
-
-
-
 interface ChannelElementProps {
   id: number;
   name: string;
@@ -189,23 +160,6 @@ function AdminChannelElement(props: ChannelElementProps) {
     channel_id: props.id,
     myRole: props.myRole,
   });
-
-  // const updateChannelIdAndRole = useCallback(() => {
-  //   setAdminChannelElementInfo({
-  //     ...adminChannelElementInfo,
-  //     channel_id: props.id,
-  //     myRole: props.myRole,
-  //   })
-  // }, [props.id, props.myRole, adminChannelElementInfo])
-
-  // useEffect(() => {
-  //   // setAdminChannelElementInfo({
-  //   //   ...adminChannelElementInfo,
-  //   //   channel_id: props.id,
-  //   //   myRole: props.myRole,
-  //   // })
-  //   updateChannelIdAndRole()
-  // }, [props.id, props.myRole, updateChannelIdAndRole])
 
   useEffect(() => {
     const updateChannelIdAndRole = () => {
@@ -320,7 +274,10 @@ function AdminChannelElement(props: ChannelElementProps) {
     }
   }
 
-  setchannelRelationshipsList(props.id, adminChannelElementInfo, setAdminChannelElementInfo);
+
+  if (!adminChannelElementInfo.channelRelationshipsList.length) {
+    setchannelRelationshipsList(props.id, adminChannelElementInfo, setAdminChannelElementInfo);
+  }
 
   const localChangeUsersListButtonState = () => {
     if (!props.isChannelSettings) {

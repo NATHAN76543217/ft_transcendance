@@ -142,6 +142,7 @@ class AdminChannels extends React.Component<
 
     const sectionClass =
       "h-auto pt-4 pb-4 mx-4 my-4 bg-gray-200 flex-grow text-center";
+
     return (
       <div className="w-auto">
         <h2 className="text-3xl font-bold text-center">
@@ -152,7 +153,7 @@ class AdminChannels extends React.Component<
             <ul className="relative w-auto pt-4 pl-4">
               {this.state.list.map((channel) => {
                 return (
-                  <li key={channel.id} className="">
+                  <li key={channel.id} className="my-4">
                     <AdminChannelElement
                       id={channel.id}
                       name={channel.name}
