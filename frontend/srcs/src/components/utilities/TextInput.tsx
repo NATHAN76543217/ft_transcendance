@@ -40,8 +40,6 @@ type TextInputErrorProps = {
 export function TextInputError({ error }: TextInputErrorProps) {
   let message: string = "\u200b";
 
-  console.log("Textinput error", error);
-
   if (error !== undefined) {
     if (error.message) message = error.message;
     else if (error.type === "required") message = "This field is required";

@@ -58,7 +58,7 @@ export function TwoFactorSetupModal({
   return (
     <Modal
       visible={visible}
-      hide={hide}
+      hide={() => hide()}
       title={title}
       className="max-w-xl p-4 m-auto bg-white rounded-sm"
     >
