@@ -50,7 +50,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
   const { socket, user } = useContext(AppContext);
   // const { currentChannelRel, currentUserRel } = useContext(chatContext);
   const [messages, setMessages] = useState<Message[]>([]);
-  
+
   const isChannel = props.id && props.id[0] === 'c' ? true : false;
 
   // This will be used to fetch more past messages
@@ -74,7 +74,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
       // console.log("Incoming private message:", parsedData);
       if (!isNaN(Number(props.id)) &&
         ((Number(props.id) === Number(parsedData.receiver_id)) ||
-        (Number(props.id) === Number(parsedData.sender_id)))
+          (Number(props.id) === Number(parsedData.sender_id)))
       ) {
         setMessages((olderMessages) => [...olderMessages, parsedData]);
       }
@@ -115,17 +115,29 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
   // console.log(`Rendering ${messages.length} messages!`);
 
+  let previousSenderId = 0;
+  let sameSender = false;
+
   return (
-    <div className={className}>
-      <ul>
-        {messages.map((m) => {
-          return (
-            <li key={m.id}>
-              <ChatMessage message={m} />
-            </li>
-          );
-        })}
-      </ul>
+      
+    <div className='flex justify-center h-screen ml-4 overflow-y-scroll rounded-md'>
+
+      <div className='flex-grow max-w-2xl p-2 py-4 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md'>
+        <ul>
+          {messages.map((m) => {
+            sameSender = previousSenderId === m.sender_id;
+            previousSenderId = m.sender_id;
+            return (
+              <li key={m.id} className=''>
+                <ChatMessage
+                  message={m}
+                  sameSender={sameSender}
+                  />
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }
