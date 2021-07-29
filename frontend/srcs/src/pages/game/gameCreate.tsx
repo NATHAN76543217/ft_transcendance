@@ -1,3 +1,5 @@
+import { Slider } from "@material-ui/core";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 function GameCreate() {
@@ -10,6 +12,40 @@ function GameCreate() {
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto"
   const textButtonClassname = 'text-2xl font-bold text-gray-900'
 
+  const [value, setValue] = useState<number>(2);
+
+  const handleChange = (event: any, newValue: any) => {
+    setValue(newValue);
+    console.log('newValue', newValue)
+  };
+
+  const marks = [
+    {
+      value: 0,
+      label: '0',
+    },
+    {
+      value: 2,
+      label: '2',
+    },
+    {
+      value: 4,
+      label: '4',
+    },
+    {
+      value: 6,
+      label: '6',
+    },
+    ,
+    {
+      value: 8,
+      label: '8',
+    },
+    {
+      value: 10,
+      label: '10',
+    },
+  ];
 
   return (
     <div className='grid justify-center'>
@@ -33,6 +69,19 @@ function GameCreate() {
             <span className={textButtonClassname}>Cancel search</span>
           </button>
         </div> */}
+
+      <label className='font-semibold'> Game duration (min)</label>
+				<Slider
+					step={1}
+					min={0}
+					max={10}
+          marks={marks}
+					className="px-2 bg-gray-100 rounded-sm cursor-grab"
+          aria-labelledby="discrete-slider-always"
+					value={value}
+					onChange={handleChange}
+          // valueLabelDisplay=auto'
+				/>
       </div>
       <div className='flex justify-center'>
 
