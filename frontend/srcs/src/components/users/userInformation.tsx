@@ -17,7 +17,7 @@ type UserProps = {
   nbWin?: number;
   nbLoss?: number;
   imgPath: string;
-  twoFactorAuth?: boolean | false;
+  twoFactorAuthEnabled: boolean;
   isMe?: boolean | false;
   relationshipsList: AppUserRelationship[];
   idInf: boolean;
@@ -140,7 +140,11 @@ function displayFileChange(user: UserProps, setUser: any) {
   }
 }
 
-function displayFriendButton(user: UserProps, type: UserRelationshipType, contextValue: IAppContext) {
+function displayFriendButton(
+  user: UserProps,
+  type: UserRelationshipType,
+  contextValue: IAppContext
+) {
   const addFriend = async (id: number) => {
     await user.addFriend(id, user.userInfo, user.setUserInfo, contextValue);
   };
@@ -207,7 +211,11 @@ function displayFriendButton(user: UserProps, type: UserRelationshipType, contex
   );
 }
 
-function displayBlockButton(user: UserProps, type: UserRelationshipType, contextValue: IAppContext) {
+function displayBlockButton(
+  user: UserProps,
+  type: UserRelationshipType,
+  contextValue: IAppContext
+) {
   const blockUser = async (id: number) => {
     await user.blockUser(id, user.userInfo, user.setUserInfo, contextValue);
   };
@@ -252,7 +260,7 @@ function displayBlockButton(user: UserProps, type: UserRelationshipType, context
 function displayTwoFactorAuth(user: UserProps) {
   const localHandleClickTwoFactorAuth = async () => {
     if (user.handleClickTwoFactorAuth) {
-      await user.handleClickTwoFactorAuth(user.userInfo, user.setUserInfo);
+      user.handleClickTwoFactorAuth(user.userInfo, user.setUserInfo);
     }
   };
 
@@ -262,8 +270,9 @@ function displayTwoFactorAuth(user: UserProps) {
         <input
           className="mr-2 leading-tight"
           type="checkbox"
-          onChange={localHandleClickTwoFactorAuth}
-          checked={user.twoFactorAuth}
+          readOnly
+          onClick={localHandleClickTwoFactorAuth}
+          checked={user.twoFactorAuthEnabled}
         />
         <span className="text-sm">Activate 2 factor authentication</span>
       </label>
@@ -317,24 +326,29 @@ function displayUsername(user: UserProps) {
 function UserInformation(user: UserProps) {
   const contextValue = React.useContext(AppContext);
 
-  const [userRelationshipType, setUserRelationshipType] = useState<UserRelationshipType>(
-    UserRelationshipType.null
-  )
+  const [userRelationshipType, setUserRelationshipType] =
+    useState<UserRelationshipType>(UserRelationshipType.null);
 
   useEffect(() => {
     const setRelationshipType = async () => {
-    let relation = user.relationshipsList.find((relationElem) => {
-      return relationElem.user.id === user.id
-    })
-    const type = relation ? relation.relationshipType : UserRelationshipType.null
-    if (type !== userRelationshipType) {
-      setUserRelationshipType(type);
-    }
-  }
-  setRelationshipType();
-  }, [user.relationshipsList, setUserRelationshipType, userRelationshipType, user.id])
+      let relation = user.relationshipsList.find((relationElem) => {
+        return relationElem.user.id === user.id;
+      });
+      const type = relation
+        ? relation.relationshipType
+        : UserRelationshipType.null;
+      if (type !== userRelationshipType) {
+        setUserRelationshipType(type);
+      }
+    };
+    setRelationshipType();
+  }, [
+    user.relationshipsList,
+    setUserRelationshipType,
+    userRelationshipType,
+    user.id,
+  ]);
 
-  
   return (
     <div className="px-8 py-4 rounded-sm h-42 bg-neutral">
       <section className="flex flex-wrap items-center justify-center py-2 my-2 ">

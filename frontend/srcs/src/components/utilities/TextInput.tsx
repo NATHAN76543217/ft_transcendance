@@ -4,16 +4,18 @@
 import { FieldError, Path, UseFormRegister } from "react-hook-form";
 
 type TextInputProps<FormValues> = {
-    name: Path<FormValues>;
-    register: UseFormRegister<FormValues>;
-    type: "text" | "password";
-    required: boolean;
-    labelClass: string;
-    inputClass: string;
-    error?: FieldError;
-    placeHolder?: string;
-    labelName?: string;
-}
+  name: Path<FormValues>;
+  register: UseFormRegister<FormValues>;
+  type: "text" | "password";
+  required: boolean;
+  labelClass: string;
+  inputClass: string;
+  error?: FieldError;
+  placeholder?: string;
+  labelName?: string;
+  noLabel: boolean;
+  noError: boolean;
+};
 
 /* const validateValue = (initialValue: string) => {
     const [value, setValue] = useState(initialValue);
@@ -31,46 +33,84 @@ type TextInputProps<FormValues> = {
     };
 } */
 
-export { }
+type TextInputErrorProps = {
+  error?: FieldError;
+};
 
-export function TextInputError(error?: FieldError) {
-    let message: string = "";
+export function TextInputError({ error }: TextInputErrorProps) {
+  let message: string = "\u200b";
 
-    if (error) {
-        if (error.message)
-            message = error.message;
-        else if (error.type === "required")
-            message = "This field is required";
-    }
-    return (<span className="ml-2 font-semibold text-red-500">{message}</span>)
+  console.log("Textinput error", error);
+
+  if (error !== undefined) {
+    if (error.message) message = error.message;
+    else if (error.type === "required") message = "This field is required";
+  }
+  return <span className="ml-2 font-semibold text-red-500">{message}</span>;
 }
 
-export function TextInput<FormValues>({ name, register, type, required, labelClass, inputClass, error, placeHolder, labelName }: TextInputProps<FormValues>) {
-    //const {value, bind, reset} = validateValue("");
+export function TextInput<FormValues>({
+  name,
+  register,
+  type,
+  required,
+  labelClass,
+  inputClass,
+  error,
+  placeholder,
+  labelName,
+  noLabel,
+  noError,
+}: TextInputProps<FormValues>) {
+  //const {value, bind, reset} = validateValue("");
 
-    //const { register, handleSubmit, watch, formState: { errors } } = useForm();
-    let labelBasicClassName = "mb-2 ml-2 text-lg font-bold"
-    let inputBasicClassName = "flex h-auto px-2 py-1 mx-2 mb-2 font-semibold bg-gray-200 rounded-sm text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none w-3/5"
+  //const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  let labelBasicClassName = "mb-2 ml-2 text-lg font-bold";
+  let inputBasicClassName =
+    "flex px-2 py-1 mx-2 font-semibold bg-gray-200 rounded-sm text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none w-3/5";
 
-    if (placeHolder === undefined) {
-        placeHolder = `Enter ${name}`;
+  // Default label
+  if (labelName === undefined) {
+    labelName = name;
+  } else if (labelName.length === 0) {
+    noLabel = true;
+  }
+
+  if (!noLabel) {
+    inputBasicClassName += " mb-2";
+    // Default placeholder
+    if (placeholder === undefined) {
+      placeholder = `Enter ${labelName}`;
     }
-    if (labelName === undefined) {
-        labelName = name;
-    }
+  }
 
-    return (
-        <div className="">
-            <label htmlFor={name} className={`${labelBasicClassName}  ${labelClass}`}>{labelName}</label>
-            <input type={type} id={name} placeholder={placeHolder} className={`${inputBasicClassName} ${inputClass}`} {...register(name, { required })} />
-            {TextInputError(error)}
-        </div>
-    );
+  return (
+    <>
+      {!noLabel && (
+        <label
+          htmlFor={name}
+          className={`${labelBasicClassName}  ${labelClass}`}
+        >
+          {labelName}
+        </label>
+      )}
+      <input
+        type={type}
+        id={name}
+        placeholder={placeholder}
+        className={`${inputBasicClassName} ${inputClass}`}
+        {...register(name, { required })}
+      />
+      {!noError && <TextInputError error={error} />}
+    </>
+  );
 }
 
 TextInput.defaultProps = {
-    type: "text",
-    required: false,
-    labelClass: "",
-    inputClass: ""
-}
+  type: "text",
+  required: false,
+  labelClass: "",
+  inputClass: "",
+  noLabel: false,
+  noError: false,
+};

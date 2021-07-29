@@ -8,32 +8,29 @@ import ChannelSettings from "../../pages/chat/channelSettings";
 import { ChatInput } from "./ChatInput";
 import { Channel, ChannelMode } from "../../models/channel/Channel";
 
-
 type ChatPageParams = {
   id: string;
 };
 
-export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
-) {
+export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   const contextValue = useContext(AppContext);
   // const { currentChannelRel } = useContext(chatContext);
 
   const chatId = match.params.id !== undefined ? match.params.id : undefined;
 
   let isChannel = false;
-  if (chatId && chatId[0] === 'c') {
+  if (chatId && chatId[0] === "c") {
     isChannel = true;
   }
 
   let channelId: number;
-  if (match.params.id && match.params.id[0] === 'c') {
+  if (match.params.id && match.params.id[0] === "c") {
     channelId = Number(match.params.id.substring(1));
   } else {
-    channelId = Number('c');
+    channelId = Number("c");
   }
 
-  const redirPath = `/chat/${chatId}/settings`
-
+  const redirPath = `/chat/${chatId}/settings`;
 
   const [channelInfo, setChannelInfo] = useState<Channel>({
     id: 0,
@@ -45,18 +42,18 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
   });
 
   const setChannel = useCallback(() => {
-      const channel = contextValue.user?.channels.find((channel) => {
-        return channel.channel.id === channelId;
-      })
-      setChannelInfo({
-        id: channelId,
-        name: channel ? channel.channel.name : '',
-        mode: channel ? channel.channel.mode : ChannelMode.public,
-        myRole: channel ? channel.type : ChannelRelationshipType.Null,
-        messages: channel ? channel.channel.messages : [],
-        users: channel ? channel.channel.users : [],
-      });
-  }, [channelId, contextValue.user?.channels])
+    const channel = contextValue.user?.channels.find((channel) => {
+      return channel.channel.id === channelId;
+    });
+    setChannelInfo({
+      id: channelId,
+      name: channel ? channel.channel.name : "",
+      mode: channel ? channel.channel.mode : ChannelMode.public,
+      myRole: channel ? channel.type : ChannelRelationshipType.Null,
+      messages: channel ? channel.channel.messages : [],
+      users: channel ? channel.channel.users : [],
+    });
+  }, [channelId, contextValue.user?.channels]);
 
   const displaySettings = () => {
     if (isChannel) {
@@ -71,11 +68,10 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
             users={channelInfo.users}
             paramId={match.params.id}
           />
-
         </Route>
-      )
+      );
     }
-  }
+  };
 
   const displaySettingsRefresh = () => {
     if (isChannel) {
@@ -83,9 +79,9 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
         <Route exact path="/chat/:id/refresh">
           <Redirect to={redirPath} />
         </Route>
-      )
+      );
     }
-  }
+  };
 
   if (isChannel && channelInfo.id !== channelId) {
     // console.log('-------- TRY Set Channel begin --------', channelId)
@@ -105,14 +101,11 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
       // console.log('setChannel')
       setChannel();
     }
-  }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel])
+  }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel]);
 
   return (
     <div className={`flex flex-col flex-grow`}>
-      <ChatHeader
-        myRole={channelInfo.myRole}
-        isChannel={isChannel}
-      />
+      <ChatHeader myRole={channelInfo.myRole} isChannel={isChannel} />
       <Switch>
         {displaySettings()}
         {displaySettingsRefresh()}
@@ -124,4 +117,3 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>,
     </div>
   );
 }
-

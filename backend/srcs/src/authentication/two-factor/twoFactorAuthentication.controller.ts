@@ -4,9 +4,11 @@ import {
   Controller,
   Get,
   HttpCode,
+  Logger,
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -30,7 +32,11 @@ export class TwoFactorAuthenticationController {
   ) {}
 
   @Get('generate')
-  async register(@Res() response: Response, @Req() request: RequestWithUser) {
+  async register(@Req() request: RequestWithUser, @Res() response: Response) {
+    /*   if (request.user.twoFactorAuthEnabled) {
+      throw new UnauthorizedException('2FA is already enabled');
+    }
+ */
     const { otpauthUrl } =
       await this.twoFactorAuthenticationService.generateSecret(request.user);
 
@@ -51,6 +57,10 @@ export class TwoFactorAuthenticationController {
       twoFactorAuthCode,
     );
 
+    Logger.debug(
+      `Enabling 2FA for user ${request.user.id}: code: ${twoFactorAuthCode} isCodeValid: ${isCodeValid}`,
+    );
+
     if (!isCodeValid) {
       throw new InvalidTwoFactorAuthenticationCode();
     }
@@ -58,10 +68,33 @@ export class TwoFactorAuthenticationController {
     await this.usersService.enableTwoFactorAuthentication(request.user.id);
   }
 
+  @Post('disable')
+  @HttpCode(200)
+  async disable(
+    @Req() request: RequestWithUser,
+    @Body() { twoFactorAuthCode }: TwoFactorAuthenticationCodeDto,
+  ) {
+    const isCodeValid = this.twoFactorAuthenticationService.isCodeValid(
+      request.user,
+      twoFactorAuthCode,
+    );
+
+    Logger.debug(
+      `Disabling 2FA for user ${request.user.id}: code: ${twoFactorAuthCode} isCodeValid: ${isCodeValid}`,
+    );
+
+    if (!isCodeValid) {
+      throw new InvalidTwoFactorAuthenticationCode();
+    }
+
+    await this.usersService.disableTwoFactorAuthentication(request.user.id);
+  }
+
   @Post('authenticate')
   @HttpCode(200)
   async authenticate(
     @Req() request: RequestWithUser,
+    @Res() response: Response,
     @Body() { twoFactorAuthCode }: TwoFactorAuthenticationCodeDto,
   ) {
     const isCodeValid = this.twoFactorAuthenticationService.isCodeValid(
@@ -78,8 +111,8 @@ export class TwoFactorAuthenticationController {
       true,
     );
 
-    request.res.setHeader('Set-Cookie', [accessTokenCookie]);
+    response.setHeader('Set-Cookie', [accessTokenCookie]);
 
-    return request.user;
+    response.send(request.user);
   }
 }

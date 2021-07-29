@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from '@otplib/preset-default';
 import { Response } from 'express';
@@ -14,8 +14,13 @@ export class TwoFactorAuthenticationService {
   ) {}
 
   public isCodeValid(user: User, twoFactorAuthCode: string) {
-    if (!user.twoFactorAuthSecret) return false;
-
+    if (!user.twoFactorAuthSecret) {
+      Logger.debug('Two factor auth is disabled...');
+      return false;
+    }
+    Logger.debug(
+      `Checking code: ${twoFactorAuthCode}, secret: ${JSON.stringify(user)}`,
+    );
     return authenticator.verify({
       token: twoFactorAuthCode,
       secret: user.twoFactorAuthSecret,
@@ -26,7 +31,7 @@ export class TwoFactorAuthenticationService {
     const secret = authenticator.generateSecret();
 
     const otpauthUrl = authenticator.keyuri(
-      user.id.toFixed(),
+      user.name,
       this.configService.get('TWO_FACTOR_AUTHENTICATION_APP_NAME'),
       secret,
     );

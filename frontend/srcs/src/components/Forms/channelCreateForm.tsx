@@ -5,13 +5,11 @@ import ChannelCreateDto from "../../models/channel/CreateChannel.dto";
 import { ChannelMode } from "../../models/channel/Channel";
 import { useState } from "react";
 
-
 type ChannelCreateProps = {
   onSubmit: (values: ChannelCreateDto) => void; // define function type
   errors: any;
   showCreationValidation: boolean;
 };
-
 
 export default function ChannelCreateForm(props: ChannelCreateProps) {
   // const [showPassword, setShowPassword] = useState<boolean>(true)
@@ -22,24 +20,27 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
     // formState: { errors },
   } = useForm<ChannelCreateDto>();
 
-
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showPasswordConfirmation, setShowPasswordConfirmation] = useState<boolean>(false);
+  const [showPasswordConfirmation, setShowPasswordConfirmation] =
+    useState<boolean>(false);
 
   const TextInputError = (error?: FieldError) => {
     let message: string = "";
 
     if (error) {
-      if (error.message)
-        message = error.message;
-      else if (error.type === "required")
-        message = "This field is required";
+      if (error.message) message = error.message;
+      else if (error.type === "required") message = "This field is required";
     }
-    return (<span className="inline-block ml-2 font-semibold text-red-500">{message}</span>)
-  }
+    return (
+      <span className="inline-block ml-2 font-semibold text-red-500">
+        {message}
+      </span>
+    );
+  };
 
-
-  const displayCreationValidationMessage = (showRegisterValidation: boolean) => {
+  const displayCreationValidationMessage = (
+    showRegisterValidation: boolean
+  ) => {
     if (showRegisterValidation) {
       return (
         <div className="absolute bottom-0 w-full pr-12 font-bold text-center text-green-600">
@@ -47,31 +48,22 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
         </div>
       );
     }
-  }
+  };
 
   const displayShowPasswordButton = (show: boolean, setShow: any) => {
     return (
       <div
         className="absolute items-center justify-between cursor-pointer right-20 top-8"
-        onClick={() =>
-          setShow(!show)
-        }
+        onClick={() => setShow(!show)}
       >
-        <i
-          className={
-            "fas " +
-            (show
-              ? "fa-eye"
-              : "fa-eye-slash")
-          }
-        />
+        <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
       </div>
-    )
-  }
+    );
+  };
 
-  let radioLabelClassName = "inline-flex items-center ml-2 mr-2"
-  let radioInputClassName = ""
-  let radioSpanClassName = "ml-1 font-semibold"
+  let radioLabelClassName = "inline-flex items-center ml-2 mr-2";
+  let radioInputClassName = "";
+  let radioSpanClassName = "ml-1 font-semibold";
 
   return (
     <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 rounded-md bg-neutral w-80">
@@ -93,15 +85,30 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
             <span className="mb-2 ml-2 text-lg font-bold ">Mode</span>
             <div className="relative ">
               <label className={radioLabelClassName}>
-                <input type="radio" className={radioInputClassName} value={`${ChannelMode.public}`} {...register("mode")} />
+                <input
+                  type="radio"
+                  className={radioInputClassName}
+                  value={`${ChannelMode.public}`}
+                  {...register("mode")}
+                />
                 <span className={radioSpanClassName}>Public</span>
               </label>
               <label className={radioLabelClassName + ""}>
-                <input type="radio" className={radioInputClassName} value={`${ChannelMode.private}`} {...register("mode")} />
+                <input
+                  type="radio"
+                  className={radioInputClassName}
+                  value={`${ChannelMode.private}`}
+                  {...register("mode")}
+                />
                 <span className={radioSpanClassName}>Private</span>
               </label>
               <label className={radioLabelClassName}>
-                <input type="radio" className={radioInputClassName} value={`${ChannelMode.protected}`} {...register("mode")} />
+                <input
+                  type="radio"
+                  className={radioInputClassName}
+                  value={`${ChannelMode.protected}`}
+                  {...register("mode")}
+                />
                 <span className={radioSpanClassName}>Protected</span>
               </label>
               {TextInputError(props.errors.mode)}
@@ -127,10 +134,13 @@ export default function ChannelCreateForm(props: ChannelCreateProps) {
               type={showPasswordConfirmation ? "text" : "password"}
               inputClass=" left"
               labelName="Confirm password"
-              placeHolder="Enter password again"
+              placeholder="Enter password again"
               error={props.errors.passwordConfirmation}
             />
-            {displayShowPasswordButton(showPasswordConfirmation, setShowPasswordConfirmation)}
+            {displayShowPasswordButton(
+              showPasswordConfirmation,
+              setShowPasswordConfirmation
+            )}
           </div>
 
           <div className="flex justify-center pr-4 ">

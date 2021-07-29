@@ -49,14 +49,22 @@ export default class UsersService {
   private joinUserStatus(user: User) {
     user.status = this.getUserStatus(user.id);
   }
+
   async enableTwoFactorAuthentication(userId: number) {
     return this.usersRepository.update(userId, {
       twoFactorAuthEnabled: true,
     });
   }
 
-  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+  async disableTwoFactorAuthentication(userId: number) {
     return this.usersRepository.update(userId, {
+      twoFactorAuthEnabled: false,
+    });
+  }
+
+  async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+    Logger.debug(`Setting 2FA secret for user ${userId}: secret: ${secret}`);
+    return await this.usersRepository.update(userId, {
       twoFactorAuthSecret: secret,
     });
   }
@@ -89,13 +97,15 @@ export default class UsersService {
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: number) {
     const user = await this.getUserById(userId);
 
-    const isRefreshTokenMatching = await bcrypt.compare(
-      refreshToken,
-      user.currentHashedRefreshToken,
-    );
+    if (user.currentHashedRefreshToken !== undefined) {
+      const isRefreshTokenMatching = await bcrypt.compare(
+        refreshToken,
+        user.currentHashedRefreshToken,
+      );
 
-    if (isRefreshTokenMatching) {
-      return user;
+      if (isRefreshTokenMatching) {
+        return user;
+      }
     }
   }
 

@@ -11,6 +11,7 @@ import {
   forwardRef,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Logger,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import RegisterWithPassword from './dto/registerWithPassword.dto';
@@ -24,10 +25,12 @@ import { UserStatus } from 'src/users/utils/userStatus';
 import UsersService from 'src/users/users.service';
 import JwtRefreshGuard from './jwt-refresh.guard';
 import { JwtTwoFactorGuard } from './two-factor/jwt-two-factor.guard';
+import { AuthenticationResponseDto } from './dto/authenticationResponse.dto';
 
 @Controller('authentication')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthenticationController {
+  private logger = new Logger('Authentication');
   constructor(
     private readonly authenticationService: AuthenticationService,
     @Inject(forwardRef(() => UsersService))
@@ -55,7 +58,7 @@ export class AuthenticationController {
   async logIn(
     @Req() request: RequestWithUser,
     @Body() _: LoginWithPasswordDto,
-    @Res() response: Response,
+    @Res() response: Response<AuthenticationResponseDto>,
   ) {
     const { user } = request;
     const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(
@@ -75,12 +78,13 @@ export class AuthenticationController {
     ]);
 
     if (user.twoFactorAuthEnabled) {
+      response.send({ twoFactorAuthEnabled: true });
       return;
     }
 
     user.password = undefined;
     user.status = UserStatus.online;
-    response.send(user);
+    response.send({ user, twoFactorAuthEnabled: false });
   }
 
   @Post('logout')

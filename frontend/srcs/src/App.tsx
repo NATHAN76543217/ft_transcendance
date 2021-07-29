@@ -16,7 +16,12 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import ChatPage from "./pages/chat/chat";
 import React from "react";
-import { IUser, UserChannelRelationship, UserRole, UserStatus } from "./models/user/IUser";
+import {
+  IUser,
+  UserChannelRelationship,
+  UserRole,
+  UserStatus,
+} from "./models/user/IUser";
 import axios from "axios";
 import OnlyPublic from "./routes/onlyPublic";
 import PrivateRoute from "./routes/privateRoute";
@@ -24,21 +29,17 @@ import PrivateRoute from "./routes/privateRoute";
 import { AppState } from "./AppState";
 import { IAppContext } from "./IAppContext";
 import AppContext from "./AppContext";
-import { AuthenticatedUser } from "./models/user/AuthenticatedUser";
-import UserRelationship, { UserRelationshipType } from "./models/user/UserRelationship";
+import UserRelationship, {
+  UserRelationshipType,
+} from "./models/user/UserRelationship";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
 import { io } from "socket.io-client";
 import FailedLogin from "./pages/failedLogin/failedLogin";
 import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
+import TwoFactorAuth from "./pages/login/two-factor";
 
-// let change_bg_color_with_size =
-//   "bg-gray-500 sm:bg-green-500 md:bg-blue-500 lg:bg-yellow-500 xl:bg-red-500 2xl:bg-purple-500"; // for testing
-
-let change_bg_color_with_size =
-  "bg-gray-200"
-
-interface AppProps { }
+interface AppProps {}
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -51,7 +52,7 @@ class App extends React.Component<AppProps, AppState> {
     };
   }
 
-  setUserInit = (user?: AuthenticatedUser) => {
+  setUserInit = (user?: IUser) => {
     if (user !== this.state.user) {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
@@ -64,11 +65,13 @@ class App extends React.Component<AppProps, AppState> {
       }
 
       // update state
-      this.setState({
-        user: user,
-        socket: socket
-      },
-        () => { this.updateAllRelationships() });
+      this.setState(
+        {
+          user: user,
+          socket: socket,
+        },
+        this.updateAllRelationships
+      );
 
       // update cache
       try {
@@ -81,7 +84,7 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   // We do not need to bind when using the equal form
-  setUser = (user?: AuthenticatedUser) => {
+  setUser = (user?: IUser) => {
     if (user !== this.state.user) {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
@@ -94,7 +97,7 @@ class App extends React.Component<AppProps, AppState> {
       // update state
       this.setState({
         user: user,
-        socket: socket
+        socket: socket,
       });
 
       // update cache
@@ -152,7 +155,7 @@ class App extends React.Component<AppProps, AppState> {
   // TODO: Find out why the api gets called twice
   getCurrentUser = async () => {
     try {
-      const res = await axios.get<AuthenticatedUser>(`/api/users/me`, {
+      const res = await axios.get<IUser>(`/api/users/me`, {
         withCredentials: true,
       });
 
@@ -164,11 +167,11 @@ class App extends React.Component<AppProps, AppState> {
         if (e.response?.status === 401) {
           try {
             await axios.get("/api/authentication/refresh");
-            const res = await axios.get<AuthenticatedUser>(`/api/users/me`, {
+            const res = await axios.get<IUser>(`/api/users/me`, {
               withCredentials: true,
             });
             this.setUserInit(res.data);
-          } catch (error) { }
+          } catch (error) {}
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
@@ -219,9 +222,10 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   updateAllRelationships = async () => {
+    if (!this.state.user) return;
     try {
       const dataRel = await axios.get(
-        "/api/users/relationships/" + this.state.user?.id
+        `/api/users/relationships/${this.state.user.id}`
       );
       // console.log("dataRel", dataRel)
 
@@ -243,22 +247,25 @@ class App extends React.Component<AppProps, AppState> {
               relationshipType: relation.type,
             });
             this.setState({ relationshipsList: a });
-          } catch (error) { }
+          } catch (error) {}
         });
       }
-    } catch (error) { }
-  }
+    } catch (error) {}
+  };
 
-  updateOneRelationshipType = async (user_id: number, newType: UserRelationshipType) => {
+  updateOneRelationshipType = async (
+    user_id: number,
+    newType: UserRelationshipType
+  ) => {
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
-      return (Number(relation.user.id) === Number(user_id));
-    })
+      return Number(relation.user.id) === Number(user_id);
+    });
     if (index !== -1) {
       if (Number(newType) !== Number(UserRelationshipType.null)) {
-        a[index].relationshipType = newType
+        a[index].relationshipType = newType;
       } else {
-        a.splice(index, 1)
+        a.splice(index, 1);
       }
       this.setState({ relationshipsList: a });
     } else if (newType !== UserRelationshipType.null) {
@@ -273,42 +280,49 @@ class App extends React.Component<AppProps, AppState> {
         );
         this.setState({ relationshipsList: a });
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
     }
-  }
+  };
 
-  updateOneRelationshipStatus = async (user_id: number, newStatus: UserStatus) => {
+  updateOneRelationshipStatus = async (
+    user_id: number,
+    newStatus: UserStatus
+  ) => {
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
-      return (Number(relation.user.id) === Number(user_id));
-    })
+      return Number(relation.user.id) === Number(user_id);
+    });
     if (index !== -1 && this.state.user) {
       if (a[index].relationshipType & UserRelationshipType.block_both) {
         newStatus = UserStatus.Offline;
       }
       if (Number(newStatus) !== Number(UserStatus.Null)) {
-        a[index].user.status = newStatus
+        a[index].user.status = newStatus;
         this.setState({ relationshipsList: a });
       }
     }
-  }
+  };
 
-  updateOneRelationshipNameAndImgPath = async (user_id: number, newName: string, newImgPath: string) => {
+  updateOneRelationshipNameAndImgPath = async (
+    user_id: number,
+    newName: string,
+    newImgPath: string
+  ) => {
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
-      return (Number(relation.user.id) === Number(user_id));
-    })
+      return Number(relation.user.id) === Number(user_id);
+    });
     if (index !== -1 && this.state.user) {
       if (newName) {
-        a[index].user.name = newName
+        a[index].user.name = newName;
       }
       if (newImgPath) {
-        a[index].user.imgPath = newImgPath
+        a[index].user.imgPath = newImgPath;
       }
       this.setState({ relationshipsList: a });
     }
-  }
+  };
 
   updateNameAndImgPath = async (newName: string, newImgPath: string) => {
     let newUser = this.state.user;
@@ -321,7 +335,7 @@ class App extends React.Component<AppProps, AppState> {
       }
       this.setState({ user: newUser });
     }
-  }
+  };
 
   updateRole = async (newRole: UserRole) => {
     let newUser = this.state.user;
@@ -329,30 +343,37 @@ class App extends React.Component<AppProps, AppState> {
       newUser.role = newRole;
       this.setState({ user: newUser });
     }
-  }
+  };
 
-  updateChannelRelationship = async (channel_id: number, user_id: number, newType: ChannelRelationshipType = ChannelRelationshipType.Null) => {
-    console.log('updateChannelRelationship')
+  updateChannelRelationship = async (
+    channel_id: number,
+    user_id: number,
+    newType: ChannelRelationshipType = ChannelRelationshipType.Null
+  ) => {
+    console.log("updateChannelRelationship");
     if (this.state.user) {
       let a = this.state.user.channels.slice();
       let index = a.findIndex((channel: any) => {
-        return (Number(channel.channel.id) === channel_id);
-      })
-      console.log('updateChannelRelationship - index: ', index)
+        return Number(channel.channel.id) === channel_id;
+      });
+      console.log("updateChannelRelationship - index: ", index);
       if (index !== -1) {
-        console.log('user_id === this.state.user.id', user_id === this.state.user.id)
-        console.log('user_id', user_id)
-        console.log('this.state.user.id', this.state.user.id)
+        console.log(
+          "user_id === this.state.user.id",
+          user_id === this.state.user.id
+        );
+        console.log("user_id", user_id);
+        console.log("this.state.user.id", this.state.user.id);
         if (user_id === this.state.user.id) {
           if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
-            a[index].type = newType
+            a[index].type = newType;
           } else {
-            a.splice(index, 1)
+            a.splice(index, 1);
           }
         } else {
           const userIndex = a[index].channel.users.findIndex((elem) => {
-            return elem.user.id === user_id
-          })
+            return elem.user.id === user_id;
+          });
           if (userIndex !== -1) {
             if (newType === ChannelRelationshipType.Null) {
               a[index].channel.users.splice(userIndex, 1);
@@ -360,48 +381,50 @@ class App extends React.Component<AppProps, AppState> {
               a[index].channel.users[userIndex].type = newType;
             }
           } else {
-            const dataUser = await axios.get('/api/users/' + user_id);
+            const dataUser = await axios.get("/api/users/" + user_id);
             a[index].channel.users.push({
               type: newType,
               user: {
                 id: dataUser.data.id,
                 name: dataUser.data.name,
-                imgPath: dataUser.data.imgPath
-              }
-            })
+                imgPath: dataUser.data.imgPath,
+              },
+            });
           }
         }
         const newUser = {
           ...this.state.user,
-          channels: a
-        }
+          channels: a,
+        };
 
-console.log('---- newUser', newUser);
+        console.log("---- newUser", newUser);
 
         this.setState({ user: newUser });
       } else if (newType !== ChannelRelationshipType.Null) {
         try {
           const dataChannel = await axios.get("/api/channels/" + channel_id);
-          console.log('dataChannel', dataChannel)
+          console.log("dataChannel", dataChannel);
           a.push({
             channel: dataChannel.data,
             type: newType,
           });
-          a.sort((channel1: UserChannelRelationship, channel2: UserChannelRelationship) =>
-            channel1.channel.name.localeCompare(channel2.channel.name)
+          a.sort(
+            (
+              channel1: UserChannelRelationship,
+              channel2: UserChannelRelationship
+            ) => channel1.channel.name.localeCompare(channel2.channel.name)
           );
           const newUser = {
             ...this.state.user,
-            channels: a
-          }
+            channels: a,
+          };
           this.setState({ user: newUser });
         } catch (e) {
-          console.log(e)
+          console.log(e);
         }
       }
     }
-
-  }
+  };
 
   displayAdminRoute(isAdmin: boolean) {
     if (isAdmin) {
@@ -424,56 +447,71 @@ console.log('---- newUser', newUser);
       console.log("Socket connection authenticated!");
     });
 
-    socket.on('updateRelationship-back', (data: any) => {
+    socket.on("updateRelationship-back", (data: any) => {
       if (data) {
-        this.updateOneRelationshipType(data.user_id, data.type)
+        this.updateOneRelationshipType(data.user_id, data.type);
       }
-    })
+    });
 
-    socket.on('updateUserInfo-back', (data: any) => {
-      console.log('updateUserInfo', data)
+    socket.on("updateUserInfo-back", (data: any) => {
+      console.log("updateUserInfo", data);
       if (data) {
         if (Number(data.user_id) === this.state.user?.id) {
-          this.updateNameAndImgPath(data.name, data.imgPath)
+          this.updateNameAndImgPath(data.name, data.imgPath);
         } else {
-          this.updateOneRelationshipNameAndImgPath(Number(data.user_id), data.name, data.imgPath);
+          this.updateOneRelationshipNameAndImgPath(
+            Number(data.user_id),
+            data.name,
+            data.imgPath
+          );
         }
       }
-    })
+    });
 
-    socket.on('updateRole-back', (data: any) => {
+    socket.on("updateRole-back", (data: any) => {
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-        this.updateRole(data.role)
+        this.updateRole(data.role);
       }
-    })
+    });
 
-    socket.on('updateChannelRelationship-back', (data: any) => {
-      console.log('updateChannelRelationship-back', data)
+    socket.on("updateChannelRelationship-back", (data: any) => {
+      console.log("updateChannelRelationship-back", data);
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-        this.updateChannelRelationship(Number(data.channel_id), Number(data.user_id), data.type)
+        this.updateChannelRelationship(
+          Number(data.channel_id),
+          Number(data.user_id),
+          data.type
+        );
       }
-    })
+    });
 
-    socket.on('joinChannel-back', (data: any) => {
-      console.log('joinChannel-back', data)
+    socket.on("joinChannel-back", (data: any) => {
+      console.log("joinChannel-back", data);
       // if (data && Number(data.user_id) === Number(this.state.user?.id)) {
       if (data) {
-        this.updateChannelRelationship(Number(data.channel_id), Number(data.user_id), data.type)
+        this.updateChannelRelationship(
+          Number(data.channel_id),
+          Number(data.user_id),
+          data.type
+        );
       }
-    })
+    });
 
-    socket.on('leaveChannel-back', (data: any) => {
-        
+    socket.on("leaveChannel-back", (data: any) => {
       // if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
       if (data) {
-        const newType = data.type ? data.type : ChannelRelationshipType.Null
-        this.updateChannelRelationship(Number(data.channel_id), Number(data.user_id), newType)
+        const newType = data.type ? data.type : ChannelRelationshipType.Null;
+        this.updateChannelRelationship(
+          Number(data.channel_id),
+          Number(data.user_id),
+          newType
+        );
       }
-    })
+    });
 
-    socket.on('statusChanged', (data: any) => {
+    socket.on("statusChanged", (data: any) => {
       this.updateOneRelationshipStatus(data.user_id, data.status);
-    })
+    });
 
     // socket.on('message-user', (data: any) => {
     //   // this.updateOneRelationshipStatus(data.user_id, data.status);
@@ -481,8 +519,6 @@ console.log('---- newUser', newUser);
 
     return socket;
   };
-
-
 
   render() {
     let contextValue: IAppContext = {
@@ -519,11 +555,11 @@ console.log('---- newUser', newUser);
               <Route>
                 <Header />
                 <div className="flex h-full border-t-2 border-gray-700 border-opacity-70">
-                  <div className="flex-none border-r-2 border-gray-700 md:block border-opacity-70">
+                  <div className="border-r-2 border-gray-700 md:block border-opacity-70">
                     <SideMenu logged={this.state.user !== undefined} />
                   </div>
-                  <div className="z-30 flex w-full flex-nowrap">
-                    <main className={"flex-grow " + change_bg_color_with_size}>
+                  <div className="z-30 flex w-full bg-gray-200 flex-nowrap">
+                    <main className="flex-grow">
                       <Switch>
                         <Route exact path="/">
                           <Home logged={this.state.user !== undefined} />
@@ -538,7 +574,9 @@ console.log('---- newUser', newUser);
                           isAuth={this.state.user !== undefined}
                           path="/users"
                         >
-                          <User relationshipsList={this.state.relationshipsList} />
+                          <User
+                            relationshipsList={this.state.relationshipsList}
+                          />
                         </PrivateRoute>
                         <Route path="/chat/:id?" component={ChatPage} />
                         <Route exact path="/login/success/first">
@@ -553,6 +591,11 @@ console.log('---- newUser', newUser);
                         </Route>
                         <OnlyPublic
                           isAuth={this.state.user !== undefined}
+                          path="/login/2fa/:redirPath?"
+                          component={TwoFactorAuth}
+                        ></OnlyPublic>
+                        <OnlyPublic
+                          isAuth={this.state.user !== undefined}
                           path="/login/:redirPath?"
                           component={Login}
                         ></OnlyPublic>
@@ -565,7 +608,7 @@ console.log('---- newUser', newUser);
                         {this.displayAdminRoute(
                           // true
                           this.state.user?.role === UserRole.Admin ||
-                          this.state.user?.role === UserRole.Owner
+                            this.state.user?.role === UserRole.Owner
                         )}
                       </Switch>
                     </main>

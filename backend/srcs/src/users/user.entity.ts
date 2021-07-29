@@ -3,7 +3,6 @@ import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import { UserStatus } from './utils/userStatus';
 import { Exclude } from 'class-transformer';
-// import { Message } from 'src/messages/message.entity';
 
 @Entity()
 class User {
@@ -41,8 +40,8 @@ class User {
 
   @Column({
     nullable: true,
-    select: false,
   })
+  @Exclude()
   public currentHashedRefreshToken?: string;
 
   @Column({
@@ -53,8 +52,8 @@ class User {
   @Column({
     nullable: true,
     default: null,
-    select: false,
   })
+  @Exclude()
   public twoFactorAuthSecret?: string;
   @OneToMany(
     () => ChannelRelationship,

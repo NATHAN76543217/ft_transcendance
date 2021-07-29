@@ -25,7 +25,7 @@ export default function ChannelSearchForm(props: ChannelSearchProps) {
             labelClass=""
             inputClass=" left"
             labelName="Channel name"
-            placeHolder="Enter a channel name..."
+            placeholder="Enter a channel name..."
           ></TextInput>
           <input
             type="submit"

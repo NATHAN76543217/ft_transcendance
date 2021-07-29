@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 
 function ModalOverlay() {
@@ -49,7 +49,7 @@ type ModalHeaderProps = {
 
 function ModalHeader({ hide, title }: ModalHeaderProps) {
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between mb-4">
       <span>{title}</span>
       <ModalCloseButton onClick={hide}></ModalCloseButton>
     </div>
@@ -60,23 +60,24 @@ export type ModalProps = {
   visible: boolean;
   hide: () => void;
   title: string;
+  className: string;
   children?: JSX.Element | JSX.Element[];
 };
 
-export function Modal({ visible, hide, title, children }: ModalProps) {
-  useEffect(() => {
-    // Disable scrolling if invisible
-    if (visible) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "unset";
-  }, [visible]);
-
+export function Modal({
+  visible,
+  hide,
+  title,
+  className,
+  children,
+}: ModalProps) {
   if (!visible) return null;
 
   return ReactDOM.createPortal(
     <React.Fragment>
       <ModalOverlay />
       <ModalWrapper>
-        <div className="relative z-30 max-w-xl p-4 m-auto bg-white border-r-2">
+        <div className={`relative z-30 ${className}`}>
           <ModalHeader hide={hide} title={title} />
           {children}
         </div>
@@ -88,4 +89,5 @@ export function Modal({ visible, hide, title, children }: ModalProps) {
 
 Modal.defaultProps = {
   title: "",
+  className: "m-auto max-w-xl p-4 bg-white border-r-2",
 };

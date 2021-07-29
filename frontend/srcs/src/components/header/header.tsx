@@ -4,48 +4,53 @@ import Button from "../utilities/Button";
 import LogoutButton from "../auth/LogoutButton";
 import AppContext from "../../AppContext";
 import { NavLink } from "react-router-dom";
-import { AuthenticatedUser } from "../../models/user/AuthenticatedUser";
+import { IUser } from "../../models/user/IUser";
 import { UserRole } from "../../models/user/IUser";
 
-function displayProfileItem(user: AuthenticatedUser | undefined) {
-  let path = (user === undefined || (user.imgPath === "")) ? "/api/uploads/default-profile-picture.png" : "/api/uploads/" + user.imgPath;
+function displayProfileItem(user: IUser | undefined) {
+  let path =
+    user === undefined || user.imgPath === ""
+      ? "/api/uploads/default-profile-picture.png"
+      : "/api/uploads/" + user.imgPath;
   if (user !== undefined && user.role !== UserRole.Banned) {
     return (
       <NavLink to="/users">
-        <span className="font-bold text-center hover:underline">{user && user.name}</span>
+        <span className="font-bold text-center hover:underline">
+          {user && user.name}
+        </span>
         <img
           src={path}
-          alt='friends_1_avatar'
-          className='inline w-8 h-8 ml-2 bg-white rounded-full hover:ring-2 hover:ring-gray-500' />
+          alt="friends_1_avatar"
+          className="inline w-8 h-8 ml-2 bg-white rounded-full hover:ring-2 hover:ring-gray-500"
+        />
       </NavLink>
     );
   }
 }
 
-function displayLoginAndRegisterItem(user: AuthenticatedUser | undefined) {
+function displayLoginAndRegisterItem(user: IUser | undefined) {
   if (user !== undefined) {
     return (
       <div className="m-4">
-            <LogoutButton />
-          </div>
+        <LogoutButton />
+      </div>
     );
-  }
-  else {
+  } else {
     return (
       <div className="m-4 space-x-4">
-            <Button
-              content="Login"
-              secondary
-              url="/login"
-              className="w-24 text-center"
-            />
-            <Button
-              content="Register"
-              secondary
-              url="/register"
-              className="w-24 text-center"
-            />
-          </div>
+        <Button
+          content="Login"
+          secondary
+          url="/login"
+          className="w-24 text-center"
+        />
+        <Button
+          content="Register"
+          secondary
+          url="/register"
+          className="w-24 text-center"
+        />
+      </div>
     );
   }
 }

@@ -106,11 +106,11 @@ export class AuthenticationService {
     };
   }
 
-  public getJwtToken(userId: number) {
+  /*   public getJwtToken(userId: number) {
     const payload: TokenPayload = { userId };
     const token = this.jwtService.sign(payload);
     return token;
-  }
+  } */
 
   public getCookieForLogOut() {
     return [
