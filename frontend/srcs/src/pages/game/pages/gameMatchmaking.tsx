@@ -1,18 +1,54 @@
+import { useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { GameContext, IGameContext } from "../context";
+import { ClientMessages, ServerMessages, IAcknowledgement } from "../dto/messages";
 
 function GameMatchmaking() {
 
+  const context : IGameContext = useContext(GameContext);
+
+  // TO DO: "Cancel Search" is disabled if "Find Match" ins't
+  // TO DO: Same for "Find Match"
+
   const findGame = () => {
-    console.log('Find a game')
-  }
+    // TO DO: Be sure that playersIds[0] is the current player id
+    context.socket?.emit(ServerMessages.FIND_GAME, context.playerIds[0]); 
+  };
 
   const cancelSearch = () => {
-    console.log('Cancel search')
-  }
+    // TO DO: Be sure that playersIds[0] is the current player id
+    context.socket?.emit(ServerMessages.CANCEL_FIND, context.playerIds[0], (response : IAcknowledgement) => {
+      if (response.status === "not ok")
+        throw new Error(); // TO DO: What could happend if somehow this condition is true ?
+    }); 
+  };
 
   const quitToHome = () => {
-    console.log('Quit to Home')
-  }
+    // If player is in queue cancel the queue either just swicth back the pages
+  };
+
+  const onNotify = (msg : string) => {
+    console.log(msg);
+  };
+
+  const onMatchFound = () => {
+    // TO DO: Go to the game
+  };
+
+  const deleteSubscribedListeners = () => {
+    if (context.socket) {
+      context.socket.off(ClientMessages.MATCH_FOUND, onMatchFound);
+      context.socket.off(ClientMessages.NOTIFY, onNotify);
+    }
+  };
+
+  useEffect(() => {
+    if (context.socket) {
+      context.socket.once(ClientMessages.MATCH_FOUND, onMatchFound);
+      context.socket.on(ClientMessages.NOTIFY, onNotify);
+    }
+      return deleteSubscribedListeners;
+  }, []);
 
 
 

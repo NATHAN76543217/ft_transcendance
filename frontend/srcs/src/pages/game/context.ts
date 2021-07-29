@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Socket } from "socket.io-client";
-import { Action } from "./pages";
+import { Action } from "./pages/game";
 
 export type RuleSet = {
   duration?: number; // todo
@@ -97,4 +97,3 @@ export const GameContext = React.createContext<IGameContext>({
   state: defaultGameState,
   playerIds: [],
 });
-

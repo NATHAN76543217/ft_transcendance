@@ -9,7 +9,7 @@ import Header from "./components/header/header";
 import Footer from "./components/footer/footer";
 import SideMenu from "./components/sideMenu/sideMenu";
 import Home from "./pages/home/home";
-import Game from "./pages/game/game";
+import Game from "./pages/game/pages/game";
 import User from "./pages/users/user";
 import Admin from "./pages/admin/admin";
 import Login from "./pages/login/login";

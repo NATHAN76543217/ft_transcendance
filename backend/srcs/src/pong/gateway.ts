@@ -6,8 +6,6 @@ import {
     OnGatewayConnection,
     OnGatewayDisconnect,
 } from '@nestjs/websockets'
-import { IRoute } from 'express';
-import { stat } from 'fs';
 import {
     Server,
     Socket
@@ -22,6 +20,15 @@ export type IQueuePlayer = {
 export interface IMousePos {
     x : number;
     y : number;
+}
+
+export enum ErrStatus {
+    OK = "ok",
+    ERROR = "not ok"
+}
+
+export interface IAcknowledgement {
+    status : "ok" | "not ok";
 }
 
 // export interface IRoomDto {
@@ -89,11 +96,13 @@ export enum ServerMessages {
     JOIN_ROOM = "server:joinRoom",
     PUSH_GAME = "server:pushGame",
     UPDATE_GAME = "server:updateGame",
-    FIND_GAME = "server:findGame"
+    FIND_GAME = "server:findGame",
+    CANCEL_FIND = "server:cancelFind",
 }
 
 export enum ClientMessages {
-    NOTIFY = "client:notify"
+    NOTIFY = "client:notify",
+    MATCH_FOUND = "client:matchFound",
 }
 
 
@@ -218,9 +227,22 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             this.onCreateRoom(playerOne.value, playerOne.key);
             this.onJoinRoom(playerTwo.value, roomId, playerTwo.key);
 
-            this.matchmakingQueue.splice(-2, 2);
+            this.matchmakingQueue.splice(queueLenght - 2, 2);
 
             this.onPushGame(client, roomId);
         }
     }
+
+    @SubscribeMessage(ServerMessages.CANCEL_FIND)
+    onCancelFind(client : Socket, playerId : number, callback : (st: IAcknowledgement) => void)
+    {
+        let status : IAcknowledgement = {status: ErrStatus.OK};
+        if (!(playerId in this.matchmakingQueue))
+            status = {status: ErrStatus.ERROR};
+        this.matchmakingQueue.filter(player => player.key != playerId);
+        callback(status);
+    }
+
+    // TO DO: Implement in front & back: An engine using a state
+    // TO DO: Implement in front: A renderizer to display the state
 }
