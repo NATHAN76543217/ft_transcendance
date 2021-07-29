@@ -1,16 +1,6 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
-import { Pong } from "../../components/pong/pages";
 
 function GameCreate() {
-
-  const findGame = () => {
-    console.log('Find a game')
-  }
-
-  const cancelSearch = () => {
-    console.log('Cancel search')
-  }
 
   const quitToHome = () => {
     console.log('Quit to Home')

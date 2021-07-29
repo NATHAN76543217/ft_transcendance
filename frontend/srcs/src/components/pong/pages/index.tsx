@@ -1,6 +1,6 @@
-import {useContext, useReducer} from "react"
+import {useReducer} from "react"
 import { Route } from "react-router";
-import { defaultGameState, defaultRuleSet, GameContext, GameState, IGameContext, RuleSet } from "../context"
+import { defaultGameState, defaultRuleSet, GameContext, GameState, RuleSet } from "../context"
 import { CreatePong } from "./create";
 
 export enum Action {

@@ -39,13 +39,13 @@ function FriendItem({ name, status, imgPath, id, canInvite, canWatch }: FriendsP
         console.log('I want to play !')
     }
 
-    const acceptFriendInvitationToPlay = () => {
+    // const acceptFriendInvitationToPlay = () => {
 
-    }
+    // }
 
-    const watchFriendGame = () => {
+    // const watchFriendGame = () => {
 
-    }
+    // }
 
     const displayInviteButton = () => {
         if (canInvite) {

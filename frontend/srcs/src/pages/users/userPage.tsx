@@ -126,19 +126,19 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
     setUserInfo: any,
     setUser: any
   ) => {
-    
-    
+
+
     try {
       const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
         name: values.username,
       });
-  
+
       console.log("dataUser", dataUser);
-  
+
       contextValue.socket?.emit('updateUserInfo-front', {
         name: values.username
       })
-    
+
 
       // setUserInfo({
       //   ...userInfo,
@@ -170,7 +170,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
   ) => {
     submitForm(fileChangeEvent.target.files[0], userInfo, setUserInfo, setUser);
   };
-  
+
   const submitForm = async (
     valuesCurrentFile: any,
     userInfo: UserPageState,
@@ -180,32 +180,32 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
     if (!valuesCurrentFile) {
       return false;
     }
-  
+
     let formData = new FormData();
-  
+
     formData.append("photo", valuesCurrentFile, valuesCurrentFile.name);
-  
+
     try {
       const data = await axios.post("/api/photos/upload", formData);
       let oldImgPath = userInfo.user.imgPath;
       let newImgPath = data.data.path.replace("uploads/", "");
 
       // setUserInfo({
-        //   ...userInfo,
-        //   user: {
-          //     ...userInfo.user,
-          //     imgPath: newImgPath,
-          //   },
-          // });
-          const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
-            imgPath: newImgPath,
-          });
-          // setUser(dataUser.data);
-          
-          contextValue.socket?.emit('updateUserInfo-front', {
-            imgPath: newImgPath
-          })
-      
+      //   ...userInfo,
+      //   user: {
+      //     ...userInfo.user,
+      //     imgPath: newImgPath,
+      //   },
+      // });
+      await axios.patch("/api/users/" + userInfo.user.id, {
+        imgPath: newImgPath,
+      });
+      // setUser(dataUser.data);
+
+      contextValue.socket?.emit('updateUserInfo-front', {
+        imgPath: newImgPath
+      })
+
       if (oldImgPath !== "default-profile-picture.png") {
         await axios.delete("/api/photos/" + oldImgPath);
       }
@@ -278,7 +278,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
   if (!userInfo.doesUserExist) {
     return (
       <div className="justify-center px-2 py-2 font-bold text-center">
-            <Loading/>
+        <Loading />
         <span className="relative grid pt-16">
           This user does not exist
             </span>

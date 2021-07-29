@@ -1,6 +1,4 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
-import { Pong } from "../../components/pong/pages";
 
 function GameHome() {
 
