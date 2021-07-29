@@ -140,7 +140,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
         >
           <i
             className={
-              "pl-4 fas " +
+              "w-16 fas " +
               (displaySection.channels ? "fa-chevron-down" : "fa-chevron-right")
             }
           ></i>
@@ -182,7 +182,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
         >
           <i
             className={
-              "pl-4 fas " +
+              "w-16 fas " +
               (displaySection.friends ? "fa-chevron-down" : "fa-chevron-right")
             }
           ></i>
