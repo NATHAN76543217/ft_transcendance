@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Switch } from "react-router";
-import { Pong } from "../../components/pong/pages";
 import GameCreate from "./gameCreate";
 import GameHome from "./gameHome";
 import GameMatchmaking from "./gameMatchmaking";
@@ -20,8 +19,6 @@ function Game() {
           <GameCreate />
         </Route>
       </Switch>
-
-      <Pong />
     </div>
   );
 }

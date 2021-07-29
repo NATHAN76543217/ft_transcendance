@@ -93,6 +93,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           name={relation.user.name}
           status={relation.user.status}
           imgPath={relation.user.imgPath}
+          id={relation.user.id}
         />
       );
     } else {
@@ -119,6 +120,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           id={relation.user.id}
           canInvite={statusFilter === UserStatus.Online}
           canWatch={statusFilter === UserStatus.InGame}
+          isFriend
         />
       );
     } else {

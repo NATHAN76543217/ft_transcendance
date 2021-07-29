@@ -1,66 +1,63 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, NavLink } from "react-router-dom";
 import { UserStatus } from "../../models/user/IUser";
 
 type FriendsProps = {
     name: string,
     status: UserStatus,
     imgPath?: string,
-    id?: number,
+    id: number,
     canInvite?: boolean;
     canWatch?: boolean;
+    isFriend?: boolean;
 }
 
-function FriendItem({ name, status, imgPath, id, canInvite, canWatch }: FriendsProps) {
+function FriendItem({ name, status, imgPath, id, canInvite, canWatch, isFriend }: FriendsProps) {
     let path = (imgPath === "") ? "/api/uploads/default-profile-picture.png" : "/api/uploads/" + imgPath;
     let friendName = name.length < 10 ? name : name.substring(0, 10) + '...'
-    let friendUrl = `/chat/${id}`
+    let friendUrl = isFriend ? `/chat/${id}` : `/users/${id}`
 
     const displayProfilePicture = () => {
-        if (id) {
-            return (
-                <Link className="inline w-10 h-10 mx-4 my-auto " to={friendUrl}>
-                    <img
-                        src={path}
-                        alt='friends_1_avatar'
-                        className='rounded-full ' />
-                </Link>
-            )
-        } else {
-            return (
+        return (
+            <Link className="inline w-10 h-10 mx-4 my-auto " to={friendUrl}>
                 <img
                     src={path}
                     alt='friends_1_avatar'
-                    className='inline w-10 h-10 mx-4 my-auto rounded-full' />
-            )
-        }
+                    className='rounded-full ' />
+            </Link>
+        );
     }
 
     const inviteFriendToPlay = () => {
         console.log('I want to play !')
     }
 
-    // const acceptFriendInvitationToPlay = () => {
-
-    // }
-
-    // const watchFriendGame = () => {
-
-    // }
 
     const displayInviteButton = () => {
         if (canInvite) {
             return (
-                <button
+                // <button
+                //     className={
+                //         "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+                //         " bg-purple-300 hover:bg-purple-400" +
+                //         " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+                //     }
+                //     // href={ url }
+                //     onClick={() => inviteFriendToPlay()}
+                // >
+                //     {'Invite to play'}
+                // </button>
+                <NavLink
                     className={
                         "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
                         " bg-purple-300 hover:bg-purple-400" +
                         " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
                     }
-                    // href={ url }
+                    to='/game/create'
                     onClick={() => inviteFriendToPlay()}
                 >
-                    {'Invite to play'}
-                </button>
+                    Invite to play
+                </NavLink>
             )
         }
     }
