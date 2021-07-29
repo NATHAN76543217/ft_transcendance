@@ -11,7 +11,7 @@ enum MessageType {
   GameSpectate,
   FriendInvite,
   RoleUpdate,
-  PrivateMessage
+  PrivateMessage,
 }
 
 type MessageEventDto = {
@@ -26,7 +26,6 @@ type MessageEventDto = {
 interface IMessageFormValues {
   message: string;
 }
-
 
 export type ChatInputProps = {
   id: string;
@@ -45,11 +44,16 @@ export function ChatInput(props: ChatInputProps) {
     reset,
   } = useForm<IMessageFormValues>();
 
-  const className = "w-full max-w-2xl pt-2 pl-2 bg-gray-100 border-2 border-gray-500 rounded-md"
+  const className =
+    "w-full max-w-2xl pt-2 pl-2 bg-gray-100 border-2 border-gray-500 rounded-md";
 
-  const isChannel = props.id && props.id[0] === 'c' ? true : false;
+  const isChannel = props.id && props.id[0] === "c" ? true : false;
 
-  const sendMessageChannel = (socket: Socket, channelId: number, data: string) => {
+  const sendMessageChannel = (
+    socket: Socket,
+    channelId: number,
+    data: string
+  ) => {
     const message: MessageEventDto = {
       channel_id: channelId,
       type: MessageType.Text,
@@ -68,17 +72,19 @@ export function ChatInput(props: ChatInputProps) {
       data,
     };
 
-    console.log('sendMessageUser', message);
+    console.log("sendMessageUser", message);
 
     socket.emit("message-user", message);
   };
 
   if (
     props.myRole &
-    (ChannelRelationshipType.Owner | ChannelRelationshipType.Admin | ChannelRelationshipType.Member)
+    (ChannelRelationshipType.Owner |
+      ChannelRelationshipType.Admin |
+      ChannelRelationshipType.Member)
   ) {
     return (
-      <div className='flex justify-center w-full my-4 '>
+      <div className="flex justify-center w-full my-4 ">
         <form
           className={`${className}`}
           onSubmit={handleSubmit((values) => {
@@ -90,11 +96,7 @@ export function ChatInput(props: ChatInputProps) {
               );
               reset();
             } else if (socket && !isNaN(Number(props.id))) {
-              sendMessageUser(
-                socket,
-                Number(props.id),
-                values.message
-              );
+              sendMessageUser(socket, Number(props.id), values.message);
               reset();
             }
           })}
@@ -104,7 +106,7 @@ export function ChatInput(props: ChatInputProps) {
             register={register}
             required={true}
             error={errors.message}
-            placeHolder={'Enter a message...'}
+            placeholder={"Enter a message..."}
           />
         </form>
       </div>

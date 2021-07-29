@@ -5,99 +5,73 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
 import urljoin from "url-join";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import AppContext from "../../AppContext";
 import axios from "axios";
 import { ExceptionData } from "../../models/exceptions/ExceptionData";
-import { AuthenticationResponseDto } from "../../models/authentication/AuthenticationResponse.dto";
 import { IUser } from "../../models/user/IUser";
-interface ILoginFormValues {
-  username: string;
-  password: string;
-}
+import { TwoFactorAuthenticationCodeDto } from "../../models/authentication/TwoFactorAuthenticationCode.dto";
 
-type LoginPageParams = {
+type TwoFactorAuthPageParams = {
   redirPath?: string;
 };
 
-type LoginPageProps = RouteComponentProps<LoginPageParams>;
+type TwoFactorAuthPageProps = RouteComponentProps<TwoFactorAuthPageParams>;
 
-export default function Login({ match }: LoginPageProps) {
+export default function TwoFactorAuth({ match }: TwoFactorAuthPageProps) {
   const history = useHistory();
   const { setUserInit } = useContext(AppContext);
-
-  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<ILoginFormValues>();
+  } = useForm<TwoFactorAuthenticationCodeDto>();
 
-  const onSubmit = async (values: ILoginFormValues) => {
+  const onSubmit = async (values: TwoFactorAuthenticationCodeDto) => {
     try {
-      const { data } = await axios.post<AuthenticationResponseDto>(
-        "/api/authentication/login",
-        { name: values.username, password: values.password }
-      );
+      const { data } = await axios.post<IUser>("/api/2fa/authenticate", values);
 
-      if (data.twoFactorAuthEnabled) {
-        console.log("2FA required");
-        history.push("/login/2fa");
-      } else if (data.user !== undefined) {
-        const userData: IUser = data.user;
-        console.log("Setting user data: ", data.user);
+      console.log("Setting user data: ", data);
 
-        setUserInit(userData);
+      setUserInit(data);
 
-        // TODO
-        const redirPath =
-          userData.imgPath === "default-profile-picture.png" ? "users" : "";
+      // TODO
+      const redirPath =
+        data.imgPath === "default-profile-picture.png" ? "users" : "";
 
-        const url = redirPath ? urljoin("/", redirPath) : "/";
-        // const url = match.params.redirPath
-        // ? urljoin("/", match.params.redirPath)
-        // : "/";
-        console.log(`Redirecting to ${url}...`);
-        history.push(url);
-      }
+      const url = redirPath ? urljoin("/", redirPath) : "/";
+      // const url = match.params.redirPath
+      // ? urljoin("/", match.params.redirPath)
+      // : "/";
+      console.log(`Redirecting to ${url}...`);
+      history.push(url);
     } catch (error) {
       console.log(error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
           const details = error.response.data as ExceptionData;
           setError(
-            "password",
+            "twoFactorAuthCode",
             { message: details.message },
             { shouldFocus: true }
           );
         } else
           setError(
-            "password",
+            "twoFactorAuthCode",
             { message: error.message },
             { shouldFocus: true }
           );
       } else {
         console.error(error);
         setError(
-          "password",
+          "twoFactorAuthCode",
           { message: "Please try again later." },
           { shouldFocus: false }
         );
       }
     }
-  };
-
-  const displayShowPasswordButton = (show: boolean, setShow: any) => {
-    return (
-      <div
-        className="absolute items-center justify-between cursor-pointer right-24 top-8"
-        onClick={() => setShow(!show)}
-      >
-        <i className={"fas " + (show ? "fa-eye" : "fa-eye-slash")} />
-      </div>
-    );
   };
 
   return (
@@ -106,23 +80,13 @@ export default function Login({ match }: LoginPageProps) {
         <h1 className="m-4 text-6xl text-center">Login</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <TextInput
-            name="username"
+            name="twoFactorAuthCode"
             register={register}
             required={true}
-            error={errors.username}
-            labelName="Username"
+            error={errors.twoFactorAuthCode}
+            labelName="2FA-Code"
+            placeholder="XXX XXX"
           ></TextInput>
-          <div className="relative">
-            <TextInput
-              name="password"
-              register={register}
-              type={showPassword ? "text" : "password"}
-              required={true}
-              error={errors.password}
-              labelName="Password"
-            ></TextInput>
-            {displayShowPasswordButton(showPassword, setShowPassword)}
-          </div>
           <input
             type="submit"
             value="Login"

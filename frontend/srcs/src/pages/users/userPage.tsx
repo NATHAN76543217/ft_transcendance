@@ -14,15 +14,15 @@ import { ExceptionData } from "../../models/exceptions/ExceptionData";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 import { IAppContext } from "../../IAppContext";
 import Loading from "../../components/loading/loading";
+import { useModal } from "../../components/utilities/useModal";
+import { TwoFactorSetupModal } from "../../components/users/TwoFactorSetupModal";
 
 const onLoad = async (
   userId: number,
   userInfo: UserPageState,
-  setUserInfo: any,
-  contextValue: any
+  setUserInfo: (info: UserPageState) => void
 ) => {
   try {
-    // REVIEW redondance with userId && this.state.user.id
     if (!isNaN(userId)) {
       const data = await axios.get("/api/users/" + userId);
 
@@ -33,30 +33,30 @@ const onLoad = async (
           user: data.data,
         });
       }
-
     }
-  } catch (error) { }
+  } catch (error) {}
 };
 
-const handleClickTwoFactorAuth = async (
-  userInfo: UserPageState,
-  setUserInfo: any
-) => {
-  let newTwoFactorAuth = !userInfo.user.twoFactorAuth;
-  try {
-    await axios.patch("/api/users/" + userInfo.user.id, {
-      twoFactorAuth: newTwoFactorAuth,
-    });
-    console.log("two factor auth changed to: " + !userInfo.user.twoFactorAuth);
-    setUserInfo({
-      ...userInfo,
-      user: {
-        ...userInfo.user,
-        twoFactorAuth: newTwoFactorAuth,
-      },
-    });
-  } catch (error) { }
-};
+// This has been replaced with two factor setup modal
+// const handleClickTwoFactorAuth = async (
+//   userInfo: UserPageState,
+//   setUserInfo: any
+// ) => {
+//   let newTwoFactorAuthEnabled = !userInfo.user.twoFactorAuthEnabled;
+//   try {
+//     await axios.patch("/api/users/" + userInfo.user.id, {
+//       twoFactorAuthEnabled: newTwoFactorAuthEnabled,
+//     });
+//     console.log("two factor auth changed to: " + !userInfo.user.twoFactorAuthEnabled);
+//     setUserInfo({
+//       ...userInfo,
+//       user: {
+//         ...userInfo.user,
+//         twoFactorAuthEnabled: newTwoFactorAuthEnabled,
+//       },
+//     });
+//   } catch (error) {}
+// };
 
 // const getProfilePicture = async (pictureId: number) => {
 //   try {
@@ -64,8 +64,6 @@ const handleClickTwoFactorAuth = async (
 //     return data.request.responseURL;
 //   } catch (error) {}
 // };
-
-
 
 // const updateRelationshipState = async (
 //   newType: UserRelationshipType,
@@ -78,28 +76,25 @@ const handleClickTwoFactorAuth = async (
 //   });
 // };
 
-
-
-
 type UserPageParams = {
   id: string;
 };
 
-function UserPage({ match }: RouteComponentProps<UserPageParams>,
-) {
+function UserPage({ match }: RouteComponentProps<UserPageParams>) {
   const contextValue = React.useContext(AppContext);
+  const twoFactorSetupModal = useModal();
   const userId =
     match.params.id !== undefined ? match.params.id : contextValue.user?.id;
 
-  const [userRelationshipsInfo, setUserRelationshipsInfo] = useState<AppUserRelationship[]>(
-    contextValue.relationshipsList
-  )
+  const [userRelationshipsInfo, setUserRelationshipsInfo] = useState<
+    AppUserRelationship[]
+  >(contextValue.relationshipsList);
 
   useEffect(() => {
-    setUserRelationshipsInfo(contextValue.relationshipsList)
-  }, [contextValue.relationshipsList])
+    setUserRelationshipsInfo(contextValue.relationshipsList);
+  }, [contextValue.relationshipsList]);
 
-  const [userInfo, setUserInfo] = useState({
+  const [userInfo, setUserInfo] = useState<UserPageState>({
     // id: 0,
     doesUserExist: false,
     user: {
@@ -110,15 +105,14 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
       nbLoss: 0,
       stats: 0,
       imgPath: "",
-      twoFactorAuth: false,
+      twoFactorAuthEnabled: false,
       status: UserStatus.Null,
       role: UserRole.User,
       channels: [],
-      idInf: false,
+      //idInf: false,
     },
     usernameErrorMessage: "",
   });
-
 
   const onSubmitChangeUsername = async (
     values: IUserChangeNameFormValues,
@@ -126,8 +120,6 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
     setUserInfo: any,
     setUser: any
   ) => {
-
-
     try {
       const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
         name: values.username,
@@ -135,10 +127,9 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
 
       console.log("dataUser", dataUser);
 
-      contextValue.socket?.emit('updateUserInfo-front', {
-        name: values.username
-      })
-
+      contextValue.socket?.emit("updateUserInfo-front", {
+        name: values.username,
+      });
 
       // setUserInfo({
       //   ...userInfo,
@@ -155,7 +146,8 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
         if (error.response?.status === 400) {
           setUserInfo({
             ...userInfo,
-            usernameErrorMessage: (error.response?.data as ExceptionData).message,
+            usernameErrorMessage: (error.response?.data as ExceptionData)
+              .message,
           });
         }
       }
@@ -202,86 +194,123 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
       });
       // setUser(dataUser.data);
 
-      contextValue.socket?.emit('updateUserInfo-front', {
-        imgPath: newImgPath
-      })
+      contextValue.socket?.emit("updateUserInfo-front", {
+        imgPath: newImgPath,
+      });
 
       if (oldImgPath !== "default-profile-picture.png") {
         await axios.delete("/api/photos/" + oldImgPath);
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const updateOnLoad: any = useCallback(() => {
-    onLoad(Number(userId), userInfo, setUserInfo, contextValue);
-  }, [userInfo, userId, contextValue])
+    onLoad(Number(userId), userInfo, setUserInfo);
+  }, [userInfo, userId]);
 
   useEffect(() => {
-    updateOnLoad()
-  }, [userInfo, userId, updateOnLoad])
+    updateOnLoad();
+  }, [userInfo, userId, updateOnLoad]);
 
-  const updateRelationship = async (user_id: number, type: UserRelationshipType) => {
-    contextValue.socket?.emit('updateRelationship-front', {
+  const updateRelationship = async (
+    user_id: number,
+    type: UserRelationshipType
+  ) => {
+    contextValue.socket?.emit("updateRelationship-front", {
       user_id: user_id,
-      type: type
+      type: type,
     });
-  }
+  };
 
-  const addFriend = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
-    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+  const addFriend = async (
+    id: number,
+    userInfoForSearch: any,
+    setSearchInfo: any,
+    contextValue: IAppContext
+  ) => {
+    let inf =
+      contextValue.user === undefined
+        ? false
+        : Number(contextValue.user.id) < Number(id);
     let relationship = userRelationshipsInfo.find((relation) => {
-      return relation.user.id === id
-    })
-    let newType = inf ? UserRelationshipType.pending_first_second : UserRelationshipType.pending_second_first;
+      return relation.user.id === id;
+    });
+    let newType = inf
+      ? UserRelationshipType.pending_first_second
+      : UserRelationshipType.pending_second_first;
     if (relationship) {
       newType |= relationship.relationshipType;
     }
-    updateRelationship(id, newType)
-  }
+    updateRelationship(id, newType);
+  };
 
-  const removeFriend = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
+  const removeFriend = async (
+    id: number,
+    userInfoForSearch: any,
+    setSearchInfo: any,
+    contextValue: IAppContext
+  ) => {
     let relationship = userRelationshipsInfo.find((relation) => {
-      return relation.user.id === id
-    })
+      return relation.user.id === id;
+    });
     let newType = UserRelationshipType.null;
     if (relationship) {
       newType = relationship.relationshipType & ~UserRelationshipType.friends;
     }
-    updateRelationship(id, newType)
-  }
+    updateRelationship(id, newType);
+  };
 
-  const blockUser = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
-    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+  const blockUser = async (
+    id: number,
+    userInfoForSearch: any,
+    setSearchInfo: any,
+    contextValue: IAppContext
+  ) => {
+    let inf =
+      contextValue.user === undefined
+        ? false
+        : Number(contextValue.user.id) < Number(id);
     let relationship = userRelationshipsInfo.find((relation) => {
-      return relation.user.id === id
-    })
-    let newType = inf ? UserRelationshipType.block_first_second : UserRelationshipType.block_second_first;
+      return relation.user.id === id;
+    });
+    let newType = inf
+      ? UserRelationshipType.block_first_second
+      : UserRelationshipType.block_second_first;
     if (relationship) {
       newType |= relationship.relationshipType;
     }
-    updateRelationship(id, newType)
-  }
+    updateRelationship(id, newType);
+  };
 
-  const unblockUser = async (id: number, userInfoForSearch: any, setSearchInfo: any, contextValue: IAppContext) => {
-    let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
+  const unblockUser = async (
+    id: number,
+    userInfoForSearch: any,
+    setSearchInfo: any,
+    contextValue: IAppContext
+  ) => {
+    let inf =
+      contextValue.user === undefined
+        ? false
+        : Number(contextValue.user.id) < Number(id);
     let relationship = userRelationshipsInfo.find((relation) => {
-      return relation.user.id === id
-    })
+      return relation.user.id === id;
+    });
     let newType = UserRelationshipType.null;
     if (relationship) {
-      const typeToRemove = inf ? UserRelationshipType.block_first_second : UserRelationshipType.block_second_first;
+      const typeToRemove = inf
+        ? UserRelationshipType.block_first_second
+        : UserRelationshipType.block_second_first;
       newType = relationship.relationshipType & ~typeToRemove;
     }
-    updateRelationship(id, newType)
-  }
+    updateRelationship(id, newType);
+  };
 
+  // TODO: Should this be a 404 page?
   if (!userInfo.doesUserExist) {
     return (
       <div className="justify-center px-2 py-2 font-bold text-center">
         <Loading />
-        <span className="relative grid pt-16">
-          This user does not exist
-            </span>
+        <span className="relative grid pt-16">This user does not exist</span>
       </div>
     );
   }
@@ -321,8 +350,8 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
           relationshipsList={contextValue.relationshipsList} // A Gerer au niveau de l'update
           idInf={idInf}
           // isFriend
-          twoFactorAuth={userInfo.user.twoFactorAuth}
-          handleClickTwoFactorAuth={handleClickTwoFactorAuth}
+          twoFactorAuthEnabled={userInfo.user.twoFactorAuthEnabled}
+          handleClickTwoFactorAuth={twoFactorSetupModal.show}
           onFileChange={onFileChange}
           addFriend={addFriend}
           removeFriend={removeFriend}
@@ -332,6 +361,21 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>,
           usernameErrorMessage={userInfo.usernameErrorMessage}
           userInfo={userInfo}
           setUserInfo={setUserInfo}
+        />
+        <TwoFactorSetupModal
+          visible={twoFactorSetupModal.visible}
+          hide={(enabled?) => {
+            if (enabled !== undefined) {
+              setUserInfo({
+                ...userInfo,
+                ...{
+                  user: { ...userInfo.user, twoFactorAuthEnabled: enabled },
+                },
+              });
+            }
+            twoFactorSetupModal.hide();
+          }}
+          twoFactorAuthEnabled={userInfo.user.twoFactorAuthEnabled}
         />
       </section>
       <div className="relative flex flex-wrap justify-center w-full">

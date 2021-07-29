@@ -4,7 +4,7 @@ import {
   ChannelRelationshipType,
 } from "../channel/ChannelRelationship";
 
-export enum  UserRole {
+export enum UserRole {
   User = 1,
 
   Owner = User << 1,
@@ -15,7 +15,7 @@ export enum  UserRole {
 
 export enum UserStatus {
   Null = 0,
-  
+
   Offline = 1 << 0,
   Online = 1 << 1,
   InGame = 1 << 2,
@@ -36,7 +36,7 @@ export type IUser = {
   nbLoss: number;
   stats: number;
   imgPath: string;
-  twoFactorAuth: boolean;
+  twoFactorAuthEnabled: boolean;
   status: UserStatus;
   role: UserRole;
   channels: UserChannelRelationship[];
