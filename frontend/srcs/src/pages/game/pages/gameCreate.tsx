@@ -1,14 +1,13 @@
 import { Slider } from "@material-ui/core";
-import React from "react";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { FieldError, useForm } from "react-hook-form";
 import { NavLink } from "react-router-dom";
-import AppContext from "../../AppContext";
-import CreateGameDto from "../../models/game/CreateGame.dto";
-import { UserStatus } from "../../models/user/IUser";
+import AppContext from "../../../AppContext";
+import CreateGameDto from "../../../models/game/CreateGame.dto";
+import { UserStatus } from "../../../models/user/IUser";
 
 function GameCreate() {
-  const { relationshipsList, user } = React.useContext(AppContext)
+  const { relationshipsList, user } = useContext(AppContext)
 
   const quitToHome = () => {
     console.log('Quit to Home')
