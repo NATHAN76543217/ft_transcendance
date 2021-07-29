@@ -33,21 +33,6 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     offlineFriends: true,
   });
 
-  // contextValue.socket?.on('updateRelationship-back', (data: any) => {
-  //   // let inf = contextValue.user === undefined ? false : (Number(contextValue.user.id) < Number(id));
-  //   // let relationship = contextValue.relationshipsList.find((relation: any) => {
-  //   //   return relation.user.id === data?.user_id
-  //   // })
-  //   // if (relationship) {
-
-  //   // }
-  //   if (data) {
-  //       contextValue.updateOneRelationship(data.user_id, data.type)
-  //   }
-  //   // console.log(`received updated relationship `, data)
-  //   console.log(`received updated relationship from ${data?.user_id}: newType = ${data?.type}`)
-  // })
-
   const getDisplayBoolean = (sectionName: UserStatus) => {
     switch (sectionName) {
       case UserStatus.Null:
@@ -120,7 +105,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     if (
       relation.relationshipType & UserRelationshipType.pending_first_second &&
       relation.relationshipType & UserRelationshipType.pending_second_first && (
-        relation.user.status === statusFilter ||
+        (relation.user.status === statusFilter && !(relation.relationshipType & UserRelationshipType.block_both)) ||
         (relation.relationshipType & UserRelationshipType.block_both &&
           statusFilter === UserStatus.Offline)
       )
@@ -132,6 +117,8 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           status={relation.user.status}
           imgPath={relation.user.imgPath}
           id={relation.user.id}
+          canInvite={statusFilter === UserStatus.Online}
+          canWatch={statusFilter === UserStatus.InGame}
         />
       );
     } else {
@@ -166,7 +153,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           </h3>
         </button>
         <ul>
-          {props.relationshipsList.map((relation) => {
+           {contextValue.relationshipsList.map((relation) => {
             const inf = contextValue.user ? contextValue.user.id < relation.user.id : false;
             // console.log('inf', inf)
             const isPending = inf ? (relation.relationshipType & UserRelationshipType.pending_second_first && !(relation.relationshipType & UserRelationshipType.pending_first_second))

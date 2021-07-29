@@ -2,6 +2,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import AppContext from "../../AppContext";
 import { Message } from "../../models/channel/Channel";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 import { ChatMessage } from "./ChatMessage";
 
 async function fetchChannelMessages(
@@ -45,9 +46,9 @@ export type ChatMessageListProps = {
 
 export function ChatMessageList(props: ChatMessageListProps) {
 
-  const className = "flex-grow overflow-y-scroll bg-gray-200 "
+  // const className = "flex-grow overflow-y-scroll bg-gray-200 "
 
-  const { socket, user } = useContext(AppContext);
+  const { socket, user, relationshipsList } = useContext(AppContext);
   // const { currentChannelRel, currentUserRel } = useContext(chatContext);
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -116,10 +117,23 @@ export function ChatMessageList(props: ChatMessageListProps) {
   // console.log(`Rendering ${messages.length} messages!`);
 
   let previousSenderId = 0;
-  let sameSender = false;
+  let sameSender;
+
+  const isSenderBlocked = (message: Message) => {
+    const senderRelation = relationshipsList.find((relation) => {
+      return relation.user.id === message.sender_id;
+    })
+    if (senderRelation) {
+      const isBlocked = (user && user?.id < message.sender_id)
+        ? senderRelation.relationshipType & UserRelationshipType.block_first_second
+        : senderRelation.relationshipType & UserRelationshipType.block_second_first
+      return isBlocked;
+    }
+    return false;
+  }
 
   return (
-      
+
     <div className='flex justify-center h-screen ml-4 overflow-y-scroll rounded-md'>
 
       <div className='flex-grow max-w-2xl p-2 py-4 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md'>
@@ -127,14 +141,18 @@ export function ChatMessageList(props: ChatMessageListProps) {
           {messages.map((m) => {
             sameSender = previousSenderId === m.sender_id;
             previousSenderId = m.sender_id;
-            return (
-              <li key={m.id} className=''>
-                <ChatMessage
-                  message={m}
-                  sameSender={sameSender}
+            if (!isSenderBlocked(m)) {
+              return (
+                <li key={m.id} className=''>
+                  <ChatMessage
+                    message={m}
+                    sameSender={sameSender}
                   />
-              </li>
-            );
+                </li>
+              );
+            } else {
+              return <div></div>
+            }
           })}
         </ul>
       </div>

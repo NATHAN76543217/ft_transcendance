@@ -84,7 +84,6 @@ export function ChatBarItem({ channel, user }: ChatBarItemProps) {
   const redirect = channel ? `/chat/c${channel.id}` : (user ? `/chat/${user.id}` : `/chat`)
   return (
     <div className="border-b-2 border-gray-300">
-
       <NavLink
         className="relative flex py-1 bg-gray-100 border-l-4 hover:border-blue-400"
         activeClassName="bg-gray-300 border-red-500 border-l-4 text-red-500 hover:border-red-500"
@@ -156,10 +155,19 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
     )
   }
 
+  const isRelationBlocked = (relation: AppUserRelationship) => {
+    if (relation) {
+      const isBlocked = (contextValue.user && contextValue.user?.id < relation.user.id)
+        ? relation.relationshipType & UserRelationshipType.block_first_second
+        : relation.relationshipType & UserRelationshipType.block_second_first
+      return isBlocked;
+    }
+    return false;
+  }
+
   const displayRelationList = () => {
     return (
       <div>
-
         <button
           className={`flex items-center justify-between w-full py-2 pr-4 bg-blue-200`}
           onClick={() =>
@@ -183,7 +191,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
         </button>
         <ul>
           {Array.from(contextValue.relationshipsList).map((rel: AppUserRelationship) => {
-            return displayRelation(rel, displaySection.friends)
+              return displayRelation(rel, displaySection.friends && !isRelationBlocked(rel))
           })}
         </ul>
       </div>
