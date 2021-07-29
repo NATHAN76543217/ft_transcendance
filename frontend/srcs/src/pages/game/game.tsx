@@ -1,5 +1,7 @@
+import { Pong } from "../../components/pong/pages";
+
 function Game() {
-  return <div>game page</div>;
+  return <Pong />;
 }
 
 export default Game;
