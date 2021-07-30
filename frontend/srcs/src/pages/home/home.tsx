@@ -12,7 +12,6 @@ function Home(props: { logged: boolean }) {
                         className="w-full ">
                         <source src={process.env.PUBLIC_URL + 'hero-sea.mp4'} type='video/mp4' />
                     </video>
-                    {/* <div className='absolute w-48'> */}
 
                     <nav className="absolute z-30 p-4 w-2/3 rounded-xl lg:w-96 xl:w-2/3  3xl:w-1/3 top-[20%] xl:top-1/4 3xl:top-1/2 left-[20%]  bg-primary/60">
                         <div>
@@ -59,9 +58,8 @@ function Home(props: { logged: boolean }) {
     } else {
         return (
             <div>
-                <section className="grid justify-center ">
-                    {/* <div className="relative max-w-6xl mt-12 bg-green-500"> */}
-                    <video
+                <section className="relative ">
+                <video
                         autoPlay
                         muted
                         loop
@@ -69,7 +67,6 @@ function Home(props: { logged: boolean }) {
                         className="w-full ">
                         <source src={process.env.PUBLIC_URL + 'hero-sea.mp4'} type='video/mp4' />
                     </video>
-                    {/* </div> */}
                     <nav className="absolute p-4 rounded-xl w-96 xl:w-2/3  3xl:w-1/3 top-[20%] xl:top-1/4 3xl:top-1/2 left-[20%]   bg-primary/60 max-w-2xl">
                         <div>
 
