@@ -108,7 +108,8 @@ export enum ServerMessages {
     FIND_GAME = "server:findGame",
     CANCEL_FIND = "server:cancelFind",
     UPDATE_MOUSE_POS = "server:updateMousePos",
-    CALC_GAME_ST = "server:calcGameSt"
+    CALC_GAME_ST = "server:calcGameSt",
+    LEAVE_ROOM = "server:leaveRoom"
 }
 
 export enum ClientMessages {
@@ -263,6 +264,8 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         room.setMousePos(playerId, mousePos);
     }
 
+    // TO DO: Init status must be previously held by the room
+    // TO DO: Then use it to set the score in update game
     @SubscribeMessage(ServerMessages.CALC_GAME_ST)
     onCalcGameStatus(client : Socket, roomId : number, initStatus : any) // TO DO: Replace by IStatusDto
     {
@@ -280,5 +283,19 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             initStatus = toReplaceByEngine(initStatus);
             this.server.volatile.to(roomId.toString()).emit(ClientMessages.RECEIVE_ST, initStatus);
         }, 25 * 1000); // TO DO: Read doc for times
+    }
+
+    @SubscribeMessage(ServerMessages.LEAVE_ROOM)
+    onLeaveRoom(client : Socket, roomId : number, playerId : number)
+    {
+        const room : RoomDto = this.getRoom(roomId);
+
+        client.leave(room.getId());
+        room.playerIds.filter(id => id !== playerId);
+
+        client.to(room.getId()).emit(ClientMessages.NOTIFY, `Player with id ${playerId} left the room`);
+
+        if (room.playerIds.length == 0)
+            this.rooms.delete(room.id);
     }
 }
