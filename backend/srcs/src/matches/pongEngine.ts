@@ -1,12 +1,9 @@
-import { defaultBall } from "../../../models/game/Ball";
-import { Side } from "../../../models/game/Player";
-import { GameStateDto } from "../../../models/game/GameState.dto";
+import { defaultBall } from './models/Ball';
+import { canvasDims } from './models/canvasDims';
+import { GameState } from './models/GameRoom';
+import { Side } from './models/Player';
 
-import { canvasDims } from "../context";
-
-// Before call it in the server call: preload both players pos in status
-// Before call it in the client: just get clients mouse pos before
-export function pongEngine(st: GameStateDto) {
+export function pongEngine(st: GameState) {
   // Check if the ball scored on left side
   if (st.ball.x - st.ball.rad < 0) {
     st.scores[0]++;
@@ -27,9 +24,9 @@ export function pongEngine(st: GameStateDto) {
   st.ball.y += st.ball.dir.y;
 
   const side: Side =
-    st.ball.x + st.ball.rad < canvasDims.x / 2 ? "left" : "right";
+    st.ball.x + st.ball.rad < canvasDims.x / 2 ? 'left' : 'right';
 
-  st.players.find((player) => {
+  Array.from(st.players.values()).find((player) => {
     if (player.side === side) {
       // If the ball implacts on player's paddle
       if (

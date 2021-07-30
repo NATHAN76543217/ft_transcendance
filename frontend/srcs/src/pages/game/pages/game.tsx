@@ -4,13 +4,10 @@ import { Route, Switch } from "react-router";
 import GameCreate from "./gameCreate";
 import GameHome from "./gameHome";
 import GameMatchmaking from "./gameMatchmaking";
-import {
-  defaultGameState,
-  defaultRuleset,
-  GameContext,
-  GameState,
-} from "../context";
+import { defaultGameState, defaultRuleset, GameContext } from "../context";
 import { Ruleset } from "../../../models/game/Ruleset.dto";
+import { Pong } from "./pong";
+import { GameState } from "../../../models/game/GameState";
 
 export enum Action {}
 
@@ -54,8 +51,6 @@ function Game() {
   return (
     <GameContext.Provider
       value={{
-        state,
-        stateDispatch,
         ruleset,
         rulesSetDispatch,
         playerIds,
@@ -73,6 +68,7 @@ function Game() {
           <Route exact path="/game/create">
             <GameCreate />
           </Route>
+          <Route path="/game/:id" component={Pong} />
         </Switch>
       </div>
     </GameContext.Provider>

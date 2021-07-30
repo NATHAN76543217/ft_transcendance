@@ -3,13 +3,15 @@ import Match from './matches.entity';
 import MatchNotFound from './exceptions/MatchNotFound.exception';
 import CurrMatchesNotFound from './exceptions/CurrMatchesNotFound.exception';
 
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import ChannelsService from 'src/channels/channels.service';
-import { CreateMatchDto } from './dto/createMatch.dto';
 import { MessageType } from 'src/messages/message.entity';
+import { CreateMatchDto } from './dto/createMatch.dto';
 import UpdateMatchDto from './dto/updateMatch.dto';
+import { MatchesGateway } from './matches.gateway';
+import { Room } from './room';
 
 @Injectable()
 export default class MatchesService {
@@ -17,6 +19,8 @@ export default class MatchesService {
     @InjectRepository(Match)
     private matchesRepository: Repository<Match>,
     private channelsService: ChannelsService,
+    @Inject(forwardRef(() => MatchesGateway))
+    private matchesGateway: MatchesGateway,
   ) {}
 
   public async getAllMatches(): Promise<Match[]> {
@@ -110,6 +114,9 @@ export default class MatchesService {
         receiver_id: guestId,
       });
     });
+
+    this.matchesGateway.setRoom(new Room(newMatch.id, hostId, match.ruleset));
+
     return newMatch;
   }
 
