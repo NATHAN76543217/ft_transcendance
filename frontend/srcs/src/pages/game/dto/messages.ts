@@ -12,6 +12,7 @@ export enum ServerMessages {
     UPDATE_GAME = "server:updateGame",
     FIND_GAME = "server:findGame",
     CANCEL_FIND = "server:cancelFind",
+    UPDATE_MOUSE_POS = "server:updateMousePos",
     CALC_GAME_ST = "server:calcGameSt"
 }
 

@@ -6,6 +6,7 @@ import {
     OnGatewayConnection,
     OnGatewayDisconnect,
 } from '@nestjs/websockets'
+import { IRoute } from 'express';
 import {
     Server,
     Socket
@@ -98,13 +99,17 @@ export enum ServerMessages {
     UPDATE_GAME = "server:updateGame",
     FIND_GAME = "server:findGame",
     CANCEL_FIND = "server:cancelFind",
+    UPDATE_MOUSE_POS = "server:updateMousePos",
+    CALC_GAME_ST = "server:calcGameSt"
 }
 
 export enum ClientMessages {
     NOTIFY = "client:notify",
     MATCH_FOUND = "client:matchFound",
+    RECEIVE_ST = "client:receiveSt"
 }
 
+function toReplaceByEngine(status : any) { return 42; }
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
@@ -243,6 +248,23 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         callback(status);
     }
 
-    // TO DO: Implement in front & back: An engine using a state
-    // TO DO: Implement in front: A renderizer to display the state
+    @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
+    onUpdateMousePos(client : Socket, roomId : number, playerId : number, mousePos : IMousePos)
+    {
+        const room : RoomDto = this.getRoom(roomId);
+        room.setMousePos(playerId, mousePos);
+    }
+
+    @SubscribeMessage(ServerMessages.CALC_GAME_ST)
+    onCalcGameStatus(client : Socket, roomId : number, initStatus : any) // TO DO: Replace by IStatusDto
+    {
+        if (this.rooms.get(roomId) === undefined)
+            throw new Error(); // Room not found
+        setInterval(() => {
+            initStatus = toReplaceByEngine(initStatus);
+            this.server.to(roomId.toString()).emit(ClientMessages.RECEIVE_ST, initStatus);
+        }, 25 * 1000); // TO DO: Read doc for times
+    }
+
+    
 }

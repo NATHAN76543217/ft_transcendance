@@ -25,6 +25,9 @@ export function Pong() {
     if (ctx === null)
         throw new Error(); // TO DO
 
+    // TO DO: GameStatus must be init only for players,
+    // for expectator it must be imported form the server
+    // should be in the context
     const [status, setStatus] = useState<IStatusDto>({
         playerOne: {
             x: 0,
@@ -48,7 +51,9 @@ export function Pong() {
                 y: event.clientY - rect.top - PLAYER_HEIGHT / 2,
             },
         });
-        context.socket?.volatile.emit(ServerMessages.CALC_GAME_ST, {
+
+        // TO DO: Only emit if is a player (not for spectators)
+        context.socket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, "todo roomId", "todo playerid", {
             x: event.clientX,
             y: event.clientY
         });
