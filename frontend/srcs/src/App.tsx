@@ -397,7 +397,7 @@ class App extends React.Component<AppProps, AppState> {
           channels: a,
         };
 
-        console.log("---- newUser", newUser);
+        console.log('---- newUser', newUser);
 
         this.setState({ user: newUser });
       } else if (newType !== ChannelRelationshipType.Null) {
@@ -497,7 +497,8 @@ class App extends React.Component<AppProps, AppState> {
       }
     });
 
-    socket.on("leaveChannel-back", (data: any) => {
+    socket.on('leaveChannel-back', (data: any) => {
+
       // if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
       if (data) {
         const newType = data.type ? data.type : ChannelRelationshipType.Null;
@@ -612,11 +613,18 @@ class App extends React.Component<AppProps, AppState> {
                         )}
                       </Switch>
                     </main>
-                    <div className="flex-none hidden md:block">
-                      <FriendsBar
-                        logged={this.state.user !== undefined}
-                        relationshipsList={this.state.relationshipsList}
-                      />
+                    <div className='z-50 group duration-800 transition-width delay-0'>
+                      <div className="flex-none hidden md:block group-hover:block ">
+                        <FriendsBar
+                          logged={this.state.user !== undefined}
+                          relationshipsList={this.state.relationshipsList}
+                        />
+                      </div>
+                      <aside className="relative w-8 h-full bg-neutral md:hidden group-hover:hidden">
+                        <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
+                          <span className='font-bold'>FriendsBar</span>
+                        </div>
+                      </aside>
                     </div>
                   </div>
                 </div>
