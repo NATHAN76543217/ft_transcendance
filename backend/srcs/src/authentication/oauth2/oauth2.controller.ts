@@ -52,8 +52,7 @@ export class Oauth2Controller {
 
       user.password = undefined;
 
-      const first =
-        user.imgPath === "default-profile-picture.png" ? "/first" : "";
+      const first = user.firstConnection ? "/first" : "";
 
       response.redirect('https://localhost/login/success' + first);
     } catch (error) {
@@ -87,8 +86,7 @@ export class Oauth2Controller {
       // console.log(jwt);
       user.password = undefined;
 
-      const first =
-        user.imgPath === "default-profile-picture.png" ? "/first" : "";
+      const first = user.firstConnection ? "/first" : "";
 
       res.redirect('https://localhost/login/success' + first);
     }

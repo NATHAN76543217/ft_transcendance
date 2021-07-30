@@ -1,11 +1,11 @@
 type UserProps = {
   name: string;
   isMe: boolean;
-  imgPath: string;
+  firstConnection: boolean;
 };
 
 function UserWelcome(user: UserProps) {
-  if (user.isMe && user.imgPath === 'default-profile-picture.png') {
+  if (user.isMe && user.firstConnection) {
     return (
       <section className="relative grid justify-center w-auto h-auto">
         <p className="px-4 py-4 mx-4 mt-4 text-lg rounded-lg md:px-8 bg-secondary">

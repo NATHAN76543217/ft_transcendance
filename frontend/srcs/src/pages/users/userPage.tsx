@@ -106,6 +106,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       stats: 0,
       imgPath: "",
       twoFactorAuthEnabled: false,
+      firstConnection: true,
       status: UserStatus.Null,
       role: UserRole.User,
       channels: [],
@@ -335,7 +336,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
         <UserWelcome
           name={userInfo.user.name}
           isMe={isMe}
-          imgPath={userInfo.user.imgPath}
+          firstConnection={userInfo.user.firstConnection}
         />
       </section>
       <section className="flex justify-center ">

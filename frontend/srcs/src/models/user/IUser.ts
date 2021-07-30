@@ -37,6 +37,7 @@ export type IUser = {
   stats: number;
   imgPath: string;
   twoFactorAuthEnabled: boolean;
+  firstConnection: boolean;
   status: UserStatus;
   role: UserRole;
   channels: UserChannelRelationship[];

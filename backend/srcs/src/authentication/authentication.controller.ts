@@ -91,6 +91,7 @@ export class AuthenticationController {
   @HttpCode(200)
   @UseGuards(JwtAuthenticationGuard)
   async logOut(@Req() request: RequestWithUser, @Res() response: Response) {
+    await this.usersService.setFirstConnectionBoolean(request.user.id);
     await this.usersService.removeRefreshToken(request.user.id);
 
     response.setHeader(

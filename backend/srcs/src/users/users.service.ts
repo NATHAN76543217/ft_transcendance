@@ -69,6 +69,12 @@ export default class UsersService {
     });
   }
 
+  async setFirstConnectionBoolean(userId: number) {
+    return this.usersRepository.update(userId, {
+      firstConnection: false,
+    });
+  }
+
   async getUserFromSocket(socket: Socket): Promise<User> {
     const logger = new Logger();
     logger.debug(

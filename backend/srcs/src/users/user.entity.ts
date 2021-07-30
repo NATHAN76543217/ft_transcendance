@@ -50,6 +50,11 @@ class User {
   public twoFactorAuthEnabled: boolean;
 
   @Column({
+    default: true,
+  })
+  public firstConnection: boolean;
+
+  @Column({
     nullable: true,
     default: null,
   })
