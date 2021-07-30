@@ -261,7 +261,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
           </nav>
 
         </div>
-        <nav className="relative z-40 w-8 h-screen bg-neutral md:hidden group-hover:hidden">
+        <nav className="relative z-40 w-8 h-screen border-r-2 border-gray-300 bg-neutral md:hidden group-hover:hidden">
           <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
             <span className='font-bold'>ChatBar</span>
           </div>

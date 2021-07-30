@@ -179,12 +179,12 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     return (<div></div>)
   } else {
     return (
-      <div className='h-screen'>
-        <div className='z-50 h-screen group duration-800 transition-width delay-0'>
+      <div className='h-screen '>
+        <div className='z-50 h-screen border-l-2 border-gray-300 group duration-800 transition-width delay-0'>
           <div className='flex-none hidden w-48 md:block'>
-            
+
           </div>
-          <div className="absolute right-0 z-50 flex-none hidden h-screen md:block group-hover:block">
+          <div className="absolute right-0 z-50 flex-none hidden h-screen border-l-2 border-gray-300 md:block group-hover:block">
             <aside className="w-48 h-screen bg-neutral">
               <header>
                 <h2 className="py-4 text-2xl text-center first-letter:uppercase bg-secondary">
@@ -210,7 +210,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
             </aside>
           </div>
           <aside className="relative z-40 w-8 h-screen bg-neutral md:hidden">
-            <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
+            <div className='absolute left-0 right-0 transform -rotate-90 top-20 '>
               <span className='font-bold'>FriendsBar</span>
             </div>
           </aside>

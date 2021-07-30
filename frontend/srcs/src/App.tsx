@@ -555,8 +555,8 @@ class App extends React.Component<AppProps, AppState> {
               </Route>
               <Route>
                 <Header />
-                <div className="flex h-full border-t-2 border-gray-700 border-opacity-70">
-                  <div className="border-r-2 border-gray-700 md:block border-opacity-70">
+                <div className="flex h-full border-t-2 border-primary-dark border-opacity-70">
+                  <div className="md:block border-opacity-70">
                     <SideMenu logged={this.state.user !== undefined} />
                   </div>
                   <div className="z-30 flex w-full h-screen bg-gray-200 flex-nowrap">
