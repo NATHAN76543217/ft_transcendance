@@ -73,6 +73,14 @@ export class RoomDto {
             throw new Error(); // Unspected error
     }
 
+    public getMousePos(playerId : number)
+    {
+        const mousePos : IMousePos = this.playersMousePos.get(playerId);
+        if (mousePos === undefined)
+            throw new Error();
+        return mousePos;
+    }
+
     // public removeMousePos(playerId : number) // NOT NEED ?!?!?
     // {
     //     if (playerId in this.playerIds)
@@ -258,9 +266,17 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     @SubscribeMessage(ServerMessages.CALC_GAME_ST)
     onCalcGameStatus(client : Socket, roomId : number, initStatus : any) // TO DO: Replace by IStatusDto
     {
-        if (this.rooms.get(roomId) === undefined)
-            throw new Error(); // Room not found
+        const room : RoomDto = this.getRoom(roomId);
+
+        // let mousePos : IMousePos[];
+        // for (let i of room.playersMousePos)
+        //     mousePos.push(i[1]);
+
         setInterval(() => {
+            //initStatus.playerOne.x = mousePosP1.x;
+            initStatus.playerOne.y = room.getMousePos(Number("player1Id")).y;
+            //initStatus.playerTwo.x = mousePosP2.x;
+            initStatus.playerTwo.y = room.getMousePos(Number("player2Id")).y;
             initStatus = toReplaceByEngine(initStatus);
             this.server.volatile.to(roomId.toString()).emit(ClientMessages.RECEIVE_ST, initStatus);
         }, 25 * 1000); // TO DO: Read doc for times

@@ -71,7 +71,7 @@ export function Pong() {
     useEffect(() => {
         if (context.socket) {
             context.socket.on(ClientMessages.RECEIVE_ST, onReciveGameStatus);
-            context.socket.emit(ServerMessages.CALC_GAME_ST, "roomId", status);
+            context.socket.emit(ServerMessages.CALC_GAME_ST, "roomId", "playerId", status);
         }
         return deleteSubscribedListeners;
     }, []);
