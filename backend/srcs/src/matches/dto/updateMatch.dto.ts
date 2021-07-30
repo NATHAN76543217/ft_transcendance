@@ -1,3 +1,4 @@
 export default class UpdateMatchDto {
-  playerIds: number[];
+  playerIds?: number[];
+  scores?: number[];
 }

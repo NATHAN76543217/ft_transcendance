@@ -1,95 +1,92 @@
-import { useContext, useEffect, useState } from "react"
-import { canvasDims, defaultBall, GameContext } from "../context"
+import React, { useContext, useEffect } from "react";
+import { RouteComponentProps } from "react-router";
+import AppContext from "../../../AppContext";
+import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
+import { GameRole } from "../../../models/game/GameRole";
+import { GameState, GameStatus } from "../../../models/game/GameState";
+import { GameContext } from "../context";
 import { ClientMessages, ServerMessages } from "../dto/messages";
-import {
-    IStatusDto,
-    PLAYER_HEIGHT,
-    PLAYER_WIDTH,
-    pongEngine
-} from "../engine/engine"
-import {
-    renderize
-} from "../engine/render"
+import { pongEngine } from "../engine/engine";
+import { renderize } from "../engine/render";
 
-export function Pong() {
+export type PongPageParams = {
+  id: string;
+};
 
-    const context = useContext(GameContext);
+export function Pong({ match }: RouteComponentProps<PongPageParams>) {
+  const { user } = useContext(AppContext);
+  const gameContext = useContext(GameContext);
 
-    const canvasId : string = "pongCanvas";
+  const canvasId: string = "pongCanvas";
 
-    // TO DO: Add to useEffect contructor ?
-    const canvas : HTMLCanvasElement | null = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (canvas === null)
-        throw new Error(); // TO DO
-    const ctx : CanvasRenderingContext2D | null = canvas.getContext("2d");
-    if (ctx === null)
-        throw new Error(); // TO DO
+  const canvas: HTMLCanvasElement | null = document.getElementById(
+    canvasId
+  ) as HTMLCanvasElement;
+  if (canvas === null) throw new Error(); // TO DO
+  const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
+  if (ctx === null) throw new Error(); // TO DO
 
-    // TO DO: GameStatus must be init only for players,
-    // for expectator it must be imported form the server
-    // should be in the context
-    const [status, setStatus] = useState<IStatusDto>({
-        playerOne: {
-            x: 0,
-            y: (canvasDims.y - PLAYER_HEIGHT) / 2,
-            score: 0
-        },
-        playerTwo: {
-            x: canvasDims.x - PLAYER_WIDTH,
-            y: (canvasDims.y - PLAYER_HEIGHT) / 2,
-            score: 0
-        },
-        ball: defaultBall
-    });
+  let state: GameState;
 
-    canvas.addEventListener("mousemove", (event : any) => {
-        const rect = canvas.getBoundingClientRect();
-        setStatus({
-            ...status, 
-            playerOne: {
-                ...status.playerTwo,
-                y: event.clientY - rect.top - PLAYER_HEIGHT / 2,
-            },
-        });
+  let animationId: number | undefined = undefined;
 
-        // TO DO: Only emit if is a player (not for spectators)
-        context.socket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, "todo roomId", "todo playerid", {
-            x: event.clientX,
-            y: event.clientY
-        });
-    });
-
-    const onReciveGameStatus = (st : IStatusDto) => {
-        setStatus(st);
-    };
-
-    const deleteSubscribedListeners = () => {
-        if (context.socket)
-            context.socket.off(ClientMessages.RECEIVE_ST, onReciveGameStatus);
+  const onReceiveGameStatus = (st: GameState) => {
+    state = st;
+    if (animationId !== undefined) {
+      if (state.status === GameStatus.RUNNING) {
+        animationId = requestAnimationFrame(frame);
+      } else {
+        cancelAnimationFrame(animationId);
+        animationId = undefined;
+      }
     }
+  };
 
-    useEffect(() => {
-        if (context.socket) {
-            context.socket.on(ClientMessages.RECEIVE_ST, onReciveGameStatus);
-            context.socket.emit(ServerMessages.CALC_GAME_ST, "roomId", "playerId", status);
+  const onJoined = (data: GameJoinedDto) => {
+    if (data.role === GameRole.Player) {
+      canvas.addEventListener("mousemove", (event: any) => {
+        const rect = canvas.getBoundingClientRect();
+
+        const player = state.players.find((player) => player.id === user?.id);
+
+        if (player) {
+          player.y = event.clientY - rect.top - player.height / 2;
         }
-        return deleteSubscribedListeners;
-    }, []);
 
-    useEffect(() => {
-        renderize(status, ctx);
-    }, [status]);
+        gameContext.gameSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
+          x: event.clientX,
+          y: event.clientY,
+        });
+      });
+    }
+  };
 
-    const frame = () => {
-        setStatus(pongEngine(status));
-        requestAnimationFrame(frame);
-    };
+  const deleteSubscribedListeners = () => {
+    if (gameContext.gameSocket)
+      gameContext.gameSocket.off(
+        ClientMessages.RECEIVE_ST,
+        onReceiveGameStatus
+      );
+  };
 
-    const animationId = requestAnimationFrame(frame);
-    // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
+  useEffect(() => {
+    gameContext.gameSocket
+      ?.on(ClientMessages.JOINED, onJoined)
+      .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus);
+    return deleteSubscribedListeners;
+  }, [gameContext.gameSocket]);
 
-    // TO DO: Impose a size using canvasDims
-    return (
-        <canvas id={canvasId} className=""/>
-    );
+  setInterval(() => {
+    pongEngine(state);
+  }, 60 * 1000);
+
+  const frame = () => {
+    renderize(state, ctx);
+    requestAnimationFrame(frame);
+  };
+
+  // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
+
+  // TO DO: Impose a size using canvasDims
+  return <canvas id={canvasId} className="" />;
 }
