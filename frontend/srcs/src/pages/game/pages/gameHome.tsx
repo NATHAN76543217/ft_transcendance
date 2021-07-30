@@ -83,27 +83,60 @@ function GameHome() {
     )
   }
 
+  const displayMatchesList = () => {
+
+    if (matchList.length) {
+      return (
+        <ul>
+          {matchList.map((match) => {
+            return (
+              <li key={match.idMatch}>
+                <CurrentMatchItem
+                  playerA={match.playerNameA}
+                  playerB={match.playerNameB}
+                  scoreA={match.scorePlayerOne}
+                  scoreB={match.scorePlayerTwo}
+                  link={match.idMatch}
+                />
+              </li>
+            )
+          })}
+          {/* <li key={1}>
+                    <CurrentMatchItem
+                      playerA={'123456789123456'}
+                      playerB={'jean'}
+                      scoreA={10}
+                      scoreB={5}
+                      link={'link'}
+                    />
+                  </li>
+                  <li key={2}>
+                    <CurrentMatchItem
+                      playerA={'bob'}
+                      playerB={'jean'}
+                      scoreA={10}
+                      scoreB={5}
+                      link={'link'}
+                    />
+                  </li> */}
+        </ul>
+      )
+    } else {
+      return (
+        <div className='font-semibold'>
+          There is no live game for now.
+        </div>
+      )
+    }
+  }
+
   const displayCurrentGames = () => {
     return (
       <section className="h-auto px-8 py-8 mt-8 border-2 border-gray-300 rounded-sm bg-neutral">
         <div>
-          <h1 className="text-3xl font-bold text-center">Current games</h1>
+          <h1 className="text-3xl font-bold text-center">Live games</h1>
           <section className="flex justify-center pt-4">
-            <ul>
-              {matchList.map((match) => {
-                return (
-                  <li key={match.idMatch}>
-                    <CurrentMatchItem
-                      playerA={match.playerNameA}
-                      playerB={match.playerNameB}
-                      scoreA={match.scorePlayerOne}
-                      scoreB={match.scorePlayerTwo}
-                      link={'link'}
-                    />
-                  </li>
-                )
-              })}
-            </ul>
+            {displayMatchesList()}
           </section>
         </div>
       </section>
