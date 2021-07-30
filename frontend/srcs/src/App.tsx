@@ -613,19 +613,19 @@ class App extends React.Component<AppProps, AppState> {
                         )}
                       </Switch>
                     </main>
-                    <div className='z-50 group duration-800 transition-width delay-0'>
-                      <div className="flex-none hidden md:block group-hover:block ">
+                    {/* <div className='z-50 group duration-800 transition-width delay-0'>
+                      <div className="flex-none hidden md:block group-hover:block "> */}
                         <FriendsBar
                           logged={this.state.user !== undefined}
                           relationshipsList={this.state.relationshipsList}
                         />
-                      </div>
+                      {/* </div>
                       <aside className="relative w-8 h-full bg-neutral md:hidden group-hover:hidden">
                         <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
                           <span className='font-bold'>FriendsBar</span>
                         </div>
                       </aside>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
                 <Footer />
