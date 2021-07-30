@@ -54,12 +54,12 @@ function GameMatchmaking() {
 
   const buttonClassname = "flex justify-center rounded-lg py-2 px-4 " +
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto"
-  const textButtonClassname = 'text-2xl font-bold text-gray-900'
+  const textButtonClassname = 'md:text-2xl text-lg font-bold text-gray-900'
 
   return (
     <div className='grid justify-center'>
-      <div className='inline-block px-12 py-8 mt-24 bg-blue-200 border-2 border-gray-300 rounded-lg'>
-        <div className='flex justify-center mb-8 text-3xl font-bold '>
+      <div className='inline-block max-w-sm px-2 py-8 mt-24 bg-blue-200 border-2 border-gray-300 rounded-lg md:max-w-xl md:px-12'>
+        <div className='flex justify-center mb-8 text-2xl font-bold md:text-3xl '>
           Matchmaking
         </div>
         <div className='flex w-auto space-x-8 rounded-md lg:space-x-24'>

@@ -25,8 +25,8 @@ function GameHome() {
   
   return (
     <div className='flex justify-center'>
-      <div className='inline-block px-12 py-8 mt-24 bg-gray-100 border-2 border-gray-300 rounded-lg'>
-        <div className='flex justify-center mb-8 text-3xl font-bold '>
+      <div className='inline-block max-w-sm px-2 py-8 mt-24 bg-gray-100 border-2 border-gray-300 rounded-lg md:px-12 md:max-w-lg'>
+        <div className='flex justify-center mb-8 text-2xl font-bold md:text-3xl '>
           Do you want to play?
         </div>
         <div className='flex w-auto space-x-8 rounded-md lg:space-x-24'>

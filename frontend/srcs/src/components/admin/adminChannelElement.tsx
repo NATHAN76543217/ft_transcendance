@@ -90,27 +90,33 @@ const displayDestroyValidationButton = (props: ChannelElementProps, adminChannel
 
   if (adminChannelElementInfo.showDestroyValidation) {
     return (
-      <div className="inline-flex items-center justify-center h-6 text-center rrelative w-54">
-        <CustomButton
-          content="Confirm destruction?"
-          // url="/users/block"
-          onClickFunctionId={props.destroyChannel}
-          argId={props.id}
-          bg_color="bg-unset"
-          // bg_hover_color="bg-secondary-dark"
-          dark_text
-          text_size="text-sm"
-        />
-        <CustomButton
-          content="No"
-          // url="/users/block"
-          onClickFunctionId={localChangeDestroyValidationButtonState}
-          argId={props.id}
-          bg_color="bg-secondary"
-          // bg_hover_color="bg-secondary-dark"
-          dark_text
-          text_size="text-sm"
-        />
+      <div className="grid items-center justify-center h-10 space-y-1 text-center w-36">
+        <div className=''>
+
+          <CustomButton
+            content="Confirm destruction?"
+            // url="/users/block"
+            onClickFunctionId={props.destroyChannel}
+            argId={props.id}
+            bg_color="bg-unset"
+            // bg_hover_color="bg-secondary-dark"
+            dark_text
+            text_size="text-sm"
+          />
+        </div>
+        <div className=''>
+
+          <CustomButton
+            content="No"
+            // url="/users/block"
+            onClickFunctionId={localChangeDestroyValidationButtonState}
+            argId={props.id}
+            bg_color="bg-secondary"
+            // bg_hover_color="bg-secondary-dark"
+            dark_text
+            text_size="text-sm"
+          />
+        </div>
       </div>
     );
   }
