@@ -141,32 +141,35 @@ class AdminChannels extends React.Component<
     // this.deleteChannelRelationship("4");
 
     const sectionClass =
-      "h-auto pt-4 pb-4 mx-4 my-4 bg-gray-200 flex-grow text-center";
+      "h-auto flex-grow text-center";
 
     return (
-      <div className="w-auto">
-        <h2 className="text-3xl font-bold text-center">
-          Channels Administration
-        </h2>
-        <div className="relative flex flex-wrap">
-          <section className={sectionClass}>
-            <ul className="relative w-auto pt-4 pl-4">
-              {this.state.list.map((channel) => {
-                return (
-                  <li key={channel.id} className="my-4">
-                    <AdminChannelElement
-                      id={channel.id}
-                      name={channel.name}
-                      mode={channel.mode}
-                      destroyChannel={this.destroyChannel}
-                      isChannelSettings={false}
-                      myRole={ChannelRelationshipType.Owner}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
+      <div className='flex justify-center mb-8'>
+
+        <div className="p-4 mt-12 mb-4 border-2 border-gray-300 rounded-sm bg-neutral ">
+          <h2 className="w-full text-3xl font-bold text-center">
+            Channels Administration
+          </h2>
+          <div className="flex flex-wrap ">
+            <section className={sectionClass}>
+              <ul className="pt-4 w-max-md">
+                {this.state.list.map((channel) => {
+                  return (
+                    <li key={channel.id} className="grid justify-center my-4 ">
+                      <AdminChannelElement
+                        id={channel.id}
+                        name={channel.name}
+                        mode={channel.mode}
+                        destroyChannel={this.destroyChannel}
+                        isChannelSettings={false}
+                        myRole={ChannelRelationshipType.Owner}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          </div>
         </div>
       </div>
     );

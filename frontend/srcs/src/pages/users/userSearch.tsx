@@ -246,7 +246,7 @@ function UserSearch() {
             showWrongUsernameMessage: false,
           };
           return (
-            <li key={user.id} className="flex justify-center my-4 rounded-md ">
+            <li key={user.id} className="flex justify-center py-4 rounded-md ">
               <UserInformation
                 id={user.id}
                 name={user.name}

@@ -70,19 +70,21 @@ function AdminUsers() {
   }, [adminInfo]);
 
   const sectionClass =
-    "h-auto pt-4 pb-4 mx-4 my-4 bg-gray-200 flex-grow text-center";
+    "w-full h-auto p-4 mt-12 bg-gray-100 border-2 border-gray-300 rounded-sm ";
   const h1Class = "text-2xl font-bold text-center";
   return (
-    <div className="w-auto">
+    <div className="grid justify-center border-t-2 border-gray-600">
+      <div className='p-4 mt-12 border-2 border-gray-400 rounded-sm bg-neutral'>
+
       <h2 className="text-3xl font-bold text-center">Users Administration</h2>
-      <div className="relative flex flex-wrap">
+      <div className="w-full space-y-10 ">
         <section className={sectionClass}>
           <h1 className={h1Class}>Standard users</h1>
-          <ul className="relative w-auto pt-4 pl-4">
+          <ul className="">
             {adminInfo.list.map((user) => {
               if (!(user.role & UserRole.Banned)) {
                 return (
-                  <li key={user.id} className="justify-center">
+                  <li key={user.id} className="">
                     <AdminUserElement
                       id={user.id}
                       name={user.name}
@@ -94,7 +96,7 @@ function AdminUsers() {
                       unsetAdmin={unsetAdmin}
                       adminInfo={adminInfo}
                       setAdminInfo={setAdminInfo}
-                    />
+                      />
                   </li>
                 );
               } else {
@@ -109,7 +111,7 @@ function AdminUsers() {
         </section>
         <section className={sectionClass}>
           <h1 className={h1Class}>Banned users</h1>
-          <ul className="relative w-auto pt-4 pl-4">
+          <ul className="">
             {adminInfo.list.map((user) => {
               if (user.role & UserRole.Banned) {
                 return (
@@ -125,7 +127,7 @@ function AdminUsers() {
                       unsetAdmin={unsetAdmin}
                       adminInfo={adminInfo}
                       setAdminInfo={setAdminInfo}
-                    />
+                      />
                   </li>
                 );
               } else {
@@ -139,6 +141,7 @@ function AdminUsers() {
           </ul>
         </section>
       </div>
+            </div>
     </div>
   );
 }

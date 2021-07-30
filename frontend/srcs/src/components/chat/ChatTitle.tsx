@@ -29,7 +29,7 @@ export function ChatTitle({ channel, user, isInHeader }: ChatTitleProps) {
   return (
     <div className="flex items-center pl-1">
       <img className="w-8 h-8 rounded-full" alt="chat" src={imgPath} />
-      <div className="pl-2 font-semibold">{name}</div>
+      <div className="pl-2 font-semibold truncate w-30">{name}</div>
     </div>
   );
 }

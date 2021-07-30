@@ -90,27 +90,33 @@ const displayDestroyValidationButton = (props: ChannelElementProps, adminChannel
 
   if (adminChannelElementInfo.showDestroyValidation) {
     return (
-      <div className="inline-flex items-center justify-center h-6 text-center rrelative w-54">
-        <CustomButton
-          content="Confirm destruction?"
-          // url="/users/block"
-          onClickFunctionId={props.destroyChannel}
-          argId={props.id}
-          bg_color="bg-unset"
-          // bg_hover_color="bg-secondary-dark"
-          dark_text
-          text_size="text-sm"
-        />
-        <CustomButton
-          content="No"
-          // url="/users/block"
-          onClickFunctionId={localChangeDestroyValidationButtonState}
-          argId={props.id}
-          bg_color="bg-secondary"
-          // bg_hover_color="bg-secondary-dark"
-          dark_text
-          text_size="text-sm"
-        />
+      <div className="grid items-center justify-center h-10 space-y-1 text-center w-36">
+        <div className=''>
+
+          <CustomButton
+            content="Confirm destruction?"
+            // url="/users/block"
+            onClickFunctionId={props.destroyChannel}
+            argId={props.id}
+            bg_color="bg-unset"
+            // bg_hover_color="bg-secondary-dark"
+            dark_text
+            text_size="text-sm"
+          />
+        </div>
+        <div className=''>
+
+          <CustomButton
+            content="No"
+            // url="/users/block"
+            onClickFunctionId={localChangeDestroyValidationButtonState}
+            argId={props.id}
+            bg_color="bg-secondary"
+            // bg_hover_color="bg-secondary-dark"
+            dark_text
+            text_size="text-sm"
+          />
+        </div>
       </div>
     );
   }
@@ -233,7 +239,7 @@ function AdminChannelElement(props: ChannelElementProps) {
     if (adminChannelElementInfo.showUsersList) {
       return (
         <div>
-          <ul className="relative w-auto pt-4 pl-4">
+          <ul className="grid justify-center pt-4 pl-2 w-max-md">
             {adminChannelElementInfo.channelRelationshipsList.map((relation) => {
               let translatedRole = translateRelationTypeToRole(
                 relation.type
@@ -241,7 +247,7 @@ function AdminChannelElement(props: ChannelElementProps) {
 
               if (!(relation.type & ChannelRelationshipType.Null)) {
                 return (
-                  <li key={relation.user_id.toFixed()} className="">
+                  <li key={relation.user_id.toFixed()} className=" w-96">
                     <AdminUserElement
                       id={relation.user_id}
                       name={relation.user.name}
@@ -290,13 +296,13 @@ function AdminChannelElement(props: ChannelElementProps) {
     if (!props.isChannelSettings) {
 
       return (
-        <div className="flex items-center h-8 mt-2 group">
+        <div className="flex items-center h-8 mt-2 group w-96">
           <div className="flex">
-            <div className="flex justify-center w-24 mr-2">
+            <div className="flex justify-center w-16 ">
               {displayMode(props)}
             </div>
             <div
-              className="w-48 font-bold cursor-pointer text-md hover:underline"
+              className="mx-4 font-bold cursor-pointer w-36 text-md hover:underline"
               onClick={localChangeUsersListButtonState}
             >
               {props.name}
@@ -312,7 +318,7 @@ function AdminChannelElement(props: ChannelElementProps) {
   }
 
   return (
-    <div className={adminChannelElementInfo.showUsersList && !props.isChannelSettings ? "bg-blue-200 rounded-md py-1" : "py-1"}>
+    <div className={`py-1 w-96  ${adminChannelElementInfo.showUsersList && !props.isChannelSettings ? "border-t-2 border-b-2 border-gray-300 " : ""}`}>
       {displayChannelInformation()}
       {displayUsersList(adminChannelElementInfo, setAdminChannelElementInfo)}
     </div>

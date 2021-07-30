@@ -159,11 +159,11 @@ function ChannelSettingsProperties(props: ChannelProps) {
     }
 
     return (
-        <div className="mt-8">
+        <div className="relative grid justify-center pt-4 pb-2 mt-8 border-2 border-gray-300 rounded-sm bg-neutral w-96">
             <h2 className="text-3xl font-bold text-center">
                 Channel Properties
             </h2>
-            <div className="justify-center block w-full my-8">
+            <div className="justify-center block w-full my-4">
                 {displayDestroyButton(adminChannelElementInfo, setAdminChannelElementInfo)}
                 {displayDestroyValidationButton(props, adminChannelElementInfo, setAdminChannelElementInfo)}
             </div>

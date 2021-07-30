@@ -17,7 +17,7 @@ function getWinRate(nbWin: number, nbLoss: number) {
 
 function UserStats(user: UserProps) {
   return (
-    <section className="w-auto px-4 py-4 mx-4 my-4 bg-gray-100 h-52">
+    <section className="h-auto px-8 pt-8 pb-4 mt-8 border-2 border-gray-300 rounded-sm bg-neutral">
       <div>
         <h1 className="text-3xl font-bold text-center">Stats</h1>
         <section className="relative flex justify-center pt-4 whitespace-pre">

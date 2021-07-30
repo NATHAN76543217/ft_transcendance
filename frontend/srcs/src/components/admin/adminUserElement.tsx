@@ -188,7 +188,7 @@ function displayAdminButton(user: UserElementProps) {
     user.myRole & UserRole.Owner
   ) {
     return (
-      <div className="relative inline-flex items-center justify-center w-32 h-6 text-center">
+      <div className="inline-flex items-center justify-center w-24 h-6 text-center">
         {!(user.role & UserRole.Owner) ? (
           !(user.role & UserRole.Admin) ? (
             <CustomButton
@@ -227,23 +227,27 @@ function displayAdminButton(user: UserElementProps) {
 
 function AdminUserElement(user: UserElementProps) {
   return (
-    <div className="inline-flex h-8 ">
-      <div className="flex">
-        <div className="flex justify-center w-24">{displayRole(user.role)}</div>
-        <div className="w-44">
+    <div className="inline-flex h-auto py-2 ">
+      <div className="flex items-center">
+        <div className="flex items-center justify-center w-16">{displayRole(user.role)}</div>
+        <div className="grid justify-center w-36">
           <NavLink
             to={"/users/" + user.id}
-            className="font-bold text-md whitespace-nowrap hover:underline"
+            className="text-sm font-semibold whitespace-nowrap hover:underline"
           >
             {user.name}
           </NavLink>
         </div>
       </div>
-      <div className={"flex w-56"}>
-        {displayAdminButton(user)}
-        {displayMuteButton(user)}
-        {displayKickButton(user)}
-        {displayBanButton(user)}
+      <div className={"grid w-48 space-y-2 justify-center"}>
+        <div className='flex'>
+          {displayAdminButton(user)}
+          {displayBanButton(user)}
+        </div>
+        <div className='flex h-auto'>
+          {displayMuteButton(user)}
+          {displayKickButton(user)}
+        </div>
       </div>
     </div>
   );

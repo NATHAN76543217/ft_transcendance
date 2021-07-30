@@ -1,5 +1,6 @@
-export default interface Match
-{
+
+
+export type IMatch = {
     idMatch : string;
     idPlayerOne : string;
     idPlayerTwo : string;
@@ -7,4 +8,6 @@ export default interface Match
     scorePlayerTwo : number;
     startTime : Date;
     endTime: Date;
-}
+    playerNameA: string;
+    playerNameB: string;
+};

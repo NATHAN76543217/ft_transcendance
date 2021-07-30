@@ -87,7 +87,7 @@ export function ChatMessage({ message, sameSender }: ChatMessageProps) {
       {displaySenderName()}
       <div className={`flex flex-shrink   ${isMe ? classBlockMe : classBlockOthers}`}>
         {displaySenderImage()}
-        <span className={`px-2 break-words py-1 w-auto lg:max-w-lg md:max-w-sm max-w-sm rounded-md ${isMe ? classMessageMe : classMessageOthers}`}>
+        <span className={`px-2 break-words py-1 w-auto xl:max-w-lg max-w-xs rounded-md ${isMe ? classMessageMe : classMessageOthers}`}>
           {message.data}
         </span>
       </div>

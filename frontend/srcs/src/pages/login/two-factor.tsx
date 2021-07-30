@@ -39,7 +39,7 @@ export default function TwoFactorAuth({ match }: TwoFactorAuthPageProps) {
 
       // TODO
       const redirPath =
-        data.imgPath === "default-profile-picture.png" ? "users" : "";
+        data.firstConnection ? "users" : "";
 
       const url = redirPath ? urljoin("/", redirPath) : "/";
       // const url = match.params.redirPath

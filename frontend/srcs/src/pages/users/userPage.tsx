@@ -106,6 +106,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       stats: 0,
       imgPath: "",
       twoFactorAuthEnabled: false,
+      firstConnection: true,
       status: UserStatus.Null,
       role: UserRole.User,
       channels: [],
@@ -331,14 +332,14 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
 
   return (
     <div className="">
-      <section>
+      <section className='mb-4'>
         <UserWelcome
           name={userInfo.user.name}
           isMe={isMe}
-          imgPath={userInfo.user.imgPath}
+          firstConnection={userInfo.user.firstConnection}
         />
       </section>
-      <section className="relative w-full">
+      <section className="flex justify-center ">
         <UserInformation
           id={userInfo.user.id}
           name={userInfo.user.name}
@@ -378,15 +379,18 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
           twoFactorAuthEnabled={userInfo.user.twoFactorAuthEnabled}
         />
       </section>
-      <div className="relative flex flex-wrap justify-center w-full">
-        <section className="relative">
+      <div className="flex flex-wrap items-center justify-center w-full space-x-8">
+        <section className="">
           <UserStats
             nbWin={userInfo.user.nbWin}
             nbLoss={userInfo.user.nbLoss}
           />
         </section>
-        <section className="relative">
-          <MatchHistory />
+        <section className="">
+          <MatchHistory
+            id={userInfo.user.id}
+            name={userInfo.user.name}
+          />
         </section>
       </div>
     </div>

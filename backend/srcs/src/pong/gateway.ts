@@ -6,6 +6,7 @@ import {
     OnGatewayConnection,
     OnGatewayDisconnect,
 } from '@nestjs/websockets'
+import { IRoute } from 'express';
 import {
     Server,
     Socket
@@ -72,6 +73,14 @@ export class RoomDto {
             throw new Error(); // Unspected error
     }
 
+    public getMousePos(playerId : number)
+    {
+        const mousePos : IMousePos = this.playersMousePos.get(playerId);
+        if (mousePos === undefined)
+            throw new Error();
+        return mousePos;
+    }
+
     // public removeMousePos(playerId : number) // NOT NEED ?!?!?
     // {
     //     if (playerId in this.playerIds)
@@ -98,13 +107,18 @@ export enum ServerMessages {
     UPDATE_GAME = "server:updateGame",
     FIND_GAME = "server:findGame",
     CANCEL_FIND = "server:cancelFind",
+    UPDATE_MOUSE_POS = "server:updateMousePos",
+    CALC_GAME_ST = "server:calcGameSt",
+    LEAVE_ROOM = "server:leaveRoom"
 }
 
 export enum ClientMessages {
     NOTIFY = "client:notify",
     MATCH_FOUND = "client:matchFound",
+    RECEIVE_ST = "client:receiveSt"
 }
 
+function toReplaceByEngine(status : any) { return 42; }
 
 @WebSocketGateway()
 export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
@@ -243,6 +257,50 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         callback(status);
     }
 
-    // TO DO: Implement in front & back: An engine using a state
-    // TO DO: Implement in front: A renderizer to display the state
+    @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
+    onUpdateMousePos(client : Socket, roomId : number, playerId : number, mousePos : IMousePos)
+    {
+        const room : RoomDto = this.getRoom(roomId);
+        room.setMousePos(playerId, mousePos);
+    }
+
+    // TO DO: Init status must be previously held by the room
+    // TO DO: Then use it to set the score in update game
+    @SubscribeMessage(ServerMessages.CALC_GAME_ST)
+    onCalcGameStatus(client : Socket, roomId : number, initStatus : any) // TO DO: Replace by IStatusDto
+    {
+        const room : RoomDto = this.getRoom(roomId);
+
+        // let mousePos : IMousePos[];
+        // for (let i of room.playersMousePos)
+        //     mousePos.push(i[1]);
+
+        setInterval(() => {
+            //initStatus.playerOne.x = mousePosP1.x;
+            initStatus.playerOne.y = room.getMousePos(Number("player1Id")).y;
+            //initStatus.playerTwo.x = mousePosP2.x;
+            initStatus.playerTwo.y = room.getMousePos(Number("player2Id")).y;
+            initStatus = toReplaceByEngine(initStatus);
+            this.server.volatile.to(roomId.toString()).emit(ClientMessages.RECEIVE_ST, initStatus);
+        }, 25 * 1000); // TO DO: Read doc for times
+    }
+
+    @SubscribeMessage(ServerMessages.LEAVE_ROOM)
+    onLeaveRoom(client : Socket, roomId : number, playerId : number)
+    {
+        const room : RoomDto = this.getRoom(roomId);
+
+        client.leave(room.getId());
+        room.playerIds.filter(id => id !== playerId);
+
+        client.to(room.getId()).emit(ClientMessages.NOTIFY, `Player with id ${playerId} left the room`);
+
+        if (room.playerIds.length == 0)
+            this.rooms.delete(room.id);
+    }
+
+    // TO DO: Each room has a game state
+    // EACH CLIENT WILL RECEIVE IT TO INIT THEIR GAME
+    // PLAYER RECEIVE STATUS BY DEFUALT
+    // SPECTATOR RECEIVE STATUS AT RUNNIGN TIME
 }

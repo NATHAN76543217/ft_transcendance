@@ -120,8 +120,8 @@ export default function ChatPage({
         setCurrentUserRel,
       }}
     >
-      <div className="flex h-full">
-        <ChatNavBar className="flex-none w-48 h-full bg-white divide-y-4 md:block " />
+      <div className="flex h-screen ">
+        <ChatNavBar className="flex-none w-48 h-screen divide-y-4 bg-neutral " />
         <Switch>
           <Route exact path="/chat/find">
             <ChannelSearch />

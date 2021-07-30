@@ -7,7 +7,7 @@ import { Like, Repository, SelectQueryBuilder } from 'typeorm';
 import UserNotFound from './exception/UserNotFound.exception';
 import UserOauthIdNotFound from './exception/UserOauthIdNotFound.exception';
 import UserRelationshipsService from './relationships/user-relationships.service';
-import UserNameNotFoundException from './exception/UserNameNotFound.exception';
+import UserNameNotFoundException from './exception/UserNameInvalid.exception';
 import UserRelationship from './relationships/user-relationship.entity';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { Socket } from 'socket.io';
@@ -16,7 +16,7 @@ import { WsException } from '@nestjs/websockets';
 import { UserRole } from './utils/userRole';
 import ChannelRelationship from 'src/channels/relationships/channel-relationship.entity';
 import * as bcrypt from 'bcrypt';
-import UserNameInvalid from './exception/UserNameNotFound.exception';
+import UserNameInvalid from './exception/UserNameInvalid.exception';
 import { ChannelRelationshipType } from 'src/channels/relationships/channel-relationship.type';
 import { UserStatus } from './utils/userStatus';
 import { Message } from 'src/messages/message.entity';
@@ -66,6 +66,12 @@ export default class UsersService {
     Logger.debug(`Setting 2FA secret for user ${userId}: secret: ${secret}`);
     return await this.usersRepository.update(userId, {
       twoFactorAuthSecret: secret,
+    });
+  }
+
+  async setFirstConnectionBoolean(userId: number) {
+    return this.usersRepository.update(userId, {
+      firstConnection: false,
     });
   }
 
@@ -246,6 +252,7 @@ export default class UsersService {
     try {
       await this.usersRepository.update(id, user);
     } catch (e) {
+      console.log(e)
       throw new UserNameInvalid(user.name);
     }
     const updatedUser = this.usersRepository.findOne(id, {
@@ -321,8 +328,9 @@ export default class UsersService {
       .orWhere('message.receiver_id = :user2_id', { user2_id })
       .andWhere('message.sender_id = :user1_id', { user1_id })
       // .andWhere('message.type = :type', { type: MessageType.PrivateMessage })
+      .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
+      .take(maxCount)
       .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
-      .take(maxCount);
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });

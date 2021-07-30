@@ -39,7 +39,7 @@ import FailedLogin from "./pages/failedLogin/failedLogin";
 import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
 import TwoFactorAuth from "./pages/login/two-factor";
 
-interface AppProps {}
+interface AppProps { }
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -171,7 +171,7 @@ class App extends React.Component<AppProps, AppState> {
               withCredentials: true,
             });
             this.setUserInit(res.data);
-          } catch (error) {}
+          } catch (error) { }
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
@@ -247,10 +247,10 @@ class App extends React.Component<AppProps, AppState> {
               relationshipType: relation.type,
             });
             this.setState({ relationshipsList: a });
-          } catch (error) {}
+          } catch (error) { }
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   updateOneRelationshipType = async (
@@ -397,7 +397,7 @@ class App extends React.Component<AppProps, AppState> {
           channels: a,
         };
 
-        console.log("---- newUser", newUser);
+        console.log('---- newUser', newUser);
 
         this.setState({ user: newUser });
       } else if (newType !== ChannelRelationshipType.Null) {
@@ -497,7 +497,8 @@ class App extends React.Component<AppProps, AppState> {
       }
     });
 
-    socket.on("leaveChannel-back", (data: any) => {
+    socket.on('leaveChannel-back', (data: any) => {
+
       // if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
       if (data) {
         const newType = data.type ? data.type : ChannelRelationshipType.Null;
@@ -554,11 +555,11 @@ class App extends React.Component<AppProps, AppState> {
               </Route>
               <Route>
                 <Header />
-                <div className="flex h-full border-t-2 border-gray-700 border-opacity-70">
-                  <div className="border-r-2 border-gray-700 md:block border-opacity-70">
+                <div className="flex h-full border-t-2 border-primary-dark border-opacity-70">
+                  <div className="md:block border-opacity-70">
                     <SideMenu logged={this.state.user !== undefined} />
                   </div>
-                  <div className="z-30 flex w-full bg-gray-200 flex-nowrap">
+                  <div className="z-30 flex w-full h-screen bg-gray-200 flex-nowrap">
                     <main className="flex-grow">
                       <Switch>
                         <Route exact path="/">
@@ -608,16 +609,14 @@ class App extends React.Component<AppProps, AppState> {
                         {this.displayAdminRoute(
                           // true
                           this.state.user?.role === UserRole.Admin ||
-                            this.state.user?.role === UserRole.Owner
+                          this.state.user?.role === UserRole.Owner
                         )}
                       </Switch>
                     </main>
-                    <div className="flex-none hidden md:block">
-                      <FriendsBar
-                        logged={this.state.user !== undefined}
-                        relationshipsList={this.state.relationshipsList}
-                      />
-                    </div>
+                    <FriendsBar
+                      logged={this.state.user !== undefined}
+                      relationshipsList={this.state.relationshipsList}
+                    />
                   </div>
                 </div>
                 <Footer />

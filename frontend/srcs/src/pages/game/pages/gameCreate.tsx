@@ -42,7 +42,7 @@ function GameCreate() {
 
   const handleChange = (event: any, newValue: any) => {
     setNbPoints(newValue);
-    console.log('newValue', newValue)
+    // console.log('newValue', newValue)
   };
 
   const marks = [
@@ -119,7 +119,7 @@ function GameCreate() {
     if (showRegisterValidation) {
       return (
         <div className="absolute bottom-0 w-full pr-12 font-bold text-center text-green-600">
-          Channel creation confirmed
+          Game creation confirmed
         </div>
       );
     }

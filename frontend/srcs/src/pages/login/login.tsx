@@ -53,7 +53,7 @@ export default function Login({ match }: LoginPageProps) {
 
         // TODO
         const redirPath =
-          userData.imgPath === "default-profile-picture.png" ? "users" : "";
+          userData.firstConnection ? "users" : "";
 
         const url = redirPath ? urljoin("/", redirPath) : "/";
         // const url = match.params.redirPath

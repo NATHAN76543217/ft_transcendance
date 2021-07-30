@@ -13,7 +13,7 @@ export default function ChannelSearchForm(props: ChannelSearchProps) {
   const { register, handleSubmit } = useForm<ChannelSearchDto>();
 
   return (
-    <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 rounded-md bg-neutral ">
+    <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 border-2 border-gray-300 rounded-md bg-neutral">
       <h1 className="flex justify-center mb-2 ">
         <span className="text-2xl font-bold ">Search channels</span>
       </h1>

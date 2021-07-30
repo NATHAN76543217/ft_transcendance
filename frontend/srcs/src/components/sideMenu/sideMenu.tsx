@@ -49,7 +49,7 @@ function SideMenu(props: { logged: boolean }) {
   }
   return (
     <div>
-      <nav className="absolute z-50 w-16 h-full delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">
+      <nav className="absolute z-50 w-16 h-full border-r-2 border-gray-300 delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">
         <ul className="w-full ">
           <li className="h-40 bg-black xl:h-52 2xl:h-60">
             <Link to="/">

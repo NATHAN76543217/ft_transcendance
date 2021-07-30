@@ -161,6 +161,7 @@ export class ChannelsGateway
   ) {
     try {
       const user = await this.usersService.getUserById(body.user_id);
+      delete user.status;
       this.usersService.updateUser(user.id, {
         ...user,
         role: body.role,

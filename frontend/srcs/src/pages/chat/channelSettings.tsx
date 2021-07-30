@@ -42,7 +42,7 @@ function ChannelSettings(props: ChannelSettingsProps) {
     (ChannelRelationshipType.Owner | ChannelRelationshipType.Admin)
   ) {
     return (
-      <div className="flex-grow">
+      <div className="grid justify-center ">
         <ChannelSettingsProperties
           id={props.id}
           name={props.name}
@@ -51,8 +51,8 @@ function ChannelSettings(props: ChannelSettingsProps) {
           isChannelSettings={true}
           myRole={props.myRole}
         />
-        <div>
-          <h2 className="mt-12 text-3xl font-bold text-center">
+        <div className='grid justify-center pt-4 pb-4 mt-8 border-2 border-gray-300 rounded-sm bg-neutral w-96'>
+          <h2 className="text-3xl font-bold text-center">
             Channel Users
           </h2>
           <AdminChannelElement
