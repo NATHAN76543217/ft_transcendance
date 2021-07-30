@@ -44,6 +44,9 @@ import {
   ChannelMessageCaslAbilityFactory,
 } from './channel-message-casl-ability.factory';
 import UpdateUserInfoDto from 'src/messages/dto/updateUserInfo.dto';
+import { AuthenticationService } from 'src/authentication/authentication.service';
+import Message from 'src/messages/message.interface';
+import { Timestamp } from 'typeorm';
 
 // TODO: Rename to EventsModule...
 @Injectable()
@@ -60,6 +63,7 @@ export class ChannelsGateway
     @Inject(forwardRef(() => ChannelsService))
     private readonly channelsService: ChannelsService,
     private readonly channelRelationshipsService: ChannelRelationshipsService,
+    private readonly authenticationService: AuthenticationService,
     private readonly messageService: MessageService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
     private readonly messageAbilityFactory: ChannelMessageCaslAbilityFactory,
@@ -72,14 +76,81 @@ export class ChannelsGateway
     this.logger.log(`Listening at ${server.path()}`);
   }
 
+  async handleConnection(socket: SocketWithUser) {
+    try {
+      socket.user = await this.authenticationService.getUserFromSocket(socket);
+    } catch (e) {
+      this.logger.error(`Disconnected: ${e}`);
+      socket.disconnect(true);
+      return;
+    }
+
+    socket.emit('authenticated');
+
+    socket.on('disconnecting', () => {
+      // TODO: set offline status
+      this.logger.debug(
+        `Client ${socket.user.id} disconnecting with ${socket.rooms.size} joined rooms`,
+      );
+
+      socket.rooms.forEach((r) => {
+        socket.to(r).emit('disconnected', { username: socket.user.name });
+      });
+    });
+
+    this.broadcastStatusChange(socket, UserStatus.online);
+
+    // Join self named channel
+    socket.join(socket.user.id.toFixed());
+    // Join user channels
+    socket.user.channels.forEach((c) => {
+      this.connectChannel(socket, c.channel.id);
+      // const channel = `#${c.channel!.id}`;
+      // this.logger.log(`User joining ${channel}`);
+
+      // socket.join(channel);
+      // // TODO: Check which data to send on join
+      // // TODO: Use a status event and set connected as its value
+      // socket.to(channel).emit('connected', { username: socket.user.name });
+    });
+
+    // Notify friends about status
+
+    this.logger.debug(
+      `Client ${socket.user.id} connected with ${
+        socket.rooms.size - 2
+      } joined channels`,
+    );
+
+    return { event: 'connected' };
+  }
+
+  async onUserDisconnect(socket: SocketWithUser) {
+    await this.broadcastStatusChange(
+      socket as SocketWithUser,
+      UserStatus.offline,
+    );
+  }
+
+  async handleDisconnect(socket: Socket | SocketWithUser) {
+    if ('user' in socket) {
+      await this.onUserDisconnect(socket as SocketWithUser);
+      this.logger.debug(
+        `Authenticated user ${(socket as SocketWithUser).user.id} disconnected`,
+      );
+    } else {
+      this.logger.debug('Unauthenticated client disconnected');
+    }
+  }
+
   @SubscribeMessage('updateRelationship-front')
   async handleUpdateRelationship(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRelationshipDto,
   ) {
     const inf = socket.user.id < body.user_id;
-    const user1_id = inf ? socket.user.id.toString() : body.user_id.toString();
-    const user2_id = inf ? body.user_id.toString() : socket.user.id.toString();
+    const user1_id = inf ? socket.user.id.toFixed() : body.user_id.toString();
+    const user2_id = inf ? body.user_id.toString() : socket.user.id.toFixed();
     let relationship;
     try {
       relationship =
@@ -106,7 +177,7 @@ export class ChannelsGateway
       type: body.type,
     });
     socket.to(body.user_id.toString()).emit('updateRelationship-back', {
-      user_id: socket.user.id.toString(),
+      user_id: socket.user.id.toFixed(),
       type: body.type,
     });
   }
@@ -141,13 +212,11 @@ export class ChannelsGateway
     relations.forEach((rel) => {
       const friend_id =
         user_id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id;
-      socket
-        .to(friend_id.toString())
-        .emit('updateUserInfo-back', {
-          user_id: user_id,
-          name: body.name,
-          imgPath: body.imgPath,
-        });
+      socket.to(friend_id.toString()).emit('updateUserInfo-back', {
+        user_id: user_id,
+        name: body.name,
+        imgPath: body.imgPath,
+      });
     });
     // } catch (error) {
     // console.log(error);
@@ -261,14 +330,14 @@ export class ChannelsGateway
     this.joinChannel(socket, body.channel_id, newType);
     // socket.emit('joinChannel-back', {
     //   channel_id: body.channel_id.toString(),
-    //   user_id: socket.user.id.toString(),
+    //   user_id: socket.user.id.toFixed(),
     //   type: newType,
     // });
     // socket
-    //   .to(socket.user.id.toString())
+    //   .to(socket.user.id.toFixed())
     //   .emit('joinChannel-back', {
     //     channel_id: body.channel_id.toString(),
-    //     user_id: socket.user.id.toString(),
+    //     user_id: socket.user.id.toFixed(),
     //     type: newType,
     //   });
   }
@@ -316,14 +385,14 @@ export class ChannelsGateway
 
       // socket.emit('leaveChannel-back', {
       //   channel_id: body.channel_id.toString(),
-      //   user_id: socket.user.id.toString(),
+      //   user_id: socket.user.id.toFixed(),
       //   type: newType,
       // });
       // socket
-      //   .to(socket.user.id.toString())
+      //   .to(socket.user.id.toFixed())
       //   .emit('leaveChannel-back', {
       //     channel_id: body.channel_id.toString(),
-      //     user_id: socket.user.id.toString(),
+      //     user_id: socket.user.id.toFixed(),
       //     type: newType,
       //   });
     } catch (error) {
@@ -361,7 +430,7 @@ export class ChannelsGateway
 
     const rels =
       await this.userRelationshipService.getAllUserRelationshipsFromOneUser(
-        socket.user.id.toString(),
+        socket.user.id.toFixed(),
       );
 
     // TODO: Filter by relation state
@@ -377,73 +446,6 @@ export class ChannelsGateway
           status,
         });
       });
-  }
-
-  async handleConnection(socket: SocketWithUser) {
-    try {
-      socket.user = await this.channelsService.getUserFromSocket(socket);
-    } catch (e) {
-      this.logger.error(`Disconnected: ${e}`);
-      socket.disconnect(true);
-      return;
-    }
-
-    socket.emit('authenticated');
-
-    socket.on('disconnecting', () => {
-      // TODO: set offline status
-      this.logger.debug(
-        `Client ${socket.user.id} disconnecting with ${socket.rooms.size} joined rooms`,
-      );
-
-      socket.rooms.forEach((r) => {
-        socket.to(r).emit('disconnected', { username: socket.user.name });
-      });
-    });
-
-    this.broadcastStatusChange(socket, UserStatus.online);
-
-    // Join self named channel
-    socket.join(socket.user.id.toString());
-    // Join user channels
-    socket.user.channels.forEach((c) => {
-      this.connectChannel(socket, c.channel.id);
-      // const channel = `#${c.channel!.id}`;
-      // this.logger.log(`User joining ${channel}`);
-
-      // socket.join(channel);
-      // // TODO: Check which data to send on join
-      // // TODO: Use a status event and set connected as its value
-      // socket.to(channel).emit('connected', { username: socket.user.name });
-    });
-
-    // Notify friends about status
-
-    this.logger.debug(
-      `Client ${socket.user.id} connected with ${
-        socket.rooms.size - 2
-      } joined channels`,
-    );
-
-    return { event: 'connected' };
-  }
-
-  async onUserDisconnect(socket: SocketWithUser) {
-    await this.broadcastStatusChange(
-      socket as SocketWithUser,
-      UserStatus.offline,
-    );
-  }
-
-  async handleDisconnect(socket: Socket | SocketWithUser) {
-    if ('user' in socket) {
-      await this.onUserDisconnect(socket as SocketWithUser);
-      this.logger.debug(
-        `Authenticated user ${(socket as SocketWithUser).user.id} disconnected`,
-      );
-    } else {
-      this.logger.debug('Unauthenticated client disconnected');
-    }
   }
 
   @SubscribeMessage('message-channel')
@@ -493,6 +495,23 @@ export class ChannelsGateway
     }
   }
 
+  sendUserMessage(senderId: number, messageData: CreateMessageDto) {
+    const message: Message = {
+      channel_id: 1,
+      created_at: new Date(),
+      updated_at: new Date(),
+      id: 0,
+      sender_id: senderId,
+      receiver_id: messageData.receiver_id,
+      text: messageData.data,
+      type: messageData.type,
+    };
+
+    this.server
+      .to(messageData.receiver_id.toFixed())
+      .emit('message-user', message);
+  }
+
   @SubscribeMessage('message-user')
   async handleMessageUser(
     @ConnectedSocket() socket: SocketWithUser,
@@ -501,37 +520,29 @@ export class ChannelsGateway
     body.channel_id = 1;
     console.log('message-user', body);
 
-    const author = socket.user;
-    // const channel = await this.channelsService.getChannelById(body.channel_id);
-    // const abilities = this.abilityFactory.createForUser(author);
+    if (body.type === MessageType.PrivateMessage) {
+      const author = socket.user;
+      // const channel = await this.channelsService.getChannelById(body.channel_id);
+      // const abilities = this.abilityFactory.createForUser(author);
 
-    try {
-      const relation =
-        await this.userRelationshipService.getUserRelationshipByIds(
-          body.receiver_id.toString(),
-          socket.user.id.toString(),
-        );
-      if (relation.type !== UserRelationshipTypes.friends) {
+      try {
+        const relation =
+          await this.userRelationshipService.getUserRelationshipByIds(
+            body.receiver_id.toString(),
+            socket.user.id.toFixed(),
+          );
+        if (relation.type !== UserRelationshipTypes.friends) {
+          return;
+        }
+      } catch (error) {
         return;
       }
-    } catch (error) {
-      return;
-    }
 
-    const roomName = `${body.receiver_id}`;
-    if (
-      body.type === MessageType.PrivateMessage
-      // && abilities.can(ChannelAction.Speak, channel)
-    ) {
       const message = await this.messageService.createMessage(body, author.id);
 
-      this.server.to(roomName).emit('message-user', JSON.stringify(message));
       this.server
-        .to(socket.user.id.toString())
-        .emit('message-user', JSON.stringify(message));
-      // this.logger.debug(`${channel.name}: ${author.name}: ${body.data}`);
-    } else {
-      // this.logger.debug(`${author.name}: ${body.data}`);
+        .to([body.receiver_id.toFixed(), socket.user.id.toFixed()])
+        .emit('message-user', message);
     }
   }
 

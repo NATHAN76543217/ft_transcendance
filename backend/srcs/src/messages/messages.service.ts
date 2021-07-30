@@ -12,21 +12,8 @@ export default class MessageService {
     private messageRepository: Repository<Message>,
   ) {}
 
-  // TODO: Check if we need this
-  /*
-  getAllMessages() {
-    return this.messageRepository.find();
-  }
-
-  async getMessageById(id: number) {
-    const message = await this.messageRepository.findOne(id);
-    if (message) return message;
-    throw new HttpException('Message not found', HttpStatus.NOT_FOUND);
-  } */
-
   async createMessage(message: CreateMessageDto, senderId: number) {
-
-console.log('--------------- createMessage ----------------', message)
+    console.log('--------------- createMessage ----------------', message);
     // if (!message.channel_id) {
     //   message.channel_id = 0;
     // }

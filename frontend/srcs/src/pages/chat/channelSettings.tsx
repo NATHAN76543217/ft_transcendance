@@ -1,5 +1,5 @@
 import React from "react";
-import {  useHistory } from "react-router";
+import { useHistory } from "react-router";
 import AppContext from "../../AppContext";
 import AdminChannelElement from "../../components/admin/adminChannelElement";
 import {
@@ -30,11 +30,11 @@ function ChannelSettings(props: ChannelSettingsProps) {
   const destroyChannel = async (channel_id: number) => {
     console.log("Deleting channel " + channel_id);
 
-    contextValue.socket?.emit('destroyChannel-front', {
+    contextValue.channelSocket?.emit("destroyChannel-front", {
       channel_id: channel_id,
     });
     chatContextValue.setCurrentChannelRel(undefined);
-    history.push('/chat');
+    history.push("/chat");
   };
 
   if (

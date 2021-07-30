@@ -13,5 +13,5 @@ export interface IAppContext {
     user_id: number,
     newType: UserRelationshipType
   ) => void;
-  socket?: Socket;
+  channelSocket?: Socket;
 }

@@ -3,6 +3,7 @@ import MatchesControler from './matches.controller';
 import MatchesService from './matches.service';
 import Match from './matches.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ChannelsModule } from 'src/channels/channels.module';
 /* import {
     PongGateway
 } from "../pong/gateway"
@@ -15,12 +16,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 */
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Match])],
-    controllers: [MatchesControler],
-    providers: [
-        MatchesService,
-        // PongGateway
-    ],
-    exports: [MatchesService]
+  imports: [TypeOrmModule.forFeature([Match]), ChannelsModule],
+  controllers: [MatchesControler],
+  providers: [
+    MatchesService,
+    //PongGateway
+  ],
+  exports: [MatchesService],
 })
 export default class MatchesModule {}

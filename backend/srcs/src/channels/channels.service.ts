@@ -1,21 +1,11 @@
-import {
-  forwardRef,
-  HttpException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
 import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import ChannelNotFound from './exception/ChannelNotFound.exception';
-import { Socket } from 'socket.io';
-import { AuthenticationService } from 'src/authentication/authentication.service';
-import { WsException } from '@nestjs/websockets';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
-import User from 'src/users/user.interface';
 import ChannelRelationship from './relationships/channel-relationship.entity';
 import { ChannelsGateway } from './channels.gateway';
 import { ChannelMode } from './utils/channelModeTypes';
@@ -25,13 +15,11 @@ import ChannelMandatoryMode from './exception/ChannelMandatoryMode.exception';
 import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
 import { Message } from 'src/messages/message.entity';
-import { parse } from 'cookie';
-import ChannelRelationshipsService from './relationships/channel-relationships.service';
+import CreateMessageDto from 'src/messages/dto/createMessage.dto';
 
 @Injectable()
 export default class ChannelsService {
   constructor(
-    private readonly authenticationService: AuthenticationService,
     @InjectRepository(Channel)
     private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(ChannelRelationship)
@@ -40,37 +28,18 @@ export default class ChannelsService {
     private readonly messageRepository: Repository<Message>,
     @Inject(forwardRef(() => ChannelsGateway))
     private readonly channelsGateway: ChannelsGateway,
-
-  ) { }
-
-  async getUserFromSocket(socket: Socket, withChannels = true): Promise<User> {
-    const cookie = socket.handshake.headers.cookie ?? '';
-    const { Authentication: token } = parse(cookie);
-
-    if (!token) throw new WsException('Missing token.');
-
-    const user =
-      await this.authenticationService.getUserFromAuthenticationToken(
-        token,
-        withChannels,
-      );
-
-    if (!user) {
-      throw new WsException('Invalid token.');
-    }
-    return user;
-  }
+  ) {}
 
   // TODO: getVisibleChannels instead
   // Admins can see all channels
   async getAllChannels(channelName: string) {
-      return await this.channelsRepository
+    return await this.channelsRepository
       .createQueryBuilder('channel')
       .leftJoinAndSelect('channel.users', 'users')
       .leftJoin('users.user', 'channelUser')
       .addSelect('channelUser.name')
-      .where("channel.name like :name", { name:`%${channelName}%` })
-      .andWhere('channel.mode != :mode', { mode: ChannelMode.users})
+      .where('channel.name like :name', { name: `%${channelName}%` })
+      .andWhere('channel.mode != :mode', { mode: ChannelMode.users })
       .getMany();
   }
 
@@ -97,13 +66,12 @@ export default class ChannelsService {
       .addSelect('channelUser.name')
       .addSelect('channelUser.imgPath')
       .where('channel.id = :id', { id: id })
-      .andWhere('channel.mode != :mode', { mode: ChannelMode.users})
+      .andWhere('channel.mode != :mode', { mode: ChannelMode.users })
       .getOne();
 
     // .findOne(id, {
     //   relations: ['users'],
     // });
-
 
     if (channel) {
       return channel;
@@ -115,9 +83,8 @@ export default class ChannelsService {
     plainTextPassword: string,
     hashedPassword: string,
   ) {
-
-    console.log(`plainTextPassword = ${plainTextPassword}`)
-    console.log(`hashedPassword = ${hashedPassword}`)
+    console.log(`plainTextPassword = ${plainTextPassword}`);
+    console.log(`hashedPassword = ${hashedPassword}`);
 
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
@@ -140,7 +107,7 @@ export default class ChannelsService {
       .where('message.channel_id = :channelId', { channelId })
       .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
       .take(maxCount)
-      .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
+      .orderBy('message.created_at', 'ASC'); // TODO: Set ASC or DESC
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });
@@ -273,8 +240,9 @@ export default class ChannelsService {
   }
 
   async deleteChannel(id: number) {
-    const deleteResponseRelationships = await this.channelRelationshipRepository.delete({channel_id: id});
-    console.log('deleteResponseRelationships', deleteResponseRelationships)
+    const deleteResponseRelationships =
+      await this.channelRelationshipRepository.delete({ channel_id: id });
+    console.log('deleteResponseRelationships', deleteResponseRelationships);
 
     const deleteResponse = await this.channelsRepository.delete(id);
     // TODO: Dispatch leave event on corresponding gateway room
@@ -284,5 +252,9 @@ export default class ChannelsService {
     }
 
     await this.channelsGateway.closeChannel(id);
+  }
+
+  async sendUserMessage(senderId: number, message: CreateMessageDto) {
+    this.channelsGateway.sendUserMessage(senderId, message);
   }
 }

@@ -16,9 +16,8 @@ async function fetchChannelMessages(
     );
     return res.data;
   } catch (e) {
-    return []
+    return [];
   }
-
 }
 
 async function fetchUserMessages(
@@ -33,26 +32,26 @@ async function fetchUserMessages(
     );
     return res.data;
   } catch (e) {
-    return []
+    return [];
   }
 }
-
-
-
 
 export type ChatMessageListProps = {
   id: string;
 };
 
 export function ChatMessageList(props: ChatMessageListProps) {
-
   // const className = "flex-grow overflow-y-scroll bg-gray-200 "
 
-  const { socket, user, relationshipsList } = useContext(AppContext);
+  const {
+    channelSocket: socket,
+    user,
+    relationshipsList,
+  } = useContext(AppContext);
   // const { currentChannelRel, currentUserRel } = useContext(chatContext);
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const isChannel = props.id && props.id[0] === 'c' ? true : false;
+  const isChannel = props.id && props.id[0] === "c" ? true : false;
 
   // This will be used to fetch more past messages
   /*   const oldestMessageId = messages.length
@@ -62,22 +61,24 @@ export function ChatMessageList(props: ChatMessageListProps) {
   useEffect(() => {
     // console.log('---- useEffect - socket ----')
 
-    socket?.on("message-channel", (data) => {
-      const parsedData = JSON.parse(data)
-      // console.log("Incoming channel message:", parsedData);
-      if (isChannel && Number(props.id.substring(1)) === Number(parsedData.channel_id)) {
-        setMessages((olderMessages) => [...olderMessages, parsedData]);
+    socket?.on("message-channel", (data: Message) => {
+      // console.log("Incoming channel message:", data);
+      if (
+        isChannel &&
+        Number(props.id.substring(1)) === Number(data.channel_id)
+      ) {
+        setMessages((olderMessages) => [...olderMessages, data]);
       }
     });
 
-    socket?.on("message-user", (data) => {
-      const parsedData = JSON.parse(data)
-      // console.log("Incoming private message:", parsedData);
-      if (!isNaN(Number(props.id)) &&
-        ((Number(props.id) === Number(parsedData.receiver_id)) ||
-          (Number(props.id) === Number(parsedData.sender_id)))
+    socket?.on("message-user", (data: Message) => {
+      // console.log("Incoming private message:", data);
+      if (
+        !isNaN(Number(props.id)) &&
+        (Number(props.id) === Number(data.receiver_id) ||
+          Number(props.id) === Number(data.sender_id))
       ) {
-        setMessages((olderMessages) => [...olderMessages, parsedData]);
+        setMessages((olderMessages) => [...olderMessages, data]);
       }
     });
 
@@ -85,9 +86,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
       socket?.off("message-channel");
       socket?.off("message-user");
     };
-
   }, [socket, isChannel, props.id]);
-
 
   // This fetches previous messages
   useEffect(() => {
@@ -95,22 +94,25 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
     async function appendOlderMessages() {
       if (isChannel) {
-        const olderMessages = await fetchChannelMessages(Number(props.id.substring(1)));
+        const olderMessages = await fetchChannelMessages(
+          Number(props.id.substring(1))
+        );
         setMessages(olderMessages);
       } else if (user && !isNaN(Number(props.id))) {
-        const olderMessages = await fetchUserMessages(user?.id, Number(props.id));
+        const olderMessages = await fetchUserMessages(
+          user?.id,
+          Number(props.id)
+        );
         setMessages(olderMessages);
       } else {
-        setMessages([])
+        setMessages([]);
       }
     }
     appendOlderMessages();
-
   }, [props.id, isChannel, user]);
   // }, [currentChannelRel, currentUserRel, convId]);
 
   // return messages;
-
 
   // const messages = useChatMessages();
 
@@ -122,36 +124,34 @@ export function ChatMessageList(props: ChatMessageListProps) {
   const isSenderBlocked = (message: Message) => {
     const senderRelation = relationshipsList.find((relation) => {
       return relation.user.id === message.sender_id;
-    })
+    });
     if (senderRelation) {
-      const isBlocked = (user && user?.id < message.sender_id)
-        ? senderRelation.relationshipType & UserRelationshipType.block_first_second
-        : senderRelation.relationshipType & UserRelationshipType.block_second_first
+      const isBlocked =
+        user && user?.id < message.sender_id
+          ? senderRelation.relationshipType &
+            UserRelationshipType.block_first_second
+          : senderRelation.relationshipType &
+            UserRelationshipType.block_second_first;
       return isBlocked;
     }
     return false;
-  }
+  };
 
   return (
-
-    <div className='flex justify-center h-screen ml-4 overflow-y-scroll rounded-md'>
-
-      <div className='flex-grow max-w-2xl p-2 py-4 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md'>
+    <div className="flex justify-center h-screen ml-4 overflow-y-scroll rounded-md">
+      <div className="flex-grow max-w-2xl p-2 py-4 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md">
         <ul>
           {messages.map((m) => {
             sameSender = previousSenderId === m.sender_id;
             previousSenderId = m.sender_id;
             if (!isSenderBlocked(m)) {
               return (
-                <li key={m.id} className=''>
-                  <ChatMessage
-                    message={m}
-                    sameSender={sameSender}
-                  />
+                <li key={m.id} className="">
+                  <ChatMessage message={m} sameSender={sameSender} />
                 </li>
               );
             } else {
-              return <div></div>
+              return <div></div>;
             }
           })}
         </ul>

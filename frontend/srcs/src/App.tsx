@@ -528,7 +528,7 @@ class App extends React.Component<AppProps, AppState> {
       setUser: this.setUser,
       setUserInit: this.setUserInit,
       updateOneRelationshipType: this.updateOneRelationshipType,
-      socket: this.state.socket,
+      channelSocket: this.state.socket,
     };
 
     if (
