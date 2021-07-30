@@ -262,9 +262,7 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             throw new Error(); // Room not found
         setInterval(() => {
             initStatus = toReplaceByEngine(initStatus);
-            this.server.to(roomId.toString()).emit(ClientMessages.RECEIVE_ST, initStatus);
+            this.server.volatile.to(roomId.toString()).emit(ClientMessages.RECEIVE_ST, initStatus);
         }, 25 * 1000); // TO DO: Read doc for times
     }
-
-    
 }
