@@ -1,3 +1,4 @@
+import axios from "axios";
 import { NavLink } from "react-router-dom";
 
 function GameHome() {
@@ -15,6 +16,12 @@ function GameHome() {
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto"
   const textButtonClassname = 'text-2xl font-bold text-gray-900'
 
+  // const displayCurrentGames = () => {
+  //   const currentGames = await axios.get('/api/matches/current');
+  //   currentGames.data.map((match) => {
+      
+  //   })
+  // }
   
   return (
     <div className='flex justify-center'>

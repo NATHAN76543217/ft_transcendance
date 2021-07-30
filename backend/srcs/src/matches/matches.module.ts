@@ -15,12 +15,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 */
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Match])],
-  controllers: [MatchesControler],
-  providers: [
-    MatchesService,
-    //PongGateway
-  ],
-  exports: [MatchesService],
+    imports: [TypeOrmModule.forFeature([Match])],
+    controllers: [MatchesControler],
+    providers: [
+        MatchesService,
+        // PongGateway
+    ],
+    exports: [MatchesService]
 })
 export default class MatchesModule {}
