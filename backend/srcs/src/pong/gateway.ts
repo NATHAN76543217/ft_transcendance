@@ -298,4 +298,9 @@ export class PongGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         if (room.playerIds.length == 0)
             this.rooms.delete(room.id);
     }
+
+    // TO DO: Each room has a game state
+    // EACH CLIENT WILL RECEIVE IT TO INIT THEIR GAME
+    // PLAYER RECEIVE STATUS BY DEFUALT
+    // SPECTATOR RECEIVE STATUS AT RUNNIGN TIME
 }
