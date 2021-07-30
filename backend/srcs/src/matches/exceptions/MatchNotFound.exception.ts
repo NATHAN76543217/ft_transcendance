@@ -1,7 +1,7 @@
-import { NotFoundException } from "@nestjs/common/exceptions"
+import { NotFoundException } from '@nestjs/common/exceptions';
 
-export default class MatchNotFound extends NotFoundException
-{
-    constructor(id : string)
-    { super(`Match: ${id} not found.`); }
+export default class MatchNotFound extends NotFoundException {
+  constructor(id: number) {
+    super(`Match: ${id} not found.`);
+  }
 }

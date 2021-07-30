@@ -6,13 +6,15 @@ import AppContext from "../../AppContext";
 import ChannelInviteDto from "../../models/channel/ChannelInvite.dto";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
-import { IUser, UserChannelRelationship, UserRole } from "../../models/user/IUser";
+import {
+  IUser,
+  UserChannelRelationship,
+  UserRole,
+} from "../../models/user/IUser";
 import chatContext from "../../pages/chat/chatContext";
 import ChannelInviteForm from "../Forms/channelInviteForm";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
-import { ChatPageContext } from "../../pages/chat/chat"
 import { ChatTitle } from "./ChatTitle"
-
 
 type UserActionsProps = {
   channelId: number;
@@ -20,7 +22,7 @@ type UserActionsProps = {
 };
 
 function UserActions({ nbUsers }: UserActionsProps) {
-  const nbUsersSpan = nbUsers && nbUsers > 1 ? nbUsers + ' users' : '1 user'
+  const nbUsersSpan = nbUsers && nbUsers > 1 ? nbUsers + " users" : "1 user";
   return (
     <>
       <span className='flex-no-wrap hidden w-16 font-semibold lg:flex '>{nbUsersSpan}</span>
@@ -39,32 +41,50 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
 
   const history = useHistory();
 
-  const setRole = async (channel_id: number, user_id: number, type: ChannelRelationshipType) => {
-    contextValue.socket?.emit('updateChannelRelationship-front', {
+  const setRole = async (
+    channel_id: number,
+    user_id: number,
+    type: ChannelRelationshipType
+  ) => {
+    contextValue.channelSocket?.emit("updateChannelRelationship-front", {
       channel_id: channel_id,
       user_id: user_id,
-      type: type
+      type: type,
     });
 
-    console.log('setRole')
+    console.log("setRole");
     history.push(`/chat/c${channel_id}/refresh`);
     // updateOneRelationship(channel_id, user_id, type);
   };
 
   const onSubmitInvite = async (values: ChannelInviteDto) => {
-    console.log('invite - chatContextValue', values, chatContextValue)
+    console.log("invite - chatContextValue", values, chatContextValue);
     if (values.username && chatContextValue.currentChannelRel) {
-      const index = chatContextValue.currentChannelRel?.channel.users.findIndex((relation) => {
-        return relation.user.name === values.username;
-      })
+      const index = chatContextValue.currentChannelRel?.channel.users.findIndex(
+        (relation) => {
+          return relation.user.name === values.username;
+        }
+      );
       if (index === -1) {
         try {
-          let users = await axios.get<IUser[]>(`/api/users?name=${values.username}`);
-          console.log('users query', users.data)
-          if (users.data && users.data.length === 1 && users.data[0].name === values.username) {
-            setRole(chatContextValue.currentChannelRel?.channel.id, users.data[0].id, ChannelRelationshipType.Invited)
+          let users = await axios.get<IUser[]>(
+            `/api/users?name=${values.username}`
+          );
+          console.log("users query", users.data);
+          if (
+            users.data &&
+            users.data.length === 1 &&
+            users.data[0].name === values.username
+          ) {
+            setRole(
+              chatContextValue.currentChannelRel?.channel.id,
+              users.data[0].id,
+              ChannelRelationshipType.Invited
+            );
           }
-        } catch (error) { console.log(error) }
+        } catch (error) {
+          console.log(error);
+        }
       }
     }
   };
@@ -100,14 +120,19 @@ type ChatActionsProps = {
 const getNbUsers = (relation: UserChannelRelationship) => {
   let nbUsers = 0;
   relation.channel.users.map((user) => {
-    if (user.type & (ChannelRelationshipType.Owner + ChannelRelationshipType.Admin +
-      ChannelRelationshipType.Member + ChannelRelationshipType.Muted)) {
+    if (
+      user.type &
+      (ChannelRelationshipType.Owner +
+        ChannelRelationshipType.Admin +
+        ChannelRelationshipType.Member +
+        ChannelRelationshipType.Muted)
+    ) {
       nbUsers++;
     }
-    return true
-  })
+    return true;
+  });
   return nbUsers;
-}
+};
 
 function ChatActions({ channelRelation, userRelation }: ChatActionsProps) {
   const nbUsers = channelRelation ? getNbUsers(channelRelation) : 0;
@@ -117,27 +142,25 @@ function ChatActions({ channelRelation, userRelation }: ChatActionsProps) {
   }
   switch (userRole) {
     case UserRole.Admin:
-      return <AdminActions
-        channelId={channelRelation.channel.id}
-        nbUsers={nbUsers}
-      />;
+      return (
+        <AdminActions
+          channelId={channelRelation.channel.id}
+          nbUsers={nbUsers}
+        />
+      );
     case UserRole.Owner:
-      return <AdminActions
-        channelId={channelRelation.channel.id}
-        nbUsers={nbUsers}
-      />;
+      return (
+        <AdminActions
+          channelId={channelRelation.channel.id}
+          nbUsers={nbUsers}
+        />
+      );
     default:
-      return <UserActions
-        channelId={channelRelation.channel.id}
-        nbUsers={nbUsers}
-      />;
+      return (
+        <UserActions channelId={channelRelation.channel.id} nbUsers={nbUsers} />
+      );
   }
 }
-
-
-
-
-
 
 type ChatHeaderProps = {
   myRole: ChannelRelationshipType;
@@ -153,12 +176,16 @@ export function ChatHeader({ myRole, isChannel }: ChatHeaderProps) {
       ? chatContextValue.currentChannelRel.channel
       : undefined;
 
-  console.log('isChannel', isChannel)
-  console.log('myRole', myRole)
+  console.log("isChannel", isChannel);
+  console.log("myRole", myRole);
 
-  if (isChannel &&
-    (myRole &
-      (ChannelRelationshipType.Owner | ChannelRelationshipType.Admin | ChannelRelationshipType.Member))) {
+  if (
+    isChannel &&
+    myRole &
+      (ChannelRelationshipType.Owner |
+        ChannelRelationshipType.Admin |
+        ChannelRelationshipType.Member)
+  ) {
     return (
       <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
         <ChatTitle

@@ -6,8 +6,11 @@ const AppContext = React.createContext<IAppContext>({
   setUser: () => {},
   setUserInit: () => {},
   relationshipsList: [],
-  updateOneRelationshipType: (user_id: number, newType: UserRelationshipType) => {},
-  socket: undefined,
+  updateOneRelationshipType: (
+    user_id: number,
+    newType: UserRelationshipType
+  ) => {},
+  channelSocket: undefined,
 });
 
 export const AppProvider = AppContext.Provider;

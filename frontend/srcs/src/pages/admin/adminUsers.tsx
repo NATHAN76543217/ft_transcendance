@@ -6,7 +6,6 @@ import AdminUserElement from "../../components/admin/adminUserElement";
 import { UserRole } from "../../models/user/IUser";
 import AppContext from "../../AppContext";
 
-
 const getAllUsers = async (adminInfo: AdminState, setAdminInfo: any) => {
   try {
     const dataUsers = await axios.get("/api/users");
@@ -20,48 +19,67 @@ const getAllUsers = async (adminInfo: AdminState, setAdminInfo: any) => {
     if (JSON.stringify(a) !== JSON.stringify(adminInfo.list)) {
       setAdminInfo({ list: a });
     }
-  } catch (error) { }
-}
-
-
+  } catch (error) {}
+};
 
 interface AdminState {
-  list: IUser[]
+  list: IUser[];
 }
 
 function AdminUsers() {
   const contextValue = React.useContext(AppContext);
 
   const [adminInfo, setAdminInfo] = useState<AdminState>({
-    list: []
+    list: [],
   });
 
   const updateOneRole = async (user_id: number, newRole: UserRole) => {
     let a = adminInfo.list.slice();
     let index = a.findIndex((user: IUser) => {
-      return (Number(user.role) === user_id);
-    })
+      return Number(user.role) === user_id;
+    });
     if (index !== -1) {
-      a[index].role = newRole
+      a[index].role = newRole;
     }
     setAdminInfo({ list: a });
-  }
+  };
 
-  const setRole = async (id: number, role: UserRole, adminInfo: AdminState, setAdminInfo: any) => {
-    contextValue.socket?.emit('updateRole-front', {
+  const setRole = async (
+    id: number,
+    role: UserRole,
+    adminInfo: AdminState,
+    setAdminInfo: any
+  ) => {
+    contextValue.channelSocket?.emit("updateRole-front", {
       user_id: id,
-      role: role
+      role: role,
     });
     updateOneRole(id, role);
   };
 
-  const banUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Banned, adminInfo, setAdminInfo);
+  const banUser = async (
+    id: number,
+    adminInfo: AdminState,
+    setAdminInfo: any
+  ) => setRole(id, UserRole.Banned, adminInfo, setAdminInfo);
 
-  const unbanUser = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
+  const unbanUser = async (
+    id: number,
+    adminInfo: AdminState,
+    setAdminInfo: any
+  ) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
 
-  const setAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.Admin, adminInfo, setAdminInfo);
+  const setAdmin = async (
+    id: number,
+    adminInfo: AdminState,
+    setAdminInfo: any
+  ) => setRole(id, UserRole.Admin, adminInfo, setAdminInfo);
 
-  const unsetAdmin = async (id: number, adminInfo: AdminState, setAdminInfo: any) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
+  const unsetAdmin = async (
+    id: number,
+    adminInfo: AdminState,
+    setAdminInfo: any
+  ) => setRole(id, UserRole.User, adminInfo, setAdminInfo);
 
   getAllUsers(adminInfo, setAdminInfo);
 

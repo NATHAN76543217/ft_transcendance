@@ -128,7 +128,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
 
       console.log("dataUser", dataUser);
 
-      contextValue.socket?.emit("updateUserInfo-front", {
+      contextValue.channelSocket?.emit("updateUserInfo-front", {
         name: values.username,
       });
 
@@ -195,7 +195,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       });
       // setUser(dataUser.data);
 
-      contextValue.socket?.emit("updateUserInfo-front", {
+      contextValue.channelSocket?.emit("updateUserInfo-front", {
         imgPath: newImgPath,
       });
 
@@ -217,7 +217,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     user_id: number,
     type: UserRelationshipType
   ) => {
-    contextValue.socket?.emit("updateRelationship-front", {
+    contextValue.channelSocket?.emit("updateRelationship-front", {
       user_id: user_id,
       type: type,
     });

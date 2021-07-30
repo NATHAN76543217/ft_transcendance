@@ -4,25 +4,10 @@ import { TextInput } from "../utilities/TextInput";
 import { Socket } from "socket.io-client";
 import AppContext from "../../AppContext";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
-
-enum MessageType {
-  Text,
-  GameInvite,
-  GameSpectate,
-  FriendInvite,
-  RoleUpdate,
-  PrivateMessage,
-}
-
-type MessageEventDto = {
-  channel_id?: number;
-  receiver_id?: number;
-  // Ommitted in client:
-  //sender_id: number;
-  type: MessageType;
-  data: string;
-};
-
+import {
+  MessageEventDto,
+  MessageType,
+} from "../../models/channel/MessageEvent.dto";
 interface IMessageFormValues {
   message: string;
 }
@@ -34,7 +19,7 @@ export type ChatInputProps = {
 };
 
 export function ChatInput(props: ChatInputProps) {
-  const { socket } = useContext(AppContext);
+  const { channelSocket: socket } = useContext(AppContext);
   // const chatContextValue = useContext(chatContext);
 
   const {

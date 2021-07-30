@@ -1,31 +1,20 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column
-} from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
-export default class Match
-{
-    @PrimaryGeneratedColumn()
-    public id : string;
+export default class Match {
+  @PrimaryGeneratedColumn()
+  public id: number;
 
-    @Column({unique: true})
-    public readonly idPlayerOne : string;
+  @Column('int', { array: true, default: [] })
+  public player_ids: number[];
 
-    @Column({unique: true})
-    public readonly idPlayerTwo : string;
+  @Column('int', { array: true, default: [] })
+  public scores: number[];
+  /* 
+  // Should be nullable or not ?
+  @Column({ nullable: true }) // TO DO: add timeout: @timestemp
+  public readonly startedAt?: Date;
 
-    @Column({nullable: true, default: 0})
-    public scorePlayerOne : number;
-
-    @Column({nullable: true, default: 0})
-    public scorePlayerTwo : number;
-
-    // Should be nullable or not ?
-    @Column({nullable: true, default: new Date()}) // TO DO: add timeout: @timestemp
-    public readonly startTime : Date;
-
-    @Column({nullable: true, default: undefined})
-    public endTime : Date;
+  @Column({ nullable: true, default: undefined })
+  public endAt?: Date; */
 }

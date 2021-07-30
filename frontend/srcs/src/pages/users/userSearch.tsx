@@ -81,7 +81,7 @@ function UserSearch() {
     user_id: number,
     type: UserRelationshipType
   ) => {
-    contextValue.socket?.emit("updateRelationship-front", {
+    contextValue.channelSocket?.emit("updateRelationship-front", {
       user_id: user_id,
       type: type,
     });

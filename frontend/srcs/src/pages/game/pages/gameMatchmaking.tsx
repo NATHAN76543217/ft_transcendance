@@ -1,33 +1,39 @@
 import { useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { GameContext, IGameContext } from "../context";
-import { ClientMessages, ServerMessages, IAcknowledgement } from "../dto/messages";
+import {
+  ClientMessages,
+  ServerMessages,
+  IAcknowledgement,
+} from "../dto/messages";
 
 function GameMatchmaking() {
-
-  const context : IGameContext = useContext(GameContext);
+  const context: IGameContext = useContext(GameContext);
 
   // TO DO: "Cancel Search" is disabled if "Find Match" ins't
   // TO DO: Same for "Find Match"
 
   const findGame = () => {
     // TO DO: Be sure that playersIds[0] is the current player id
-    context.socket?.emit(ServerMessages.FIND_GAME, context.playerIds[0]); 
+    context.gameSocket?.emit(ServerMessages.FIND_GAME, context.playerIds[0]);
   };
 
   const cancelSearch = () => {
     // TO DO: Be sure that playersIds[0] is the current player id
-    context.socket?.emit(ServerMessages.CANCEL_FIND, context.playerIds[0], (response : IAcknowledgement) => {
-      if (response.status === "not ok")
-        throw new Error(); // TO DO: What could happend if somehow this condition is true ?
-    }); 
+    context.gameSocket?.emit(
+      ServerMessages.CANCEL_FIND,
+      context.playerIds[0],
+      (response: IAcknowledgement) => {
+        if (response.status === "not ok") throw new Error(); // TO DO: What could happend if somehow this condition is true ?
+      }
+    );
   };
 
   const quitToHome = () => {
     // If player is in queue cancel the queue either just swicth back the pages
   };
 
-  const onNotify = (msg : string) => {
+  const onNotify = (msg: string) => {
     console.log(msg);
   };
 
@@ -35,20 +41,20 @@ function GameMatchmaking() {
     // TO DO: Go to the game
   };
 
-  const deleteSubscribedListeners = () => {
-    if (context.socket) {
-      context.socket.off(ClientMessages.MATCH_FOUND, onMatchFound);
-      context.socket.off(ClientMessages.NOTIFY, onNotify);
-    }
-  };
-
   useEffect(() => {
-    if (context.socket) {
-      context.socket.once(ClientMessages.MATCH_FOUND, onMatchFound);
-      context.socket.on(ClientMessages.NOTIFY, onNotify);
+    const deleteSubscribedListeners = () => {
+      if (context.gameSocket) {
+        context.gameSocket.off(ClientMessages.MATCH_FOUND, onMatchFound);
+        context.gameSocket.off(ClientMessages.NOTIFY, onNotify);
+      }
+    };
+
+    if (context.gameSocket) {
+      context.gameSocket.once(ClientMessages.MATCH_FOUND, onMatchFound);
+      context.gameSocket.on(ClientMessages.NOTIFY, onNotify);
     }
-      return deleteSubscribedListeners;
-  }, []);
+    return deleteSubscribedListeners;
+  }, [context.gameSocket]);
 
 
 
@@ -62,16 +68,16 @@ function GameMatchmaking() {
         <div className='flex justify-center mb-8 text-2xl font-bold md:text-3xl '>
           Matchmaking
         </div>
-        <div className='flex w-auto space-x-8 rounded-md lg:space-x-24'>
+        <div className="flex w-auto space-x-8 rounded-md lg:space-x-24">
           <button
-            className={buttonClassname + ' bg-green-300 hover:bg-green-400'}
+            className={buttonClassname + " bg-green-300 hover:bg-green-400"}
             // to='game/matchmaking'
             onClick={() => findGame()}
           >
             <span className={textButtonClassname}>Find a Game</span>
           </button>
           <button
-            className={buttonClassname + ' bg-red-400 hover:bg-red-500'}
+            className={buttonClassname + " bg-red-400 hover:bg-red-500"}
             // to='game/create'
             onClick={() => cancelSearch()}
           >
@@ -79,11 +85,12 @@ function GameMatchmaking() {
           </button>
         </div>
       </div>
-      <div className='flex justify-center'>
-
+      <div className="flex justify-center">
         <NavLink
-          className={buttonClassname + ' bg-secondary hover:bg-secondary-dark mt-8 w-32'}
-          to='/game'
+          className={
+            buttonClassname + " bg-secondary hover:bg-secondary-dark mt-8 w-32"
+          }
+          to="/game"
           onClick={() => quitToHome()}
         >
           <span className={textButtonClassname}>Quit</span>

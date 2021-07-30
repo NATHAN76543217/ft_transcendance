@@ -31,7 +31,7 @@ export enum MessageType {
   GameSpectate,
   FriendInvite,
   RoleUpdate,
-  PrivateMessage
+  PrivateMessage,
 }
 
 export type Message = {
@@ -39,6 +39,7 @@ export type Message = {
   type: MessageType;
   data: string;
   channel_id: number;
+  receiver_id: number;
   sender_id: number;
   created_at: Date;
 };

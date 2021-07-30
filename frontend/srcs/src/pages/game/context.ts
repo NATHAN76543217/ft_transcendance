@@ -1,99 +1,50 @@
-import React from "react";
-
+import React, { createContext } from "react";
 import { Socket } from "socket.io-client";
+import { Ball } from "../../models/game/Ball";
+import { IPlayer } from "../../models/game/Player";
+import { Ruleset } from "../../models/game/Ruleset.dto";
+import { IVector2D, Vector2D } from "../../models/game/Vector2D";
 import { Action } from "./pages/game";
 
-export type RuleSet = {
-  duration?: number; // todo
-  rounds?: number;
-};
-
-export interface IVector2D {
-  x : number;
-  y : number;
-}
-
-export class Vector2D implements IVector2D
-{ 
-  constructor(
-    public x : number,
-    public y : number,
-  )
-  { }
-
-  // to do methods
-}
-
-export enum PlayerStatus {
-  //INVITED,
-  UNREADY,
-  READY,
-  CONNECTED,
-  DISCONNECTED
-}
-
-export interface IPlayer {
-  pos : Vector2D;
-  width: number;
-  height: number;
-  status: PlayerStatus;
-}
-
-export interface IBallBase extends IVector2D
-{
-  dir : Vector2D;
-  velocity : number;
-}
-
-export class Ball extends Vector2D implements IBallBase {
-  public defaultBall : IBallBase;
-
-  constructor(
-    pos : Vector2D,
-    public dir : Vector2D,
-    public velocity : number,
-    public rad : number
-  )
-  {
-    super(pos.x, pos.y);
-    this.defaultBall = this;
-  }
-}
-
-export const canvasDims : IVector2D = {
+const canvasDims: IVector2D = {
   x: 1600,
-  y: 900
+  y: 900,
 };
 
-export const defaultBall : Ball = new Ball(new Vector2D(canvasDims.x / 2, canvasDims.y / 2), new Vector2D(5, 5), 7, 10);
+const defaultBall: Ball = new Ball(
+  new Vector2D(canvasDims.x / 2, canvasDims.y / 2),
+  new Vector2D(5, 5),
+  7,
+  10
+);
 
 export type GameState = {
-  players : Map<Number, IPlayer>;
-  ball : Ball;
+  players: Map<Number, IPlayer>;
+  ball: Ball;
 };
 
 export interface IGameContext {
-  socket?: Socket;
-  ruleSet: RuleSet;
-  rulesSetDispatch? : React.Dispatch<{ type: Action }>;
+  gameSocket?: Socket;
+  ruleset: Ruleset;
+  rulesSetDispatch?: React.Dispatch<{ type: Action }>;
   state: GameState;
-  stateDispatch? : React.Dispatch<{ type: Action }>;
-  playerIds : number [];
-  playerIdsDispatch? : React.Dispatch<{ type: Action }>;
+  stateDispatch?: React.Dispatch<{ type: Action }>;
+  playerIds: number[];
+  playerIdsDispatch?: React.Dispatch<{ type: Action }>;
 }
 
-export const defaultRuleSet: RuleSet = {
+export const defaultRuleset: Ruleset = {
   duration: 3,
   rounds: 11,
 };
 
 export const defaultGameState: GameState = {
   players: new Map(),
-  ball: defaultBall
+  ball: defaultBall,
 };
 
-export const GameContext = React.createContext<IGameContext>({
-  ruleSet: defaultRuleSet,
+export const GameContext = createContext<IGameContext>({
+  ruleset: defaultRuleset,
   state: defaultGameState,
   playerIds: [],
 });

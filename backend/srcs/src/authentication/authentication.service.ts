@@ -14,6 +14,11 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import TokenPayload from './tokenPayload.interface';
 import * as bcrypt from 'bcrypt';
+import { Socket } from 'socket.io';
+import { parse } from 'cookie';
+import User from 'src/users/user.interface';
+import { WsException } from '@nestjs/websockets';
+
 @Injectable()
 export class AuthenticationService {
   constructor(
@@ -78,6 +83,20 @@ export class AuthenticationService {
     const payload: TokenPayload = this.jwtService.verify(token);
 
     return this.usersService.getUserById(payload.userId, withChannels);
+  }
+
+  async getUserFromSocket(socket: Socket, withChannels = true): Promise<User> {
+    const cookie = socket.handshake.headers.cookie ?? '';
+    const { Authentication: token } = parse(cookie);
+
+    if (!token) throw new WsException('Missing token.');
+
+    const user = await this.getUserFromAuthenticationToken(token, withChannels);
+
+    if (!user) {
+      throw new WsException('Invalid token.');
+    }
+    return user;
   }
 
   public getCookieWithJwtToken(
