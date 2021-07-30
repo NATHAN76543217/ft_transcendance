@@ -215,25 +215,33 @@ export default class UsersService {
   } */
 
   async getUserBy42Id(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: {
-        school42id: id,
-      },
-    });
-    if (user) return user;
-    else throw new UserOauthIdNotFound(id);
+	const user = await this.usersRepository.findOne({
+	  where: {
+		school42id: id,
+	  },
+	});
+	if (user) return user;
+	else throw new UserOauthIdNotFound(id);
   }
 
   async getUserByGoogleId(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({
-      where: {
-        googleid: id,
-      },
-    });
-    if (user) return user;
-    else throw new UserOauthIdNotFound(id);
+	const user = await this.usersRepository.findOne({
+	  where: {
+		googleid: id,
+	  },
+	});
+	if (user) return user;
+	else throw new UserOauthIdNotFound(id);
   }
 
+	async getRandomUser(): Promise<User> {
+		const array = await this.usersRepository.createQueryBuilder()
+			.select('*')
+			.orderBy('RANDOM()')
+			.limit(1)
+			.execute();
+		return array[0];
+	}
   async updateUser(id: number, user: UpdateUserDto) {
     try {
       await this.usersRepository.update(id, user);
@@ -265,8 +273,8 @@ export default class UsersService {
   }
 
   async deleteUser(
-    id: string,
-    userRelationshipsService: UserRelationshipsService,
+	id: string,
+	userRelationshipsService: UserRelationshipsService,
   ) {
     try {
       const dataRel =
@@ -278,10 +286,10 @@ export default class UsersService {
       }
     } catch (error) {}
 
-    const deleteResponse = await this.usersRepository.delete(id);
-    if (!deleteResponse.affected) {
-      throw new UserNotFound(Number(id));
-    }
+	const deleteResponse = await this.usersRepository.delete(id);
+	if (!deleteResponse.affected) {
+	  throw new UserNotFound(Number(id));
+	}
   }
 
   async setCurrentRefreshToken(refreshToken: string, userId: number) {

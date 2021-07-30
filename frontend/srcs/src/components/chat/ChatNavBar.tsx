@@ -34,26 +34,29 @@ type ImageButtonProps = {
   alt: string;
 };
 
-// Check if we still use this
 export function ImageLinkButton({
   className,
   name,
   imagePath,
-  href,
-  alt,
+  href
 }: ImageButtonProps) {
   return (
-    <div className={className}>
-      <img alt={alt} src={imagePath}></img>
-      <a href={href}>{name}</a>
-    </div>
-  );
+      <div className={className}>
+          <a href={href}>
+            {name}
+            <img
+              src={imagePath}
+              alt="" />
+          </a>
+      </div>);
 }
 
 ImageLinkButton.defaultProps = {
-  className: "",
-  alt: "",
-};
+    className: "",
+}
+// REVIEW useless ?
+// type ChatBarProps = {
+// }
 
 type ChatBarItemProps = {
   channel?: Channel;
@@ -67,12 +70,11 @@ type ChatNotificationCounterProps = {
 export function ChatNotificationCounter({
   count,
 }: ChatNotificationCounterProps) {
-  if (count === 0) return <div></div>;
-  return (
-    <div className="absolute h-auto px-2 text-center text-white bg-red-600 rounded-full ring-2 ring-white top-2 right-1">
-      {count}
-    </div>
-  );
+    if (count === 0) return (<div></div>);
+    return (
+        <div className="absolute h-auto px-2 text-center text-white bg-red-600 rounded-full ring-2 ring-white top-2 right-2">
+            {count}
+        </div>)
 }
 
 ChatNotificationCounter.defaultProps = {

@@ -32,13 +32,14 @@ To have node_modules in local run:
 - The frontend and backend containers are based on image: `node:16.2.0-alpine3.13`
 
 ## packages
+- typeorm-seeding: `https://github.com/w3tecch/typeorm-seeding`
 
 ### Concurently
     With --kill-others switch, all commands are killed if one dies
 
+## Scripts
 
+- seed:run   
 # pgadmin
 dockerhub: https://hub.docker.com/r/dpage/pgadmin4/
 website: https://www.pgadmin.org/
-
-<!-- REVIEW need to add packages-lock.json to .gitignore -->

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from '@hapi/joi';
+import * as Joi from 'joi';
 import UsersModule from './users/users.module';
 
 import { DatabaseModule } from './database/database.module';

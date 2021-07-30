@@ -10,7 +10,8 @@ import { IUser, UserChannelRelationship, UserRole } from "../../models/user/IUse
 import chatContext from "../../pages/chat/chatContext";
 import ChannelInviteForm from "../Forms/channelInviteForm";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
-import { ChatTitle } from "./ChatTitle";
+import { ChatPageContext } from "../../pages/chat/chat"
+import { ChatTitle } from "./ChatTitle"
 
 
 type UserActionsProps = {
