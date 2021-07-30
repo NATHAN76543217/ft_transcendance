@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -12,6 +15,10 @@ import MatchesService from './matches.service';
 import { SocketWithPlayer } from './socketWIthPlayer.interface';
 import { PlayerStatusChangedDto } from './dto/playerStatusChanged.dto';
 import { PlayerStatus } from './dto/playerStatus';
+import { JoinGameDto } from './dto/joinGame.dto';
+import { GameRoom } from './models/GameRoom';
+import { GameRole } from './models/GameRole';
+import { GameJoinedDto } from './dto/gameJoined.dto';
 
 @Injectable()
 @WebSocketGateway(undefined, { namespace: '/matches' })
@@ -24,7 +31,7 @@ export class MatchesGateway
   private logger: Logger = new Logger('MatchesGateway');
 
   /** Rooms mapped by match id */
-  private rooms: Map<number, any> = new Map();
+  private rooms: Map<number, GameRoom> = new Map();
   /** Joined rooms mapped by player's user ids */
   private joinedRooms: Map<number, number> = new Map();
 
@@ -90,6 +97,29 @@ export class MatchesGateway
     };
     const room = this.rooms.get(gameId);
 
+    const player = room.state.players.get(userId);
+
+    player.status = status;
+
     this.server.to(gameId.toFixed()).emit('status', statusChange);
+  }
+
+  @SubscribeMessage('join')
+  async handleJoin(
+    @ConnectedSocket() socket: SocketWithPlayer,
+    @MessageBody() body: JoinGameDto,
+  ) {
+    if (this.rooms.has(body.id)) {
+      const room = this.rooms.get(body.id);
+
+      // Check if the user is allowed to play
+      const role = room.playerIds.includes(socket.user.id)
+        ? GameRole.Player
+        : GameRole.Spectator;
+
+      const data: GameJoinedDto = { role };
+
+      socket.emit('joined', data);
+    }
   }
 }

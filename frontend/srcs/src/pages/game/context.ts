@@ -19,7 +19,7 @@ const defaultBall: Ball = new Ball(
 );
 
 export type GameState = {
-  players: Map<Number, IPlayer>;
+  players: Map<number, IPlayer>;
   ball: Ball;
 };
 
