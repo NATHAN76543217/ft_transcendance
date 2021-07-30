@@ -1,14 +1,14 @@
 import React from 'react';
 
-type MatchProps = {
+type CurrentMatchProps = {
     playerA: string,
     playerB: string,
     scoreA: number,
     scoreB: number,
-    date: string   // should be date
+    link: string,
 }
 
-function MatchHistoryItem(match: MatchProps) {
+function CurrentMatchItem(match: CurrentMatchProps) {
     return (
         <div className="grid justify-center w-auto grid-cols-7 whitespace-pre ">
             <div className="flex-1 col-span-1 text-center">
@@ -25,10 +25,10 @@ function MatchHistoryItem(match: MatchProps) {
             <span className="font-bold"> {match.scoreB}    </span>
             </div>
             <div className="flex-1 col-span-2 text-center">
-                <span className="italic"> {match.date}    </span>
+                <span className="italic"> {match.link}    </span>
             </div>
         </div>
     );
 }
 
-export default MatchHistoryItem;
+export default CurrentMatchItem;

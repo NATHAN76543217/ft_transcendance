@@ -314,8 +314,9 @@ export default class UsersService {
       .orWhere('message.receiver_id = :user2_id', { user2_id })
       .andWhere('message.sender_id = :user1_id', { user1_id })
       // .andWhere('message.type = :type', { type: MessageType.PrivateMessage })
+      .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
+      .take(maxCount)
       .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
-      .take(maxCount);
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });

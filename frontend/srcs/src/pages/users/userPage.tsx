@@ -386,7 +386,10 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
           />
         </section>
         <section className="">
-          <MatchHistory />
+          <MatchHistory
+            id={userInfo.user.id}
+            name={userInfo.user.name}
+          />
         </section>
       </div>
     </div>

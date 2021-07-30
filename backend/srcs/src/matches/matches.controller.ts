@@ -49,7 +49,7 @@ export default class MatchesControler
 
 	@Get("user/:id")
 	public async getMatchesByPlayerId(@Param('id') id : string)
-	{ return this.matchesServices.getAllMatchesByPlayerId(id); }
+	{ return this.matchesServices.getFiveLastMatchesByPlayerId(id); }
 
 	@Post()
 	public async createMatch(@Body() match : CreateMatchesDto)
