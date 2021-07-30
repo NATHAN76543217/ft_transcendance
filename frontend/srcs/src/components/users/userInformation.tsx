@@ -76,7 +76,7 @@ function getStatus(param: UserStatus) {
 function displayWinAndLose(user: UserProps) {
   if (user.isInSearch) {
     return (
-      <div className="w-24 mx-4 text-center">
+      <div className="w-full text-center">
         <div className="relative font-bold text-md">Win / Lose</div>
         <h1 className={"relative font-bold text-md "}>
           <span className="text-green-700">{user.nbWin}</span> /{" "}
@@ -163,7 +163,7 @@ function displayFriendButton(
     ? type & UserRelationshipType.pending_second_first
     : type & UserRelationshipType.pending_first_second;
   return (
-    <div className="w-48 my-4 text-center">
+    <div className="my-2 text-center w-26">
       {!user.isMe ? (
         isFriend ? (
           <CustomButton
@@ -229,7 +229,7 @@ function displayBlockButton(
     : type & UserRelationshipType.block_second_first;
 
   return (
-    <div className="w-48 my-4 text-center">
+    <div className="my-4 text-center w-26">
       {!user.isMe ? (
         !isBlock ? (
           <CustomButton
@@ -265,7 +265,7 @@ function displayTwoFactorAuth(user: UserProps) {
   };
 
   return user.isMe && !user.isInSearch ? (
-    <section className="relative flex items-center justify-center">
+    <section className="relative flex items-center justify-center pb-4">
       <label className="font-bold text-gray-700">
         <input
           className="mr-2 leading-tight"
@@ -350,25 +350,31 @@ function UserInformation(user: UserProps) {
   ]);
 
   return (
-    <div className="px-8 py-4 rounded-sm h-42 bg-neutral">
-      <section className="flex flex-wrap items-center justify-center py-2 my-2 ">
-        <div className="w-32 mx-4">
-          {displayProfilePicture(user)}
-          {displayFileChange(user, contextValue.setUser)}
-        </div>
+    <div className="px-8 pt-8 pb-2 border-2 border-gray-300 rounded-sm bg-neutral h-42">
+      <section className="grid items-center justify-center ">
+        <div className='grid md:flex w-84'>
+          <div className='flex items-center'>
+            <div className="w-32 mr-8">
+              {displayProfilePicture(user)}
+              {displayFileChange(user, contextValue.setUser)}
+            </div>
 
-        <div className="w-40 mx-2 text-center">
-          {displayUsername(user)}
-          <h1 className={"font-bold " + getStatusColor(user.status)}>
-            {getStatus(user.status)}
-          </h1>
-          {displayWrongUsernameMessage(user)}
-        </div>
+            <div className="grid justify-center w-40 mr-4 text-center">
+              {displayUsername(user)}
+              <h1 className={"font-bold " + getStatusColor(user.status)}>
+                {getStatus(user.status)}
+              </h1>
+              {displayWrongUsernameMessage(user)}
+              <div>{displayWinAndLose(user)}</div>
+            </div>
+          </div>
 
-        <div>{displayWinAndLose(user)}</div>
-        <div>
-          {displayFriendButton(user, userRelationshipType, contextValue)}
-          {displayBlockButton(user, userRelationshipType, contextValue)}
+        </div>
+        <div className='inline-flex '>
+          <div className='flex items-center justify-center w-full '>
+            {displayFriendButton(user, userRelationshipType, contextValue)}
+            {displayBlockButton(user, userRelationshipType, contextValue)}
+          </div>
         </div>
       </section>
       {displayChangeNameField(user, contextValue.setUser)}

@@ -39,7 +39,7 @@ import FailedLogin from "./pages/failedLogin/failedLogin";
 import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
 import TwoFactorAuth from "./pages/login/two-factor";
 
-interface AppProps {}
+interface AppProps { }
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -171,7 +171,7 @@ class App extends React.Component<AppProps, AppState> {
               withCredentials: true,
             });
             this.setUserInit(res.data);
-          } catch (error) {}
+          } catch (error) { }
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
@@ -247,10 +247,10 @@ class App extends React.Component<AppProps, AppState> {
               relationshipType: relation.type,
             });
             this.setState({ relationshipsList: a });
-          } catch (error) {}
+          } catch (error) { }
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   updateOneRelationshipType = async (
@@ -559,7 +559,7 @@ class App extends React.Component<AppProps, AppState> {
                   <div className="border-r-2 border-gray-700 md:block border-opacity-70">
                     <SideMenu logged={this.state.user !== undefined} />
                   </div>
-                  <div className="z-30 flex w-full bg-gray-200 flex-nowrap">
+                  <div className="z-30 flex w-full h-screen bg-gray-200 flex-nowrap">
                     <main className="flex-grow">
                       <Switch>
                         <Route exact path="/">
@@ -609,23 +609,14 @@ class App extends React.Component<AppProps, AppState> {
                         {this.displayAdminRoute(
                           // true
                           this.state.user?.role === UserRole.Admin ||
-                            this.state.user?.role === UserRole.Owner
+                          this.state.user?.role === UserRole.Owner
                         )}
                       </Switch>
                     </main>
-                    {/* <div className='z-50 group duration-800 transition-width delay-0'>
-                      <div className="flex-none hidden md:block group-hover:block "> */}
-                        <FriendsBar
-                          logged={this.state.user !== undefined}
-                          relationshipsList={this.state.relationshipsList}
-                        />
-                      {/* </div>
-                      <aside className="relative w-8 h-full bg-neutral md:hidden group-hover:hidden">
-                        <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
-                          <span className='font-bold'>FriendsBar</span>
-                        </div>
-                      </aside>
-                    </div> */}
+                    <FriendsBar
+                      logged={this.state.user !== undefined}
+                      relationshipsList={this.state.relationshipsList}
+                    />
                   </div>
                 </div>
                 <Footer />

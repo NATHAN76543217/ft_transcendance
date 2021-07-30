@@ -247,7 +247,7 @@ function ChannelInformation(channel: ChannelProps) {
   }
 
   return (
-    <div className="px-2 py-4 rounded-sm h-42 bg-neutral">
+    <div className="px-2 py-4 border-2 border-gray-300 rounded-sm rh-42 bg-neutral">
       <section className="flex flex-wrap items-center justify-center py-2 my-2">
         <div className="w-20 ml-4">
           {displayChannelPicture(channel)}

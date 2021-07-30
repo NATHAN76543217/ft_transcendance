@@ -47,7 +47,7 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
   const displayUpdateValidationMessage = (showRegisterValidation: boolean) => {
     if (showRegisterValidation) {
       return (
-        <div className="absolute bottom-0 w-full pr-12 font-bold text-center text-green-600">
+        <div className="w-full pr-12 mt-2 font-bold text-center text-green-600 ">
           Channel update confirmed
         </div>
       );
@@ -90,12 +90,12 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
   ];
 
   return (
-    <section className="flex flex-col max-w-sm p-4 m-auto rounded-md bg-neutral w-80">
+    <section className="flex flex-col justify-center max-w-sm pt-2 border-t-2 border-gray-400 w-80">
       <form onSubmit={handleSubmit(props.onSubmit)} className="py-2">
-        <div className="relative w-96">
+        <div className=" w-96">
           <div className="h-16 mb-4">
             <span className="mb-2 ml-2 text-lg font-bold ">Mode</span>
-            <div className="relative ">
+            <div className="">
               {modeList.map((elem) => {
                 return (
                   <label className={radioLabelClassName} key={elem.name}>
@@ -144,11 +144,11 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
             )}
           </div>
 
-          <div className="relative w-3/4 text-center">
+          <div className="w-3/4 text-center ">
             <input
               type="submit"
               value="Update channel properties"
-              className="relative h-8 px-4 py-1 mt-4 mb-8 font-semibold bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
+              className="h-8 px-4 py-1 mt-4 font-semibold bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
             ></input>
           </div>
           {displayUpdateValidationMessage(props.showUpdateValidation)}

@@ -133,10 +133,14 @@ export function ChatMessageList(props: ChatMessageListProps) {
   }
 
   return (
+<div className='flex justify-center mt-4 h-5/6'>
 
-    <div className='flex justify-center h-screen ml-4 overflow-y-scroll rounded-md'>
-
-      <div className='flex-grow max-w-2xl p-2 py-4 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md'>
+    <div className='grid justify-center w-full h-full rounded-md'>
+      <div className='flex-grow w-full max-w-2xl p-2 py-2 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md'>
+        <div className='inline-flex h-1'>
+          <div className='inline-flex w-32 sm:w-48 md:w-72 xl:w-96'></div>
+          <div className='inline-flex w-40 '></div>
+          </div>
         <ul>
           {messages.map((m) => {
             sameSender = previousSenderId === m.sender_id;
@@ -147,7 +151,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
                   <ChatMessage
                     message={m}
                     sameSender={sameSender}
-                  />
+                    />
                 </li>
               );
             } else {
@@ -157,6 +161,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
         </ul>
       </div>
     </div>
+          </div>
   );
 }
 

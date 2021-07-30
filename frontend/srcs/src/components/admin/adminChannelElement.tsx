@@ -233,7 +233,7 @@ function AdminChannelElement(props: ChannelElementProps) {
     if (adminChannelElementInfo.showUsersList) {
       return (
         <div>
-          <ul className="relative w-auto pt-4 pl-4">
+          <ul className="grid justify-center pt-4 pl-2 w-max-md">
             {adminChannelElementInfo.channelRelationshipsList.map((relation) => {
               let translatedRole = translateRelationTypeToRole(
                 relation.type
@@ -241,7 +241,7 @@ function AdminChannelElement(props: ChannelElementProps) {
 
               if (!(relation.type & ChannelRelationshipType.Null)) {
                 return (
-                  <li key={relation.user_id.toFixed()} className="">
+                  <li key={relation.user_id.toFixed()} className=" w-96">
                     <AdminUserElement
                       id={relation.user_id}
                       name={relation.user.name}
@@ -290,13 +290,13 @@ function AdminChannelElement(props: ChannelElementProps) {
     if (!props.isChannelSettings) {
 
       return (
-        <div className="flex items-center h-8 mt-2 group">
+        <div className="flex items-center h-8 mt-2 group w-96">
           <div className="flex">
-            <div className="flex justify-center w-24 mr-2">
+            <div className="flex justify-center w-16 ">
               {displayMode(props)}
             </div>
             <div
-              className="w-48 font-bold cursor-pointer text-md hover:underline"
+              className="mx-4 font-bold cursor-pointer w-36 text-md hover:underline"
               onClick={localChangeUsersListButtonState}
             >
               {props.name}
@@ -312,7 +312,7 @@ function AdminChannelElement(props: ChannelElementProps) {
   }
 
   return (
-    <div className={adminChannelElementInfo.showUsersList && !props.isChannelSettings ? "bg-blue-200 rounded-md py-1" : "py-1"}>
+    <div className={`py-1 w-96  ${adminChannelElementInfo.showUsersList && !props.isChannelSettings ? "border-t-2 border-b-2 border-gray-300 " : ""}`}>
       {displayChannelInformation()}
       {displayUsersList(adminChannelElementInfo, setAdminChannelElementInfo)}
     </div>

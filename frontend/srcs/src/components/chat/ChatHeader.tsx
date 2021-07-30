@@ -22,7 +22,7 @@ function UserActions({ nbUsers }: UserActionsProps) {
   const nbUsersSpan = nbUsers && nbUsers > 1 ? nbUsers + ' users' : '1 user'
   return (
     <>
-      <span className='mr-2 font-semibold'>{nbUsersSpan}</span>
+      <span className='flex-no-wrap hidden w-16 font-semibold lg:flex '>{nbUsersSpan}</span>
     </>
   );
 }
@@ -78,7 +78,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
         channelId={channelId}
         nbUsers={nbUsers}
       />
-      <div className="flex h-10 px-4">
+      <div className="flex h-10 md:px-2">
         <ChannelInviteForm onSubmit={onSubmitInvite} />
       </div>
       <TooltipIconButton
@@ -159,12 +159,12 @@ export function ChatHeader({ myRole, isChannel }: ChatHeaderProps) {
     (myRole &
       (ChannelRelationshipType.Owner | ChannelRelationshipType.Admin | ChannelRelationshipType.Member))) {
     return (
-      <header className="flex justify-between w-full h-10 p-4 bg-gray-300 border-b-2 border-gray-300">
+      <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
         <ChatTitle
           channel={currentChat}
           isInHeader
         />
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center ">
           <ChatActions
             channelRelation={chatContextValue.currentChannelRel}
           />

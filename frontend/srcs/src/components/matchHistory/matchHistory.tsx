@@ -2,7 +2,7 @@ import MatchHistoryItem from "./matchHistoryItem";
 
 function MatchHistory() {
   return (
-    <section className="w-auto pt-4 pb-4 mx-4 my-4 bg-gray-100 h-52">
+    <section className="h-auto px-8 py-8 mt-8 border-2 border-gray-300 rounded-sm bg-neutral">
       <div>
         <h1 className="text-3xl font-bold text-center">Match History</h1>
         <section className="relative flex justify-center pt-4">

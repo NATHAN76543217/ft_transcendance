@@ -8,7 +8,7 @@ function UserWelcome(user: UserProps) {
   if (user.isMe && user.imgPath === 'default-profile-picture.png') {
     return (
       <section className="relative grid justify-center w-auto h-auto">
-        <p className="px-8 py-4 mt-4 text-lg rounded-lg bg-secondary">
+        <p className="px-4 py-4 mx-4 mt-4 text-lg rounded-lg md:px-8 bg-secondary">
         <span className="font-bold">Welcome {user.name}!</span>
           <br/>
           Here is your <span className="font-bold">profile page</span>.

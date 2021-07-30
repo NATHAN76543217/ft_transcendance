@@ -104,14 +104,16 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel]);
 
   return (
-    <div className={`flex flex-col flex-grow`}>
+    <div className='flex flex-col flex-grow h-screen '>
       <ChatHeader myRole={channelInfo.myRole} isChannel={isChannel} />
       <Switch>
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <ChatMessageList id={match.params.id} />
-          <ChatInput id={match.params.id} myRole={channelInfo.myRole} />
+          <div className='justify-center h-full '>
+            <ChatMessageList id={match.params.id} />
+            <ChatInput id={match.params.id} myRole={channelInfo.myRole} isChannel={isChannel}/>
+            </div>
         </Route>
       </Switch>
     </div>

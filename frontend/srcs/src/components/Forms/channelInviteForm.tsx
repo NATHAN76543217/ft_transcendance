@@ -12,7 +12,7 @@ export default function ChannelInviteForm(props: ChannelInviteProps) {
   const { register, handleSubmit } = useForm<ChannelInviteDto>();
 
   return (
-    <div className="flex items-center h-full max-w-sm px-4 border-l-2 border-r-2 border-gray-400">
+    <div className="flex items-center h-full max-w-sm px-4 border-gray-400 lg:border-r-2 lg:border-l-2">
       <form onSubmit={handleSubmit(props.onSubmit)} className="flex w-auto h-6">
         <input
           id="username"

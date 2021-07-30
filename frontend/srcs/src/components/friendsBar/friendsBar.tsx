@@ -179,39 +179,42 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     return (<div></div>)
   } else {
     return (
-      <div >
-
-        <div className='z-50 group duration-800 transition-width delay-0'>
-          <div className="flex-none hidden md:block group-hover:block "></div>
-          <aside className="w-48 bg-neutral">
-            <header>
-              <h2 className="py-4 text-2xl text-center first-letter:uppercase bg-secondary">
-                my friendlist
-         </h2>
-              <Link to="/users/find">
-                <button
-                  className="flex items-center justify-between w-full p-2 pl-8 text-left border-t-2 border-b-2 border-gray-400"
-                  type="button"
-                >
-                  <i className="fas fa-plus text-secondary" />
-                  <span className="flex-grow text-xl text-center first-letter:uppercase">
-                    add friends
+      <div className='h-screen'>
+        <div className='z-50 h-screen group duration-800 transition-width delay-0'>
+          <div className='flex-none hidden w-48 md:block'>
+            
+          </div>
+          <div className="absolute right-0 z-50 flex-none hidden h-screen md:block group-hover:block">
+            <aside className="w-48 h-screen bg-neutral">
+              <header>
+                <h2 className="py-4 text-2xl text-center first-letter:uppercase bg-secondary">
+                  my friendlist
+                </h2>
+                <Link to="/users/find">
+                  <button
+                    className="flex items-center justify-between w-full p-2 pl-8 text-left border-t-2 border-b-2 border-gray-400"
+                    type="button"
+                  >
+                    <i className="fas fa-plus text-secondary" />
+                    <span className="flex-grow text-xl text-center first-letter:uppercase">
+                      add friends
              </span>
-                </button>
-              </Link>
-            </header>
-            {displayItemsList(UserStatus.Null, 'pending requests')}
-            {displayItemsList(UserStatus.InGame, 'In game friends')}
-            {displayItemsList(UserStatus.Online, 'Online friends')}
-            {displayItemsList(UserStatus.Offline, 'Offline friends')}
+                  </button>
+                </Link>
+              </header>
+              {displayItemsList(UserStatus.Null, 'pending requests')}
+              {displayItemsList(UserStatus.InGame, 'In game friends')}
+              {displayItemsList(UserStatus.Online, 'Online friends')}
+              {displayItemsList(UserStatus.Offline, 'Offline friends')}
 
+            </aside>
+          </div>
+          <aside className="relative z-40 w-8 h-screen bg-neutral md:hidden">
+            <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
+              <span className='font-bold'>FriendsBar</span>
+            </div>
           </aside>
         </div>
-        <aside className="relative w-8 h-full bg-neutral md:hidden group-hover:hidden">
-          <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
-            <span className='font-bold'>FriendsBar</span>
-          </div>
-        </aside>
       </div >
     );
   }

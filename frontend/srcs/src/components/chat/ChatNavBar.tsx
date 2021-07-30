@@ -84,8 +84,8 @@ export function ChatBarItem({ channel, user }: ChatBarItemProps) {
   const redirect = channel
     ? `/chat/c${channel.id}`
     : user
-    ? `/chat/${user.id}`
-    : `/chat`;
+      ? `/chat/${user.id}`
+      : `/chat`;
   return (
     <div className="border-b-2 border-gray-300">
       <NavLink
@@ -220,36 +220,55 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
   };
 
   return (
-    <nav
-      className={`flex flex-col divide-black divide-double p2 border-r-2 border-gray-300 ${className}`}
-    >
-      <div>
-        <NavLink
-          to="/chat/find"
-          exact={true}
-          className="relative flex py-1 bg-gray-100"
-          activeClassName="bg-blue-300"
-        >
-          <div className="flex items-center py-1 pl-2">
-            <i className="fas fa-search" />
-            <div className="pl-2 font-semibold">Find channels</div>
+    <div>
+
+      <div className='relative z-50 bg-green-500 group duration-800 transition-width delay-0'>
+
+        <div className='z-30 flex-none hidden w-48 bg-red-500 md:block'>
+
+        </div>
+        <div className="absolute top-0 z-50 flex-none hidden left-30 md:block group-hover:block">
+
+          <nav
+            className={`flex flex-col divide-black divide-double border-r-2 border-gray-300 ${className}`}
+          >
+            <div>
+              <NavLink
+                to="/chat/find"
+                exact={true}
+                className="relative flex py-1 bg-gray-100"
+                activeClassName="bg-blue-300"
+              >
+                <div className="flex items-center py-1 pl-2">
+                  <i className="fas fa-search" />
+                  <div className="pl-2 font-semibold">Find channels</div>
+                </div>
+              </NavLink>
+              <NavLink
+                to="/chat/create"
+                exact={true}
+                className="relative flex py-1 bg-gray-100"
+                activeClassName="bg-green-200"
+              >
+                <div className="flex items-center py-1 pl-2">
+                  <i className="fas fa-plus-circle" />
+                  <div className="pl-2 font-semibold">Create a channel</div>
+                </div>
+              </NavLink>
+            </div>
+            {displayChannelList()}
+            {displayRelationList()}
+          </nav>
+
+        </div>
+        <nav className="relative z-40 w-8 h-screen bg-neutral md:hidden group-hover:hidden">
+          <div className='absolute left-0 right-0 transform -rotate-90 top-20'>
+            <span className='font-bold'>ChatBar</span>
           </div>
-        </NavLink>
-        <NavLink
-          to="/chat/create"
-          exact={true}
-          className="relative flex py-1 bg-gray-100"
-          activeClassName="bg-green-200"
-        >
-          <div className="flex items-center py-1 pl-2">
-            <i className="fas fa-plus-circle" />
-            <div className="pl-2 font-semibold">Create a channel</div>
-          </div>
-        </NavLink>
+        </nav>
       </div>
-      {displayChannelList()}
-      {displayRelationList()}
-    </nav>
+    </div>
+
   );
 }
 
@@ -257,5 +276,5 @@ ChatNavBar.defaultProps = {
   className: "",
 };
 // function ChatPageContext(ChatPageContext: any) {
-//   throw new Error("Function not implemented.");
-// }
+  //   throw new Error("Function not implemented.");
+  // }

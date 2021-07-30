@@ -13,7 +13,7 @@ export default function ChangeNameUser(props: UserChangeNameSearchProps) {
   return (
     <form
       onSubmit={handleSubmit(props.onSubmit)}
-      className="flex items-center justify-center py-4 pr-8"
+      className="flex items-center justify-center pb-2 pr-8"
     >
       <div className="relative w-64 ">
         <input

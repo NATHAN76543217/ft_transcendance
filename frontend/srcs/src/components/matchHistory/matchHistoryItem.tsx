@@ -10,7 +10,7 @@ type MatchProps = {
 
 function MatchHistoryItem(match: MatchProps) {
     return (
-        <div className="grid justify-center w-full grid-cols-7 px-2 whitespace-pre ">
+        <div className="grid justify-center w-auto grid-cols-7 whitespace-pre ">
             <div className="relative flex-1 col-span-1 text-center">
                 {match.scoreA > match.scoreB ? <i className="text-green-600 fill-current fas fa-check"></i> : <i className="text-red-600 fill-current fas fa-times"></i>}
             </div>

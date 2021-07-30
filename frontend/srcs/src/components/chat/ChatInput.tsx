@@ -30,6 +30,7 @@ interface IMessageFormValues {
 export type ChatInputProps = {
   id: string;
   myRole: ChannelRelationshipType;
+  isChannel: boolean;
 };
 
 export function ChatInput(props: ChatInputProps) {
@@ -45,9 +46,9 @@ export function ChatInput(props: ChatInputProps) {
   } = useForm<IMessageFormValues>();
 
   const className =
-    "w-full max-w-2xl pt-2 pl-2 bg-gray-100 border-2 border-gray-500 rounded-md";
+    "w-full max-w-sm pt-2 pl-2 bg-gray-100 border-2 border-gray-500 rounded-md md:max-w-md xl:max-w-xl";
 
-  const isChannel = props.id && props.id[0] === "c" ? true : false;
+  // const isChannel = props.id && props.id[0] === "c" ? true : false;
 
   const sendMessageChannel = (
     socket: Socket,
@@ -77,39 +78,42 @@ export function ChatInput(props: ChatInputProps) {
     socket.emit("message-user", message);
   };
 
-  if (
+  if ((
     props.myRole &
     (ChannelRelationshipType.Owner |
       ChannelRelationshipType.Admin |
-      ChannelRelationshipType.Member)
+      ChannelRelationshipType.Member)) || !props.isChannel
   ) {
     return (
-      <div className="flex justify-center w-full my-4 ">
-        <form
-          className={`${className}`}
-          onSubmit={handleSubmit((values) => {
-            if (socket && isChannel) {
-              sendMessageChannel(
-                socket,
-                Number(props.id.substring(1)),
-                values.message
-              );
-              reset();
-            } else if (socket && !isNaN(Number(props.id))) {
-              sendMessageUser(socket, Number(props.id), values.message);
-              reset();
-            }
-          })}
-        >
-          <TextInput
-            name="message"
-            register={register}
-            required={true}
-            error={errors.message}
-            placeholder={"Enter a message..."}
-          />
-        </form>
-      </div>
+      <div className=''>
+        <div className="flex justify-center px-4 my-4 h-1/6">
+          <form
+            className={`${className}`}
+            onSubmit={handleSubmit((values) => {
+              if (socket && props.isChannel) {
+                sendMessageChannel(
+                  socket,
+                  Number(props.id.substring(1)),
+                  values.message
+                );
+                reset();
+              } else if (socket && !isNaN(Number(props.id))) {
+                sendMessageUser(socket, Number(props.id), values.message);
+                reset();
+              }
+            })}
+          >
+            <TextInput
+              name="message"
+              register={register}
+              required={true}
+              error={errors.message}
+              placeholder={"Enter a message..."}
+            />
+          </form>
+        </div>
+      </div >
+
     );
   } else {
     return <div></div>;
