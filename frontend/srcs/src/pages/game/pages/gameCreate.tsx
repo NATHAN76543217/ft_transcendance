@@ -18,7 +18,7 @@ function GameCreate() {
   const { relationshipsList } = useContext(AppContext);
 
   const quitToHome = () => {
-    console.log("Quit to Home");
+    history.push('/game');
   };
 
   const {

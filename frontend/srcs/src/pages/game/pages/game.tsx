@@ -8,12 +8,6 @@ import { Pong } from "./pong";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-// Stuff TO DO:
-// 1) Implement pages swiching
-// 2) Implement create game
-// 3) End Matchmaking
-// 4) Build a pong engine & render
-
 function getGameSocket() {
   console.log("Initiating game-socket connection...");
 

@@ -9,6 +9,10 @@ import { ClientMessages, ServerMessages } from "../dto/messages";
 import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
 
+// TO DO: Join room at the begining
+// TO DO: Canvas dims
+// TO DO: Debug and test back
+
 export type PongPageParams = {
   id: string;
 };
@@ -52,7 +56,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             ServerMessages.UPDATE_MOUSE_POS,
             {
               x: event.clientX,
-              y: event.clientY,
+              y: event.clientY, // TO DO: or event.clientY - rect.top - player.height / 2; ?!?!
             }
           );
         });
@@ -94,11 +98,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       ?.on(ClientMessages.JOINED, onJoined)
       .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus);
 
+    gameContext.gameSocket?.emit(ServerMessages.JOIN_ROOM, Number(match.params.id));
+
     return deleteSubscribedListeners;
   }, [user?.id, gameContext.gameSocket]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
   // TO DO: Impose a size using canvasDims
+  // TO DO: Add a quit button or redirect automatically back when the game is end
   return <canvas ref={canvasRef} className="" />;
 }

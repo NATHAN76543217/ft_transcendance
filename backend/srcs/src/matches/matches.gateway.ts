@@ -196,6 +196,14 @@ export class MatchesGateway
     }
   }
 
+  @SubscribeMessage(ServerMessages.CANCEL_FIND)
+  handleCancelFind(client : SocketWithPlayer)
+  {
+    if (!this.matchmakingQueue.includes(client.user.id))
+      throw new Error();
+    this.matchmakingQueue.filter(player => player !== client.user.id);
+  }
+
   @SubscribeMessage(ServerMessages.PLAYER_READY)
   handlePlayerReady(client: SocketWithPlayer) {
     const room = this.getRoom(client.matchId);

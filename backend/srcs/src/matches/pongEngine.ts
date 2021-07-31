@@ -7,7 +7,7 @@ export function pongEngine(st: GameState) {
   // Check if the ball scored on left side
   if (st.ball.x - st.ball.rad < 0) {
     st.scores[0]++;
-    st.ball = defaultBall;
+    st.ball = defaultBall; // TO DO: Inverse dir.x here or bellow (remember i got 2 files copy)
   }
   // Check if the ball scored on right side
   else if (st.ball.x + st.ball.rad > canvasDims.x) {

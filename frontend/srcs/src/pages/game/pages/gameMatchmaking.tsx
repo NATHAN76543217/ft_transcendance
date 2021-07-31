@@ -1,55 +1,46 @@
-import { useContext, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { NavLink, useHistory } from "react-router-dom";
 import { GameContext, IGameContext } from "../context";
 import {
   ClientMessages,
   ServerMessages,
-  IAcknowledgement,
 } from "../dto/messages";
 
 function GameMatchmaking() {
   const context: IGameContext = useContext(GameContext);
 
-  // TO DO: "Cancel Search" is disabled if "Find Match" ins't
-  // TO DO: Same for "Find Match"
+  const history = useHistory();
+
+  const [inQueue, setInQueue] = useState<boolean>(false);
 
   const findGame = () => {
-    // TO DO: Be sure that playersIds[0] is the current player id
+    setInQueue(true);
     context.gameSocket?.emit(ServerMessages.FIND_GAME);
   };
 
   const cancelSearch = () => {
-    // TO DO: Be sure that playersIds[0] is the current player id
-    context.gameSocket?.emit(
-      ServerMessages.CANCEL_FIND,
-      (response: IAcknowledgement) => {
-        if (response.status === "not ok") throw new Error(); // TO DO: What could happend if somehow this condition is true ?
-      }
-    );
+    setInQueue(false);
+    context.gameSocket?.emit(ServerMessages.CANCEL_FIND);
   };
 
   const quitToHome = () => {
-    // If player is in queue cancel the queue either just swicth back the pages
+    if (inQueue)
+      cancelSearch();
+    history.push('/game');
   };
 
   const onNotify = (msg: string) => {
     console.log(msg);
   };
 
-  const onMatchFound = () => {
-    // TO DO: Go to the game
-  };
-
   useEffect(() => {
     const deleteSubscribedListeners = () => {
       if (context.gameSocket) {
-        context.gameSocket.off(ClientMessages.MATCH_FOUND, onMatchFound);
         context.gameSocket.off(ClientMessages.NOTIFY, onNotify);
       }
     };
 
     if (context.gameSocket) {
-      context.gameSocket.once(ClientMessages.MATCH_FOUND, onMatchFound);
       context.gameSocket.on(ClientMessages.NOTIFY, onNotify);
     }
     return deleteSubscribedListeners;
@@ -72,6 +63,7 @@ function GameMatchmaking() {
             className={buttonClassname + " bg-green-300 hover:bg-green-400"}
             // to='game/matchmaking'
             onClick={() => findGame()}
+            disabled={inQueue ? true : undefined}
           >
             <span className={textButtonClassname}>Find a Game</span>
           </button>
@@ -79,6 +71,7 @@ function GameMatchmaking() {
             className={buttonClassname + " bg-red-400 hover:bg-red-500"}
             // to='game/create'
             onClick={() => cancelSearch()}
+            disabled={inQueue ? undefined : true}
           >
             <span className={textButtonClassname}>Cancel search</span>
           </button>
