@@ -8,14 +8,14 @@ import { GameContext } from "../context";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
-import {canvasHeight, canvasWidth } from "../../../models/game/canvasDims"
+import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
 
 export type PongPageParams = {
   id: string;
 };
 
 export function Pong({ match }: RouteComponentProps<PongPageParams>) {
-  const { user } = useContext(AppContext);
+  const { user, channelSocket: appSocket } = useContext(AppContext);
   const gameContext = useContext(GameContext);
   const history = useHistory();
 
@@ -54,15 +54,16 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             ServerMessages.UPDATE_MOUSE_POS,
             {
               x: event.clientX,
-              y: event.clientY, // TO DO: or event.clientY - rect.top - player.height / 2; ?!?!
+              y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
             }
           );
         });
+        gameContext.gameSocket?.emit(ServerMessages.PLAYER_READY);
       }
     };
 
     const onQuit = () => {
-      history.push('/game');
+      history.push("/game");
     };
 
     const onReceiveGameStatus = (st: GameState) => {
@@ -77,14 +78,23 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       }
     };
 
+    const onMatchStart = () => {
+      appSocket?.emit("startGame-front", { roomId: match.params.id });
+    };
+
+    const onMatchEnd = () => {
+      appSocket?.emit("endGame-front", { room: match.params.id });
+    };
+
     const deleteSubscribedListeners = () => {
       if (updateIntervalHandle) {
         clearInterval(updateIntervalHandle);
       }
-      gameContext.gameSocket?.off(
-        ClientMessages.RECEIVE_ST,
-        onReceiveGameStatus
-      ).off(ClientMessages.QUIT, onQuit);
+      gameContext.gameSocket
+        ?.off(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
+        .off(ClientMessages.QUIT, onQuit)
+        .off(ClientMessages.GAME_START, onMatchStart)
+        .off(ClientMessages.GAME_END, onMatchEnd);
     };
 
     const frame = () => {
@@ -99,19 +109,29 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     gameContext.gameSocket
       ?.on(ClientMessages.JOINED, onJoined)
       .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
-      .on(ClientMessages.QUIT, onQuit);
+      .on(ClientMessages.QUIT, onQuit)
+      .on(ClientMessages.GAME_START, onMatchStart)
+      .on(ClientMessages.GAME_END, onMatchEnd);
 
-    gameContext.gameSocket?.emit(ServerMessages.JOIN_ROOM, Number(match.params.id));
+    gameContext.gameSocket?.emit(
+      ServerMessages.JOIN_ROOM,
+      Number(match.params.id)
+    );
 
     return deleteSubscribedListeners;
   }, [user?.id, gameContext.gameSocket]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
-  const height : number = canvasRef.current?.height as number;
+  const height: number = canvasRef.current?.height as number;
   return (
     <div>
-      <canvas ref={canvasRef} height={height} width={(canvasWidth * height) / canvasHeight } className="" />;
+      <canvas
+        ref={canvasRef}
+        height={height}
+        width={(canvasWidth * height) / canvasHeight}
+        className=""
+      />
     </div>
   );
 }

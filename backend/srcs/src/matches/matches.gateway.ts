@@ -27,6 +27,7 @@ import { Room } from './room';
 export enum ServerMessages {
   CREATE_ROOM = 'server:createRoom',
   JOIN_ROOM = 'server:joinRoom',
+  REJECT = 'server:reject',
   PUSH_GAME = 'server:pushGame',
   UPDATE_GAME = 'server:updateGame',
   FIND_GAME = 'server:findGame',
@@ -42,6 +43,10 @@ export enum ClientMessages {
   MATCH_FOUND = 'client:matchFound',
   RECEIVE_ST = 'client:receiveSt',
   JOINED = 'client:joined',
+  QUIT = 'client:quit',
+  GUEST_REJECTION = "client:guestRejection",
+  GAME_START = "client:gameStart",
+  GAME_END = 'client:gameEnd'
 }
 
 export const defaultRuleset: Ruleset = {
@@ -178,6 +183,22 @@ console.log('handle connection - match')
     socket.emit(ClientMessages.JOINED, data);
   }
 
+  @SubscribeMessage(ServerMessages.REJECT)
+  async handleRejectMatch(
+    @ConnectedSocket() socket: SocketWithPlayer,
+    @MessageBody() body: JoinGameDto)
+  {
+    const room = this.getRoom(body.id);
+
+    this.server.to(room.getId())
+      .emit(ClientMessages.NOTIFY, `User with id ${socket.user.id} rejected the match`);
+
+    this.server.to(room.playerIds[0].toFixed()).emit(ClientMessages.GUEST_REJECTION);
+  
+    this.server.socketsLeave(room.playerIds.toString());
+    this.rooms.delete(room.matchId);
+  }
+
   async onGameEnd(roomId: number) {
     const room: Room = this.getRoom(roomId);
 
@@ -188,7 +209,7 @@ console.log('handle connection - match')
   }
 
   @SubscribeMessage(ServerMessages.FIND_GAME)
-  handleFindGame(client: SocketWithPlayer) {
+  async handleFindGame(client: SocketWithPlayer) {
     if (!this.matchmakingQueue.includes(client.user.id)) {
       this.matchmakingQueue.push(client.user.id);
     }
@@ -204,7 +225,7 @@ console.log('handle connection - match')
   }
 
   @SubscribeMessage(ServerMessages.CANCEL_FIND)
-  handleCancelFind(client : SocketWithPlayer)
+  async handleCancelFind(client : SocketWithPlayer)
   {
     if (!this.matchmakingQueue.includes(client.user.id))
       throw new Error();
@@ -216,10 +237,18 @@ console.log('handle connection - match')
     const room = this.getRoom(client.matchId);
 
     room.setPlayerStatus(client.user.id, PlayerStatus.READY);
+
+    if (room.isFilled() && room.playersReady())
+    {
+      room.onStartGame();
+      room.playerIds.forEach(playerId => {
+        this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_START);
+      });
+    }
   }
 
   @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
-  onUpdateMousePos(client: SocketWithPlayer, mousePos: IVector2D) {
+  async onUpdateMousePos(client: SocketWithPlayer, mousePos: IVector2D) {
     const roomId = client.matchId;
     const room = this.getRoom(roomId);
 
@@ -243,6 +272,15 @@ console.log('handle connection - match')
   }
 
   onGameUpdate(roomId: number, state: GameState) {
-    this.server.to(roomId.toFixed()).emit(ClientMessages.RECEIVE_ST, { state });
+    this.server.volatile.to(roomId.toFixed()).emit(ClientMessages.RECEIVE_ST, { state });
+  }
+
+  onDisconnectClients(roomId : number) {
+    const room  = this.getRoom(roomId);
+
+    room.playerIds.forEach(playerId => {
+      this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_END);
+    });
+    this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);
   }
 }
