@@ -503,14 +503,16 @@ export class ChannelsGateway
       updated_at: new Date(),
       id: 0,
       sender_id: senderId,
-      receiver_id: messageData.receiver_id,
-      text: messageData.data,
+      receiver_id: Number(messageData.receiver_id),
+      data: messageData.data,
       type: messageData.type,
     };
 
-    this.server
-      .to(messageData.receiver_id.toFixed())
-      .emit('message-user', message);
+    if (!isNaN(message.receiver_id)) {
+      this.server
+        .to(message.receiver_id.toFixed())
+        .emit('message-user', message);
+    }
   }
 
   @SubscribeMessage('message-user')

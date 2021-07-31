@@ -1,54 +1,54 @@
 import axios from "axios";
-import React, { useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import CurrentMatchItem from "../../../components/matchHistory/currentMatchItem";
 import { IMatch } from "../../../models/match/IMatch";
 
 function GameHome() {
-
   const [matchList, setMatchList] = useState<IMatch[]>([]);
 
   const getPlayerName = async (user_id: string) => {
     try {
       const dataUser = await axios.get(`/api/users/${user_id}`);
-      console.log('dataUser', dataUser)
+      console.log("dataUser", dataUser);
       return dataUser.data.name;
     } catch (error) {
       console.log(error);
-      return 'Unknown player'
+      return "Unknown player";
     }
-  }
+  };
 
   const getAllCurrentMatches = async () => {
     try {
-      const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`)
-      console.log(`current matches`, dataMatches)
+      const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
+      console.log(`current matches`, dataMatches);
       let a = dataMatches.data.slice();
       a.map(async (match) => {
         match.playerNameA = await getPlayerName(match.idPlayerOne);
         match.playerNameB = await getPlayerName(match.idPlayerTwo);
-      })
+      });
       if (JSON.stringify(a) !== JSON.stringify(matchList)) {
-        setMatchList(a)
+        setMatchList(a);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       // setMatchList([]);
     }
-  }
+  };
 
   const fastGame = () => {
-    console.log('Fast game')
-  }
+    console.log("Fast game");
+  };
 
   const createGame = () => {
-    console.log('Create game')
-  }
+    console.log("Create game");
+  };
 
-  const buttonClassname = "flex rounded-lg py-2 px-4 " +
+  const buttonClassname =
+    "flex rounded-lg py-2 px-4 " +
     " bg-secondary hover:bg-secondary-dark" +
-    " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto"
-  const textButtonClassname = 'text-2xl font-bold text-gray-900'
+    " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto";
+  const textButtonClassname = "text-2xl font-bold text-gray-900";
 
   // const displayCurrentGames = () => {
   //   const currentGames = await axios.get('/api/matches/current');
@@ -59,32 +59,31 @@ function GameHome() {
 
   const displayHomeGamePannel = () => {
     return (
-      <div className='inline-block max-w-sm px-2 py-8 mt-24 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg'>
-        <div className='flex justify-center mb-8 text-2xl font-bold md:text-3xl '>
+      <div className="inline-block max-w-sm px-2 py-8 mt-24 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+        <div className="flex justify-center mb-8 text-2xl font-bold md:text-3xl ">
           Do you want to play?
         </div>
-        <div className='flex w-auto space-x-8 rounded-md lg:space-x-24'>
+        <div className="flex w-auto space-x-8 rounded-md lg:space-x-24">
           <NavLink
             className={buttonClassname}
-            to='game/matchmaking'
+            to="game/matchmaking"
             onClick={() => fastGame()}
           >
             <span className={textButtonClassname}>Fast Game</span>
           </NavLink>
           <NavLink
             className={buttonClassname}
-            to='game/create'
+            to="game/create"
             onClick={() => createGame()}
           >
             <span className={textButtonClassname}>Create Game</span>
           </NavLink>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const displayMatchesList = () => {
-
     if (matchList.length) {
       return (
         <ul>
@@ -99,7 +98,7 @@ function GameHome() {
                   link={match.idMatch}
                 />
               </li>
-            )
+            );
           })}
           {/* <li key={1}>
                     <CurrentMatchItem
@@ -120,15 +119,13 @@ function GameHome() {
                     />
                   </li> */}
         </ul>
-      )
+      );
     } else {
       return (
-        <div className='font-semibold'>
-          There is no live game for now.
-        </div>
-      )
+        <div className="font-semibold">There is no live game for now.</div>
+      );
     }
-  }
+  };
 
   const displayCurrentGames = () => {
     return (
@@ -140,13 +137,13 @@ function GameHome() {
           </section>
         </div>
       </section>
-    )
-  }
+    );
+  };
 
   getAllCurrentMatches();
 
   return (
-    <div className='grid justify-center'>
+    <div className="grid justify-center">
       {displayHomeGamePannel()}
       {displayCurrentGames()}
     </div>

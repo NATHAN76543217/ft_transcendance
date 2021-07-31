@@ -1,36 +1,12 @@
-import { useReducer } from "react";
 import { Route, Switch } from "react-router";
 
 import GameCreate from "./gameCreate";
 import GameHome from "./gameHome";
 import GameMatchmaking from "./gameMatchmaking";
-import { defaultGameState, defaultRuleset, GameContext } from "../context";
-import { Ruleset } from "../../../models/game/Ruleset.dto";
+import { GameContext } from "../context";
 import { Pong } from "./pong";
-import { GameState } from "../../../models/game/GameState";
-
-export enum Action {}
-
-function stateReducer(state: GameState, action: { type: Action }) {
-  switch (action.type) {
-    default:
-      return state;
-  }
-}
-
-function rulesetReducer(state: Ruleset, action: { type: Action }) {
-  switch (action.type) {
-    default:
-      return state;
-  }
-}
-
-function playerIdsReducer(state: number[], action: { type: Action }) {
-  switch (action.type) {
-    default:
-      return state;
-  }
-}
+import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 // Stuff TO DO:
 // 1) Implement pages swiching
@@ -38,23 +14,39 @@ function playerIdsReducer(state: number[], action: { type: Action }) {
 // 3) End Matchmaking
 // 4) Build a pong engine & render
 
+function getGameSocket() {
+  console.log("Initiating game-socket connection...");
+
+  const socket = io("", {
+    path: "/api/socket.io/matches",
+    rejectUnauthorized: false, // This disables certificate authority verification
+    withCredentials: true,
+  }).on("authenticated", () => {
+    console.log("Game-socket connection authenticated!");
+  });
+
+  return socket;
+}
+
 function Game() {
-  const [state, stateDispatch] = useReducer(stateReducer, defaultGameState);
-  const [ruleset, rulesSetDispatch] = useReducer(
-    rulesetReducer,
-    defaultRuleset
-  );
-  const [playerIds, playerIdsDispatch] = useReducer(playerIdsReducer, []);
+  const [gameSocket, setGameSocket] = useState<Socket | undefined>(undefined);
+
+  useEffect(() => {
+    const socket = getGameSocket();
+
+    setGameSocket(socket);
+
+    return () => {
+      socket?.close();
+    };
+  }, []);
 
   console.log("Game is present");
 
   return (
     <GameContext.Provider
       value={{
-        ruleset,
-        rulesSetDispatch,
-        playerIds,
-        playerIdsDispatch,
+        gameSocket,
       }}
     >
       <div className="">

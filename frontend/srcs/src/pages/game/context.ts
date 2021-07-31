@@ -1,22 +1,10 @@
-import React, { createContext } from "react";
-import { Socket } from "socket.io-client";
 import { Ruleset } from "../../models/game/Ruleset.dto";
-import { IVector2D } from "../../models/game/Vector2D";
 import { defaultBall } from "../../models/game/Ball";
-import { Action } from "./pages/game";
 import { GameState, GameStatus } from "../../models/game/GameState";
-
-export const canvasDims: IVector2D = {
-  x: 1600,
-  y: 900,
-};
-
+import { Socket } from "socket.io-client";
+import { createContext } from "react";
 export interface IGameContext {
   gameSocket?: Socket;
-  ruleset: Ruleset;
-  rulesSetDispatch?: React.Dispatch<{ type: Action }>;
-  playerIds: number[];
-  playerIdsDispatch?: React.Dispatch<{ type: Action }>;
 }
 
 export const defaultRuleset: Ruleset = {
@@ -31,7 +19,4 @@ export const defaultGameState: GameState = {
   ball: defaultBall,
 };
 
-export const GameContext = createContext<IGameContext>({
-  ruleset: defaultRuleset,
-  playerIds: [],
-});
+export const GameContext = createContext<IGameContext>({});

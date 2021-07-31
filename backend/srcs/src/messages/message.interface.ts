@@ -8,5 +8,5 @@ export default interface Message {
   created_at: Date;
   updated_at: Date;
   type: MessageType;
-  text: string;
+  data: string;
 }

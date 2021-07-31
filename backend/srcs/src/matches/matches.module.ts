@@ -4,22 +4,19 @@ import MatchesService from './matches.service';
 import Match from './matches.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChannelsModule } from 'src/channels/channels.module';
-/* import {
-    PongGateway
-} from "../pong/gateway"
-
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-/* Global TODOs:
-	- Better (js) syntax in MatchesService's functions.
-	- Test the functionality of the module
-*/
+import { MatchesGateway } from './matches.gateway';
+import { AuthenticationModule } from 'src/authentication/authentication.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Match]), ChannelsModule],
+  imports: [
+    TypeOrmModule.forFeature([Match]),
+    AuthenticationModule,
+    ChannelsModule,
+  ],
   controllers: [MatchesControler],
   providers: [
     MatchesService,
+    MatchesGateway,
     //PongGateway
   ],
   exports: [MatchesService],

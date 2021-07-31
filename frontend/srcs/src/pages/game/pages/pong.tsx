@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { RouteComponentProps } from "react-router";
 import AppContext from "../../../AppContext";
 import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
@@ -17,76 +17,88 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const { user } = useContext(AppContext);
   const gameContext = useContext(GameContext);
 
-  const canvasId: string = "pongCanvas";
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
-  const canvas: HTMLCanvasElement | null = document.getElementById(
-    canvasId
-  ) as HTMLCanvasElement;
-  if (canvas === null) throw new Error(); // TO DO
-  const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
-  if (ctx === null) throw new Error(); // TO DO
+  useEffect(() => {
+    if (canvasRef.current !== null)
+      ctx.current = canvasRef.current.getContext("2d");
+  }, []);
 
-  let state: GameState;
+  useEffect(() => {
+    if (
+      gameContext.gameSocket === undefined ||
+      canvasRef.current === null ||
+      ctx.current === null
+    )
+      return;
 
-  let animationId: number | undefined = undefined;
+    let state: GameState;
+    let animationId: number | undefined = undefined;
+    let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
 
-  const onReceiveGameStatus = (st: GameState) => {
-    state = st;
-    if (animationId !== undefined) {
-      if (state.status === GameStatus.RUNNING) {
-        animationId = requestAnimationFrame(frame);
-      } else {
-        cancelAnimationFrame(animationId);
-        animationId = undefined;
-      }
-    }
-  };
+    const onJoined = (data: GameJoinedDto) => {
+      if (data.role === GameRole.Player) {
+        canvasRef.current!.addEventListener("mousemove", (event: any) => {
+          const rect = canvasRef.current!.getBoundingClientRect();
 
-  const onJoined = (data: GameJoinedDto) => {
-    if (data.role === GameRole.Player) {
-      canvas.addEventListener("mousemove", (event: any) => {
-        const rect = canvas.getBoundingClientRect();
+          const player = state.players.find((player) => player.id === user?.id);
 
-        const player = state.players.find((player) => player.id === user?.id);
+          if (player) {
+            player.y = event.clientY - rect.top - player.height / 2;
+          }
 
-        if (player) {
-          player.y = event.clientY - rect.top - player.height / 2;
-        }
-
-        gameContext.gameSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
-          x: event.clientX,
-          y: event.clientY,
+          gameContext.gameSocket?.volatile.emit(
+            ServerMessages.UPDATE_MOUSE_POS,
+            {
+              x: event.clientX,
+              y: event.clientY,
+            }
+          );
         });
-      });
-    }
-  };
+      }
+    };
 
-  const deleteSubscribedListeners = () => {
-    if (gameContext.gameSocket)
-      gameContext.gameSocket.off(
+    const onReceiveGameStatus = (st: GameState) => {
+      state = st;
+      if (animationId !== undefined) {
+        if (state.status === GameStatus.RUNNING) {
+          animationId = requestAnimationFrame(frame);
+        } else {
+          cancelAnimationFrame(animationId);
+          animationId = undefined;
+        }
+      }
+    };
+
+    const deleteSubscribedListeners = () => {
+      if (updateIntervalHandle) {
+        clearInterval(updateIntervalHandle);
+      }
+      gameContext.gameSocket?.off(
         ClientMessages.RECEIVE_ST,
         onReceiveGameStatus
       );
-  };
+    };
 
-  useEffect(() => {
+    const frame = () => {
+      renderize(state, ctx.current!);
+      requestAnimationFrame(frame);
+    };
+
+    updateIntervalHandle = setInterval(() => {
+      pongEngine(state);
+    }, 60 * 1000);
+
     gameContext.gameSocket
       ?.on(ClientMessages.JOINED, onJoined)
       .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus);
+
     return deleteSubscribedListeners;
-  }, [gameContext.gameSocket]);
-
-  setInterval(() => {
-    pongEngine(state);
-  }, 60 * 1000);
-
-  const frame = () => {
-    renderize(state, ctx);
-    requestAnimationFrame(frame);
-  };
+  }, [user?.id, gameContext.gameSocket]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
   // TO DO: Impose a size using canvasDims
-  return <canvas id={canvasId} className="" />;
+  return <canvas ref={canvasRef} className="" />;
 }
