@@ -292,7 +292,8 @@ class App extends React.Component<AppProps, AppState> {
 
   updateOneRelationshipStatus = async (
     user_id: number,
-    newStatus: UserStatus
+    newStatus: UserStatus,
+    roomId?: number
   ) => {
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
@@ -304,6 +305,7 @@ class App extends React.Component<AppProps, AppState> {
       }
       if (Number(newStatus) !== Number(UserStatus.Null)) {
         a[index].user.status = newStatus;
+        a[index].user.roomId = roomId
         this.setState({ relationshipsList: a });
       }
     }
@@ -533,7 +535,7 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     socket.on("statusChanged", (data: any) => {
-      this.updateOneRelationshipStatus(data.user_id, data.status);
+      this.updateOneRelationshipStatus(data.user_id, data.status, data.roomId);
     });
 
     socket.on("message-user", (message: Message) => {

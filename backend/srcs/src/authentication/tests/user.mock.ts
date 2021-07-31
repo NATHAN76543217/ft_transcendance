@@ -16,6 +16,7 @@ export const mockedUser: User = {
   twoFactorAuthEnabled: false,
   firstConnection: true,
   status: UserStatus.null,
+  roomId: 1,
   role: UserRole.User,
   channels: [],
   // messages: [],

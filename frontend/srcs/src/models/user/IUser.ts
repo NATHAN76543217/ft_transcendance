@@ -39,6 +39,7 @@ export type IUser = {
   twoFactorAuthEnabled: boolean;
   firstConnection: boolean;
   status: UserStatus;
+  roomId?: number
   role: UserRole;
   channels: UserChannelRelationship[];
 };

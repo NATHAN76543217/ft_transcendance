@@ -122,6 +122,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           canWatch={statusFilter === UserStatus.InGame}
           isFriend
           gameInvite={relation.gameInvite}
+          roomId={relation.user.roomId}
         />
       );
     } else {

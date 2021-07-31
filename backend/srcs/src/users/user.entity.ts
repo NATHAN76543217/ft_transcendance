@@ -68,6 +68,8 @@ class User {
 
   public status: UserStatus;
 
+  public roomId: number;
+
   public jwt: string;
 }
 export default User;

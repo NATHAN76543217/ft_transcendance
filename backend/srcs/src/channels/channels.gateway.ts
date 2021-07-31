@@ -143,6 +143,22 @@ export class ChannelsGateway
     }
   }
 
+  @SubscribeMessage('startGame-front')
+  async handleStatusUpdateAtGameStart(
+    @ConnectedSocket() socket: SocketWithUser,
+    @MessageBody() body: {roomId: number},
+  ) {
+    this.broadcastStatusChange(socket, UserStatus.inGame, body.roomId);
+  }
+
+  @SubscribeMessage('endGame-front')
+  async handleStatusUpdateAtGameEnd(
+    @ConnectedSocket() socket: SocketWithUser,
+    @MessageBody() body: {roomId: number},
+  ) {
+    this.broadcastStatusChange(socket, UserStatus.online);
+  }
+
   @SubscribeMessage('updateRelationship-front')
   async handleUpdateRelationship(
     @ConnectedSocket() socket: SocketWithUser,
@@ -426,8 +442,9 @@ export class ChannelsGateway
     } catch (error) {}
   }
 
-  async broadcastStatusChange(socket: SocketWithUser, status: UserStatus) {
+  async broadcastStatusChange(socket: SocketWithUser, status: UserStatus, roomId?: number ) {
     this.usersService.setUserStatus(socket.user.id, status);
+    this.usersService.setUserRoom(socket.user.id, roomId);
 
     const rels =
       await this.userRelationshipService.getAllUserRelationshipsFromOneUser(
@@ -445,6 +462,7 @@ export class ChannelsGateway
         socket.to(otherId).emit('statusChanged', {
           user_id: socket.user.id,
           status,
+          roomId
         });
       });
   }

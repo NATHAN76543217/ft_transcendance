@@ -26,6 +26,7 @@ import { ChannelMode } from 'src/channels/utils/channelModeTypes';
 @Injectable()
 export default class UsersService {
   private userStates = new Map<number, UserStatus>();
+  private userRooms = new Map<number, number>();
 
   constructor(
     @InjectRepository(User)
@@ -48,6 +49,19 @@ export default class UsersService {
 
   private joinUserStatus(user: User) {
     user.status = this.getUserStatus(user.id);
+  }
+
+  setUserRoom(userId: number, roomId?: number) {
+    if (roomId || !this.userRooms.delete(userId))
+      this.userRooms.set(userId, roomId);
+  }
+
+  getUserRoom(userId: number) {
+    return this.userRooms.get(userId) || 0;
+  }
+
+  private joinUserRoom(user: User) {
+    user.roomId = this.getUserRoom(user.id);
   }
 
   async enableTwoFactorAuthentication(userId: number) {
@@ -129,7 +143,11 @@ export default class UsersService {
       });
     }
 
-    users.forEach((user) => this.joinUserStatus(user));
+    users.forEach((user) => {
+      this.joinUserStatus(user)
+      this.joinUserRoom(user)
+    });
+
 
     return users;
   }
@@ -145,6 +163,7 @@ export default class UsersService {
 
     if (user) {
       user.status = this.getUserStatus(user.id);
+      user.roomId = this.getUserRoom(user.id);
       if (user.channels) {
         let len = user.channels.length;
         while (--len >= 0) {

@@ -1,5 +1,7 @@
 import axios from "axios";
-import { Link, useHistory } from "react-router-dom";
+// import React, { useContext } from "react";
+import { Link, NavLink, useHistory } from "react-router-dom";
+// import AppContext from "../../AppContext";
 import { Message } from "../../models/channel/Channel";
 import { CreateGameDto } from "../../models/game/CreateGame.dto";
 import { Match } from "../../models/game/Match";
@@ -14,6 +16,7 @@ type FriendsProps = {
   canWatch?: boolean;
   isFriend?: boolean;
   gameInvite?: Message;
+  roomId?: number;
 };
 
 function FriendItem({
@@ -24,9 +27,11 @@ function FriendItem({
   canInvite,
   canWatch,
   isFriend,
-  gameInvite
+  gameInvite,
+  roomId
 }: FriendsProps) {
   const history = useHistory();
+  // const { channelSocket: socket } = useContext(AppContext);
 
   let path =
     imgPath === ""
@@ -88,7 +93,6 @@ function FriendItem({
               " bg-purple-300 hover:bg-purple-400" +
               " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
             }
-            // href={ url }
             onClick={() => inviteFriendToPlay()}
           >
             Invite to play
@@ -103,7 +107,6 @@ function FriendItem({
                 " bg-green-300 hover:bg-green-400 text-xs" +
                 " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
               }
-              // href={ url }
               onClick={() => acceptGameRequest()}
             >
               Accept game request
@@ -117,7 +120,6 @@ function FriendItem({
                 " bg-red-400 hover:bg-red-500" +
                 " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
               }
-              // href={ url }
               onClick={() => cancelGameRequest()}
             >
               Cancel game request
@@ -131,17 +133,16 @@ function FriendItem({
   const displayWatchButton = () => {
     if (canWatch) {
       return (
-        <button
+        <NavLink
           className={
             "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
             " bg-yellow-300 hover:bg-yellow-400" +
             " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
           }
-          // href={ url }
-          onClick={() => inviteFriendToPlay()}
+          to={`/game/${roomId}`}
         >
           {"Watch the game"}
-        </button>
+        </NavLink>
       );
     }
   };
