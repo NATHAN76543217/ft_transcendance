@@ -19,7 +19,7 @@ import * as bcrypt from 'bcrypt';
 import UserNameInvalid from './exception/UserNameInvalid.exception';
 import { ChannelRelationshipType } from 'src/channels/relationships/channel-relationship.type';
 import { UserStatus } from './utils/userStatus';
-import { Message } from 'src/messages/message.entity';
+import { Message, MessageType } from 'src/messages/message.entity';
 import ChannelsService from 'src/channels/channels.service';
 import { ChannelMode } from 'src/channels/utils/channelModeTypes';
 
@@ -313,7 +313,7 @@ export default class UsersService {
     });
   }
 
-  async getMessagesById(
+  async getMessagesByIds(
     user1_id: number,
     user2_id: number,
     beforeId?: number,
@@ -338,5 +338,29 @@ export default class UsersService {
       query.andWhere('message.id > :afterId', { afterId });
 
     return query.getMany();
+  }
+
+  async getGameInviteById(
+    user1_id: number,
+    user2_id: number,
+  ) {
+
+    const query = this.messageRepository
+      // .createQueryBuilder('message')
+      // .where('message.receiver_id = :user1_id', { user1_id })
+      // .andWhere('message.sender_id = :user2_id', { user2_id })
+      // .orWhere('message.receiver_id = :user2_id', { user2_id })
+      // .andWhere('message.sender_id = :user1_id', { user1_id })
+      // .andWhere('message.type = :type', { type: MessageType.GameInvite })
+      // .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
+
+      .createQueryBuilder('message')
+      .where('message.receiver_id = :user1_id AND message.sender_id = :user2_id AND message.type = :type', { user1_id, user2_id, type: MessageType.GameInvite })
+      .orWhere('message.receiver_id = :user2_id AND message.sender_id = :user1_id AND message.type = :type', { user1_id, user2_id, type: MessageType.GameInvite })
+      // .andWhere('message.type = :type', { type: MessageType.GameInvite })
+      .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
+
+      return query.getOne();
+      // return query.getMany();
   }
 }

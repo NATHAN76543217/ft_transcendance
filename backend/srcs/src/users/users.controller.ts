@@ -72,7 +72,7 @@ export default class UsersController {
       return [];
     }
 
-    const messages = await this.usersService.getMessagesById(
+    const messages = await this.usersService.getMessagesByIds(
       Number(user1_id),
       Number(user2_id),
       beforeId ? Number(beforeId) : undefined,
@@ -82,6 +82,25 @@ export default class UsersController {
     return messages;
     // throw new HttpException('TODO: Unauthorized read', 400);
   }
+
+
+  @Get(':id1/:id2/gameInvite')
+  async getGameInviteMessagesById(
+    @Req() req: RequestWithUser,
+    @Param('id1') user1_id: string,
+    @Param('id2') user2_id: string,
+  ) {
+    console.log('get ::id1/:id2/gameInvite - begin');
+
+    const gameInvite = await this.usersService.getGameInviteById(
+      Number(user1_id),
+      Number(user2_id),
+    );
+    console.log('gameInvite', gameInvite);
+    return gameInvite;
+    // throw new HttpException('TODO: Unauthorized read', 400);
+  }
+
 
   @Get(':id')
   getUserById(@Req() req: RequestWithUser, @Param('id') id: FindOneParam) {

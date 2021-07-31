@@ -16,6 +16,7 @@ import * as bcrypt from 'bcrypt';
 import ChannelWrongPassword from './exception/ChannelWrongPassword.exception';
 import { Message } from 'src/messages/message.entity';
 import CreateMessageDto from 'src/messages/dto/createMessage.dto';
+import MessageService from 'src/messages/messages.service';
 
 @Injectable()
 export default class ChannelsService {
@@ -26,6 +27,8 @@ export default class ChannelsService {
     private readonly channelRelationshipRepository: Repository<ChannelRelationship>,
     @InjectRepository(Message)
     private readonly messageRepository: Repository<Message>,
+    // @InjectRepository(MessageService)
+    private readonly messageService: MessageService,
     @Inject(forwardRef(() => ChannelsGateway))
     private readonly channelsGateway: ChannelsGateway,
   ) {}
@@ -255,6 +258,7 @@ export default class ChannelsService {
   }
 
   async sendUserMessage(senderId: number, message: CreateMessageDto) {
-    this.channelsGateway.sendUserMessage(senderId, message);
+    const newMessage = await this.messageService.createMessage(message, senderId);
+    this.channelsGateway.sendUserMessage(senderId, message, newMessage.id);
   }
 }

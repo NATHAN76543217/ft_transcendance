@@ -7,7 +7,7 @@ import { IMatch } from "../../../models/match/IMatch";
 function GameHome() {
   const [matchList, setMatchList] = useState<IMatch[]>([]);
 
-  const getPlayerName = async (user_id: string) => {
+  const getPlayerName = async (user_id: number) => {
     try {
       const dataUser = await axios.get(`/api/users/${user_id}`);
       console.log("dataUser", dataUser);
@@ -24,8 +24,8 @@ function GameHome() {
       console.log(`current matches`, dataMatches);
       let a = dataMatches.data.slice();
       a.map(async (match) => {
-        match.playerNameA = await getPlayerName(match.idPlayerOne);
-        match.playerNameB = await getPlayerName(match.idPlayerTwo);
+        match.playerNames[0] = await getPlayerName(match.player_ids[0]);
+        match.playerNames[1] = await getPlayerName(match.player_ids[1]);
       });
       if (JSON.stringify(a) !== JSON.stringify(matchList)) {
         setMatchList(a);
@@ -89,13 +89,13 @@ function GameHome() {
         <ul>
           {matchList.map((match) => {
             return (
-              <li key={match.idMatch}>
+              <li key={match.id}>
                 <CurrentMatchItem
-                  playerA={match.playerNameA}
-                  playerB={match.playerNameB}
-                  scoreA={match.scorePlayerOne}
-                  scoreB={match.scorePlayerTwo}
-                  link={match.idMatch}
+                  playerA={match.playerNames[0]}
+                  playerB={match.playerNames[1]}
+                  scoreA={match.scores[0]}
+                  scoreB={match.scores[1]}
+                  id={match.id}
                 />
               </li>
             );

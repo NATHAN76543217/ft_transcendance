@@ -21,7 +21,7 @@ export default class MatchesService {
     private channelsService: ChannelsService,
     @Inject(forwardRef(() => MatchesGateway))
     private matchesGateway: MatchesGateway,
-  ) {}
+  ) { }
 
   public async getAllMatches(): Promise<Match[]> {
     const matches = await this.matchesRepository.find();
@@ -41,9 +41,11 @@ export default class MatchesService {
   ): Promise<Match[]> {
     return this.matchesRepository
       .createQueryBuilder('match')
-      .where('match.player_ids @> :playerId', { playerId })
-      .orderBy('match.startedAt')
+      .where('match.player_ids @> :playerId', { playerId: [playerId] })
+      // .where('match.player_ids = :playerId', { playerId })
+      .orderBy('match.startedAt', 'DESC')
       .take(count)
+      .orderBy('match.startedAt', 'ASC')
       .getMany();
   }
 
@@ -101,7 +103,7 @@ export default class MatchesService {
     match: CreateMatchDto,
   ): Promise<Match> {
     const newMatch = await this.matchesRepository.save(
-      this.matchesRepository.create({}),
+      this.matchesRepository.create({player_ids: [hostId, ...match.guests]}),
     );
 
     Logger.debug(`Created match: ${JSON.stringify(newMatch)}}`);
@@ -109,9 +111,11 @@ export default class MatchesService {
     match.guests.forEach((guestId) => {
       Logger.debug(`Inviting ${guestId}...`);
       this.channelsService.sendUserMessage(hostId, {
+        channel_id: 1,
         type: MessageType.GameInvite,
         data: newMatch.id.toFixed(),
         receiver_id: guestId,
+        sender_id: hostId
       });
     });
 
@@ -123,7 +127,28 @@ export default class MatchesService {
   }
 
   public async deleteMatch(id: number) {
-    const deleteResponse = await this.matchesRepository.delete(id);
-    if (!deleteResponse.affected) throw new MatchNotFound(id);
+    try {
+      const match = await this.getMatchById(id);
+      console.log('match to delete', match)
+      const deleteResponse = await this.matchesRepository.delete(id);
+      if (!deleteResponse.affected) {
+        throw new MatchNotFound(id);
+      }
+      match.player_ids.forEach((player_id) => {
+        Logger.debug(`Deleting invitation ${player_id}...`);
+        if (player_id !== match.player_ids[0]) {
+          this.channelsService.sendUserMessage(match.player_ids[0], {
+            channel_id: 1,
+            type: MessageType.GameCancel,
+            data: id.toFixed(),
+            receiver_id: player_id,
+            sender_id: match.player_ids[0]
+          });
+        }
+      });
+    } catch (e) {
+      console.log(e)
+      throw new MatchNotFound(id);
+    }
   }
 }

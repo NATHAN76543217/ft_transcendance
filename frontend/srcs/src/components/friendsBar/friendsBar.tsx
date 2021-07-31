@@ -121,6 +121,7 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
           canInvite={statusFilter === UserStatus.Online}
           canWatch={statusFilter === UserStatus.InGame}
           isFriend
+          gameInvite={relation.gameInvite}
         />
       );
     } else {
@@ -181,11 +182,11 @@ function FriendsBar(props: { logged: boolean, relationshipsList: AppUserRelation
     return (
       <div className='h-screen '>
         <div className='z-50 h-screen border-l-2 border-gray-300 group duration-800 transition-width delay-0'>
-          <div className='flex-none hidden w-48 md:block'>
+          <div className='flex-none hidden w-56 md:block'>
 
           </div>
           <div className="absolute right-0 z-50 flex-none hidden h-screen border-l-2 border-gray-300 md:block group-hover:block">
-            <aside className="w-48 h-screen bg-neutral">
+            <aside className="w-56 h-screen bg-neutral">
               <header>
                 <h2 className="py-4 text-2xl text-center first-letter:uppercase bg-secondary">
                   my friendlist
