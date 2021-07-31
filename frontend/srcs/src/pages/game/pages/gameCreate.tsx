@@ -31,6 +31,11 @@ function GameCreate() {
   useEffect(() => {
     gameContext.gameSocket?.on(ClientMessages.NOTIFY, onNotify)
     .on(ClientMessages.GUEST_REJECTION, quitToHome);
+
+    return () => {
+      gameContext.gameSocket?.off(ClientMessages.NOTIFY, onNotify)
+        .off(ClientMessages.GUEST_REJECTION, quitToHome);
+    };
   }, []);
 
   const {

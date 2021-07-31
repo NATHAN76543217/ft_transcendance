@@ -129,6 +129,17 @@ export class Room implements GameRoom {
 
   setMousePos(playerId: number, mousePos: Vector2D) {
     const player = this.getPlayer(playerId);
+    if (this.ruleset.size == 4)
+    {
+      const index = this.playerIds.findIndex(id => id === playerId);
+      if (index === -1)
+        throw new Error();
+      if (index === 0 || index == 2) {
+        player.y = (canvasDims.y / 2) - (player.height / 2) ? (canvasDims.y / 2) - (player.height / 2) : player.y;
+      } else {
+        player.y = (canvasDims.y / 2) + (player.height / 2) ? (canvasDims.y / 2) + (player.height / 2) : player.y;
+      }
+    }
     player.y = mousePos.y;
   }
 
@@ -190,6 +201,7 @@ export class Room implements GameRoom {
 
       this.endTimeoutHandle = setTimeout(() => {
         this.setStatus(GameStatus.FINISHED);
+        this.onGameFinished();
       }, this.ruleset.duration - this.state.elapsed * 60);
     }
   }
@@ -202,6 +214,8 @@ export class Room implements GameRoom {
     clearInterval(this.engineIntervalHandle);
     clearInterval(this.updateIntervalHandle);
     clearInterval(this.endTimeoutHandle);
+
+    this.matchesGateway.onDisconnectClients(this.matchId);
   }
 
   onGameFinished() {

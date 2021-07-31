@@ -31,3 +31,7 @@ frontend/srcs/src/css/main.css
 
 # uploaded files
 backend/srcs/uploads
+
+# docker-reset-debug-script
+freeDocker.sh
+resetDocker.sh
