@@ -8,6 +8,7 @@ export default class CreateMessageDto {
   @IsOptional()
   @IsNumber()
   receiver_id?: number;
+  sender_id?: number;
   type: MessageType;
   @IsString()
   data: string;

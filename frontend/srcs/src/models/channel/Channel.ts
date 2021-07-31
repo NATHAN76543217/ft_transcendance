@@ -28,6 +28,7 @@ export type ChannelUserRelationship =
 export enum MessageType {
   Text,
   GameInvite,
+  GameCancel,
   GameSpectate,
   FriendInvite,
   RoleUpdate,

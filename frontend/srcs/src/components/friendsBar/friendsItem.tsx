@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Link, useHistory } from "react-router-dom";
+import { Message } from "../../models/channel/Channel";
 import { CreateGameDto } from "../../models/game/CreateGame.dto";
 import { Match } from "../../models/game/Match";
 import { UserStatus } from "../../models/user/IUser";
@@ -12,6 +13,7 @@ type FriendsProps = {
   canInvite?: boolean;
   canWatch?: boolean;
   isFriend?: boolean;
+  gameInvite?: Message;
 };
 
 function FriendItem({
@@ -22,6 +24,7 @@ function FriendItem({
   canInvite,
   canWatch,
   isFriend,
+  gameInvite
 }: FriendsProps) {
   const history = useHistory();
 
@@ -34,7 +37,7 @@ function FriendItem({
 
   const displayProfilePicture = () => {
     return (
-      <Link className="inline w-10 h-10 mx-4 my-auto " to={friendUrl}>
+      <Link className="inline w-10 h-10 mx-2 my-auto " to={friendUrl}>
         <img src={path} alt="friends_1_avatar" className="rounded-full " />
       </Link>
     );
@@ -54,21 +57,74 @@ function FriendItem({
     }
   };
 
+  const acceptGameRequest = async () => {
+    console.log("Accepting game invitation");
+    if (gameInvite) {
+      history.push(`/game/${gameInvite.id}`);
+    }
+  };
+
+  const cancelGameRequest = async () => {
+    try {
+      if (gameInvite) {
+        await axios.delete(`/api/matches/${gameInvite.data}`);
+        await axios.delete(`/api/messages/${gameInvite.id}`);
+        console.log("Game invitation deleted");
+        // history.push(`/game/${response.data.id}`);
+      }
+      } catch (e) {
+      console.error(e);
+    }
+  };
+
   const displayInviteButton = () => {
     if (canInvite) {
-      return (
-        <button
-          className={
-            "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
-            " bg-purple-300 hover:bg-purple-400" +
-            " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
-          }
-          // href={ url }
-          onClick={() => inviteFriendToPlay()}
-        >
-          Invite to play
-        </button>
-      );
+      if (!gameInvite) {
+
+        return (
+          <button
+            className={
+              "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+              " bg-purple-300 hover:bg-purple-400" +
+              " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+            }
+            // href={ url }
+            onClick={() => inviteFriendToPlay()}
+          >
+            Invite to play
+          </button>
+        );
+      } else {
+        if (gameInvite.sender_id === id) {
+          return (
+            <button
+              className={
+                "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+                " bg-green-300 hover:bg-green-400 text-xs" +
+                " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+              }
+              // href={ url }
+              onClick={() => acceptGameRequest()}
+            >
+              Accept game request
+            </button>
+          );
+        } else {
+          return (
+            <button
+              className={
+                "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+                " bg-red-400 hover:bg-red-500" +
+                " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+              }
+              // href={ url }
+              onClick={() => cancelGameRequest()}
+            >
+              Cancel game request
+            </button>
+          );
+        }
+      }
     }
   };
 

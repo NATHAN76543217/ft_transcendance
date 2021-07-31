@@ -496,12 +496,12 @@ export class ChannelsGateway
     }
   }
 
-  sendUserMessage(senderId: number, messageData: CreateMessageDto) {
+  sendUserMessage(senderId: number, messageData: CreateMessageDto, messageId: number = 0) {
     const message: Message = {
       channel_id: 1,
       created_at: new Date(),
       updated_at: new Date(),
-      id: 0,
+      id: messageId,
       sender_id: senderId,
       receiver_id: Number(messageData.receiver_id),
       data: messageData.data,
@@ -511,6 +511,9 @@ export class ChannelsGateway
     if (!isNaN(message.receiver_id)) {
       this.server
         .to(message.receiver_id.toFixed())
+        .emit('message-user', message);
+
+        this.server
         .emit('message-user', message);
     }
   }

@@ -243,9 +243,13 @@ class App extends React.Component<AppProps, AppState> {
               dataUser.data.status = UserStatus.Offline;
             }
             // console.log("dataUser", dataUser);
+            
+            const dataInvite = await axios.get(`/api/users/${this.state.user?.id}/${friendId}/gameInvite`);
+            console.log("dataInvite", dataInvite);
             a.push({
               user: dataUser.data,
               relationshipType: relation.type,
+              gameInvite: dataInvite.data
             });
             this.setState({ relationshipsList: a });
           } catch (error) {}
@@ -302,6 +306,24 @@ class App extends React.Component<AppProps, AppState> {
         a[index].user.status = newStatus;
         this.setState({ relationshipsList: a });
       }
+    }
+  };
+
+  updateOneRelationshipGameInvite = async (
+    message: Message
+  ) => {
+    const friendId = message.sender_id === this.state.user?.id ? message.receiver_id : message.sender_id;
+    let a = this.state.relationshipsList.slice();
+    let index = a.findIndex((relation: AppUserRelationship) => {
+      return Number(relation.user.id) === friendId;
+    });
+    if (index !== -1 && this.state.user) {
+      if (message.type === MessageType.GameInvite) {
+        a[index].gameInvite = message;
+      } else if (message.type === MessageType.GameCancel) {
+        a[index].gameInvite = undefined;
+      }
+        this.setState({ relationshipsList: a });
     }
   };
 
@@ -515,13 +537,15 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     socket.on("message-user", (message: Message) => {
-      if (message.type === MessageType.GameInvite) {
+      if (message.type === MessageType.GameInvite ||
+        message.type === MessageType.GameCancel) {
         console.log(
-          "Received invitation to",
+          "Received invitation or cancel to",
           message.data,
           "from",
           message.sender_id
         );
+        this.updateOneRelationshipGameInvite(message);
       }
     });
 

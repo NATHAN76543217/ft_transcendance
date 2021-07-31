@@ -13,6 +13,7 @@ import Channel from '../channels/channel.entity';
 export enum MessageType {
   Text,
   GameInvite,
+  GameCancel,
   GameSpectate,
   FriendInvite,
   RoleUpdate,

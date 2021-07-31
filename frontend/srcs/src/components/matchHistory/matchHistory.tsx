@@ -15,7 +15,7 @@ function MatchHistory(props: matchHistoryProps) {
   const [matchList, setMatchList] = useState<IMatch[]>([]);
 
 
-  const getPlayerName = async (user_id: string) => {
+  const getPlayerName = async (user_id: number) => {
     try {
       const dataUser = await axios.get(`/api/users/${user_id}`);
       console.log('dataUser', dataUser)
@@ -32,14 +32,14 @@ function MatchHistory(props: matchHistoryProps) {
       console.log(`matches for user ${props.id}`, dataMatches)
       let a = dataMatches.data.slice();
       a.map(async (match) => {
-        const inf = props.id === Number(match.idPlayerOne);
+        const inf = props.id === Number(match.player_ids[0]);
         if (inf) {
-          match.playerNameA = await getPlayerName(match.idPlayerTwo);
+          match.playerNames[0] = await getPlayerName(match.player_ids[1]);
         } else {
-          match.playerNameA = await getPlayerName(match.idPlayerOne);
-          const scoreTemp = match.scorePlayerOne;
-          match.scorePlayerOne = match.scorePlayerTwo;
-          match.scorePlayerTwo = scoreTemp;
+          match.playerNames[0] = await getPlayerName(match.player_ids[0]);
+          const scoreTemp = match.scores[0];
+          match.scores[0] = match.scores[1];
+          match.scores[1] = scoreTemp;
         }
       })
       if (JSON.stringify(a) !== JSON.stringify(matchList)) {
@@ -57,13 +57,11 @@ function MatchHistory(props: matchHistoryProps) {
         <ul className="">
             {matchList.map((match) => {
               return (
-                <li key={match.idMatch}>
+                <li key={match.id}>
                   <MatchHistoryItem
-                    playerA={props.name}
-                    playerB={match.playerNameA}
-                    scoreA={match.scorePlayerOne}
-                    scoreB={match.scorePlayerTwo}
-                    date={match.endTime.toString()}
+                    playerNames={[props.name,match.playerNames[0]]}
+                    scores={[match.scores[0],match.scores[1]]}
+                    date={match.endAt.toString()}
                   />
                 </li>
               )

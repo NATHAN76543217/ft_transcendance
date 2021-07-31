@@ -6,7 +6,7 @@ type CurrentMatchProps = {
     playerB: string,
     scoreA: number,
     scoreB: number,
-    link: string,
+    id: number,
 }
 
 function CurrentMatchItem(match: CurrentMatchProps) {
@@ -26,7 +26,7 @@ function CurrentMatchItem(match: CurrentMatchProps) {
 
                 <NavLink
                     className="flex-1 col-span-2 text-center"
-                    to={`game/${match.link}`}
+                    to={`game/${match.id}`}
                 >
                     <span className='italic break-words whitespace-pre-line md:whitespace-nowrap hover:underline'>Watch this
                     game</span>
