@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useEffect } from "react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import CurrentMatchItem from "../../../components/matchHistory/currentMatchItem";
@@ -8,26 +9,34 @@ function GameHome() {
   const [matchList, setMatchList] = useState<IMatch[]>([]);
 
   const getPlayerName = async (user_id: number) => {
+    console.log('getPlayerName', user_id)
     try {
       const dataUser = await axios.get(`/api/users/${user_id}`);
       console.log("dataUser", dataUser);
       return dataUser.data.name;
     } catch (error) {
       console.log(error);
-      return "Unknown player";
+      return "Unknown";
     }
   };
 
   const getAllCurrentMatches = async () => {
+
+console.log('-------------------------- getAllCurrentMatches -------------------------')
+
     try {
       const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
       console.log(`current matches`, dataMatches);
       let a = dataMatches.data.slice();
       a.map(async (match) => {
+        console.log('---------- start map ------------')
+        match.playerNames = [];
         match.playerNames[0] = await getPlayerName(match.player_ids[0]);
         match.playerNames[1] = await getPlayerName(match.player_ids[1]);
+        console.log('---------- end map ------------')
       });
       if (JSON.stringify(a) !== JSON.stringify(matchList)) {
+        console.log('a vs matchList', a, matchList)
         setMatchList(a);
       }
     } catch (error) {
@@ -84,10 +93,13 @@ function GameHome() {
   };
 
   const displayMatchesList = () => {
+console.log('..................displayMatchesList - matchList', matchList)
+
     if (matchList.length) {
       return (
         <ul>
           {matchList.map((match) => {
+            console.log('_____ match', match)
             return (
               <li key={match.id}>
                 <CurrentMatchItem
@@ -100,24 +112,6 @@ function GameHome() {
               </li>
             );
           })}
-          {/* <li key={1}>
-                    <CurrentMatchItem
-                      playerA={'123456789123456'}
-                      playerB={'jean'}
-                      scoreA={10}
-                      scoreB={5}
-                      link={'link'}
-                    />
-                  </li>
-                  <li key={2}>
-                    <CurrentMatchItem
-                      playerA={'bob'}
-                      playerB={'jean'}
-                      scoreA={10}
-                      scoreB={5}
-                      link={'link'}
-                    />
-                  </li> */}
         </ul>
       );
     } else {
@@ -128,6 +122,9 @@ function GameHome() {
   };
 
   const displayCurrentGames = () => {
+
+console.log('..................displayCurrentGames ')
+
     return (
       <section className="h-auto px-8 py-8 mt-8 border-2 border-gray-300 rounded-sm bg-neutral">
         <div>
@@ -140,7 +137,9 @@ function GameHome() {
     );
   };
 
-  getAllCurrentMatches();
+  useEffect(() => {
+    getAllCurrentMatches();
+  })
 
   return (
     <div className="grid justify-center">

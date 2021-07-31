@@ -10,10 +10,11 @@ type CurrentMatchProps = {
 }
 
 function CurrentMatchItem(match: CurrentMatchProps) {
+    console.log('CurrentMatchItem', match)
     return (
         <div className="grid justify-center grid-cols-3 p-4 my-2 whitespace-pre bg-gray-200 border-2 border-gray-300">
             <div className="grid flex-1 col-span-1 text-center ">
-                <span className="w-24 font-bold truncate md:w-40">{match.playerA}</span>
+                <span className="w-24 font-bold md:w-40">{match.playerA}</span>
             vs
             <span className="font-bold">{match.playerB}</span>
             </div>

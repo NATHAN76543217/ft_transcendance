@@ -50,11 +50,17 @@ export default class MatchesService {
   }
 
   public async getCurrentMaches(): Promise<Match[]> {
-    const currMatches = await this.matchesRepository.find({
-      where: { endAt: undefined },
-    });
-    if (currMatches) return currMatches;
-    throw new CurrMatchesNotFound();
+    return this.matchesRepository
+      .createQueryBuilder('match')
+      .where('match.endAt IS NULL')
+      .orderBy('match.startedAt', 'ASC')
+      .getMany();
+
+    // const currMatches = await this.matchesRepository.find({
+    //   where: { endAt: undefined },
+    // });
+    // if (currMatches) return currMatches;
+    // throw new CurrMatchesNotFound();
   }
 
   public async getCurrentMatchById(id: number) {

@@ -15,6 +15,6 @@ export default class Match {
   @Column({ nullable: true }) // TO DO: add timeout: @timestemp
   public readonly startedAt?: Date;
 
-  @Column({ nullable: true, default: undefined })
+  @Column({ nullable: true, default: null })
   public endAt?: Date;
 }

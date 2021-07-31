@@ -26,15 +26,21 @@ export default class MatchesControler {
     return this.matchesServices.getAllMatches();
   }
 
+  @Get('current')
+  public async getCurrentMatches() {
+    return this.matchesServices.getCurrentMaches();
+  }
+
+  @Get('user/:id')
+  public async getMatchesByPlayerId(@Param('id') id: string) {
+    return this.matchesServices.getMatchesByPlayerId(Number(id));
+  }
+
   @Get(':id')
   public async getMatchById(@Param('id') id: string) {
     return this.matchesServices.getMatchById(Number(id));
   }
 
-  @Get('current')
-  public async getCurrentMatches() {
-    return this.matchesServices.getCurrentMaches();
-  }
 
   /*   @Get('current/:id')
   public async getCurrentMatchesById(@Param('id') id: string) {
@@ -46,10 +52,6 @@ export default class MatchesControler {
     return this.matchesServices.getCurrentMatchesByPlayerId(id);
   } */
 
-  @Get('user/:id')
-  public async getMatchesByPlayerId(@Param('id') id: string) {
-    return this.matchesServices.getMatchesByPlayerId(Number(id));
-  }
 
   @Post()
   public async createMatch(
