@@ -18,6 +18,8 @@ export enum ClientMessages {
   JOINED = "client:joined",
   QUIT = 'client:quit',
   GUEST_REJECTION = "client:guestRejection",
+  GAME_START = "client:gameStart",
+  GAME_END = 'client:gameEnd',
 }
 
 export interface IAcknowledgement {
