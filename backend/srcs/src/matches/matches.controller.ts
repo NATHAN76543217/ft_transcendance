@@ -13,13 +13,17 @@ import {
 } from '@nestjs/common';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
+import UsersService from 'src/users/users.service';
 
 // TO DO: Should exclude "matches/user/" route
 
 @Controller('matches')
 @UseGuards(JwtTwoFactorGuard)
 export default class MatchesControler {
-  constructor(private readonly matchesServices: MatchesService) {}
+  constructor(
+    private readonly matchesServices: MatchesService,
+    private readonly usersServices: UsersService
+  ) { }
 
   @Get()
   public async getAllMatches() {
@@ -33,7 +37,8 @@ export default class MatchesControler {
 
   @Get('user/:id')
   public async getMatchesByPlayerId(@Param('id') id: string) {
-    return this.matchesServices.getMatchesByPlayerId(Number(id));
+    const matches = await this.matchesServices.getMatchesByPlayerId(Number(id));
+    return matches;
   }
 
   @Get(':id')

@@ -12,6 +12,7 @@ import { Room } from './room';
 import { MessageType } from 'src/messages/message.entity';
 import { CreateMatchDto } from './dto/createMatch.dto';
 import UpdateMatchDto from './dto/updateMatch.dto';
+import UsersService from 'src/users/users.service';
 
 @Injectable()
 export default class MatchesService {
@@ -28,6 +29,21 @@ export default class MatchesService {
     return matches;
   }
 
+  createMatchTest = async (id1: number, id2: number, sc1: number, sc2: number) => {
+    const match = this.matchesRepository.create({
+      player_ids: [id1, id2],
+      scores: [sc1, sc2],
+      startedAt: Date(),
+      endAt: Date()
+    });
+    this.matchesRepository.save(match);
+    console.log('getMatchesByPlayerId', match)
+  }
+
+  deleteMatchTest = (id: number) => {
+    this.matchesRepository.delete(id)
+  }
+
   public async getMatchById(id: number): Promise<Match> {
     const match = await this.matchesRepository.findOne(id);
     if (match) return match;
@@ -39,14 +55,23 @@ export default class MatchesService {
     playerId: number,
     count = 5,
   ): Promise<Match[]> {
-    return this.matchesRepository
+
+    // this.deleteMatchTest(18);
+    // this.createMatchTest(4, 3, 19, 8);
+    
+    // for (let i=48 ; i <= 54 ; i++) {this.deleteMatchTest(i);}
+
+    
+    const matches =  await this.matchesRepository
       .createQueryBuilder('match')
       .where('match.player_ids @> :playerId', { playerId: [playerId] })
       // .where('match.player_ids = :playerId', { playerId })
       .orderBy('match.startedAt', 'DESC')
       .take(count)
       .orderBy('match.startedAt', 'ASC')
-      .getMany();
+      .getMany()
+
+      return matches
   }
 
   public async getCurrentMaches(): Promise<Match[]> {

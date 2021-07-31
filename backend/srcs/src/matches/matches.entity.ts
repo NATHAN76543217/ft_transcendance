@@ -17,4 +17,5 @@ export default class Match {
 
   @Column({ nullable: true, default: null })
   public endAt?: Date;
+
 }

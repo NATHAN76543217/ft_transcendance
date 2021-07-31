@@ -6,5 +6,7 @@ export type IMatch = {
     scores : number[];
     startedAt: Date;
     endAt: Date;
+    // playerNameA: string;
+    // playerNameB: string;
     playerNames: string[];
 };

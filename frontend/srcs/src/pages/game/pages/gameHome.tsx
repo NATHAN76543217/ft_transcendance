@@ -22,7 +22,7 @@ function GameHome() {
 
   const getAllCurrentMatches = async () => {
 
-console.log('-------------------------- getAllCurrentMatches -------------------------')
+    console.log('-------------------------- getAllCurrentMatches -------------------------')
 
     try {
       const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
@@ -68,38 +68,37 @@ console.log('-------------------------- getAllCurrentMatches -------------------
 
   const displayHomeGamePannel = () => {
     return (
-      <div className="inline-block max-w-sm px-2 py-8 mt-24 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
-        <div className="flex justify-center mb-8 text-2xl font-bold md:text-3xl ">
-          Do you want to play?
-        </div>
-        <div className="flex w-auto space-x-8 rounded-md lg:space-x-24">
-          <NavLink
-            className={buttonClassname}
-            to="game/matchmaking"
-            onClick={() => fastGame()}
-          >
-            <span className={textButtonClassname}>Fast Game</span>
-          </NavLink>
-          <NavLink
-            className={buttonClassname}
-            to="game/create"
-            onClick={() => createGame()}
-          >
-            <span className={textButtonClassname}>Create Game</span>
-          </NavLink>
+      <div className='grid justify-center'>
+        <div className="inline-block max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+          <div className="flex justify-center mb-8 text-2xl font-bold md:text-3xl ">
+            Do you want to play?
+          </div>
+          <div className="flex w-auto space-x-8 rounded-md lg:space-x-24">
+            <NavLink
+              className={buttonClassname}
+              to="game/matchmaking"
+              onClick={() => fastGame()}
+            >
+              <span className={textButtonClassname}>Fast Game</span>
+            </NavLink>
+            <NavLink
+              className={buttonClassname}
+              to="game/create"
+              onClick={() => createGame()}
+            >
+              <span className={textButtonClassname}>Create Game</span>
+            </NavLink>
+          </div>
         </div>
       </div>
     );
   };
 
   const displayMatchesList = () => {
-console.log('..................displayMatchesList - matchList', matchList)
-
     if (matchList.length) {
       return (
         <ul>
           {matchList.map((match) => {
-            console.log('_____ match', match)
             return (
               <li key={match.id}>
                 <CurrentMatchItem
@@ -122,11 +121,8 @@ console.log('..................displayMatchesList - matchList', matchList)
   };
 
   const displayCurrentGames = () => {
-
-console.log('..................displayCurrentGames ')
-
     return (
-      <section className="h-auto px-8 py-8 mt-8 border-2 border-gray-300 rounded-sm bg-neutral">
+      <section className="h-auto px-8 py-4 my-8 border-2 border-gray-300 rounded-sm bg-neutral">
         <div>
           <h1 className="text-3xl font-bold text-center">Live games</h1>
           <section className="flex justify-center pt-4">
@@ -142,9 +138,12 @@ console.log('..................displayCurrentGames ')
   })
 
   return (
-    <div className="grid justify-center">
+    <div className="h-screen grid justify-center overflow-y-scroll">
+      <div className='mb-8'>
+
       {displayHomeGamePannel()}
       {displayCurrentGames()}
+      </div>
     </div>
   );
 }

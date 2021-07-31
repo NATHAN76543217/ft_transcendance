@@ -16,6 +16,7 @@ import { IAppContext } from "../../IAppContext";
 import Loading from "../../components/loading/loading";
 import { useModal } from "../../components/utilities/useModal";
 import { TwoFactorSetupModal } from "../../components/users/TwoFactorSetupModal";
+import { IMatch } from "../../models/match/IMatch";
 
 const onLoad = async (
   userId: number,
@@ -34,7 +35,7 @@ const onLoad = async (
         });
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 };
 
 // This has been replaced with two factor setup modal
@@ -114,6 +115,63 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     },
     usernameErrorMessage: "",
   });
+
+  const [matchList, setMatchList] = useState<{list: IMatch[]}>({list: []});
+
+  useEffect(() => {
+    const getPlayerName = async (user_id: number): Promise<string> => {
+      try {
+        const dataUser = await axios.get(`/api/users/${user_id}`);
+        // console.log('dataUser', dataUser)
+        return dataUser.data.name;
+      } catch (error) {
+        console.log(error);
+        return 'Unknown player'
+      }
+    }
+
+    const getAllMatches = async () => {
+      try {
+        const dataMatches = await axios.get<IMatch[]>(`/api/matches/user/${userId}`)
+        if (!dataMatches.data.length) {
+          setMatchList({list: []})
+          return ;
+        }
+        console.log(`matches for user ${userId}`, dataMatches)
+        let a: IMatch[] = [];
+        dataMatches.data.map(async (match, index) => {
+          const inf = userInfo.user.id === Number(match.player_ids[0]);
+          let playerNames: string[] = [];
+          if (inf) {
+            const nameA = await getPlayerName(match.player_ids[0]);
+            const nameB = await getPlayerName(match.player_ids[1]);
+            playerNames = [nameA, nameB]
+          } else {
+            const nameA = await getPlayerName(match.player_ids[0]);
+            const nameB = await getPlayerName(match.player_ids[1]);
+            playerNames = [nameB, nameA]
+            const scoreTemp = match.scores[0];
+            match.scores[0] = match.scores[1];
+            match.scores[1] = scoreTemp;
+          }
+          a[index] = {
+            id: match.id,
+            player_ids: match.player_ids,
+            scores: match.scores,
+            startedAt: match.startedAt,
+            endAt: match.endAt,
+            playerNames: playerNames
+          }
+          setMatchList({list: a})
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    getAllMatches();
+  }, [userInfo, userId]);
+
+
 
   const onSubmitChangeUsername = async (
     values: IUserChangeNameFormValues,
@@ -202,7 +260,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       if (oldImgPath !== "default-profile-picture.png") {
         await axios.delete("/api/photos/" + oldImgPath);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const updateOnLoad: any = useCallback(() => {
@@ -331,8 +389,8 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
   // const contextValue = React.useContext(AppContext);
 
   return (
-    <div className="">
-      <section className='mb-4'>
+    <div className="overflow-y-scroll h-full">
+      <section className='mb-8'>
         <UserWelcome
           name={userInfo.user.name}
           isMe={isMe}
@@ -386,10 +444,11 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
             nbLoss={userInfo.user.nbLoss}
           />
         </section>
-        <section className="">
+        <section className="mb-8">
           <MatchHistory
-            id={userInfo.user.id}
+            // id={userInfo.user.id}
             name={userInfo.user.name}
+            matchList={matchList.list}
           />
         </section>
       </div>
