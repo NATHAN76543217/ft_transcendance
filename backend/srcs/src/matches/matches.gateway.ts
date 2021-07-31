@@ -177,6 +177,8 @@ console.log('handle connection - match')
       role = GameRole.Spectator;
     }
 
+    this.logger.debug(`[MATCHES GATEWAY] user ${socket.user.id} has joined room ${body.id} with role: ${role}`);
+
     const data: GameJoinedDto = { role };
 
     socket.matchId = body.id;
@@ -189,6 +191,8 @@ console.log('handle connection - match')
     @MessageBody() body: JoinGameDto)
   {
     const room = this.getRoom(body.id);
+
+    this.logger.debug(`User with id ${socket.user.id} rejected the match`);
 
     this.server.to(room.getId())
       .emit(ClientMessages.NOTIFY, `User with id ${socket.user.id} rejected the match`);
@@ -206,16 +210,21 @@ console.log('handle connection - match')
       scores: room.state.scores,
       // TODO: Set endTime
     });
+
+    this.logger.debug("[MATCH GATEWAY] game must be update in the database now (as a finished one)");
   }
 
   @SubscribeMessage(ServerMessages.FIND_GAME)
   async handleFindGame(client: SocketWithPlayer) {
     if (!this.matchmakingQueue.includes(client.user.id)) {
       this.matchmakingQueue.push(client.user.id);
+      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has joined the matchmaking queue`);
     }
 
     if (this.matchmakingQueue.length >= 2) {
       const playerIds = this.matchmakingQueue.splice(-2);
+
+      this.logger.debug(`[MATCHES GATEWAY] users ${playerIds[0]} and ${playerIds[1]} found a game`)
 
       this.matchesService.createMatch(playerIds[0], {
         guests: playerIds.slice(1),
@@ -230,6 +239,7 @@ console.log('handle connection - match')
     if (!this.matchmakingQueue.includes(client.user.id))
       throw new Error();
     this.matchmakingQueue.filter(player => player !== client.user.id);
+    this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has left the queue`);
   }
 
   @SubscribeMessage(ServerMessages.PLAYER_READY)
@@ -240,6 +250,7 @@ console.log('handle connection - match')
 
     if (room.isFilled() && room.playersReady())
     {
+      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} is ready to play`);
       room.onStartGame();
       room.playerIds.forEach(playerId => {
         this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_START);
@@ -264,11 +275,16 @@ console.log('handle connection - match')
 
     room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
 
+    this.logger.debug(`[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`);
+
     client
       .to(room.getId())
       .emit(ClientMessages.NOTIFY, `Player with id ${playerId} left the room`);
 
-    if (room.playerIds.length === 0) this.rooms.delete(room.matchId);
+    if (room.playerIds.length === 0) {
+      this.rooms.delete(room.matchId);
+      this.logger.debug(`[MATCHES GATEWAY] room with id ${room.matchId} has been destroyed`);
+    }
   }
 
   onGameUpdate(roomId: number, state: GameState) {
@@ -279,6 +295,7 @@ console.log('handle connection - match')
     const room  = this.getRoom(roomId);
 
     room.playerIds.forEach(playerId => {
+      this.logger.debug(`[MATCHES GATEWAY] player ${playerId} should not be inGame now`);
       this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_END);
     });
     this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);
