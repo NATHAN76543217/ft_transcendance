@@ -10,7 +10,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MessageType } from 'src/messages/message.entity';
 import ChannelsService from 'src/channels/channels.service';
-import { MatchesGateway, Room } from './matches.gateway';
+import { MatchesGateway } from './matches.gateway';
+import { Room } from './room';
 
 @Injectable()
 export default class MatchesService {
@@ -114,7 +115,9 @@ export default class MatchesService {
       });
     });
 
-    this.matchesGateway.setRoom(new Room(newMatch.id, hostId, match.ruleset));
+    this.matchesGateway.setRoom(
+      new Room(this.matchesGateway, newMatch.id, hostId, match.ruleset),
+    );
 
     return newMatch;
   }

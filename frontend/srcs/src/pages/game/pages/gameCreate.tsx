@@ -1,18 +1,21 @@
 import { Slider } from "@material-ui/core";
+import axios from "axios";
 import { useState, useContext } from "react";
 import { FieldError, useForm } from "react-hook-form";
-import { NavLink } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import AppContext from "../../../AppContext";
 import { CreateGameDto } from "../../../models/game/CreateGame.dto";
+import { Match } from "../../../models/game/Match";
 import { UserStatus } from "../../../models/user/IUser";
 
 type CreateGameFormValues = {
   rounds: number;
-  user2_id: number;
+  opponent_id: number;
 };
 
 function GameCreate() {
-  const { relationshipsList, user } = useContext(AppContext);
+  const history = useHistory();
+  const { relationshipsList } = useContext(AppContext);
 
   const quitToHome = () => {
     console.log("Quit to Home");
@@ -46,7 +49,7 @@ function GameCreate() {
   const textButtonClassname = "text-2xl font-bold text-gray-900";
 
   const [nbPoints, setNbPoints] = useState<number>(5);
-  const [showCreationValidation, setShowCreationValidation] = useState(false);
+  //const [showCreationValidation, setShowCreationValidation] = useState(false);
 
   const handleChange = (event: any, newValue: any) => {
     setNbPoints(newValue);
@@ -73,52 +76,34 @@ function GameCreate() {
   ];
 
   const onSubmit = async (values: CreateGameFormValues) => {
-    values.nbPoints = nbPoints;
-    values.user1_id = user ? user.id.toString() : "";
+    values.rounds = nbPoints;
     console.log("onSubmit", values);
-    setShowCreationValidation(false);
+    //setShowCreationValidation(false);
     clearErrors();
-    if (values.user2_id === null || !values.user2_id) {
+    if (values.opponent_id === null) {
       setError(
-        "user2_id",
+        "opponent_id",
         { message: "You need to select a player" },
         { shouldFocus: true }
       );
       return;
     }
-    try {
-      //////////////////////////////////////////////////////////////////////////////
-      // create the game with values parameters
-      //                 HERE
-      //////////////////////////////////////////////////////////////////////////////
 
-      console.log("Game created with params: ", values);
-      setShowCreationValidation(true);
-    } catch (error) {
-      // if (axios.isAxiosError(error)) {
-      if (false) {
-        if (error.response?.status === 409) {
-          // const details = error.response.data as {
-          //   statusCode: number;
-          //   message: string;
-          // };
-          // setError(
-          //   "channelName",
-          //   { message: details.message },
-          //   { shouldFocus: true }
-          // );
-        }
-      } else {
-        setError(
-          "user2_id",
-          { message: "No opponent found" },
-          { shouldFocus: true }
-        );
-      }
+    console.log("opponent id", values.opponent_id);
+    const body: CreateGameDto = {
+      ruleset: { rounds: values.rounds },
+      guests: [values.opponent_id],
+    };
+    try {
+      const response = await axios.post<Match>("/api/matches", body);
+      console.log("Game created, redirecting to:", response.data);
+      history.push(`/game/${response.data.id}`);
+    } catch (e) {
+      console.error("TODO: inviteFriend:", e);
     }
   };
 
-  const displayCreationValidationMessage = (
+  /* const displayCreationValidationMessage = (
     showRegisterValidation: boolean
   ) => {
     if (showRegisterValidation) {
@@ -128,7 +113,7 @@ function GameCreate() {
         </div>
       );
     }
-  };
+  }; */
 
   const getNbOnlineFriends = () => {
     let nbOnlineFriends = 0;
@@ -156,7 +141,7 @@ function GameCreate() {
                       type="radio"
                       className=""
                       value={relation.user.id}
-                      {...register("user2_id")}
+                      {...register("opponent_id")}
                     />
                     <span className={radioSpanClassName}>
                       {relation.user.name}
@@ -207,7 +192,7 @@ function GameCreate() {
             <span className="mb-2 ml-2 text-lg font-semibold ">Player</span>
             <div className="grid px-4 py-2 bg-gray-100 rounded-md">
               {displayPlayersList()}
-              {TextInputError(errors.user2_id)}
+              {TextInputError(errors.opponent_id)}
             </div>
           </div>
           {displaySliderPoints()}
@@ -218,7 +203,7 @@ function GameCreate() {
               className="h-10 px-4 py-1 my-8 text-lg font-semibold bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 text-md focus:bg-gray-300 focus:ring-2 focus:ring-gray-600 focus:outline-none"
             ></input>
           </div>
-          {displayCreationValidationMessage(showCreationValidation)}
+          {/* {displayCreationValidationMessage(showCreationValidation)} */}
         </div>
       </form>
     );

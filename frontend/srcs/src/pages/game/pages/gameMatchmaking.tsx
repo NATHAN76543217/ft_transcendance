@@ -15,14 +15,13 @@ function GameMatchmaking() {
 
   const findGame = () => {
     // TO DO: Be sure that playersIds[0] is the current player id
-    context.gameSocket?.emit(ServerMessages.FIND_GAME, context.playerIds[0]);
+    context.gameSocket?.emit(ServerMessages.FIND_GAME);
   };
 
   const cancelSearch = () => {
     // TO DO: Be sure that playersIds[0] is the current player id
     context.gameSocket?.emit(
       ServerMessages.CANCEL_FIND,
-      context.playerIds[0],
       (response: IAcknowledgement) => {
         if (response.status === "not ok") throw new Error(); // TO DO: What could happend if somehow this condition is true ?
       }

@@ -1,5 +1,18 @@
-export type Ruleset = {
+import { IsNumber, IsOptional, Max } from 'class-validator';
+
+export class Ruleset {
+  @IsOptional()
+  @IsNumber()
+  // TODO: @Min and @Max
   duration?: number; // todo
+
+  @IsOptional()
+  @IsNumber()
+  // TODO: @Min and @Max
   rounds?: number;
+
+  @IsOptional()
+  @IsNumber()
+  // TODO: @Min and @Max
   size?: number;
-};
+}
