@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from "react";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, useHistory } from "react-router";
 import AppContext from "../../../AppContext";
 import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
 import { GameRole } from "../../../models/game/GameRole";
@@ -8,10 +8,7 @@ import { GameContext } from "../context";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
-
-// TO DO: Join room at the begining
-// TO DO: Canvas dims
-// TO DO: Debug and test back
+import {canvasHeight, canvasWidth } from "../../../models/game/canvasDims"
 
 export type PongPageParams = {
   id: string;
@@ -20,6 +17,7 @@ export type PongPageParams = {
 export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const { user } = useContext(AppContext);
   const gameContext = useContext(GameContext);
+  const history = useHistory();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
@@ -63,6 +61,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       }
     };
 
+    const onQuit = () => {
+      history.push('/game');
+    };
+
     const onReceiveGameStatus = (st: GameState) => {
       state = st;
       if (animationId !== undefined) {
@@ -82,7 +84,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       gameContext.gameSocket?.off(
         ClientMessages.RECEIVE_ST,
         onReceiveGameStatus
-      );
+      ).off(ClientMessages.QUIT, onQuit);
     };
 
     const frame = () => {
@@ -96,7 +98,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     gameContext.gameSocket
       ?.on(ClientMessages.JOINED, onJoined)
-      .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus);
+      .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
+      .on(ClientMessages.QUIT, onQuit);
 
     gameContext.gameSocket?.emit(ServerMessages.JOIN_ROOM, Number(match.params.id));
 
@@ -105,7 +108,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
-  // TO DO: Impose a size using canvasDims
-  // TO DO: Add a quit button or redirect automatically back when the game is end
-  return <canvas ref={canvasRef} className="" />;
+  const height : number = canvasRef.current?.height as number;
+  return (
+    <div>
+      <canvas ref={canvasRef} height={height} width={(canvasWidth * height) / canvasHeight } className="" />;
+    </div>
+  );
 }

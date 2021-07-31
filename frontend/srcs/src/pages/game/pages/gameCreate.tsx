@@ -1,12 +1,14 @@
 import { Slider } from "@material-ui/core";
 import axios from "axios";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { FieldError, useForm } from "react-hook-form";
 import { NavLink, useHistory } from "react-router-dom";
 import AppContext from "../../../AppContext";
 import { CreateGameDto } from "../../../models/game/CreateGame.dto";
 import { Match } from "../../../models/game/Match";
 import { UserStatus } from "../../../models/user/IUser";
+import { GameContext } from "../context";
+import { ClientMessages } from "../dto/messages";
 
 type CreateGameFormValues = {
   rounds: number;
@@ -16,10 +18,20 @@ type CreateGameFormValues = {
 function GameCreate() {
   const history = useHistory();
   const { relationshipsList } = useContext(AppContext);
+  const gameContext = useContext(GameContext);
 
   const quitToHome = () => {
     history.push('/game');
   };
+
+  const onNotify = (msg : string) => {
+    console.log(msg);
+  };
+
+  useEffect(() => {
+    gameContext.gameSocket?.on(ClientMessages.NOTIFY, onNotify)
+    .on(ClientMessages.GUEST_REJECTION, quitToHome);
+  }, []);
 
   const {
     register,

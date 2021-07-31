@@ -16,6 +16,8 @@ export enum ClientMessages {
   MATCH_FOUND = "client:matchFound",
   RECEIVE_ST = "client:receiveSt",
   JOINED = "client:joined",
+  QUIT = 'client:quit',
+  GUEST_REJECTION = "client:guestRejection",
 }
 
 export interface IAcknowledgement {
