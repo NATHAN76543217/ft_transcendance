@@ -232,12 +232,17 @@ export class MatchesGateway
   async handleCancelFind(
     @ConnectedSocket() client : SocketWithPlayer)
   {
-    if (!this.matchmakingQueue.includes(client.user.id))
-      throw new Error();
-    this.matchmakingQueue = this.matchmakingQueue.filter(player => player !== client.user.id);
     if (this.matchmakingQueue.includes(client.user.id))
-      this.logger.debug(`[MATCHES GATEWAY] error: user is not deleted form queue`);
-    this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has left the queue`);
+    {
+      // TO DO: Why this don't work ?
+      //this.matchmakingQueue.filter(player => player !== client.user.id);
+      for (let i = 0 ; i < this.matchmakingQueue.length ; i++) {
+        if (this.matchmakingQueue[i] === client.user.id) {
+          this.matchmakingQueue.splice(i, 1);
+        }
+      }
+      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has left the queue`);
+    }
   }
 
   @SubscribeMessage(ServerMessages.PLAYER_READY)
