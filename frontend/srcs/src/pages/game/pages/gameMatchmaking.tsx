@@ -15,11 +15,13 @@ function GameMatchmaking() {
 
   const findGame = () => {
     setInQueue(true);
+    console.log(`[FRONTEND] clicked on findGame: InQueue: ${inQueue}`);
     context.gameSocket?.emit(ServerMessages.FIND_GAME);
   };
 
   const cancelSearch = () => {
     setInQueue(false);
+    console.log(`[FRONTEND] cicked on cancelSearch: InQueue: ${inQueue}`);
     context.gameSocket?.emit(ServerMessages.CANCEL_FIND);
   };
 

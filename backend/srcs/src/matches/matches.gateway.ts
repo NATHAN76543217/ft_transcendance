@@ -70,7 +70,7 @@ export class MatchesGateway
   /** Joined rooms mapped by player's user ids */
   private joinedRooms: Map<number, number> = new Map();
 
-  public matchmakingQueue: number[];
+  public matchmakingQueue: number[] = [];
 
   constructor(
     @Inject(forwardRef(() => MatchesService))
@@ -100,6 +100,7 @@ console.log('handle connection - match')
 
     try {
       socket.user = await this.authenticationService.getUserFromSocket(socket);
+      this.logger.debug(`[MATCHES GATEWAY] New connextion, socket.user.id: ${socket.user.id}`);
       socket.matchId = this.joinedRooms.has(socket.user.id)
         ? this.joinedRooms.get(socket.user.id)
         : undefined;
@@ -215,8 +216,9 @@ console.log('handle connection - match')
   }
 
   @SubscribeMessage(ServerMessages.FIND_GAME)
-  async handleFindGame(client: SocketWithPlayer) {
-    if (!this.matchmakingQueue.includes(client.user.id)) {
+  async handleFindGame(
+    @ConnectedSocket() client: SocketWithPlayer) {
+    if (this.matchmakingQueue.includes(client.user.id) === false) {
       this.matchmakingQueue.push(client.user.id);
       this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has joined the matchmaking queue`);
     }
@@ -234,16 +236,20 @@ console.log('handle connection - match')
   }
 
   @SubscribeMessage(ServerMessages.CANCEL_FIND)
-  async handleCancelFind(client : SocketWithPlayer)
+  async handleCancelFind(
+    @ConnectedSocket() client : SocketWithPlayer)
   {
     if (!this.matchmakingQueue.includes(client.user.id))
       throw new Error();
-    this.matchmakingQueue.filter(player => player !== client.user.id);
+    this.matchmakingQueue = this.matchmakingQueue.filter(player => player !== client.user.id);
+    if (this.matchmakingQueue.includes(client.user.id))
+      this.logger.debug(`[MATCHES GATEWAY] error: user is not deleted form queue`);
     this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has left the queue`);
   }
 
   @SubscribeMessage(ServerMessages.PLAYER_READY)
-  handlePlayerReady(client: SocketWithPlayer) {
+  handlePlayerReady(
+    @ConnectedSocket() client: SocketWithPlayer) {
     const room = this.getRoom(client.matchId);
 
     room.setPlayerStatus(client.user.id, PlayerStatus.READY);
@@ -259,7 +265,9 @@ console.log('handle connection - match')
   }
 
   @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
-  async onUpdateMousePos(client: SocketWithPlayer, mousePos: IVector2D) {
+  async onUpdateMousePos(
+    @ConnectedSocket() client: SocketWithPlayer,
+    @MessageBody() mousePos: IVector2D) {
     const roomId = client.matchId;
     const room = this.getRoom(roomId);
 
@@ -267,7 +275,9 @@ console.log('handle connection - match')
   }
 
   @SubscribeMessage(ServerMessages.LEAVE_ROOM)
-  onLeaveRoom(client: SocketWithPlayer, roomId: number, playerId: number) {
+  onLeaveRoom(
+    @ConnectedSocket() client: SocketWithPlayer,
+    @MessageBody() roomId: number) {
     const room = this.getRoom(roomId);
 
     client.leave(room.getId());
@@ -279,7 +289,7 @@ console.log('handle connection - match')
 
     client
       .to(room.getId())
-      .emit(ClientMessages.NOTIFY, `Player with id ${playerId} left the room`);
+      .emit(ClientMessages.NOTIFY, `Player with id ${client.user.id} left the room`);
 
     if (room.playerIds.length === 0) {
       this.rooms.delete(room.matchId);
