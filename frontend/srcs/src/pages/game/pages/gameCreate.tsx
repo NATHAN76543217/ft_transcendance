@@ -24,13 +24,13 @@ function GameCreate() {
     history.push('/game');
   };
 
-  const onNotify = (msg : string) => {
+  const onNotify = (msg: string) => {
     console.log(msg);
   };
 
   useEffect(() => {
     gameContext.gameSocket?.on(ClientMessages.NOTIFY, onNotify)
-    .on(ClientMessages.GUEST_REJECTION, quitToHome);
+      .on(ClientMessages.GUEST_REJECTION, quitToHome);
 
     return () => {
       gameContext.gameSocket?.off(ClientMessages.NOTIFY, onNotify)
@@ -97,7 +97,7 @@ function GameCreate() {
     console.log("onSubmit", values);
     //setShowCreationValidation(false);
     clearErrors();
-    if (values.opponent_id === null) {
+    if (values.opponent_id === null || values.opponent_id === undefined) {
       setError(
         "opponent_id",
         { message: "You need to select a player" },
@@ -143,11 +143,21 @@ function GameCreate() {
     return nbOnlineFriends;
   };
 
+  const displayNoOnlineFriendsMessage = () => {
+    if (!getNbOnlineFriends()) {
+      return (
+        <div className="font-semibold text-center">
+          You have no online friend
+        </div>
+      );
+    }
+  }
+
   const displayPlayersList = () => {
     let radioLabelClassName = "inline-flex items-center ml-2 mr-2";
     let radioSpanClassName = "ml-1 font-semibold";
-    if (getNbOnlineFriends()) {
-      return (
+    return (
+      <div>
         <ul>
           {relationshipsList.map((relation) => {
             if (relation.user.status === UserStatus.Online) {
@@ -171,14 +181,9 @@ function GameCreate() {
             }
           })}
         </ul>
-      );
-    } else {
-      return (
-        <div className="font-semibold text-center">
-          You have no online friend
-        </div>
-      );
-    }
+        {displayNoOnlineFriendsMessage()}
+      </div>
+    );
   };
 
   // TO DO: Clear index bellow the slider.
