@@ -110,7 +110,7 @@ export default class ChannelsService {
       .where('message.channel_id = :channelId', { channelId })
       .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
       .take(maxCount)
-      .orderBy('message.created_at', 'ASC'); // TODO: Set ASC or DESC
+      // .orderBy('message.created_at', 'ASC'); // TODO: Set ASC or DESC
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });

@@ -508,14 +508,12 @@ console.log('handle connection - channel')
         body,
         socket.user.id,
       );
-
-      console.log('message created', message);
-
-      this.server.to(roomName).emit('message-channel', JSON.stringify(message));
+      // console.log('message created', message);
+      this.server.to(roomName).emit('message-channel', message);
       this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
       this.logger.debug(`${socket.user.name}: ${body.data}`);
-      console.log("can't speak");
+      // console.log("can't speak");
     }
   }
 
@@ -537,6 +535,7 @@ console.log('handle connection - channel')
         .emit('message-user', message);
 
         this.server
+        .to(message.sender_id.toFixed())
         .emit('message-user', message);
     }
   }

@@ -338,7 +338,7 @@ export default class UsersService {
     beforeId?: number,
     afterId?: number,
   ) {
-    const maxCount = 20;
+    const maxCount = 50;
 
     const query = this.messageRepository
       .createQueryBuilder('message')
@@ -349,7 +349,7 @@ export default class UsersService {
       // .andWhere('message.type = :type', { type: MessageType.PrivateMessage })
       .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
       .take(maxCount)
-      .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
+      // .orderBy('message.created_at', 'ASC') // TODO: Set ASC or DESC
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });

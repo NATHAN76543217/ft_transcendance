@@ -1,7 +1,8 @@
 import axios from "axios";
+import { SSL_OP_NO_TLSv1_1 } from "constants";
 import { useContext, useEffect, useState } from "react";
 import AppContext from "../../AppContext";
-import { Message } from "../../models/channel/Channel";
+import { Message, MessageType } from "../../models/channel/Channel";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import { ChatMessage } from "./ChatMessage";
 
@@ -14,6 +15,9 @@ async function fetchChannelMessages(
       `/api/channels/${channelId}/messages/`,
       { params: { beforeId } }
     );
+    res.data.sort((m1: Message, m2: Message) => {
+      return m1.created_at.toString().localeCompare(m2.created_at.toString()) 
+    })
     return res.data;
   } catch (e) {
     return [];
@@ -30,6 +34,9 @@ async function fetchUserMessages(
       `/api/users/${user1_id}/${user2_id}/messages/`,
       { params: { beforeId } }
     );
+    res.data.sort((m1: Message, m2: Message) => {
+      return m1.created_at.toString().localeCompare(m2.created_at.toString()) 
+    })
     return res.data;
   } catch (e) {
     return [];
@@ -41,44 +48,53 @@ export type ChatMessageListProps = {
 };
 
 export function ChatMessageList(props: ChatMessageListProps) {
-  // const className = "flex-grow overflow-y-scroll bg-gray-200 "
-
   const {
     channelSocket: socket,
     user,
     relationshipsList,
+    updateOneRelationshipGameInvite
   } = useContext(AppContext);
-  // const { currentChannelRel, currentUserRel } = useContext(chatContext);
   const [messages, setMessages] = useState<Message[]>([]);
 
   const isChannel = props.id && props.id[0] === "c" ? true : false;
-
-  // This will be used to fetch more past messages
-  /*   const oldestMessageId = messages.length
-    ? messages[messages.length - 1].id
-    : undefined; */
 
   useEffect(() => {
     // console.log('---- useEffect - socket ----')
 
     socket?.on("message-channel", (data: Message) => {
-      // console.log("Incoming channel message:", data);
+      console.log("Incoming channel message:", data);
+      console.log('isChannel', isChannel)
+      console.log('props.id', props.id)
+      console.log('props.id.substring(1)', props.id.substring(1))
+      console.log('data.channel_id', data.channel_id)
       if (
         isChannel &&
         Number(props.id.substring(1)) === Number(data.channel_id)
       ) {
+        console.log('will set message')
         setMessages((olderMessages) => [...olderMessages, data]);
       }
     });
-
+    
     socket?.on("message-user", (data: Message) => {
-      // console.log("Incoming private message:", data);
+      console.log("Incoming private message:", data);
       if (
         !isNaN(Number(props.id)) &&
         (Number(props.id) === Number(data.receiver_id) ||
-          Number(props.id) === Number(data.sender_id))
-      ) {
+        Number(props.id) === Number(data.sender_id))
+        ) {
+        console.log('will set message')
         setMessages((olderMessages) => [...olderMessages, data]);
+      }
+      if (data.type === MessageType.GameInvite ||
+        data.type === MessageType.GameCancel) {
+        console.log(
+          "Received invitation or cancel to",
+          data.data,
+          "from",
+          data.sender_id
+        );
+        updateOneRelationshipGameInvite(data);
       }
     });
 
