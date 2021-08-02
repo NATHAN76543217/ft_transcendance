@@ -183,21 +183,19 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
         name: values.username,
       });
-
-      console.log("dataUser", dataUser);
-
+      // console.log("dataUser", dataUser);
       contextValue.channelSocket?.emit("updateUserInfo-front", {
         name: values.username,
       });
 
-      // setUserInfo({
-      //   ...userInfo,
-      //   user: {
-      //     ...userInfo.user,
-      //     name: values.username,
-      //   },
-      //   usernameErrorMessage: "",
-      // });
+      setUserInfo({
+        ...userInfo,
+        user: {
+          ...userInfo.user,
+          name: values.username,
+        },
+        usernameErrorMessage: "",
+      });
       // setUser(dataUser.data);
       return true;
     } catch (error) {
@@ -241,13 +239,13 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       let oldImgPath = userInfo.user.imgPath;
       let newImgPath = data.data.path.replace("uploads/", "");
 
-      // setUserInfo({
-      //   ...userInfo,
-      //   user: {
-      //     ...userInfo.user,
-      //     imgPath: newImgPath,
-      //   },
-      // });
+      setUserInfo({
+        ...userInfo,
+        user: {
+          ...userInfo.user,
+          imgPath: newImgPath,
+        },
+      });
       await axios.patch("/api/users/" + userInfo.user.id, {
         imgPath: newImgPath,
       });
