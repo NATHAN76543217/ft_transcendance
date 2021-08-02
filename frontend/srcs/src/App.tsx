@@ -546,6 +546,7 @@ class App extends React.Component<AppProps, AppState> {
       setUser: this.setUser,
       setUserInit: this.setUserInit,
       updateOneRelationshipType: this.updateOneRelationshipType,
+      updateOneRelationshipGameInvite: this.updateOneRelationshipGameInvite,
       channelSocket: this.state.socket,
     };
 

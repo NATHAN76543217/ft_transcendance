@@ -6,11 +6,23 @@ import { Route, RouteComponentProps, Switch, Redirect } from "react-router-dom";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import ChannelSettings from "../../pages/chat/channelSettings";
 import { ChatInput } from "./ChatInput";
-import { Channel, ChannelMode } from "../../models/channel/Channel";
+import { Channel, ChannelMode, Message } from "../../models/channel/Channel";
+import { IUser, UserStatus } from "../../models/user/IUser";
+import { AppUserRelationship } from "../../models/user/AppUserRelationship";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 
 type ChatPageParams = {
   id: string;
 };
+
+export type FriendState = {
+  id: number;
+  name: string;
+  status: UserStatus;
+  roomId?: number
+  relationshipType: UserRelationshipType;
+  gameInvite?: Message;
+}
 
 export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   const contextValue = useContext(AppContext);
@@ -29,6 +41,48 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   } else {
     channelId = Number("c");
   }
+
+  let isPrivateConv = false;
+  if (chatId && !isNaN(Number(chatId))) {
+    isPrivateConv = true;
+  }
+
+  let privateConvId: number;
+  if (isPrivateConv) {
+    privateConvId = Number(match.params.id);
+  } else {
+    privateConvId = Number("c");
+  }
+
+  const [friendInfo, setFriendInfo] = useState<FriendState>({
+    id: 0,
+    name: '',
+    status: UserStatus.Offline,
+    roomId: undefined,
+    relationshipType: UserRelationshipType.null,
+    gameInvite: undefined
+  });
+
+  const setFriend = useCallback(() => {
+    const friend = contextValue.relationshipsList.find((relation) => {
+      return relation.user.id === privateConvId;
+    });
+    if (friend) {
+      setFriendInfo({
+        id: privateConvId,
+        name: friend ? friend.user.name : "",
+        status: friend ? friend.user.status : UserStatus.Offline,
+        roomId: friend ? friend.user.roomId : undefined,
+        relationshipType: friend ? friend.relationshipType : UserRelationshipType.null,
+        gameInvite: friend ? friend.gameInvite : undefined,
+      });
+    } else if (friendInfo.id) {
+      setFriendInfo({
+        ...friendInfo,
+        id: 0
+      })
+    }
+    }, [privateConvId, contextValue.relationshipsList]);
 
   const redirPath = `/chat/${chatId}/settings`;
 
@@ -84,36 +138,42 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   };
 
   if (isChannel && channelInfo.id !== channelId) {
-    // console.log('-------- TRY Set Channel begin --------', channelId)
     setChannel();
   }
 
-  // useEffect(() => {
-  //   console.log('useEffect - channelInfo', channelInfo)
-  // }, [channelInfo])
+  if (isPrivateConv && friendInfo.id !== privateConvId) {
+    setFriend();
+  }
 
   useEffect(() => {
-    // console.log('-------- useEffect - TRY Set Channel --------', channelInfo)
-    // console.log('channelInfo.id', channelInfo.id)
-    // console.log('channelId', channelId)
-    // console.log('isChannel', isChannel)
     if (isChannel && channelInfo.id !== channelId) {
-      // console.log('setChannel')
       setChannel();
     }
   }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel]);
 
+  useEffect(() => {
+    if (isPrivateConv) {
+      setFriend();
+    }
+  
+  }, [match.params.id, isPrivateConv, privateConvId, friendInfo.id, setFriend, contextValue.relationshipsList]);
+
   return (
     <div className='flex flex-col flex-grow h-screen '>
-      <ChatHeader myRole={channelInfo.myRole} isChannel={isChannel} />
+      <ChatHeader
+        myRole={channelInfo.myRole}
+        isChannel={isChannel}
+        isPrivateConv={isPrivateConv}
+        friendInfo={friendInfo}
+      />
       <Switch>
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
           <div className='justify-center h-full '>
             <ChatMessageList id={match.params.id} />
-            <ChatInput id={match.params.id} myRole={channelInfo.myRole} isChannel={isChannel}/>
-            </div>
+            <ChatInput id={match.params.id} myRole={channelInfo.myRole} isChannel={isChannel} friendInfo={friendInfo}/>
+          </div>
         </Route>
       </Switch>
     </div>

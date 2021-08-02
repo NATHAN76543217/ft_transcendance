@@ -21,7 +21,7 @@ function MatchHistoryItem(props: MatchProps) {
                 <span className="font-bold ">{props.match.scores[1]}</span>
             </div>
             <div className="flex-1 col-span-2 text-center grid items-center">
-                <span className="italic"> {props.match.endAt.toString().substring(0, 10)}    </span>
+                <span className="italic"> {props.match.endAt ? props.match.endAt.toString().substring(0, 10) : ''}    </span>
             </div>
         </div>
     );

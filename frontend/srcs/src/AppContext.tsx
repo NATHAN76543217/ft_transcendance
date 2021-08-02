@@ -1,5 +1,6 @@
 import React from "react";
 import { IAppContext } from "./IAppContext";
+import { Message } from "./models/channel/Channel";
 import { UserRelationshipType } from "./models/user/UserRelationship";
 
 const AppContext = React.createContext<IAppContext>({
@@ -10,6 +11,7 @@ const AppContext = React.createContext<IAppContext>({
     user_id: number,
     newType: UserRelationshipType
   ) => {},
+  updateOneRelationshipGameInvite: (message: Message) => {},
   channelSocket: undefined,
 });
 

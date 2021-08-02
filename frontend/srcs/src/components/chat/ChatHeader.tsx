@@ -2,19 +2,25 @@ import axios from "axios";
 import React from "react";
 import { useContext } from "react";
 import { useHistory } from "react-router";
+import { NavLink } from "react-router-dom";
 import AppContext from "../../AppContext";
+import { Message } from "../../models/channel/Channel";
 import ChannelInviteDto from "../../models/channel/ChannelInvite.dto";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import { CreateGameDto } from "../../models/game/CreateGame.dto";
+import { Match } from "../../models/game/Match";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 import {
   IUser,
   UserChannelRelationship,
   UserRole,
+  UserStatus,
 } from "../../models/user/IUser";
 import chatContext from "../../pages/chat/chatContext";
 import ChannelInviteForm from "../Forms/channelInviteForm";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
 import { ChatTitle } from "./ChatTitle"
+import { FriendState } from "./ChatView";
 
 type UserActionsProps = {
   channelId: number;
@@ -165,26 +171,158 @@ function ChatActions({ channelRelation, userRelation }: ChatActionsProps) {
 type ChatHeaderProps = {
   myRole: ChannelRelationshipType;
   isChannel: boolean;
+  isPrivateConv: boolean;
+  friendInfo: FriendState;
 };
 
-export function ChatHeader({ myRole, isChannel }: ChatHeaderProps) {
+export function ChatHeader({ myRole, isChannel, isPrivateConv, friendInfo }: ChatHeaderProps) {
   const chatContextValue = useContext(chatContext);
-  // const contextValue = useContext(AppContext);
+  const contextValue = useContext(AppContext);
+
+  const history = useHistory();
 
   const currentChat =
     chatContextValue.currentChannelRel !== undefined
       ? chatContextValue.currentChannelRel.channel
       : undefined;
 
-  console.log("isChannel", isChannel);
-  console.log("myRole", myRole);
+  const getPrivateSenderName = () => {
+    if (isPrivateConv) {
+      const sender = contextValue.relationshipsList.find((rel) => {
+        // return rel.user.id === userRel?.user.id
+        return rel.user.id === friendInfo.id
+      })?.user;
+      if (sender) {
+        return sender.name;
+      } else {
+        return '';
+      }
+    } else {
+      return '';
+    }
+  }
+
+  const inviteFriendToPlay = async () => {
+    const gameData: CreateGameDto = { guests: [friendInfo.id], ruleset: {} };
+
+    console.log("Creating new game", gameData);
+
+    try {
+      const response = await axios.post<Match>("/api/matches", gameData);
+      console.log("Game created, redirecting to:", response.data);
+      history.push(`/game/${response.data.id}`);
+    } catch (e) {
+      console.error("TODO: inviteFriend:", e);
+    }
+  };
+
+
+  const acceptGameRequest = async () => {
+    console.log("Accepting game invitation");
+    if (friendInfo.gameInvite) {
+      history.push(`/game/${friendInfo.gameInvite.id}`);
+    }
+  };
+
+  const cancelGameRequest = async () => {
+    try {
+      if (friendInfo.gameInvite) {
+        await axios.delete(`/api/matches/${friendInfo.gameInvite.data}`);
+        await axios.delete(`/api/messages/${friendInfo.gameInvite.id}`);
+        console.log("Game invitation deleted");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const displayInviteButton = () => {
+    if (friendInfo.status === UserStatus.Online) {
+      if (!friendInfo.gameInvite) {
+
+        return (
+          <button
+            className={
+              "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+              " bg-purple-300 hover:bg-purple-400" +
+              " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+            }
+            onClick={() => inviteFriendToPlay()}
+          >
+            Invite to play
+          </button>
+        );
+      } else {
+        if (friendInfo.gameInvite.sender_id === friendInfo.id) {
+          return (
+            <button
+              className={
+                "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+                " bg-green-300 hover:bg-green-400 text-xs" +
+                " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+              }
+              onClick={() => acceptGameRequest()}
+            >
+              Accept game request
+            </button>
+          );
+        } else {
+          return (
+            <button
+              className={
+                "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+                " bg-red-400 hover:bg-red-500" +
+                " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+              }
+              onClick={() => cancelGameRequest()}
+            >
+              Cancel game request
+            </button>
+          );
+        }
+      }
+    }
+  };
+
+  const displayWatchButton = () => {
+    if (friendInfo.status === UserStatus.InGame) {
+      return (
+        <NavLink
+          className={
+            "inline-block rounded-lg font-semibold py-1 mx-2 text-sm text-gray-900" +
+            " bg-yellow-300 hover:bg-yellow-400" +
+            " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto px-2"
+          }
+          to={`/game/${friendInfo.roomId}`}
+        >
+          {"Watch the game"}
+        </NavLink>
+      );
+    }
+  };
+
+
+
+  const displayPrivateConvHeader = () => {
+    return (
+      <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
+        <span className='font-semibold pl-4'>
+          {getPrivateSenderName()}
+        </span>
+        <div className="flex items-center ">
+          {displayInviteButton()}
+          {displayWatchButton()}
+        </div>
+      </header>
+    )
+  }
 
   if (
     isChannel &&
     myRole &
-      (ChannelRelationshipType.Owner |
-        ChannelRelationshipType.Admin |
-        ChannelRelationshipType.Member)
+    (ChannelRelationshipType.Owner |
+      ChannelRelationshipType.Admin |
+      ChannelRelationshipType.Member)
   ) {
     return (
       <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
@@ -196,16 +334,14 @@ export function ChatHeader({ myRole, isChannel }: ChatHeaderProps) {
           <ChatActions
             channelRelation={chatContextValue.currentChannelRel}
           />
-            {/* userRole={contextValue.user?.role} */}
 
         </div>
       </header>
     );
-  } else {
+  } else if (isPrivateConv) {
+    return displayPrivateConvHeader()
+  }
+  else {
     return <header className="w-full h-10 bg-gray-200"></header>;
   }
 }
-
-// ChatHeader.defaultProps = {
-//   children: <div />,
-// };

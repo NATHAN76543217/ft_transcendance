@@ -16,7 +16,9 @@ export function ChatMessage({ message, sameSender }: ChatMessageProps) {
   const { currentChannelRel } = useContext(chatContext);
   const { relationshipsList, user } = useContext(AppContext);
 
-  const isPrivate = message.type === MessageType.PrivateMessage;
+  const isPrivate = (message.type === MessageType.PrivateMessage ||
+    message.type === MessageType.GameInvite ||
+    message.type === MessageType.GameCancel);
   const isMe = message.sender_id === user?.id;
 
   const getChannelSender = (channelRel: UserChannelRelationship | undefined, message: Message) => {
@@ -24,7 +26,7 @@ export function ChatMessage({ message, sameSender }: ChatMessageProps) {
       return rel.user?.id === message.sender_id;
     })?.user;
   }
-  
+
   const getPrivateSender = (message: Message) => {
     if (isMe) {
       return user;
@@ -35,21 +37,21 @@ export function ChatMessage({ message, sameSender }: ChatMessageProps) {
       })?.user;
     }
   }
-  
-  
+
+
   const sender = isPrivate ? getPrivateSender(message) : getChannelSender(currentChannelRel, message);
-  
+
   const senderImgUrl = sender ? "/api/uploads/" + sender?.imgPath : "/api/uploads/default-profile-picture.png"
   const senderProfileUrl = `/users/${sender?.id ?? ""}`;
   const senderName = sender ? sender.name : 'Unknown user'
-  
+
   const displaySenderName = () => {
     if (!isMe && !sameSender) {
       return (
         <div className='flex-none'>
-            <div className='flex items-center pl-12 '>
-              <span className="font-semibold ">{senderName}</span>
-            </div>
+          <div className='flex items-center pl-12 '>
+            <span className="font-semibold ">{senderName}</span>
+          </div>
         </div>
       );
     } else {
@@ -73,12 +75,26 @@ export function ChatMessage({ message, sameSender }: ChatMessageProps) {
     }
   }
 
+  const displayMessage = () => {
+    if (message.type === MessageType.PrivateMessage ||
+      message.type === MessageType.Text) {
+      return message.data;
+    } else if (message.type === MessageType.GameInvite ||
+      message.type === MessageType.GameCancel) {
+      if (isMe) {
+        return "You've sent an invitation to play."
+      } else {
+        return `${sender?.name} invites you  to play a game.`
+      }
+    }
+  }
+
   const classMe = ''
   const classOthers = ''
 
   const classBlockMe = 'justify-end'
   const classBlockOthers = ''
-  
+
   const classMessageMe = 'bg-blue-300 '
   const classMessageOthers = 'bg-gray-300 '
 
@@ -88,7 +104,7 @@ export function ChatMessage({ message, sameSender }: ChatMessageProps) {
       <div className={`flex flex-shrink   ${isMe ? classBlockMe : classBlockOthers}`}>
         {displaySenderImage()}
         <span className={`px-2 break-words py-1 w-auto xl:max-w-lg max-w-xs rounded-md ${isMe ? classMessageMe : classMessageOthers}`}>
-          {message.data}
+          {displayMessage()}
         </span>
       </div>
     </div>

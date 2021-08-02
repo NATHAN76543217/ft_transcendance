@@ -8,6 +8,7 @@ import {
   MessageEventDto,
   MessageType,
 } from "../../models/channel/MessageEvent.dto";
+import { FriendState } from "./ChatView";
 interface IMessageFormValues {
   message: string;
 }
@@ -16,6 +17,7 @@ export type ChatInputProps = {
   id: string;
   myRole: ChannelRelationshipType;
   isChannel: boolean;
+  friendInfo: FriendState;
 };
 
 export function ChatInput(props: ChatInputProps) {
@@ -67,7 +69,7 @@ export function ChatInput(props: ChatInputProps) {
     props.myRole &
     (ChannelRelationshipType.Owner |
       ChannelRelationshipType.Admin |
-      ChannelRelationshipType.Member)) || !props.isChannel
+      ChannelRelationshipType.Member)) || props.friendInfo.id
   ) {
     return (
       <div className=''>
