@@ -68,19 +68,31 @@ function GameMatchmaking() {
     )
   }
 
-  const onNotify = (msg: string) => {
-    console.log(msg);
-  };
+
 
   useEffect(() => {
+
+    const onNotify = (msg: string) => {
+      console.log(msg);
+    }
+
+    const goToGamePage = (id : number) => {
+      //cancelSearch();
+      history.push(`/game/${id}`);
+    };
+
     const deleteSubscribedListeners = () => {
       if (context.gameSocket) {
-        context.gameSocket.off(ClientMessages.NOTIFY, onNotify);
+        context.gameSocket
+          .off(ClientMessages.NOTIFY, onNotify)
+          .off(ClientMessages.MATCH_FOUND, goToGamePage);
       }
     };
 
     if (context.gameSocket) {
-      context.gameSocket.on(ClientMessages.NOTIFY, onNotify);
+      context.gameSocket
+        .on(ClientMessages.NOTIFY, onNotify)
+        .on(ClientMessages.MATCH_FOUND, goToGamePage);
     }
     return deleteSubscribedListeners;
   }, [context.gameSocket]);

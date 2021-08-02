@@ -70,7 +70,7 @@ export class MatchesGateway
   /** Joined rooms mapped by player's user ids */
   private joinedRooms: Map<number, number> = new Map();
 
-  public matchmakingQueue: number[] = [];
+  public matchmakingQueue: Array<[number, string]> = []; // <user id, socket id>
 
   constructor(
     @Inject(forwardRef(() => MatchesService))
@@ -215,22 +215,35 @@ console.log('handle connection - match')
     this.logger.debug("[MATCH GATEWAY] game must be update in the database now (as a finished one)");
   }
 
+  private matchmakingQueueContains(userId : number)
+  {
+    for (let i of this.matchmakingQueue) {
+      if (i[0] === userId)
+        return true;
+    }
+    return false;
+  }
+
   @SubscribeMessage(ServerMessages.FIND_GAME)
   async handleFindGame(
     @ConnectedSocket() client: SocketWithPlayer) {
-    if (this.matchmakingQueue.includes(client.user.id) === false) {
-      this.matchmakingQueue.push(client.user.id);
-      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has joined the matchmaking queue`);
+    if (this.matchmakingQueueContains(client.user.id) === false) {
+      this.matchmakingQueue.push([client.user.id, client.id]);
+      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} (${client.id}) has joined the matchmaking queue`);
     }
 
     if (this.matchmakingQueue.length >= 2) {
       const playerIds = this.matchmakingQueue.splice(-2);
 
-      this.logger.debug(`[MATCHES GATEWAY] users ${playerIds[0]} and ${playerIds[1]} found a game`)
+      this.logger.debug(`[MATCHES GATEWAY] users ${playerIds[0][0]} and ${playerIds[1][0]} found a game`);
 
-      this.matchesService.createMatch(playerIds[0], {
-        guests: playerIds.slice(1),
+      const { id } = await this.matchesService.createMatch(playerIds[0][0], {
+        guests: [playerIds[1][0]],
         ruleset: {},
+      }, true);
+
+      playerIds.forEach(player => {
+        this.server.to(player[1]).emit(ClientMessages.MATCH_FOUND, id);
       });
     }
   }
@@ -239,12 +252,12 @@ console.log('handle connection - match')
   async handleCancelFind(
     @ConnectedSocket() client : SocketWithPlayer)
   {
-    if (this.matchmakingQueue.includes(client.user.id))
+    if (this.matchmakingQueueContains(client.user.id))
     {
       // TO DO: Why this don't work ?
       //this.matchmakingQueue.filter(player => player !== client.user.id);
       for (let i = 0 ; i < this.matchmakingQueue.length ; i++) {
-        if (this.matchmakingQueue[i] === client.user.id) {
+        if (this.matchmakingQueue[i][0] === client.user.id) {
           this.matchmakingQueue.splice(i, 1);
         }
       }

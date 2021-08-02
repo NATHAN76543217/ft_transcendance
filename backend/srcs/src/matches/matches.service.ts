@@ -132,6 +132,7 @@ export default class MatchesService {
   public async createMatch(
     hostId: number,
     match: CreateMatchDto,
+    notInviteGuest?: true
   ): Promise<Match> {
     const newMatch = await this.matchesRepository.save(
       this.matchesRepository.create({player_ids: [hostId, ...match.guests]}),
@@ -139,16 +140,18 @@ export default class MatchesService {
 
     Logger.debug(`Created match: ${JSON.stringify(newMatch)}}`);
 
-    match.guests.forEach((guestId) => {
-      Logger.debug(`Inviting ${guestId}...`);
-      this.channelsService.sendUserMessage(hostId, {
-        channel_id: 1,
-        type: MessageType.GameInvite,
-        data: newMatch.id.toFixed(),
-        receiver_id: guestId,
-        sender_id: hostId
+    if (notInviteGuest === undefined) {
+      match.guests.forEach((guestId) => {
+        Logger.debug(`Inviting ${guestId}...`);
+        this.channelsService.sendUserMessage(hostId, {
+          channel_id: 1,
+          type: MessageType.GameInvite,
+          data: newMatch.id.toFixed(),
+          receiver_id: guestId,
+          sender_id: hostId
+        });
       });
-    });
+    }
 
     this.matchesGateway.setRoom(
       new Room(this.matchesGateway, newMatch.id, hostId, match.ruleset),
