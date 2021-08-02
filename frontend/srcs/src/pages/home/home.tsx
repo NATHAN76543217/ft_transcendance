@@ -39,7 +39,7 @@ function Home(props: { logged: boolean }) {
                         <div className="flex items-center justify-center pt-4 space-x-2 md:space-x-8">
                             <Button
                                 content="Let's play !"
-                                url="/game/quickgame"
+                                url="/game/matchmaking"
                                 secondary
                                 className="whitespace-nowrap"
                             />
