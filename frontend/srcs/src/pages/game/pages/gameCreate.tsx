@@ -65,7 +65,7 @@ function GameCreate() {
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto";
   const textButtonClassname = "text-2xl font-bold text-gray-900";
 
-  const [nbPoints, setNbPoints] = useState<number>(5);
+  const [nbPoints, setNbPoints] = useState<number>(11);
   //const [showCreationValidation, setShowCreationValidation] = useState(false);
 
   const handleChange = (event: any, newValue: any) => {
@@ -181,15 +181,16 @@ function GameCreate() {
     }
   };
 
+  // TO DO: Clear index bellow the slider.
   const displaySliderPoints = () => {
     return (
       <div className="">
-        <label className="ml-2 text-lg font-semibold"> Max points number</label>
+        <label className="ml-2 text-lg font-semibold"> Score to win:  {nbPoints}</label>
         <div className="px-8 pt-2 bg-gray-100 rounded-md">
           <Slider
-            step={5}
-            min={5}
-            max={20}
+            step={4}
+            min={3}
+            max={19}
             marks={marks}
             className="px-2 rounded-sm cursor-grab"
             aria-labelledby="discrete-slider-always"
