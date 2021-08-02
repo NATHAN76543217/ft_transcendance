@@ -51,7 +51,7 @@ export const defaultRuleset: Ruleset = {
 };
 
 @Injectable()
-@WebSocketGateway(undefined, { namespace: '/matches' })
+@WebSocketGateway(undefined, { namespace: '/matches', path: '/matches' })
 export class MatchesGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -89,6 +89,10 @@ export class MatchesGateway
   }
 
   async handleConnection(socket: SocketWithPlayer) {
+
+console.log('handle connection - match')
+
+
     try {
       socket.user = await this.authenticationService.getUserFromSocket(socket);
       socket.matchId = this.joinedRooms.has(socket.user.id)
@@ -118,6 +122,9 @@ export class MatchesGateway
   }
 
   async handleDisconnect(socket: Socket | SocketWithPlayer) {
+    console.log('handle disconnect - match')
+
+
     if ('user' in socket) {
       await this.onUserDisconnect(socket as SocketWithPlayer);
       this.logger.debug(

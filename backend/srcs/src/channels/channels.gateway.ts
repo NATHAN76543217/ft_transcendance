@@ -50,7 +50,7 @@ import { Timestamp } from 'typeorm';
 
 // TODO: Rename to EventsModule...
 @Injectable()
-@WebSocketGateway(undefined, { namespace: '/events' })
+@WebSocketGateway(undefined, { namespace: '/events', path: '/events' })
 export class ChannelsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -77,6 +77,9 @@ export class ChannelsGateway
   }
 
   async handleConnection(socket: SocketWithUser) {
+
+console.log('handle connection - channel')
+
     try {
       socket.user = await this.authenticationService.getUserFromSocket(socket);
     } catch (e) {
@@ -133,6 +136,8 @@ export class ChannelsGateway
   }
 
   async handleDisconnect(socket: Socket | SocketWithUser) {
+    console.log('handle disconnect - channel')
+
     if ('user' in socket) {
       await this.onUserDisconnect(socket as SocketWithUser);
       this.logger.debug(

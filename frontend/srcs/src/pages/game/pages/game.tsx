@@ -11,10 +11,11 @@ import { io, Socket } from "socket.io-client";
 function getGameSocket() {
   console.log("Initiating game-socket connection...");
 
-  const socket = io("", {
+  const socket = io('', {
     path: "/api/socket.io/matches",
     rejectUnauthorized: false, // This disables certificate authority verification
     withCredentials: true,
+    forceNew: true
   }).on("authenticated", () => {
     console.log("Game-socket connection authenticated!");
   });
