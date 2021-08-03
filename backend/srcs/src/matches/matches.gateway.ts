@@ -44,9 +44,9 @@ export enum ClientMessages {
   RECEIVE_ST = 'client:receiveSt',
   JOINED = 'client:joined',
   QUIT = 'client:quit',
-  GUEST_REJECTION = "client:guestRejection",
-  GAME_START = "client:gameStart",
-  GAME_END = 'client:gameEnd'
+  GUEST_REJECTION = 'client:guestRejection',
+  GAME_START = 'client:gameStart',
+  GAME_END = 'client:gameEnd',
 }
 
 export const defaultRuleset: Ruleset = {
@@ -56,7 +56,7 @@ export const defaultRuleset: Ruleset = {
 };
 
 @Injectable()
-@WebSocketGateway({ namespace: '/matches' })
+@WebSocketGateway(0, { namespace: '/matches' })
 export class MatchesGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -89,18 +89,16 @@ export class MatchesGateway
     this.rooms.set(room.matchId, room);
   }
 
-  afterInit(server: any) {
-    this.logger.log(`Listening at ${server.path()}`);
+  afterInit(server: Server) {
+    //this.logger.debug(`Listening at ${server.path()}`);
   }
 
   async handleConnection(socket: SocketWithPlayer) {
-
-console.log('handle connection - match')
-
+    this.logger.debug('Handling connection...');
 
     try {
       socket.user = await this.authenticationService.getUserFromSocket(socket);
-      this.logger.debug(`[MATCHES GATEWAY] New connextion, socket.user.id: ${socket.user.id}`);
+      this.logger.debug(`New connection, socket.user.id: ${socket.user.id}`);
       socket.matchId = this.joinedRooms.has(socket.user.id)
         ? this.joinedRooms.get(socket.user.id)
         : undefined;
@@ -128,8 +126,7 @@ console.log('handle connection - match')
   }
 
   async handleDisconnect(socket: Socket | SocketWithPlayer) {
-    console.log('handle disconnect - match')
-
+    this.logger.debug('Handling disconnection...');
 
     if ('user' in socket) {
       await this.onUserDisconnect(socket as SocketWithPlayer);
@@ -178,7 +175,9 @@ console.log('handle connection - match')
       role = GameRole.Spectator;
     }
 
-    this.logger.debug(`[MATCHES GATEWAY] user ${socket.user.id} has joined room ${body.id} with role: ${role}`);
+    this.logger.debug(
+      `[MATCHES GATEWAY] user ${socket.user.id} has joined room ${body.id} with role: ${role}`,
+    );
 
     const data: GameJoinedDto = { role };
 
@@ -189,17 +188,23 @@ console.log('handle connection - match')
   @SubscribeMessage(ServerMessages.REJECT)
   async handleRejectMatch(
     @ConnectedSocket() socket: SocketWithPlayer,
-    @MessageBody() body: JoinGameDto)
-  {
+    @MessageBody() body: JoinGameDto,
+  ) {
     const room = this.getRoom(body.id);
 
     this.logger.debug(`User with id ${socket.user.id} rejected the match`);
 
-    this.server.to(room.getId())
-      .emit(ClientMessages.NOTIFY, `User with id ${socket.user.id} rejected the match`);
+    this.server
+      .to(room.getId())
+      .emit(
+        ClientMessages.NOTIFY,
+        `User with id ${socket.user.id} rejected the match`,
+      );
 
-    this.server.to(room.playerIds[0].toFixed()).emit(ClientMessages.GUEST_REJECTION);
-  
+    this.server
+      .to(room.playerIds[0].toFixed())
+      .emit(ClientMessages.GUEST_REJECTION);
+
     this.server.socketsLeave(room.playerIds.toString());
     this.rooms.delete(room.matchId);
   }
@@ -212,71 +217,77 @@ console.log('handle connection - match')
       // TODO: Set endTime
     });
 
-    this.logger.debug("[MATCH GATEWAY] game must be update in the database now (as a finished one)");
+    this.logger.debug(
+      '[MATCH GATEWAY] game must be update in the database now (as a finished one)',
+    );
   }
 
-  private matchmakingQueueContains(userId : number)
-  {
+  private matchmakingQueueContains(userId: number) {
     for (let i of this.matchmakingQueue) {
-      if (i[0] === userId)
-        return true;
+      if (i[0] === userId) return true;
     }
     return false;
   }
 
   @SubscribeMessage(ServerMessages.FIND_GAME)
-  async handleFindGame(
-    @ConnectedSocket() client: SocketWithPlayer) {
+  async handleFindGame(@ConnectedSocket() client: SocketWithPlayer) {
     if (this.matchmakingQueueContains(client.user.id) === false) {
       this.matchmakingQueue.push([client.user.id, client.id]);
-      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} (${client.id}) has joined the matchmaking queue`);
+      this.logger.debug(
+        `[MATCHES GATEWAY] user ${client.user.id} (${client.id}) has joined the matchmaking queue`,
+      );
     }
 
     if (this.matchmakingQueue.length >= 2) {
       const playerIds = this.matchmakingQueue.splice(-2);
 
-      this.logger.debug(`[MATCHES GATEWAY] users ${playerIds[0][0]} and ${playerIds[1][0]} found a game`);
+      this.logger.debug(
+        `[MATCHES GATEWAY] users ${playerIds[0][0]} and ${playerIds[1][0]} found a game`,
+      );
 
-      const { id } = await this.matchesService.createMatch(playerIds[0][0], {
-        guests: [playerIds[1][0]],
-        ruleset: {},
-      }, true);
+      const { id } = await this.matchesService.createMatch(
+        playerIds[0][0],
+        {
+          guests: [playerIds[1][0]],
+          ruleset: {},
+        },
+        true,
+      );
 
-      playerIds.forEach(player => {
+      playerIds.forEach((player) => {
         this.server.to(player[1]).emit(ClientMessages.MATCH_FOUND, id);
       });
     }
   }
 
   @SubscribeMessage(ServerMessages.CANCEL_FIND)
-  async handleCancelFind(
-    @ConnectedSocket() client : SocketWithPlayer)
-  {
-    if (this.matchmakingQueueContains(client.user.id))
-    {
+  async handleCancelFind(@ConnectedSocket() client: SocketWithPlayer) {
+    if (this.matchmakingQueueContains(client.user.id)) {
       // TO DO: Why this don't work ?
       //this.matchmakingQueue.filter(player => player !== client.user.id);
-      for (let i = 0 ; i < this.matchmakingQueue.length ; i++) {
+      for (let i = 0; i < this.matchmakingQueue.length; i++) {
         if (this.matchmakingQueue[i][0] === client.user.id) {
           this.matchmakingQueue.splice(i, 1);
         }
       }
-      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} has left the queue`);
+      this.logger.debug(
+        `[MATCHES GATEWAY] user ${client.user.id} has left the queue`,
+      );
     }
   }
 
   @SubscribeMessage(ServerMessages.PLAYER_READY)
-  handlePlayerReady(
-    @ConnectedSocket() client: SocketWithPlayer) {
+  handlePlayerReady(@ConnectedSocket() client: SocketWithPlayer) {
     const room = this.getRoom(client.matchId);
 
     room.setPlayerStatus(client.user.id, PlayerStatus.READY);
 
-    if (room.isFilled() && room.playersReady())
-    {
-      this.logger.debug(`[MATCHES GATEWAY] user ${client.user.id} is ready to play`);
+    if (room.isFilled() && room.playersReady()) {
+      this.logger.debug(
+        `[MATCHES GATEWAY] user ${client.user.id} is ready to play`,
+      );
       room.onStartGame();
-      room.playerIds.forEach(playerId => {
+      room.playerIds.forEach((playerId) => {
         this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_START);
       });
     }
@@ -285,7 +296,8 @@ console.log('handle connection - match')
   @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
   async onUpdateMousePos(
     @ConnectedSocket() client: SocketWithPlayer,
-    @MessageBody() mousePos: IVector2D) {
+    @MessageBody() mousePos: IVector2D,
+  ) {
     const roomId = client.matchId;
     const room = this.getRoom(roomId);
 
@@ -295,7 +307,8 @@ console.log('handle connection - match')
   @SubscribeMessage(ServerMessages.LEAVE_ROOM)
   onLeaveRoom(
     @ConnectedSocket() client: SocketWithPlayer,
-    @MessageBody() roomId: number) {
+    @MessageBody() roomId: number,
+  ) {
     const room = this.getRoom(roomId);
 
     client.leave(room.getId());
@@ -303,27 +316,38 @@ console.log('handle connection - match')
 
     room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
 
-    this.logger.debug(`[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`);
+    this.logger.debug(
+      `[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`,
+    );
 
     client
       .to(room.getId())
-      .emit(ClientMessages.NOTIFY, `Player with id ${client.user.id} left the room`);
+      .emit(
+        ClientMessages.NOTIFY,
+        `Player with id ${client.user.id} left the room`,
+      );
 
     if (room.playerIds.length === 0) {
       this.rooms.delete(room.matchId);
-      this.logger.debug(`[MATCHES GATEWAY] room with id ${room.matchId} has been destroyed`);
+      this.logger.debug(
+        `[MATCHES GATEWAY] room with id ${room.matchId} has been destroyed`,
+      );
     }
   }
 
   onGameUpdate(roomId: number, state: GameState) {
-    this.server.volatile.to(roomId.toFixed()).emit(ClientMessages.RECEIVE_ST, { state });
+    this.server.volatile
+      .to(roomId.toFixed())
+      .emit(ClientMessages.RECEIVE_ST, { state });
   }
 
-  onDisconnectClients(roomId : number) {
-    const room  = this.getRoom(roomId);
+  onDisconnectClients(roomId: number) {
+    const room = this.getRoom(roomId);
 
-    room.playerIds.forEach(playerId => {
-      this.logger.debug(`[MATCHES GATEWAY] player ${playerId} should not be inGame now`);
+    room.playerIds.forEach((playerId) => {
+      this.logger.debug(
+        `[MATCHES GATEWAY] player ${playerId} should not be inGame now`,
+      );
       this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_END);
     });
     this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);

@@ -3,7 +3,6 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -46,13 +45,12 @@ import {
 import UpdateUserInfoDto from 'src/messages/dto/updateUserInfo.dto';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import Message from 'src/messages/message.interface';
-import { Timestamp } from 'typeorm';
 
 // TODO: Rename to EventsModule...
 @Injectable()
-@WebSocketGateway({namespace: '/events'})
+@WebSocketGateway(0, { namespace: '/events' })
 export class ChannelsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   private readonly server: Server;
@@ -72,13 +70,8 @@ export class ChannelsGateway
     private readonly usersService: UsersService,
   ) {}
 
-  afterInit(server: Server) {
-    this.logger.log(`Listening at ${server.path()}`);
-  }
-
   async handleConnection(socket: SocketWithUser) {
-
-console.log('handle connection - channel')
+    this.logger.debug('Handling incoming connection...');
 
     try {
       socket.user = await this.authenticationService.getUserFromSocket(socket);
@@ -136,7 +129,7 @@ console.log('handle connection - channel')
   }
 
   async handleDisconnect(socket: Socket | SocketWithUser) {
-    console.log('handle disconnect - channel')
+    this.logger.debug('Handling disconnection...');
 
     if ('user' in socket) {
       await this.onUserDisconnect(socket as SocketWithUser);
@@ -151,7 +144,7 @@ console.log('handle connection - channel')
   @SubscribeMessage('startGame-front')
   async handleStatusUpdateAtGameStart(
     @ConnectedSocket() socket: SocketWithUser,
-    @MessageBody() body: {roomId: number},
+    @MessageBody() body: { roomId: number },
   ) {
     this.broadcastStatusChange(socket, UserStatus.inGame, body.roomId);
   }
@@ -159,7 +152,7 @@ console.log('handle connection - channel')
   @SubscribeMessage('endGame-front')
   async handleStatusUpdateAtGameEnd(
     @ConnectedSocket() socket: SocketWithUser,
-    @MessageBody() body: {roomId: number},
+    @MessageBody() body: { roomId: number },
   ) {
     this.broadcastStatusChange(socket, UserStatus.online);
   }
@@ -208,7 +201,7 @@ console.log('handle connection - channel')
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateUserInfoDto,
   ) {
-    console.log('updateUserInfo-front');
+    this.logger.debug('Received event: updateUserInfo-front');
 
     const user_id = socket.user.id;
     // try {
@@ -239,9 +232,6 @@ console.log('handle connection - channel')
         imgPath: body.imgPath,
       });
     });
-    // } catch (error) {
-    // console.log(error);
-    // }
   }
 
   @SubscribeMessage('updateRole-front')
@@ -257,7 +247,7 @@ console.log('handle connection - channel')
         role: body.role,
       });
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
     }
     socket.emit('updateRole-back', { user_id: body.user_id, role: body.role });
     socket
@@ -314,7 +304,7 @@ console.log('handle connection - channel')
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
   ) {
-    console.log(`joinChannel-front`);
+    this.logger.log('Event received: joinChannel-front');
     let channel;
     let newType = ChannelRelationshipType.Member;
     try {
@@ -369,7 +359,9 @@ console.log('handle connection - channel')
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
   ) {
-    console.log(`leaveChannel-front`, body);
+    this.logger.debug(
+      `Event received: leaveChannel-front, payload: ${JSON.stringify(body)}`,
+    );
 
     try {
       const channel = await this.channelsService.getChannelById(
@@ -430,7 +422,7 @@ console.log('handle connection - channel')
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: DestroyChannelDto,
   ) {
-    console.log(`destroyChannel-front`);
+    this.logger.debug('Event received: destroyChannel-front');
     let channel;
     try {
       channel = await this.channelsService.getChannelById(body.channel_id);
@@ -447,7 +439,11 @@ console.log('handle connection - channel')
     } catch (error) {}
   }
 
-  async broadcastStatusChange(socket: SocketWithUser, status: UserStatus, roomId?: number ) {
+  async broadcastStatusChange(
+    socket: SocketWithUser,
+    status: UserStatus,
+    roomId?: number,
+  ) {
     this.usersService.setUserStatus(socket.user.id, status);
     this.usersService.setUserRoom(socket.user.id, roomId);
 
@@ -467,7 +463,7 @@ console.log('handle connection - channel')
         socket.to(otherId).emit('statusChanged', {
           user_id: socket.user.id,
           status,
-          roomId
+          roomId,
         });
       });
   }
@@ -477,7 +473,9 @@ console.log('handle connection - channel')
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
-    console.log('message-channel', body);
+    this.logger.debug(
+      `Event received: message-channel, payload: ${JSON.stringify(body)}`,
+    );
     // const author = socket.user;
     // const channel = socket.user.channels.find((channel) => {
     //   return channel.channel_id === body.channel_id;
@@ -491,7 +489,6 @@ console.log('handle connection - channel')
     //   author.type & ChannelRelationshipType.Owner)
     // const author = socket.user;
 
-    // console.log('author', author)
     // const abilities = this.abilityFactory.createForUser(author);
     const abilities =
       this.messageAbilityFactory.createForChannelRelationship(author);
@@ -508,16 +505,18 @@ console.log('handle connection - channel')
         body,
         socket.user.id,
       );
-      // console.log('message created', message);
       this.server.to(roomName).emit('message-channel', message);
       this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
       this.logger.debug(`${socket.user.name}: ${body.data}`);
-      // console.log("can't speak");
     }
   }
 
-  sendUserMessage(senderId: number, messageData: CreateMessageDto, messageId: number = 0) {
+  sendUserMessage(
+    senderId: number,
+    messageData: CreateMessageDto,
+    messageId: number = 0,
+  ) {
     const message: Message = {
       channel_id: 1,
       created_at: new Date(),
@@ -534,9 +533,7 @@ console.log('handle connection - channel')
         .to(message.receiver_id.toFixed())
         .emit('message-user', message);
 
-        this.server
-        .to(message.sender_id.toFixed())
-        .emit('message-user', message);
+      this.server.to(message.sender_id.toFixed()).emit('message-user', message);
     }
   }
 
@@ -546,7 +543,9 @@ console.log('handle connection - channel')
     @MessageBody() body: CreateMessageDto,
   ) {
     body.channel_id = 1;
-    console.log('message-user', body);
+    this.logger.debug(
+      `Event received: message-user, payload: ${JSON.stringify(body)}`,
+    );
 
     if (body.type === MessageType.PrivateMessage) {
       const author = socket.user;
