@@ -45,6 +45,7 @@ import {
 import UpdateUserInfoDto from 'src/messages/dto/updateUserInfo.dto';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import Message from 'src/messages/message.interface';
+import { Events } from './events';
 
 // TODO: Rename to EventsModule...
 @Injectable()
@@ -81,17 +82,13 @@ export class ChannelsGateway
       return;
     }
 
-    socket.emit('authenticated');
+    socket.emit(Events.Client.Authenticated);
 
     socket.on('disconnecting', () => {
       // TODO: set offline status
       this.logger.debug(
         `Client ${socket.user.id} disconnecting with ${socket.rooms.size} joined rooms`,
       );
-
-      socket.rooms.forEach((r) => {
-        socket.to(r).emit('disconnected', { username: socket.user.name });
-      });
     });
 
     this.broadcastStatusChange(socket, UserStatus.online);
@@ -101,13 +98,6 @@ export class ChannelsGateway
     // Join user channels
     socket.user.channels.forEach((c) => {
       this.connectChannel(socket, c.channel.id);
-      // const channel = `#${c.channel!.id}`;
-      // this.logger.log(`User joining ${channel}`);
-
-      // socket.join(channel);
-      // // TODO: Check which data to send on join
-      // // TODO: Use a status event and set connected as its value
-      // socket.to(channel).emit('connected', { username: socket.user.name });
     });
 
     // Notify friends about status
@@ -141,7 +131,7 @@ export class ChannelsGateway
     }
   }
 
-  @SubscribeMessage('startGame-front')
+  @SubscribeMessage(Events.Server.StartGame)
   async handleStatusUpdateAtGameStart(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: { roomId: number },
@@ -149,7 +139,7 @@ export class ChannelsGateway
     this.broadcastStatusChange(socket, UserStatus.inGame, body.roomId);
   }
 
-  @SubscribeMessage('endGame-front')
+  @SubscribeMessage(Events.Server.EndGame)
   async handleStatusUpdateAtGameEnd(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: { roomId: number },
@@ -157,7 +147,7 @@ export class ChannelsGateway
     this.broadcastStatusChange(socket, UserStatus.online);
   }
 
-  @SubscribeMessage('updateRelationship-front')
+  @SubscribeMessage(Events.Server.UpdateUserRelation)
   async handleUpdateRelationship(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRelationshipDto,
@@ -186,17 +176,17 @@ export class ChannelsGateway
         type: body.type,
       });
     }
-    socket.emit('updateRelationship-back', {
+    socket.emit(Events.Client.UpdateUserRelation, {
       user_id: body.user_id.toString(),
       type: body.type,
     });
-    socket.to(body.user_id.toString()).emit('updateRelationship-back', {
+    socket.to(body.user_id.toString()).emit(Events.Client.UpdateUserRelation, {
       user_id: socket.user.id.toFixed(),
       type: body.type,
     });
   }
 
-  @SubscribeMessage('updateUserInfo-front')
+  @SubscribeMessage(Events.Server.UpdateUserInfo)
   async handleUpdateUserInfo(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateUserInfoDto,
@@ -214,7 +204,7 @@ export class ChannelsGateway
     //   name: name,
     //   imgPath: imgPath,
     // });
-    socket.emit('updateUserInfo-back', {
+    socket.emit(Events.Client.UpdateUserInfo, {
       user_id: user_id,
       name: body.name,
       imgPath: body.imgPath,
@@ -226,7 +216,7 @@ export class ChannelsGateway
     relations.forEach((rel) => {
       const friend_id =
         user_id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id;
-      socket.to(friend_id.toString()).emit('updateUserInfo-back', {
+      socket.to(friend_id.toString()).emit(Events.Client.UpdateUserInfo, {
         user_id: user_id,
         name: body.name,
         imgPath: body.imgPath,
@@ -234,7 +224,7 @@ export class ChannelsGateway
     });
   }
 
-  @SubscribeMessage('updateRole-front')
+  @SubscribeMessage(Events.Client.UpdateUserRole)
   async handleUpdateRole(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRoleDto,
@@ -249,13 +239,17 @@ export class ChannelsGateway
     } catch (error) {
       this.logger.error(error);
     }
-    socket.emit('updateRole-back', { user_id: body.user_id, role: body.role });
-    socket
-      .to(body.user_id.toString())
-      .emit('updateRole-back', { user_id: body.user_id, role: body.role });
+    socket.emit(Events.Client.UpdateUserRole, {
+      user_id: body.user_id,
+      role: body.role,
+    });
+    socket.to(body.user_id.toString()).emit(Events.Client.UpdateUserRole, {
+      user_id: body.user_id,
+      role: body.role,
+    });
   }
 
-  @SubscribeMessage('updateChannelRelationship-front')
+  @SubscribeMessage(Events.Client.UpdateChannelRelation)
   async handleUpdateChannelRelationship(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateChannelRelationshipDto,
@@ -287,19 +281,21 @@ export class ChannelsGateway
           user_id: body.user_id,
         });
     }
-    socket.emit('updateChannelRelationship-back', {
+    socket.emit(Events.Client.UpdateChannelRelation, {
       channel_id: body.channel_id.toString(),
       user_id: body.user_id.toString(),
       type: body.type,
     });
-    socket.to(body.user_id.toString()).emit('updateChannelRelationship-back', {
-      channel_id: body.channel_id.toString(),
-      user_id: body.user_id.toString(),
-      type: body.type,
-    });
+    socket
+      .to(body.user_id.toString())
+      .emit(Events.Client.UpdateChannelRelation, {
+        channel_id: body.channel_id.toString(),
+        user_id: body.user_id.toString(),
+        type: body.type,
+      });
   }
 
-  @SubscribeMessage('joinChannel-front')
+  @SubscribeMessage(Events.Server.JoinChannel)
   async handleJoinChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
@@ -340,21 +336,21 @@ export class ChannelsGateway
     });
 
     this.joinChannel(socket, body.channel_id, newType);
-    // socket.emit('joinChannel-back', {
+    // socket.emit(Events.Client.JoinChannel, {
     //   channel_id: body.channel_id.toString(),
     //   user_id: socket.user.id.toFixed(),
     //   type: newType,
     // });
     // socket
     //   .to(socket.user.id.toFixed())
-    //   .emit('joinChannel-back', {
+    //   .emit(Events.Client.JoinChannel, {
     //     channel_id: body.channel_id.toString(),
     //     user_id: socket.user.id.toFixed(),
     //     type: newType,
     //   });
   }
 
-  @SubscribeMessage('leaveChannel-front')
+  @SubscribeMessage(Events.Server.LeaveChannel)
   async handleLeaveChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
@@ -397,14 +393,14 @@ export class ChannelsGateway
 
       this.leaveChannel(socket, body.channel_id, newType);
 
-      // socket.emit('leaveChannel-back', {
+      // socket.emit(Events.Client.LeaveChannel, {
       //   channel_id: body.channel_id.toString(),
       //   user_id: socket.user.id.toFixed(),
       //   type: newType,
       // });
       // socket
       //   .to(socket.user.id.toFixed())
-      //   .emit('leaveChannel-back', {
+      //   .emit(Events.Client.LeaveChannel, {
       //     channel_id: body.channel_id.toString(),
       //     user_id: socket.user.id.toFixed(),
       //     type: newType,
@@ -417,7 +413,7 @@ export class ChannelsGateway
     }
   }
 
-  @SubscribeMessage('destroyChannel-front')
+  @SubscribeMessage(Events.Server.DestroyChannel)
   async handleDestroyChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: DestroyChannelDto,
@@ -468,7 +464,7 @@ export class ChannelsGateway
       });
   }
 
-  @SubscribeMessage('message-channel')
+  @SubscribeMessage(Events.Server.ChannelMessage)
   async handleMessageChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
@@ -505,7 +501,7 @@ export class ChannelsGateway
         body,
         socket.user.id,
       );
-      this.server.to(roomName).emit('message-channel', message);
+      this.server.to(roomName).emit(Events.Client.ChannelMessage, message);
       this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
       this.logger.debug(`${socket.user.name}: ${body.data}`);
@@ -531,13 +527,15 @@ export class ChannelsGateway
     if (!isNaN(message.receiver_id)) {
       this.server
         .to(message.receiver_id.toFixed())
-        .emit('message-user', message);
+        .emit(Events.Client.UserMessage, message);
 
-      this.server.to(message.sender_id.toFixed()).emit('message-user', message);
+      this.server
+        .to(message.sender_id.toFixed())
+        .emit(Events.Client.UserMessage, message);
     }
   }
 
-  @SubscribeMessage('message-user')
+  @SubscribeMessage(Events.Server.UserMessage)
   async handleMessageUser(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
@@ -569,14 +567,14 @@ export class ChannelsGateway
 
       this.server
         .to([body.receiver_id.toFixed(), socket.user.id.toFixed()])
-        .emit('message-user', message);
+        .emit(Events.Client.UserMessage, message);
     }
   }
 
   async closeChannel(id: number) {
     const roomName = `#${id}`;
 
-    this.server.to(roomName).emit('leaveChannel-back', {
+    this.server.to(roomName).emit(Events.Client.LeaveChannel, {
       channel_id: id.toString(),
       user_id: '-1',
     });
@@ -593,9 +591,6 @@ export class ChannelsGateway
     this.logger.log(`User connecting to channel ${channel_id}`);
 
     socket.join(roomName);
-    // TODO: Check which data to send on join
-    // TODO: Use a status event and set connected as its value
-    socket.to(roomName).emit('connected', { username: socket.user.name });
   }
 
   async joinChannel(
@@ -607,15 +602,13 @@ export class ChannelsGateway
     this.logger.log(`User joining channel ${channel_id}`);
 
     socket.join(roomName);
-    // TODO: Check which data to send on join
-    // TODO: Use a status event and set connected as its value
-    socket.emit('joinChannel-back', {
+    socket.emit(Events.Client.JoinChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
     });
 
-    socket.to(roomName).emit('joinChannel-back', {
+    socket.to(roomName).emit(Events.Client.JoinChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
@@ -633,13 +626,13 @@ export class ChannelsGateway
     socket.leave(roomName);
     // TODO: Check which data to send on join
     // TODO: Use a status event and set connected as its value
-    socket.emit('leaveChannel-back', {
+    socket.emit(Events.Client.LeaveChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
     });
 
-    socket.to(roomName).emit('leaveChannel-back', {
+    socket.to(roomName).emit(Events.Client.LeaveChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
