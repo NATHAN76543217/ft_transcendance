@@ -56,7 +56,7 @@ export const defaultRuleset: Ruleset = {
 };
 
 @Injectable()
-@WebSocketGateway(undefined, { namespace: '/matches', path: '/matches' })
+@WebSocketGateway({ namespace: '/matches' })
 export class MatchesGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {

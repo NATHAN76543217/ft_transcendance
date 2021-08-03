@@ -50,7 +50,7 @@ import { Timestamp } from 'typeorm';
 
 // TODO: Rename to EventsModule...
 @Injectable()
-@WebSocketGateway(undefined, { namespace: '/events', path: '/events' })
+@WebSocketGateway({namespace: '/events'})
 export class ChannelsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
