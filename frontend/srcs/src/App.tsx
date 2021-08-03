@@ -34,11 +34,13 @@ import UserRelationship, {
 } from "./models/user/UserRelationship";
 import { AppUserRelationship } from "./models/user/AppUserRelationship";
 import BanPage from "./pages/banPage/banPage";
-import { io } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import FailedLogin from "./pages/failedLogin/failedLogin";
 import { ChannelRelationshipType } from "./models/channel/ChannelRelationship";
 import TwoFactorAuth from "./pages/login/two-factor";
 import { Message, MessageType } from "./models/channel/Channel";
+import { getSocket } from "./components/utilities/getSocket";
+import { Events } from "./models/channel/Events";
 
 interface AppProps {}
 
@@ -48,28 +50,114 @@ class App extends React.Component<AppProps, AppState> {
 
     this.state = {
       relationshipsList: [],
-      socket: undefined,
+      eventSocket: undefined,
       user: this.getCachedUser(),
     };
   }
+
+  onEventSocketConnection = (socket: Socket) => {
+    console.log("Registering event-socket callbacks...");
+
+    // TODO: Define data dtos here to prevent missuse
+    // TODO: Send numbers from the backend instead of converting
+
+    socket.on(Events.Client.UpdateUserRelation, (data: any) => {
+      if (data) {
+        this.updateOneRelationshipType(data.user_id, data.type);
+      }
+    });
+
+    socket.on(Events.Client.UpdateUserInfo, (data: any) => {
+      if (data) {
+        if (Number(data.user_id) === this.state.user?.id) {
+          this.updateNameAndImgPath(data.name, data.imgPath);
+        } else {
+          this.updateOneRelationshipNameAndImgPath(
+            Number(data.user_id),
+            data.name,
+            data.imgPath
+          );
+        }
+      }
+    });
+
+    socket.on(Events.Client.UpdateUserRole, (data: any) => {
+      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
+        this.updateRole(data.role);
+      }
+    });
+
+    socket.on(Events.Client.UpdateChannelRelation, (data: any) => {
+      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
+        this.updateChannelRelationship(
+          Number(data.channel_id),
+          Number(data.user_id),
+          data.type
+        );
+      }
+    });
+
+    socket.on(Events.Client.JoinChannel, (data: any) => {
+      if (data) {
+        this.updateChannelRelationship(
+          Number(data.channel_id),
+          Number(data.user_id),
+          data.type
+        );
+      }
+    });
+
+    socket.on(Events.Client.LeaveChannel, (data: any) => {
+      if (data) {
+        const newRelType = data.type ? data.type : ChannelRelationshipType.Null;
+        this.updateChannelRelationship(
+          Number(data.channel_id),
+          Number(data.user_id),
+          newRelType
+        );
+      }
+    });
+
+    socket.on(Events.Client.UpdateUserStatus, (data: any) => {
+      this.updateOneRelationshipStatus(data.user_id, data.status, data.roomId);
+    });
+
+    socket.on(Events.Client.UserMessage, (message: Message) => {
+      if (
+        message.type === MessageType.GameInvite ||
+        message.type === MessageType.GameCancel
+      ) {
+        console.log(
+          "Received invitation or cancel to",
+          message.data,
+          "from",
+          message.sender_id
+        );
+        this.updateOneRelationshipGameInvite(message);
+      }
+    });
+
+    console.log("Registered event-socket callbacks!");
+  };
 
   setUserInit = (user?: IUser) => {
     if (user !== this.state.user) {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
+
       let socket;
       if (logged) {
-        socket = this.getSocket();
+        socket = getSocket("/events", this.onEventSocketConnection);
       } else {
         socket = undefined;
-        this.state.socket?.close();
+        this.state.eventSocket?.close();
       }
 
       // update state
       this.setState(
         {
           user: user,
-          socket: socket,
+          eventSocket: socket,
         },
         this.updateAllRelationships
       );
@@ -89,16 +177,16 @@ class App extends React.Component<AppProps, AppState> {
     if (user !== this.state.user) {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
-      let socket = this.state.socket;
+      let socket = this.state.eventSocket;
       if (!logged) {
         socket = undefined;
-        this.state.socket?.close();
+        this.state.eventSocket?.close();
       }
 
       // update state
       this.setState({
         user: user,
-        socket: socket,
+        eventSocket: socket,
       });
 
       // update cache
@@ -195,31 +283,18 @@ class App extends React.Component<AppProps, AppState> {
     // this.updateAllRelationships();
   }
 
+  componentWillUnmount() {
+    console.log("App will unmount, closing socket...");
+    this.state.eventSocket?.close();
+    this.setState({ ...this.state, eventSocket: undefined });
+  }
+
   async sortRelationshipsList() {
     let a = this.state.relationshipsList.slice();
     a.sort((user1: AppUserRelationship, user2: AppUserRelationship) =>
       user1.user.name.localeCompare(user2.user.name)
     );
     this.setState({ relationshipsList: a });
-  }
-
-  componentDidUpdate(prevProps: AppProps, prevState: AppState) {
-    // if (prevState.user?.toString() !== this.state.user?.toString()) {
-    //   this.updateAllRelationships();
-    // } else if (
-    //   prevState.relationshipsList.toString() !==
-    //   this.state.relationshipsList.toString()
-    // ) {
-    //   this.sortRelationshipsList();
-    // }
-    if (this.state.user !== undefined && this.state.socket === undefined) {
-      const newSocket = this.getSocket();
-      this.setState({
-        ...this.state,
-        socket: newSocket,
-      });
-    }
-    console.log("componentDidUpdate - state", this.state);
   }
 
   updateAllRelationships = async () => {
@@ -243,13 +318,15 @@ class App extends React.Component<AppProps, AppState> {
               dataUser.data.status = UserStatus.Offline;
             }
             // console.log("dataUser", dataUser);
-            
-            const dataInvite = await axios.get(`/api/users/${this.state.user?.id}/${friendId}/gameInvite`);
+
+            const dataInvite = await axios.get(
+              `/api/users/${this.state.user?.id}/${friendId}/gameInvite`
+            );
             console.log("dataInvite", dataInvite);
             a.push({
               user: dataUser.data,
               relationshipType: relation.type,
-              gameInvite: dataInvite.data
+              gameInvite: dataInvite.data,
             });
             this.setState({ relationshipsList: a });
           } catch (error) {}
@@ -284,6 +361,9 @@ class App extends React.Component<AppProps, AppState> {
           user1.user.name.localeCompare(user2.user.name)
         );
         this.setState({ relationshipsList: a });
+        // TODO: It seems like this should be clearing the rest of the state?
+        // Normally I use object destruction {...this.state} to keep previous state
+        console.log(`State after updating realtionships: ${this.state}`);
       } catch (e) {
         console.log(e);
       }
@@ -305,16 +385,17 @@ class App extends React.Component<AppProps, AppState> {
       }
       if (Number(newStatus) !== Number(UserStatus.Null)) {
         a[index].user.status = newStatus;
-        a[index].user.roomId = roomId
+        a[index].user.roomId = roomId;
         this.setState({ relationshipsList: a });
       }
     }
   };
 
-  updateOneRelationshipGameInvite = async (
-    message: Message
-  ) => {
-    const friendId = message.sender_id === this.state.user?.id ? message.receiver_id : message.sender_id;
+  updateOneRelationshipGameInvite = async (message: Message) => {
+    const friendId =
+      message.sender_id === this.state.user?.id
+        ? message.receiver_id
+        : message.sender_id;
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
       return Number(relation.user.id) === friendId;
@@ -325,7 +406,7 @@ class App extends React.Component<AppProps, AppState> {
       } else if (message.type === MessageType.GameCancel) {
         a[index].gameInvite = undefined;
       }
-        this.setState({ relationshipsList: a });
+      this.setState({ relationshipsList: a });
     }
   };
 
@@ -449,96 +530,6 @@ class App extends React.Component<AppProps, AppState> {
     }
   }
 
-  getSocket = () => {
-    console.log("Initiating socket connection...");
-
-    const socket = io("", {
-      path: "/api/socket.io/events",
-      rejectUnauthorized: false, // This disables certificate authority verification
-      withCredentials: true,
-    }).on("authenticated", () => {
-      console.log("Socket connection authenticated!");
-    });
-
-    socket.on("updateRelationship-back", (data: any) => {
-      if (data) {
-        this.updateOneRelationshipType(data.user_id, data.type);
-      }
-    });
-
-    socket.on("updateUserInfo-back", (data: any) => {
-      if (data) {
-        if (Number(data.user_id) === this.state.user?.id) {
-          this.updateNameAndImgPath(data.name, data.imgPath);
-        } else {
-          this.updateOneRelationshipNameAndImgPath(
-            Number(data.user_id),
-            data.name,
-            data.imgPath
-          );
-        }
-      }
-    });
-
-    socket.on("updateRole-back", (data: any) => {
-      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-        this.updateRole(data.role);
-      }
-    });
-
-    socket.on("updateChannelRelationship-back", (data: any) => {
-      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-        this.updateChannelRelationship(
-          Number(data.channel_id),
-          Number(data.user_id),
-          data.type
-        );
-      }
-    });
-
-    socket.on("joinChannel-back", (data: any) => {
-      // if (data && Number(data.user_id) === Number(this.state.user?.id)) {
-      if (data) {
-        this.updateChannelRelationship(
-          Number(data.channel_id),
-          Number(data.user_id),
-          data.type
-        );
-      }
-    });
-
-    socket.on("leaveChannel-back", (data: any) => {
-      // if (data && (Number(data.user_id) === Number(this.state.user?.id) || data.user_id === '-1')) {
-      if (data) {
-        const newType = data.type ? data.type : ChannelRelationshipType.Null;
-        this.updateChannelRelationship(
-          Number(data.channel_id),
-          Number(data.user_id),
-          newType
-        );
-      }
-    });
-
-    socket.on("statusChanged", (data: any) => {
-      this.updateOneRelationshipStatus(data.user_id, data.status, data.roomId);
-    });
-
-    socket.on("message-user", (message: Message) => {
-      if (message.type === MessageType.GameInvite ||
-        message.type === MessageType.GameCancel) {
-        console.log(
-          "Received invitation or cancel to",
-          message.data,
-          "from",
-          message.sender_id
-        );
-        this.updateOneRelationshipGameInvite(message);
-      }
-    });
-
-    return socket;
-  };
-
   render() {
     let contextValue: IAppContext = {
       relationshipsList: this.state.relationshipsList,
@@ -547,7 +538,7 @@ class App extends React.Component<AppProps, AppState> {
       setUserInit: this.setUserInit,
       updateOneRelationshipType: this.updateOneRelationshipType,
       updateOneRelationshipGameInvite: this.updateOneRelationshipGameInvite,
-      channelSocket: this.state.socket,
+      eventSocket: this.state.eventSocket,
     };
 
     if (

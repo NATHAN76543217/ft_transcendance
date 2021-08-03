@@ -4,7 +4,6 @@ import { useContext } from "react";
 import { useHistory } from "react-router";
 import { NavLink } from "react-router-dom";
 import AppContext from "../../AppContext";
-import { Message } from "../../models/channel/Channel";
 import ChannelInviteDto from "../../models/channel/ChannelInvite.dto";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import { CreateGameDto } from "../../models/game/CreateGame.dto";
@@ -19,7 +18,7 @@ import {
 import chatContext from "../../pages/chat/chatContext";
 import ChannelInviteForm from "../Forms/channelInviteForm";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
-import { ChatTitle } from "./ChatTitle"
+import { ChatTitle } from "./ChatTitle";
 import { FriendState } from "./ChatView";
 
 type UserActionsProps = {
@@ -31,7 +30,9 @@ function UserActions({ nbUsers }: UserActionsProps) {
   const nbUsersSpan = nbUsers && nbUsers > 1 ? nbUsers + " users" : "1 user";
   return (
     <>
-      <span className='flex-no-wrap hidden w-16 font-semibold lg:flex '>{nbUsersSpan}</span>
+      <span className="flex-no-wrap hidden w-16 font-semibold lg:flex ">
+        {nbUsersSpan}
+      </span>
     </>
   );
 }
@@ -52,7 +53,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
     user_id: number,
     type: ChannelRelationshipType
   ) => {
-    contextValue.channelSocket?.emit("updateChannelRelationship-front", {
+    contextValue.eventSocket?.emit("updateChannelRelationship-front", {
       channel_id: channel_id,
       user_id: user_id,
       type: type,
@@ -101,10 +102,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
 
   return (
     <>
-      <UserActions
-        channelId={channelId}
-        nbUsers={nbUsers}
-      />
+      <UserActions channelId={channelId} nbUsers={nbUsers} />
       <div className="flex h-10 md:px-2">
         <ChannelInviteForm onSubmit={onSubmitInvite} />
       </div>
@@ -175,7 +173,12 @@ type ChatHeaderProps = {
   friendInfo: FriendState;
 };
 
-export function ChatHeader({ myRole, isChannel, isPrivateConv, friendInfo }: ChatHeaderProps) {
+export function ChatHeader({
+  myRole,
+  isChannel,
+  isPrivateConv,
+  friendInfo,
+}: ChatHeaderProps) {
   const chatContextValue = useContext(chatContext);
   const contextValue = useContext(AppContext);
 
@@ -190,17 +193,17 @@ export function ChatHeader({ myRole, isChannel, isPrivateConv, friendInfo }: Cha
     if (isPrivateConv) {
       const sender = contextValue.relationshipsList.find((rel) => {
         // return rel.user.id === userRel?.user.id
-        return rel.user.id === friendInfo.id
+        return rel.user.id === friendInfo.id;
       })?.user;
       if (sender) {
         return sender.name;
       } else {
-        return '';
+        return "";
       }
     } else {
-      return '';
+      return "";
     }
-  }
+  };
 
   const inviteFriendToPlay = async () => {
     const gameData: CreateGameDto = { guests: [friendInfo.id], ruleset: {} };
@@ -215,7 +218,6 @@ export function ChatHeader({ myRole, isChannel, isPrivateConv, friendInfo }: Cha
       console.error("TODO: inviteFriend:", e);
     }
   };
-
 
   const acceptGameRequest = async () => {
     console.log("Accepting game invitation");
@@ -239,7 +241,6 @@ export function ChatHeader({ myRole, isChannel, isPrivateConv, friendInfo }: Cha
   const displayInviteButton = () => {
     if (friendInfo.status === UserStatus.Online) {
       if (!friendInfo.gameInvite) {
-
         return (
           <button
             className={
@@ -301,47 +302,36 @@ export function ChatHeader({ myRole, isChannel, isPrivateConv, friendInfo }: Cha
     }
   };
 
-
-
   const displayPrivateConvHeader = () => {
     return (
       <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
-        <span className='font-semibold pl-4'>
-          {getPrivateSenderName()}
-        </span>
+        <span className="font-semibold pl-4">{getPrivateSenderName()}</span>
         <div className="flex items-center ">
           {displayInviteButton()}
           {displayWatchButton()}
         </div>
       </header>
-    )
-  }
+    );
+  };
 
   if (
     isChannel &&
     myRole &
-    (ChannelRelationshipType.Owner |
-      ChannelRelationshipType.Admin |
-      ChannelRelationshipType.Member)
+      (ChannelRelationshipType.Owner |
+        ChannelRelationshipType.Admin |
+        ChannelRelationshipType.Member)
   ) {
     return (
       <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
-        <ChatTitle
-          channel={currentChat}
-          isInHeader
-        />
+        <ChatTitle channel={currentChat} isInHeader />
         <div className="flex items-center ">
-          <ChatActions
-            channelRelation={chatContextValue.currentChannelRel}
-          />
-
+          <ChatActions channelRelation={chatContextValue.currentChannelRel} />
         </div>
       </header>
     );
   } else if (isPrivateConv) {
-    return displayPrivateConvHeader()
-  }
-  else {
+    return displayPrivateConvHeader();
+  } else {
     return <header className="w-full h-10 bg-gray-200"></header>;
   }
 }

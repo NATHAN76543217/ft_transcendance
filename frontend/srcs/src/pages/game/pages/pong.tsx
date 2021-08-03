@@ -15,7 +15,7 @@ export type PongPageParams = {
 };
 
 export function Pong({ match }: RouteComponentProps<PongPageParams>) {
-  const { user, channelSocket: appSocket } = useContext(AppContext);
+  const { user, eventSocket: appSocket } = useContext(AppContext);
   const gameContext = useContext(GameContext);
   const history = useHistory();
 
@@ -119,7 +119,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     );
 
     return deleteSubscribedListeners;
-  }, [user?.id, gameContext.gameSocket]);
+  }, [user?.id, gameContext.gameSocket, appSocket, history, match.params.id]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 

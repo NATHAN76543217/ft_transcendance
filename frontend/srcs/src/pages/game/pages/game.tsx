@@ -6,33 +6,24 @@ import GameMatchmaking from "./gameMatchmaking";
 import { GameContext } from "../context";
 import { Pong } from "./pong";
 import { useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
-
-function getGameSocket() {
-  console.log("Initiating game-socket connection...");
-
-  const socket = io('', {
-    path: "/api/socket.io/matches",
-    rejectUnauthorized: false, // This disables certificate authority verification
-    withCredentials: true,
-    forceNew: true
-  }).on("authenticated", () => {
-    console.log("Game-socket connection authenticated!");
-  });
-
-  return socket;
-}
+import { Socket } from "socket.io-client";
+import { getSocket } from "../../../components/utilities/getSocket";
 
 function Game() {
   const [gameSocket, setGameSocket] = useState<Socket | undefined>(undefined);
 
   useEffect(() => {
-    const socket = getGameSocket();
+    const onGameSocketConnection = (socket: Socket) => {
+      // TODO: Register event callbacks here
+      console.log("TODO: Game socket connected!");
+    };
+
+    const socket = getSocket("/matches", onGameSocketConnection);
 
     setGameSocket(socket);
 
     return () => {
-      socket?.close();
+      //socket?.close();
     };
   }, []);
 

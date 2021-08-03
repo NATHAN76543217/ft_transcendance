@@ -89,7 +89,7 @@ function ChannelSearch() {
   };
 
   const joinChannel = async (id: number, password: string) => {
-    contextValue.channelSocket?.emit("joinChannel-front", {
+    contextValue.eventSocket?.emit("joinChannel-front", {
       channel_id: id,
       user_id: contextValue.user?.id,
       password: password,
@@ -98,7 +98,7 @@ function ChannelSearch() {
   };
 
   const leaveChannel = async (id: number) => {
-    contextValue.channelSocket?.emit("leaveChannel-front", {
+    contextValue.eventSocket?.emit("leaveChannel-front", {
       channel_id: id,
       user_id: contextValue.user?.id,
     });

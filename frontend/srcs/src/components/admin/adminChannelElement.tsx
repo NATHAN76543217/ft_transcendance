@@ -250,7 +250,7 @@ function AdminChannelElement(props: ChannelElementProps) {
     adminChannelElementInfo: ChannelElementStates,
     setAdminChannelElementInfo: any
   ) => {
-    contextValue.channelSocket?.emit("updateChannelRelationship-front", {
+    contextValue.eventSocket?.emit("updateChannelRelationship-front", {
       channel_id: channel_id,
       user_id: user_id,
       type: type,

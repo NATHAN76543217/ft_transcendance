@@ -1,18 +1,13 @@
 import React from "react";
 import { IAppContext } from "./IAppContext";
-import { Message } from "./models/channel/Channel";
-import { UserRelationshipType } from "./models/user/UserRelationship";
 
 const AppContext = React.createContext<IAppContext>({
   setUser: () => {},
   setUserInit: () => {},
   relationshipsList: [],
-  updateOneRelationshipType: (
-    user_id: number,
-    newType: UserRelationshipType
-  ) => {},
-  updateOneRelationshipGameInvite: (message: Message) => {},
-  channelSocket: undefined,
+  updateOneRelationshipType: () => {},
+  updateOneRelationshipGameInvite: () => {},
+  eventSocket: undefined,
 });
 
 export const AppProvider = AppContext.Provider;

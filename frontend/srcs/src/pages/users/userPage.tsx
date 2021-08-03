@@ -35,7 +35,7 @@ const onLoad = async (
         });
       }
     }
-  } catch (error) { }
+  } catch (error) {}
 };
 
 // This has been replaced with two factor setup modal
@@ -116,7 +116,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     usernameErrorMessage: "",
   });
 
-  const [matchList, setMatchList] = useState<{list: IMatch[]}>({list: []});
+  const [matchList, setMatchList] = useState<{ list: IMatch[] }>({ list: [] });
 
   useEffect(() => {
     const getPlayerName = async (user_id: number): Promise<string> => {
@@ -126,18 +126,20 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
         return dataUser.data.name;
       } catch (error) {
         console.log(error);
-        return 'Unknown player'
+        return "Unknown player";
       }
-    }
+    };
 
     const getAllMatches = async () => {
       try {
-        const dataMatches = await axios.get<IMatch[]>(`/api/matches/user/${userId}`)
+        const dataMatches = await axios.get<IMatch[]>(
+          `/api/matches/user/${userId}`
+        );
         if (!dataMatches.data.length) {
-          setMatchList({list: []})
-          return ;
+          setMatchList({ list: [] });
+          return;
         }
-        console.log(`matches for user ${userId}`, dataMatches)
+        console.log(`matches for user ${userId}`, dataMatches);
         let a: IMatch[] = [];
         dataMatches.data.map(async (match, index) => {
           const inf = userInfo.user.id === Number(match.player_ids[0]);
@@ -145,11 +147,11 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
           if (inf) {
             const nameA = await getPlayerName(match.player_ids[0]);
             const nameB = await getPlayerName(match.player_ids[1]);
-            playerNames = [nameA, nameB]
+            playerNames = [nameA, nameB];
           } else {
             const nameA = await getPlayerName(match.player_ids[0]);
             const nameB = await getPlayerName(match.player_ids[1]);
-            playerNames = [nameB, nameA]
+            playerNames = [nameB, nameA];
             const scoreTemp = match.scores[0];
             match.scores[0] = match.scores[1];
             match.scores[1] = scoreTemp;
@@ -160,18 +162,16 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
             scores: match.scores,
             startedAt: match.startedAt,
             endAt: match.endAt,
-            playerNames: playerNames
-          }
-          setMatchList({list: a})
-        })
+            playerNames: playerNames,
+          };
+          setMatchList({ list: a });
+        });
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
     getAllMatches();
   }, [userInfo, userId]);
-
-
 
   const onSubmitChangeUsername = async (
     values: IUserChangeNameFormValues,
@@ -180,11 +180,12 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     setUser: any
   ) => {
     try {
-      const dataUser = await axios.patch("/api/users/" + userInfo.user.id, {
+      //const dataUser =
+      await axios.patch("/api/users/" + userInfo.user.id, {
         name: values.username,
       });
       // console.log("dataUser", dataUser);
-      contextValue.channelSocket?.emit("updateUserInfo-front", {
+      contextValue.eventSocket?.emit("updateUserInfo-front", {
         name: values.username,
       });
 
@@ -251,14 +252,14 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       });
       // setUser(dataUser.data);
 
-      contextValue.channelSocket?.emit("updateUserInfo-front", {
+      contextValue.eventSocket?.emit("updateUserInfo-front", {
         imgPath: newImgPath,
       });
 
       if (oldImgPath !== "default-profile-picture.png") {
         await axios.delete("/api/photos/" + oldImgPath);
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const updateOnLoad: any = useCallback(() => {
@@ -273,7 +274,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     user_id: number,
     type: UserRelationshipType
   ) => {
-    contextValue.channelSocket?.emit("updateRelationship-front", {
+    contextValue.eventSocket?.emit("updateRelationship-front", {
       user_id: user_id,
       type: type,
     });
@@ -388,7 +389,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
 
   return (
     <div className="overflow-y-scroll h-full">
-      <section className='mb-8'>
+      <section className="mb-8">
         <UserWelcome
           name={userInfo.user.name}
           isMe={isMe}

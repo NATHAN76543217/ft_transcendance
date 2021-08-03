@@ -45,7 +45,7 @@ function ChannelCreate() {
     try {
       const newChannel = await axios.post("/api/channels", values);
       console.log("newChannel created", newChannel);
-      contextValue.channelSocket?.emit("joinChannel-front", {
+      contextValue.eventSocket?.emit("joinChannel-front", {
         channel_id: newChannel.data.id,
         password: values.password,
       });

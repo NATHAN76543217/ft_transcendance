@@ -20,23 +20,17 @@ function GameCreate() {
   const { relationshipsList } = useContext(AppContext);
   const gameContext = useContext(GameContext);
 
-  const quitToHome = () => {
-    history.push('/game');
-  };
-
-  const onNotify = (msg: string) => {
-    console.log(msg);
-  };
-
   useEffect(() => {
-    gameContext.gameSocket?.on(ClientMessages.NOTIFY, onNotify)
-      .on(ClientMessages.GUEST_REJECTION, quitToHome);
+    gameContext.gameSocket
+      ?.on(ClientMessages.NOTIFY, console.log)
+      .on(ClientMessages.GUEST_REJECTION, () => history.push("/game"));
 
     return () => {
-      gameContext.gameSocket?.off(ClientMessages.NOTIFY, onNotify)
-        .off(ClientMessages.GUEST_REJECTION, quitToHome);
+      gameContext.gameSocket
+        ?.off(ClientMessages.NOTIFY, console.log)
+        .off(ClientMessages.GUEST_REJECTION, () => history.push("/game"));
     };
-  }, []);
+  }, [gameContext.gameSocket, history]);
 
   const {
     register,
@@ -151,7 +145,7 @@ function GameCreate() {
         </div>
       );
     }
-  }
+  };
 
   const displayPlayersList = () => {
     let radioLabelClassName = "inline-flex items-center ml-2 mr-2";
@@ -190,7 +184,10 @@ function GameCreate() {
   const displaySliderPoints = () => {
     return (
       <div className="">
-        <label className="ml-2 text-lg font-semibold"> Score to win:  {nbPoints}</label>
+        <label className="ml-2 text-lg font-semibold">
+          {" "}
+          Score to win: {nbPoints}
+        </label>
         <div className="px-8 pt-2 bg-gray-100 rounded-md">
           <Slider
             step={4}
@@ -232,6 +229,8 @@ function GameCreate() {
     );
   };
 
+  // NavLink does not need an onClick, because it is a link
+
   return (
     <div className="grid justify-center">
       <div className="inline-block px-12 pt-8 pb-2 mt-24 bg-blue-200 border-2 border-gray-300 rounded-lg">
@@ -246,7 +245,6 @@ function GameCreate() {
             buttonClassname + " bg-secondary hover:bg-secondary-dark mt-8 w-32"
           }
           to="/game"
-          onClick={() => quitToHome()}
         >
           <span className={textButtonClassname}>Quit</span>
         </NavLink>
