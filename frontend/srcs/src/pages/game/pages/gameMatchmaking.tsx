@@ -78,6 +78,7 @@ function GameMatchmaking() {
 
     const goToGamePage = (id : number) => {
       //cancelSearch();
+      console.log("Game found, go to pong.tsx");
       history.push(`/game/${id}`);
     };
 
