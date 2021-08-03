@@ -73,6 +73,12 @@ services:
     networks:
       - pong_database_network
       - pong_backend_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 1m
+      timeout: 30s
+      retries: 3
+      start_period: 40s
 
   frontend:
     depends_on:
