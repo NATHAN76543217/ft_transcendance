@@ -69,7 +69,7 @@ function GameMatchmaking() {
 
     const goToGamePage = (id: number) => {
       //cancelSearch();
-      console.log("Game found, go to pong.tsx");
+      console.log(`[pong.tsx] [matchmaking] redirect to /game/${id}`);
       history.push(`/game/${id}`);
     };
 

@@ -125,9 +125,14 @@ export default class MatchesService {
       });
     }
 
-    this.matchesGateway.setRoom(
-      new Room(this.matchesGateway, newMatch.id, hostId, match.ruleset),
-    );
+    const room : Room = new Room(this.matchesGateway, newMatch.id, hostId, match.ruleset);
+    room.playerIds.push(hostId);
+    match.guests.forEach((guestId) => {
+      room.playerIds.push(guestId);
+    });
+    
+
+    this.matchesGateway.setRoom(room);
 
     return newMatch;
   }

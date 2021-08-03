@@ -17,12 +17,13 @@ import { SocketWithPlayer } from './socketWIthPlayer.interface';
 import { PlayerStatusChangedDto } from './dto/playerStatusChanged.dto';
 import { PlayerStatus } from './dto/playerStatus';
 import { JoinGameDto } from './dto/joinGame.dto';
-import { GameState } from './models/GameRoom';
+import { GameState, GameStateDto, GameStatus } from './models/GameRoom';
 import { GameRole } from './models/GameRole';
 import { GameJoinedDto } from './dto/gameJoined.dto';
 import { IVector2D } from './models/Vector2D';
 import { Ruleset } from './dto/ruleset.dto';
 import { Room } from './room';
+import { IBall } from './models/Ball';
 
 export enum ServerMessages {
   CREATE_ROOM = 'server:createRoom',
@@ -39,13 +40,17 @@ export enum ServerMessages {
 }
 
 export enum ClientMessages {
-  NOTIFY = 'client:notify',
-  MATCH_FOUND = 'client:matchFound',
-  RECEIVE_ST = 'client:receiveSt',
-  JOINED = 'client:joined',
+  NOTIFY = "client:notify",
+  MATCH_FOUND = "client:matchFound",
+  RECEIVE_ST = "client:receiveSt",
+  RECEIVE_STATUS = "client:receiveStatus",
+  RECEIVE_PLAYERS = "client:receivePlayers",
+  RECEIVE_SCORES = "client:receiveScores",
+  RECEIVE_BALL = "client:receiveBall",
+  JOINED = "client:joined",
   QUIT = 'client:quit',
-  GUEST_REJECTION = 'client:guestRejection',
-  GAME_START = 'client:gameStart',
+  GUEST_REJECTION = "client:guestRejection",
+  GAME_START = "client:gameStart",
   GAME_END = 'client:gameEnd',
 }
 
@@ -69,8 +74,10 @@ export class MatchesGateway
   private rooms: Map<number, Room> = new Map();
   /** Joined rooms mapped by player's user ids */
   private joinedRooms: Map<number, number> = new Map();
-
-  public matchmakingQueue: Array<[number, string]> = []; // <user id, socket id>
+  /** Current player's socket id mapped by player's id */
+  private playerSockets: Map<number, string> = new Map();
+  /** Key - Value array mapping player's socket by player's id */
+  public matchmakingQueue: Array<[number, string]> = []; 
 
   constructor(
     @Inject(forwardRef(() => MatchesService))
@@ -158,11 +165,20 @@ export class MatchesGateway
     this.server.to(gameId.toFixed()).emit('status', statusChange);
   }
 
+  @SubscribeMessage("test")
+  async test(
+    @ConnectedSocket() socket: SocketWithPlayer,
+    @MessageBody() body: JoinGameDto
+  ) {
+    this.logger.debug(`[MATCHES GATEWAY]: TEST: id is ${socket.user.id}, matchId: ${body.id}`);
+  }
+
   @SubscribeMessage(ServerMessages.JOIN_ROOM)
   async handleJoin(
     @ConnectedSocket() socket: SocketWithPlayer,
     @MessageBody() body: JoinGameDto,
   ) {
+    //this.logger.debug(`[MATCHES GATEWAY] player ${socket.user.id} joined room ${body.id}` )
     const room = this.getRoom(body.id);
 
     // Check if the user is allowed to play
@@ -179,10 +195,16 @@ export class MatchesGateway
       `[MATCHES GATEWAY] user ${socket.user.id} has joined room ${body.id} with role: ${role}`,
     );
 
+    socket.join(room.getId());
+
     const data: GameJoinedDto = { role };
 
     socket.matchId = body.id;
-    socket.emit(ClientMessages.JOINED, data);
+    this.server
+    .to(socket.id)
+    .emit(ClientMessages.RECEIVE_PLAYERS, [...room.state.players.values()]);
+    this.server.to(socket.id).emit(ClientMessages.JOINED, data);
+
   }
 
   @SubscribeMessage(ServerMessages.REJECT)
@@ -254,6 +276,9 @@ export class MatchesGateway
         true,
       );
 
+      this.playerSockets.set(playerIds[0][0], playerIds[0][1]);
+      this.playerSockets.set(playerIds[1][0], playerIds[1][1]);
+
       playerIds.forEach((player) => {
         this.server.to(player[1]).emit(ClientMessages.MATCH_FOUND, id);
       });
@@ -282,13 +307,15 @@ export class MatchesGateway
 
     room.setPlayerStatus(client.user.id, PlayerStatus.READY);
 
+    this.logger.debug(`[MATCHES GATEWAY] On ready: isFilled: ${room.isFilled()}, playersReady: ${room.playersReady()}`);
+
     if (room.isFilled() && room.playersReady()) {
-      this.logger.debug(
-        `[MATCHES GATEWAY] user ${client.user.id} is ready to play`,
-      );
       room.onStartGame();
       room.playerIds.forEach((playerId) => {
-        this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_START);
+        if (this.playerSockets.has(playerId)) {
+          this.logger.debug(`[MATCHES GATEWAY] user ${this.playerSockets.get(playerId)} is ready to play`);
+          this.server.to(this.playerSockets.get(playerId)).emit(ClientMessages.GAME_START);
+        }
       });
     }
   }
@@ -298,6 +325,7 @@ export class MatchesGateway
     @ConnectedSocket() client: SocketWithPlayer,
     @MessageBody() mousePos: IVector2D,
   ) {
+    //this.logger.debug("[MATCHES GATEWAY] receiving mouse pos ...");
     const roomId = client.matchId;
     const room = this.getRoom(roomId);
 
@@ -336,9 +364,31 @@ export class MatchesGateway
   }
 
   onGameUpdate(roomId: number, state: GameState) {
-    this.server.volatile
+    this.logger.debug(`[MATCHES GATEWAY] Update game ${roomId.toFixed()}`);
+
+    this.server
       .to(roomId.toFixed())
-      .emit(ClientMessages.RECEIVE_ST, { state });
+      .emit(ClientMessages.RECEIVE_STATUS, state.status);
+    
+    this.server
+       .to(roomId.toFixed())
+       .emit(ClientMessages.RECEIVE_PLAYERS, [...state.players.values()]);
+
+    this.server
+      .to(roomId.toFixed())
+      .emit(ClientMessages.RECEIVE_SCORES, state.scores);
+
+      this.server
+      .to(roomId.toFixed())
+      .emit(ClientMessages.RECEIVE_BALL, {
+        // x: state.ball.x,
+        // y: state.ball.y,
+        // dir: state.ball.dir,
+        // velocity: state.ball.velocity,
+        // rad: state.ball.rad,
+        // defaultBall: undefined
+        ...(state.ball as IBall), defaultBall: undefined
+      } as IBall);
   }
 
   onDisconnectClients(roomId: number) {
@@ -348,6 +398,7 @@ export class MatchesGateway
       this.logger.debug(
         `[MATCHES GATEWAY] player ${playerId} should not be inGame now`,
       );
+      this.playerSockets.delete(playerId);
       this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_END);
     });
     this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);

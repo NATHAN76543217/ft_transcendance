@@ -18,6 +18,14 @@ export type GameState = {
   ball: Ball;
 };
 
+export type GameStateDto = {
+  elapsed: number;
+  status: GameStatus;
+  players: Player[];
+  scores: number[];
+  ball: Ball;
+}
+
 export type GameRoom = {
   lastRunning?: number;
   matchId: number;

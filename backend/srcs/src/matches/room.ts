@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { PlayerStatus } from './dto/playerStatus';
 import { Ruleset } from './dto/ruleset.dto';
@@ -17,7 +17,7 @@ export class Room implements GameRoom {
   private endTimeoutHandle: NodeJS.Timeout;
 
   ruleset: Ruleset;
-  playerIds: number[];
+  playerIds: number[] = [];
   filled: boolean = false;
   level?: number;
 
@@ -26,7 +26,7 @@ export class Room implements GameRoom {
     elapsed: 0,
     status: GameStatus.UNREADY,
     players: new Map(),
-    scores: [],
+    scores: [0, 0],
     ball: defaultBall,
   };
 
@@ -39,9 +39,11 @@ export class Room implements GameRoom {
   ) {
     this.ruleset = { ...defaultRuleset, ...ruleset };
     this.addPlayer(hostId);
+
+    this.onGameRunning = this.onGameRunning.bind(this);
   }
   getId() {
-    return String(this.matchId);
+    return this.matchId.toFixed();
   }
 
   addPlayer(playerId: number) {
@@ -172,14 +174,14 @@ export class Room implements GameRoom {
   }
 
   onStartGame() {
-    this.state.status = GameStatus.STARTING;
+    this.state.status = GameStatus.RUNNING;//GameStatus.STARTING; // TO DO: Staus === STARTING when not all the player have joined, here all the players have joined
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
-
     setTimeout(this.onGameRunning, 3 * 1000);
   }
 
   onGameRunning() {
+    Logger.debug(`[ROOM ${this.getId()}] status: ${this.state.status}`);
     if (this.state.status === GameStatus.RUNNING) {
       const t = 33;
 

@@ -7,7 +7,11 @@ export interface IBallBase extends IVector2D {
   rad: number;
 }
 
-export class Ball extends Vector2D implements IBallBase {
+export interface IBall extends IBallBase {
+  defaultBall : IBallBase
+}
+
+export class Ball extends Vector2D implements IBall {
   public defaultBall: IBallBase;
 
   constructor(

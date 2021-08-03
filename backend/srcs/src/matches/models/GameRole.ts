@@ -1,4 +1,4 @@
 export enum GameRole {
-  Player,
-  Spectator,
+  Player = "role:player",
+  Spectator = "role:spectator",
 }
