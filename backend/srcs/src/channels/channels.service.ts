@@ -1,4 +1,10 @@
-import { forwardRef, HttpException, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import Channel from './channel.entity';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
@@ -20,6 +26,8 @@ import MessageService from 'src/messages/messages.service';
 
 @Injectable()
 export default class ChannelsService {
+  private logger = new Logger('ChannelsService');
+
   constructor(
     @InjectRepository(Channel)
     private readonly channelsRepository: Repository<Channel>,
@@ -86,9 +94,6 @@ export default class ChannelsService {
     plainTextPassword: string,
     hashedPassword: string,
   ) {
-    console.log(`plainTextPassword = ${plainTextPassword}`);
-    console.log(`hashedPassword = ${hashedPassword}`);
-
     const isPasswordMatching = await bcrypt.compare(
       plainTextPassword,
       hashedPassword,
@@ -109,8 +114,8 @@ export default class ChannelsService {
       .createQueryBuilder('message')
       .where('message.channel_id = :channelId', { channelId })
       .orderBy('message.created_at', 'DESC') // TODO: Set ASC or DESC
-      .take(maxCount)
-      // .orderBy('message.created_at', 'ASC'); // TODO: Set ASC or DESC
+      .take(maxCount);
+    // .orderBy('message.created_at', 'ASC'); // TODO: Set ASC or DESC
 
     if (beforeId !== undefined && !isNaN(beforeId))
       query.andWhere('message.id < :beforeId', { beforeId });
@@ -245,10 +250,13 @@ export default class ChannelsService {
   async deleteChannel(id: number) {
     const deleteResponseRelationships =
       await this.channelRelationshipRepository.delete({ channel_id: id });
-    console.log('deleteResponseRelationships', deleteResponseRelationships);
+    this.logger.debug(
+      `deleteChannel: deleteResponseRelationships: ${JSON.stringify(
+        deleteResponseRelationships,
+      )}`,
+    );
 
     const deleteResponse = await this.channelsRepository.delete(id);
-    // TODO: Dispatch leave event on corresponding gateway room
 
     if (!deleteResponse.affected) {
       throw new ChannelNotFound(id);
@@ -258,7 +266,10 @@ export default class ChannelsService {
   }
 
   async sendUserMessage(senderId: number, message: CreateMessageDto) {
-    const newMessage = await this.messageService.createMessage(message, senderId);
+    const newMessage = await this.messageService.createMessage(
+      message,
+      senderId,
+    );
     this.channelsGateway.sendUserMessage(senderId, message, newMessage.id);
   }
 }

@@ -10,6 +10,8 @@ import {
   UseGuards,
   Req,
   HttpException,
+  Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import ChannelsService from './channels.service';
 import { CreateChannelDto } from './dto/createChannel.dto';
@@ -37,6 +39,8 @@ import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.
   // strategy: 'excludeAll'
 }) */
 export default class ChannelsController {
+  private logger = new Logger('ChannelsController');
+
   constructor(
     private readonly channelsService: ChannelsService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
@@ -127,19 +131,8 @@ export default class ChannelsController {
   // }
 
   @Post()
-  // TODO: Check if user has CASL create permission (any user should be able)
-  async createChannel(
-    @Req() req: RequestWithUser,
-    @Body() channelData: CreateChannelDto,
-  ) {
+  async createChannel(@Body() channelData: CreateChannelDto) {
     const channel = await this.channelsService.createChannel(channelData);
-    // console.log(channel)
-    // const relation = await this.channelsService.createChannelRelationship(
-    //   channel.id,
-    //   req.user.id,
-    //   ChannelRelationshipType.Owner,
-    // );
-    // console.log(relation)
     return channel;
   }
 
@@ -152,7 +145,11 @@ export default class ChannelsController {
     @Param('userId') user_id: string,
     @Body() channelRelationship: UpdateChannelRelationshipDto,
   ) {
-    console.log('--------------', channelRelationship);
+    this.logger.debug(
+      `Updating ${user_id}'s rel for ${channel_id}: ${JSON.stringify(
+        channelRelationship,
+      )}`,
+    );
 
     const channel = await this.channelsService.getChannelById(
       Number(channel_id),
@@ -227,11 +224,8 @@ export default class ChannelsController {
     );
 
     if (relationship) {
-      // If we already have a relationship,
-      // we have already joined or are banned from the channel
-
-      // TODO: Improve exception
-      throw new HttpException('TODO: Relationship already exists!', 400);
+      // If we already have a relationship, we have already joined or are banned from the channel
+      throw new BadRequestException('Relationship already exists');
     }
 
     const channel = await this.channelsService.getChannelById(

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import CreateMessageDto from './dto/createMessage.dto';
@@ -7,14 +7,16 @@ import { Message } from './message.entity';
 
 @Injectable()
 export default class MessageService {
+  private logger = new Logger('MessageService');
+
   constructor(
     @InjectRepository(Message)
     private messageRepository: Repository<Message>,
   ) {}
 
   async createMessage(message: CreateMessageDto, senderId: number) {
-    console.log('--------------- createMessage ----------------', message);
-    // if (!message.channel_id) {
+    this.logger.debug(`createMessage: ${JSON.stringify(message)}`);
+    // if (message.channel_id === undefined) {
     //   message.channel_id = 0;
     // }
     const newMessage = this.messageRepository.create({
