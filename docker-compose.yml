@@ -55,10 +55,30 @@ services:
       - /app/dist
     environment:
       - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - JWT_SECRET
+      - JWT_EXPIRATION_TIME
+      - JWT_REFRESH_SECRET
+      - JWT_REFRESH_EXPIRATION_TIME
+      - MODE
+      - RUN_MIGRATIONS
+      - OAUTH_42_UID
+      - OAUTH_42_SECRET
+      - OAUTH_GOOGLE_UID
+      - OAUTH_GOOGLE_SECRET
     restart: always
     networks:
       - pong_database_network
       - pong_backend_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 1m
+      timeout: 30s
+      retries: 3
+      start_period: 40s
 
   frontend:
     depends_on:
