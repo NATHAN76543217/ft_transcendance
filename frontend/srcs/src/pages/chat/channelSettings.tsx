@@ -8,6 +8,7 @@ import {
   Message,
 } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import { Events } from "../../models/channel/Events";
 import ChannelSettingsProperties from "./channelSettingsProperties";
 import chatContext from "./chatContext";
 
@@ -30,7 +31,7 @@ function ChannelSettings(props: ChannelSettingsProps) {
   const destroyChannel = async (channel_id: number) => {
     console.log("Deleting channel " + channel_id);
 
-    contextValue.channelSocket?.emit("destroyChannel-front", {
+    contextValue.eventSocket?.emit(Events.Server.DestroyChannel, {
       channel_id: channel_id,
     });
     chatContextValue.setCurrentChannelRel(undefined);
@@ -51,10 +52,8 @@ function ChannelSettings(props: ChannelSettingsProps) {
           isChannelSettings={true}
           myRole={props.myRole}
         />
-        <div className='grid justify-center pt-4 pb-4 mt-8 border-2 border-gray-300 rounded-sm bg-neutral w-96'>
-          <h2 className="text-3xl font-bold text-center">
-            Channel Users
-          </h2>
+        <div className="grid justify-center pt-4 pb-4 mt-8 border-2 border-gray-300 rounded-sm bg-neutral w-96">
+          <h2 className="text-3xl font-bold text-center">Channel Users</h2>
           <AdminChannelElement
             id={props.id}
             name={props.name}

@@ -7,8 +7,7 @@ import { ChannelRelationshipType } from "../../models/channel/ChannelRelationshi
 import ChannelSettings from "../../pages/chat/channelSettings";
 import { ChatInput } from "./ChatInput";
 import { Channel, ChannelMode, Message } from "../../models/channel/Channel";
-import { IUser, UserStatus } from "../../models/user/IUser";
-import { AppUserRelationship } from "../../models/user/AppUserRelationship";
+import { UserStatus } from "../../models/user/IUser";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 
 type ChatPageParams = {
@@ -19,10 +18,10 @@ export type FriendState = {
   id: number;
   name: string;
   status: UserStatus;
-  roomId?: number
+  roomId?: number;
   relationshipType: UserRelationshipType;
   gameInvite?: Message;
-}
+};
 
 export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   const contextValue = useContext(AppContext);
@@ -56,11 +55,11 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
 
   const [friendInfo, setFriendInfo] = useState<FriendState>({
     id: 0,
-    name: '',
+    name: "",
     status: UserStatus.Offline,
     roomId: undefined,
     relationshipType: UserRelationshipType.null,
-    gameInvite: undefined
+    gameInvite: undefined,
   });
 
   const setFriend = useCallback(() => {
@@ -73,16 +72,18 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
         name: friend ? friend.user.name : "",
         status: friend ? friend.user.status : UserStatus.Offline,
         roomId: friend ? friend.user.roomId : undefined,
-        relationshipType: friend ? friend.relationshipType : UserRelationshipType.null,
+        relationshipType: friend
+          ? friend.relationshipType
+          : UserRelationshipType.null,
         gameInvite: friend ? friend.gameInvite : undefined,
       });
     } else if (friendInfo.id) {
       setFriendInfo({
         ...friendInfo,
-        id: 0
-      })
+        id: 0,
+      });
     }
-    }, [privateConvId, contextValue.relationshipsList]);
+  }, [privateConvId, friendInfo, contextValue.relationshipsList]);
 
   const redirPath = `/chat/${chatId}/settings`;
 
@@ -155,11 +156,17 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
     if (isPrivateConv) {
       setFriend();
     }
-  
-  }, [match.params.id, isPrivateConv, privateConvId, friendInfo.id, setFriend, contextValue.relationshipsList]);
+  }, [
+    match.params.id,
+    isPrivateConv,
+    privateConvId,
+    friendInfo.id,
+    setFriend,
+    contextValue.relationshipsList,
+  ]);
 
   return (
-    <div className='flex flex-col flex-grow h-screen '>
+    <div className="flex flex-col flex-grow h-screen ">
       <ChatHeader
         myRole={channelInfo.myRole}
         isChannel={isChannel}
@@ -170,9 +177,14 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <div className='justify-center h-full '>
+          <div className="justify-center h-full ">
             <ChatMessageList id={match.params.id} />
-            <ChatInput id={match.params.id} myRole={channelInfo.myRole} isChannel={isChannel} friendInfo={friendInfo}/>
+            <ChatInput
+              id={match.params.id}
+              myRole={channelInfo.myRole}
+              isChannel={isChannel}
+              friendInfo={friendInfo}
+            />
           </div>
         </Route>
       </Switch>

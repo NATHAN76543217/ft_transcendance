@@ -3,7 +3,6 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -46,13 +45,13 @@ import {
 import UpdateUserInfoDto from 'src/messages/dto/updateUserInfo.dto';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import Message from 'src/messages/message.interface';
-import { Timestamp } from 'typeorm';
+import { Events } from './events';
 
 // TODO: Rename to EventsModule...
 @Injectable()
-@WebSocketGateway(undefined, { namespace: '/events', path: '/events' })
+@WebSocketGateway(0, { namespace: '/events' })
 export class ChannelsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   private readonly server: Server;
@@ -72,13 +71,8 @@ export class ChannelsGateway
     private readonly usersService: UsersService,
   ) {}
 
-  afterInit(server: Server) {
-    this.logger.log(`Listening at ${server.path()}`);
-  }
-
   async handleConnection(socket: SocketWithUser) {
-
-console.log('handle connection - channel')
+    this.logger.debug('Handling incoming connection...');
 
     try {
       socket.user = await this.authenticationService.getUserFromSocket(socket);
@@ -88,17 +82,13 @@ console.log('handle connection - channel')
       return;
     }
 
-    socket.emit('authenticated');
+    socket.emit(Events.Client.Authenticated);
 
     socket.on('disconnecting', () => {
       // TODO: set offline status
       this.logger.debug(
         `Client ${socket.user.id} disconnecting with ${socket.rooms.size} joined rooms`,
       );
-
-      socket.rooms.forEach((r) => {
-        socket.to(r).emit('disconnected', { username: socket.user.name });
-      });
     });
 
     this.broadcastStatusChange(socket, UserStatus.online);
@@ -108,13 +98,6 @@ console.log('handle connection - channel')
     // Join user channels
     socket.user.channels.forEach((c) => {
       this.connectChannel(socket, c.channel.id);
-      // const channel = `#${c.channel!.id}`;
-      // this.logger.log(`User joining ${channel}`);
-
-      // socket.join(channel);
-      // // TODO: Check which data to send on join
-      // // TODO: Use a status event and set connected as its value
-      // socket.to(channel).emit('connected', { username: socket.user.name });
     });
 
     // Notify friends about status
@@ -136,7 +119,7 @@ console.log('handle connection - channel')
   }
 
   async handleDisconnect(socket: Socket | SocketWithUser) {
-    console.log('handle disconnect - channel')
+    this.logger.debug('Handling disconnection...');
 
     if ('user' in socket) {
       await this.onUserDisconnect(socket as SocketWithUser);
@@ -148,23 +131,23 @@ console.log('handle connection - channel')
     }
   }
 
-  @SubscribeMessage('startGame-front')
+  @SubscribeMessage(Events.Server.StartGame)
   async handleStatusUpdateAtGameStart(
     @ConnectedSocket() socket: SocketWithUser,
-    @MessageBody() body: {roomId: number},
+    @MessageBody() body: { roomId: number },
   ) {
     this.broadcastStatusChange(socket, UserStatus.inGame, body.roomId);
   }
 
-  @SubscribeMessage('endGame-front')
+  @SubscribeMessage(Events.Server.EndGame)
   async handleStatusUpdateAtGameEnd(
     @ConnectedSocket() socket: SocketWithUser,
-    @MessageBody() body: {roomId: number},
+    @MessageBody() body: { roomId: number },
   ) {
     this.broadcastStatusChange(socket, UserStatus.online);
   }
 
-  @SubscribeMessage('updateRelationship-front')
+  @SubscribeMessage(Events.Server.UpdateUserRelation)
   async handleUpdateRelationship(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRelationshipDto,
@@ -193,22 +176,22 @@ console.log('handle connection - channel')
         type: body.type,
       });
     }
-    socket.emit('updateRelationship-back', {
+    socket.emit(Events.Client.UpdateUserRelation, {
       user_id: body.user_id.toString(),
       type: body.type,
     });
-    socket.to(body.user_id.toString()).emit('updateRelationship-back', {
+    socket.to(body.user_id.toString()).emit(Events.Client.UpdateUserRelation, {
       user_id: socket.user.id.toFixed(),
       type: body.type,
     });
   }
 
-  @SubscribeMessage('updateUserInfo-front')
+  @SubscribeMessage(Events.Server.UpdateUserInfo)
   async handleUpdateUserInfo(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateUserInfoDto,
   ) {
-    console.log('updateUserInfo-front');
+    this.logger.debug('Received event: updateUserInfo-front');
 
     const user_id = socket.user.id;
     // try {
@@ -221,7 +204,7 @@ console.log('handle connection - channel')
     //   name: name,
     //   imgPath: imgPath,
     // });
-    socket.emit('updateUserInfo-back', {
+    socket.emit(Events.Client.UpdateUserInfo, {
       user_id: user_id,
       name: body.name,
       imgPath: body.imgPath,
@@ -233,18 +216,15 @@ console.log('handle connection - channel')
     relations.forEach((rel) => {
       const friend_id =
         user_id === Number(rel.user1_id) ? rel.user2_id : rel.user1_id;
-      socket.to(friend_id.toString()).emit('updateUserInfo-back', {
+      socket.to(friend_id.toString()).emit(Events.Client.UpdateUserInfo, {
         user_id: user_id,
         name: body.name,
         imgPath: body.imgPath,
       });
     });
-    // } catch (error) {
-    // console.log(error);
-    // }
   }
 
-  @SubscribeMessage('updateRole-front')
+  @SubscribeMessage(Events.Client.UpdateUserRole)
   async handleUpdateRole(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRoleDto,
@@ -257,15 +237,19 @@ console.log('handle connection - channel')
         role: body.role,
       });
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
     }
-    socket.emit('updateRole-back', { user_id: body.user_id, role: body.role });
-    socket
-      .to(body.user_id.toString())
-      .emit('updateRole-back', { user_id: body.user_id, role: body.role });
+    socket.emit(Events.Client.UpdateUserRole, {
+      user_id: body.user_id,
+      role: body.role,
+    });
+    socket.to(body.user_id.toString()).emit(Events.Client.UpdateUserRole, {
+      user_id: body.user_id,
+      role: body.role,
+    });
   }
 
-  @SubscribeMessage('updateChannelRelationship-front')
+  @SubscribeMessage(Events.Client.UpdateChannelRelation)
   async handleUpdateChannelRelationship(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateChannelRelationshipDto,
@@ -297,24 +281,26 @@ console.log('handle connection - channel')
           user_id: body.user_id,
         });
     }
-    socket.emit('updateChannelRelationship-back', {
+    socket.emit(Events.Client.UpdateChannelRelation, {
       channel_id: body.channel_id.toString(),
       user_id: body.user_id.toString(),
       type: body.type,
     });
-    socket.to(body.user_id.toString()).emit('updateChannelRelationship-back', {
-      channel_id: body.channel_id.toString(),
-      user_id: body.user_id.toString(),
-      type: body.type,
-    });
+    socket
+      .to(body.user_id.toString())
+      .emit(Events.Client.UpdateChannelRelation, {
+        channel_id: body.channel_id.toString(),
+        user_id: body.user_id.toString(),
+        type: body.type,
+      });
   }
 
-  @SubscribeMessage('joinChannel-front')
+  @SubscribeMessage(Events.Server.JoinChannel)
   async handleJoinChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
   ) {
-    console.log(`joinChannel-front`);
+    this.logger.log('Event received: joinChannel-front');
     let channel;
     let newType = ChannelRelationshipType.Member;
     try {
@@ -350,26 +336,28 @@ console.log('handle connection - channel')
     });
 
     this.joinChannel(socket, body.channel_id, newType);
-    // socket.emit('joinChannel-back', {
+    // socket.emit(Events.Client.JoinChannel, {
     //   channel_id: body.channel_id.toString(),
     //   user_id: socket.user.id.toFixed(),
     //   type: newType,
     // });
     // socket
     //   .to(socket.user.id.toFixed())
-    //   .emit('joinChannel-back', {
+    //   .emit(Events.Client.JoinChannel, {
     //     channel_id: body.channel_id.toString(),
     //     user_id: socket.user.id.toFixed(),
     //     type: newType,
     //   });
   }
 
-  @SubscribeMessage('leaveChannel-front')
+  @SubscribeMessage(Events.Server.LeaveChannel)
   async handleLeaveChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: JoinChannelDto,
   ) {
-    console.log(`leaveChannel-front`, body);
+    this.logger.debug(
+      `Event received: leaveChannel-front, payload: ${JSON.stringify(body)}`,
+    );
 
     try {
       const channel = await this.channelsService.getChannelById(
@@ -405,14 +393,14 @@ console.log('handle connection - channel')
 
       this.leaveChannel(socket, body.channel_id, newType);
 
-      // socket.emit('leaveChannel-back', {
+      // socket.emit(Events.Client.LeaveChannel, {
       //   channel_id: body.channel_id.toString(),
       //   user_id: socket.user.id.toFixed(),
       //   type: newType,
       // });
       // socket
       //   .to(socket.user.id.toFixed())
-      //   .emit('leaveChannel-back', {
+      //   .emit(Events.Client.LeaveChannel, {
       //     channel_id: body.channel_id.toString(),
       //     user_id: socket.user.id.toFixed(),
       //     type: newType,
@@ -425,12 +413,12 @@ console.log('handle connection - channel')
     }
   }
 
-  @SubscribeMessage('destroyChannel-front')
+  @SubscribeMessage(Events.Server.DestroyChannel)
   async handleDestroyChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: DestroyChannelDto,
   ) {
-    console.log(`destroyChannel-front`);
+    this.logger.debug('Event received: destroyChannel-front');
     let channel;
     try {
       channel = await this.channelsService.getChannelById(body.channel_id);
@@ -447,7 +435,11 @@ console.log('handle connection - channel')
     } catch (error) {}
   }
 
-  async broadcastStatusChange(socket: SocketWithUser, status: UserStatus, roomId?: number ) {
+  async broadcastStatusChange(
+    socket: SocketWithUser,
+    status: UserStatus,
+    roomId?: number,
+  ) {
     this.usersService.setUserStatus(socket.user.id, status);
     this.usersService.setUserRoom(socket.user.id, roomId);
 
@@ -467,17 +459,19 @@ console.log('handle connection - channel')
         socket.to(otherId).emit('statusChanged', {
           user_id: socket.user.id,
           status,
-          roomId
+          roomId,
         });
       });
   }
 
-  @SubscribeMessage('message-channel')
+  @SubscribeMessage(Events.Server.ChannelMessage)
   async handleMessageChannel(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
-    console.log('message-channel', body);
+    this.logger.debug(
+      `Event received: message-channel, payload: ${JSON.stringify(body)}`,
+    );
     // const author = socket.user;
     // const channel = socket.user.channels.find((channel) => {
     //   return channel.channel_id === body.channel_id;
@@ -491,7 +485,6 @@ console.log('handle connection - channel')
     //   author.type & ChannelRelationshipType.Owner)
     // const author = socket.user;
 
-    // console.log('author', author)
     // const abilities = this.abilityFactory.createForUser(author);
     const abilities =
       this.messageAbilityFactory.createForChannelRelationship(author);
@@ -508,16 +501,18 @@ console.log('handle connection - channel')
         body,
         socket.user.id,
       );
-      // console.log('message created', message);
-      this.server.to(roomName).emit('message-channel', message);
+      this.server.to(roomName).emit(Events.Client.ChannelMessage, message);
       this.logger.debug(`${channel.name}: ${socket.user.name}: ${body.data}`);
     } else {
       this.logger.debug(`${socket.user.name}: ${body.data}`);
-      // console.log("can't speak");
     }
   }
 
-  sendUserMessage(senderId: number, messageData: CreateMessageDto, messageId: number = 0) {
+  sendUserMessage(
+    senderId: number,
+    messageData: CreateMessageDto,
+    messageId: number = 0,
+  ) {
     const message: Message = {
       channel_id: 1,
       created_at: new Date(),
@@ -532,21 +527,23 @@ console.log('handle connection - channel')
     if (!isNaN(message.receiver_id)) {
       this.server
         .to(message.receiver_id.toFixed())
-        .emit('message-user', message);
+        .emit(Events.Client.UserMessage, message);
 
-        this.server
+      this.server
         .to(message.sender_id.toFixed())
-        .emit('message-user', message);
+        .emit(Events.Client.UserMessage, message);
     }
   }
 
-  @SubscribeMessage('message-user')
+  @SubscribeMessage(Events.Server.UserMessage)
   async handleMessageUser(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: CreateMessageDto,
   ) {
     body.channel_id = 1;
-    console.log('message-user', body);
+    this.logger.debug(
+      `Event received: message-user, payload: ${JSON.stringify(body)}`,
+    );
 
     if (body.type === MessageType.PrivateMessage) {
       const author = socket.user;
@@ -570,14 +567,14 @@ console.log('handle connection - channel')
 
       this.server
         .to([body.receiver_id.toFixed(), socket.user.id.toFixed()])
-        .emit('message-user', message);
+        .emit(Events.Client.UserMessage, message);
     }
   }
 
   async closeChannel(id: number) {
     const roomName = `#${id}`;
 
-    this.server.to(roomName).emit('leaveChannel-back', {
+    this.server.to(roomName).emit(Events.Client.LeaveChannel, {
       channel_id: id.toString(),
       user_id: '-1',
     });
@@ -594,9 +591,6 @@ console.log('handle connection - channel')
     this.logger.log(`User connecting to channel ${channel_id}`);
 
     socket.join(roomName);
-    // TODO: Check which data to send on join
-    // TODO: Use a status event and set connected as its value
-    socket.to(roomName).emit('connected', { username: socket.user.name });
   }
 
   async joinChannel(
@@ -608,15 +602,13 @@ console.log('handle connection - channel')
     this.logger.log(`User joining channel ${channel_id}`);
 
     socket.join(roomName);
-    // TODO: Check which data to send on join
-    // TODO: Use a status event and set connected as its value
-    socket.emit('joinChannel-back', {
+    socket.emit(Events.Client.JoinChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
     });
 
-    socket.to(roomName).emit('joinChannel-back', {
+    socket.to(roomName).emit(Events.Client.JoinChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
@@ -634,13 +626,13 @@ console.log('handle connection - channel')
     socket.leave(roomName);
     // TODO: Check which data to send on join
     // TODO: Use a status event and set connected as its value
-    socket.emit('leaveChannel-back', {
+    socket.emit(Events.Client.LeaveChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,
     });
 
-    socket.to(roomName).emit('leaveChannel-back', {
+    socket.to(roomName).emit(Events.Client.LeaveChannel, {
       channel_id: channel_id,
       user_id: socket.user.id,
       type: type,

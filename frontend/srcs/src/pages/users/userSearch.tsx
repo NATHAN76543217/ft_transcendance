@@ -10,6 +10,7 @@ import AppContext from "../../AppContext";
 import UserSearchState from "../../models/user/UserSearchState";
 import { IAppContext } from "../../IAppContext";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
+import { Events } from "../../models/channel/Events";
 
 // const updateRelationshipState = (id: number, newType: UserRelationshipType, userInfoForSearch: UserInfoForSearch, setSearchInfo: any) => {
 //   let a = userInfoForSearch.user.list.slice();
@@ -81,7 +82,7 @@ function UserSearch() {
     user_id: number,
     type: UserRelationshipType
   ) => {
-    contextValue.channelSocket?.emit("updateRelationship-front", {
+    contextValue.eventSocket?.emit(Events.Server.UpdateUserRelation, {
       user_id: user_id,
       type: type,
     });

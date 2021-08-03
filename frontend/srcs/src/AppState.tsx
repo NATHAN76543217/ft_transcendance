@@ -4,5 +4,6 @@ import { IUser } from "./models/user/IUser";
 export interface AppState {
   user?: IUser;
   relationshipsList: AppUserRelationship[];
-  socket?: Socket;
+  eventSocket?: Socket;
+  matchSocket?: Socket;
 }

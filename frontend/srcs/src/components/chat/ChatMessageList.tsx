@@ -1,5 +1,4 @@
 import axios from "axios";
-import { SSL_OP_NO_TLSv1_1 } from "constants";
 import { useContext, useEffect, useState } from "react";
 import AppContext from "../../AppContext";
 import { Message, MessageType } from "../../models/channel/Channel";
@@ -16,8 +15,8 @@ async function fetchChannelMessages(
       { params: { beforeId } }
     );
     res.data.sort((m1: Message, m2: Message) => {
-      return m1.created_at.toString().localeCompare(m2.created_at.toString()) 
-    })
+      return m1.created_at.toString().localeCompare(m2.created_at.toString());
+    });
     return res.data;
   } catch (e) {
     return [];
@@ -35,8 +34,8 @@ async function fetchUserMessages(
       { params: { beforeId } }
     );
     res.data.sort((m1: Message, m2: Message) => {
-      return m1.created_at.toString().localeCompare(m2.created_at.toString()) 
-    })
+      return m1.created_at.toString().localeCompare(m2.created_at.toString());
+    });
     return res.data;
   } catch (e) {
     return [];
@@ -49,10 +48,10 @@ export type ChatMessageListProps = {
 
 export function ChatMessageList(props: ChatMessageListProps) {
   const {
-    channelSocket: socket,
+    eventSocket: socket,
     user,
     relationshipsList,
-    updateOneRelationshipGameInvite
+    updateOneRelationshipGameInvite,
   } = useContext(AppContext);
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -63,31 +62,33 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
     socket?.on("message-channel", (data: Message) => {
       console.log("Incoming channel message:", data);
-      console.log('isChannel', isChannel)
-      console.log('props.id', props.id)
-      console.log('props.id.substring(1)', props.id.substring(1))
-      console.log('data.channel_id', data.channel_id)
+      console.log("isChannel", isChannel);
+      console.log("props.id", props.id);
+      console.log("props.id.substring(1)", props.id.substring(1));
+      console.log("data.channel_id", data.channel_id);
       if (
         isChannel &&
         Number(props.id.substring(1)) === Number(data.channel_id)
       ) {
-        console.log('will set message')
+        console.log("will set message");
         setMessages((olderMessages) => [...olderMessages, data]);
       }
     });
-    
+
     socket?.on("message-user", (data: Message) => {
       console.log("Incoming private message:", data);
       if (
         !isNaN(Number(props.id)) &&
         (Number(props.id) === Number(data.receiver_id) ||
-        Number(props.id) === Number(data.sender_id))
-        ) {
-        console.log('will set message')
+          Number(props.id) === Number(data.sender_id))
+      ) {
+        console.log("will set message");
         setMessages((olderMessages) => [...olderMessages, data]);
       }
-      if (data.type === MessageType.GameInvite ||
-        data.type === MessageType.GameCancel) {
+      if (
+        data.type === MessageType.GameInvite ||
+        data.type === MessageType.GameCancel
+      ) {
         console.log(
           "Received invitation or cancel to",
           data.data,
@@ -102,7 +103,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
       socket?.off("message-channel");
       socket?.off("message-user");
     };
-  }, [socket, isChannel, props.id]);
+  }, [socket, isChannel, props.id, updateOneRelationshipGameInvite]);
 
   // This fetches previous messages
   useEffect(() => {
@@ -154,35 +155,31 @@ export function ChatMessageList(props: ChatMessageListProps) {
   };
 
   return (
-<div className='flex justify-center mt-4 h-5/6'>
-
-    <div className='grid justify-center w-full h-full rounded-md'>
-      <div className='flex-grow w-full max-w-2xl p-2 py-2 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md'>
-        <div className='inline-flex h-1'>
-          <div className='inline-flex w-32 sm:w-48 md:w-72 xl:w-96'></div>
-          <div className='inline-flex w-40 '></div>
+    <div className="flex justify-center mt-4 h-5/6">
+      <div className="grid justify-center w-full h-full rounded-md">
+        <div className="flex-grow w-full max-w-2xl p-2 py-2 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md">
+          <div className="inline-flex h-1">
+            <div className="inline-flex w-32 sm:w-48 md:w-72 xl:w-96"></div>
+            <div className="inline-flex w-40 "></div>
           </div>
-        <ul>
-          {messages.map((m) => {
-            sameSender = previousSenderId === m.sender_id;
-            previousSenderId = m.sender_id;
-            if (!isSenderBlocked(m)) {
-              return (
-                <li key={m.id} className=''>
-                  <ChatMessage
-                    message={m}
-                    sameSender={sameSender}
-                    />
-                </li>
-              );
-            } else {
-              return <div></div>;
-            }
-          })}
-        </ul>
+          <ul>
+            {messages.map((m) => {
+              sameSender = previousSenderId === m.sender_id;
+              previousSenderId = m.sender_id;
+              if (!isSenderBlocked(m)) {
+                return (
+                  <li key={m.id} className="">
+                    <ChatMessage message={m} sameSender={sameSender} />
+                  </li>
+                );
+              } else {
+                return <div></div>;
+              }
+            })}
+          </ul>
+        </div>
       </div>
     </div>
-          </div>
   );
 }
 

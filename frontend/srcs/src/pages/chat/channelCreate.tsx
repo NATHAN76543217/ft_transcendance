@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { ChannelMode } from "../../models/channel/Channel";
 import React from "react";
 import AppContext from "../../AppContext";
+import { Events } from "../../models/channel/Events";
 
 interface ICreateChannelFormValues {
   channelName: string;
@@ -45,7 +46,7 @@ function ChannelCreate() {
     try {
       const newChannel = await axios.post("/api/channels", values);
       console.log("newChannel created", newChannel);
-      contextValue.channelSocket?.emit("joinChannel-front", {
+      contextValue.eventSocket?.emit(Events.Server.JoinChannel, {
         channel_id: newChannel.data.id,
         password: values.password,
       });

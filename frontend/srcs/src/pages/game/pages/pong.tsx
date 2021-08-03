@@ -4,19 +4,19 @@ import AppContext from "../../../AppContext";
 import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
 import { GameRole } from "../../../models/game/GameRole";
 import { GameState, GameStatus } from "../../../models/game/GameState";
-import { GameContext } from "../context";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
 import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
+import { Events } from "../../../models/channel/Events";
 
 export type PongPageParams = {
   id: string;
 };
 
 export function Pong({ match }: RouteComponentProps<PongPageParams>) {
-  const { user, channelSocket: appSocket } = useContext(AppContext);
-  const gameContext = useContext(GameContext);
+  const { user, eventSocket: appSocket } = useContext(AppContext);
+  const { matchSocket } = useContext(AppContext);
   const history = useHistory();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,7 +31,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   useEffect(() => {
     if (
-      gameContext.gameSocket === undefined ||
+      matchSocket === undefined ||
       canvasRef.current === null ||
       ctx.current === null
     )
@@ -52,15 +52,12 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             player.y = event.clientY - rect.top - player.height / 2;
           }
 
-          gameContext.gameSocket?.volatile.emit(
-            ServerMessages.UPDATE_MOUSE_POS,
-            {
-              x: event.clientX,
-              y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
-            }
-          );
+          matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
+            x: event.clientX,
+            y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
+          });
         });
-        gameContext.gameSocket?.emit(ServerMessages.PLAYER_READY);
+        matchSocket?.emit(ServerMessages.PLAYER_READY);
       }
     };
 
@@ -81,18 +78,18 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onMatchStart = () => {
-      appSocket?.emit("startGame-front", { roomId: match.params.id });
+      appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
     };
 
     const onMatchEnd = () => {
-      appSocket?.emit("endGame-front", { room: match.params.id });
+      appSocket?.emit(Events.Server.EndGame, { room: match.params.id });
     };
 
     const deleteSubscribedListeners = () => {
       if (updateIntervalHandle) {
         clearInterval(updateIntervalHandle);
       }
-      gameContext.gameSocket
+      matchSocket
         ?.off(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
         .off(ClientMessages.QUIT, onQuit)
         .off(ClientMessages.GAME_START, onMatchStart)
@@ -108,20 +105,17 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       pongEngine(state);
     }, 60 * 1000);
 
-    gameContext.gameSocket
+    matchSocket
       ?.on(ClientMessages.JOINED, onJoined)
       .on(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
       .on(ClientMessages.QUIT, onQuit)
       .on(ClientMessages.GAME_START, onMatchStart)
       .on(ClientMessages.GAME_END, onMatchEnd);
 
-    gameContext.gameSocket?.emit(
-      ServerMessages.JOIN_ROOM,
-      Number(match.params.id)
-    );
+    matchSocket?.emit(ServerMessages.JOIN_ROOM, Number(match.params.id));
 
     return deleteSubscribedListeners;
-  }, [user?.id, gameContext.gameSocket]);
+  }, [user?.id, matchSocket, appSocket, history, match.params.id]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 

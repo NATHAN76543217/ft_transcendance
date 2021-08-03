@@ -12,6 +12,7 @@ import ChannelSearchState, {
 } from "../../models/channel/ChannelSearchState";
 import { IAppContext } from "../../IAppContext";
 import { Channel } from "../../models/channel/Channel";
+import { Events } from "../../models/channel/Events";
 
 const getRelationshipType = async (id: Number, contextValue: IAppContext) => {
   try {
@@ -89,7 +90,7 @@ function ChannelSearch() {
   };
 
   const joinChannel = async (id: number, password: string) => {
-    contextValue.channelSocket?.emit("joinChannel-front", {
+    contextValue.eventSocket?.emit(Events.Server.JoinChannel, {
       channel_id: id,
       user_id: contextValue.user?.id,
       password: password,
@@ -98,7 +99,7 @@ function ChannelSearch() {
   };
 
   const leaveChannel = async (id: number) => {
-    contextValue.channelSocket?.emit("leaveChannel-front", {
+    contextValue.eventSocket?.emit(Events.Server.LeaveChannel, {
       channel_id: id,
       user_id: contextValue.user?.id,
     });

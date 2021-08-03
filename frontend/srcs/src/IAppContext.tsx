@@ -14,6 +14,7 @@ export interface IAppContext {
     user_id: number,
     newType: UserRelationshipType
   ) => void;
-  updateOneRelationshipGameInvite: (message: Message) => void;  
-  channelSocket?: Socket;
+  updateOneRelationshipGameInvite: (message: Message) => void;
+  eventSocket?: Socket;
+  matchSocket?: Socket;
 }

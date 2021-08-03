@@ -1,4 +1,13 @@
-import { Req, Controller, HttpCode, UseGuards, Res, Get, Inject, forwardRef } from '@nestjs/common';
+import {
+  Req,
+  Controller,
+  HttpCode,
+  UseGuards,
+  Res,
+  Get,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { AuthenticationService } from '../authentication.service';
 import RequestWithUser from '../requestWithUser.interface';
 import { Response } from 'express';
@@ -6,20 +15,18 @@ import { GoogleAuthenticationGuard } from './google/googleAuthentication.guard';
 import { School42AuthenticationGuard } from './school42/school42Authentication.guard';
 import UsersService from 'src/users/users.service';
 
-
 @Controller('authentication/oauth2')
 export class Oauth2Controller {
   constructor(
     private authenticationService: AuthenticationService,
     @Inject(forwardRef(() => UsersService))
-    private readonly usersService: UsersService,) { }
+    private readonly usersService: UsersService,
+  ) {}
 
   @Get('school42/callback')
   @UseGuards(School42AuthenticationGuard)
   @HttpCode(200)
   async school42Callback(@Req() request: any, @Res() response: Response) {
-
-
     const { user } = request;
     // const cookie = this.authenticationService.getCookieWithJwtToken(user.id);
     //TODO make a proper implementation of cookies
@@ -35,14 +42,23 @@ export class Oauth2Controller {
 
     ////////////////////////
 
-    const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(user.id);
-    const refreshTokenCookie = this.authenticationService.getCookieWithJwtRefreshToken(user.id);
+    const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(
+      user.id,
+    );
+    const refreshTokenCookie =
+      this.authenticationService.getCookieWithJwtRefreshToken(user.id);
 
     try {
-      await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+      await this.usersService.setCurrentRefreshToken(
+        refreshTokenCookie.token,
+        user.id,
+      );
 
       // response.setHeader('Set-Cookie', cookie);
-      request.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
+      request.res.setHeader('Set-Cookie', [
+        accessTokenCookie,
+        refreshTokenCookie.cookie,
+      ]);
       ///////////////////////
 
       // response.setHeader('Set-Cookie', cookie);
@@ -52,7 +68,7 @@ export class Oauth2Controller {
 
       user.password = undefined;
 
-      const first = user.firstConnection ? "/first" : "";
+      const first = user.firstConnection ? '/first' : '';
 
       response.redirect('https://localhost/login/success' + first);
     } catch (error) {
@@ -63,34 +79,37 @@ export class Oauth2Controller {
   @Get('school42')
   @UseGuards(School42AuthenticationGuard)
   @HttpCode(200)
-  async logSchool42() {
-  }
+  async logSchool42() {}
 
   @Get('google/callback')
   @UseGuards(GoogleAuthenticationGuard)
   @HttpCode(200)
   async googleCallback(@Req() req: any, @Res() res: any) {
-    console.log("callback google")
     const { user } = req;
 
-    const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(user.id);
-    const refreshTokenCookie = this.authenticationService.getCookieWithJwtRefreshToken(user.id);
+    const accessTokenCookie = this.authenticationService.getCookieWithJwtToken(
+      user.id,
+    );
+    const refreshTokenCookie =
+      this.authenticationService.getCookieWithJwtRefreshToken(user.id);
 
     try {
-      await this.usersService.setCurrentRefreshToken(refreshTokenCookie.token, user.id);
+      await this.usersService.setCurrentRefreshToken(
+        refreshTokenCookie.token,
+        user.id,
+      );
 
-      req.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie.cookie]);
+      req.res.setHeader('Set-Cookie', [
+        accessTokenCookie,
+        refreshTokenCookie.cookie,
+      ]);
 
-      // const jwt = this.authenticationService.getJwtToken(user.id);
-      // res.cookie('Authentication', jwt);
-      // console.log(jwt);
       user.password = undefined;
 
-      const first = user.firstConnection ? "/first" : "";
+      const first = user.firstConnection ? '/first' : '';
 
       res.redirect('https://localhost/login/success' + first);
-    }
-    catch (error) {
+    } catch (error) {
       res.redirect('https://localhost/login/failure');
     }
   }
@@ -98,7 +117,5 @@ export class Oauth2Controller {
   @Get('google')
   @UseGuards(GoogleAuthenticationGuard)
   @HttpCode(200)
-  async logGoogle() {
-  }
-
+  async logGoogle() {}
 }

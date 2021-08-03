@@ -9,6 +9,7 @@ import {
   MessageType,
 } from "../../models/channel/MessageEvent.dto";
 import { FriendState } from "./ChatView";
+import { Events } from "../../models/channel/Events";
 interface IMessageFormValues {
   message: string;
 }
@@ -21,7 +22,7 @@ export type ChatInputProps = {
 };
 
 export function ChatInput(props: ChatInputProps) {
-  const { channelSocket: socket } = useContext(AppContext);
+  const { eventSocket: socket } = useContext(AppContext);
   // const chatContextValue = useContext(chatContext);
 
   const {
@@ -50,7 +51,7 @@ export function ChatInput(props: ChatInputProps) {
 
     console.log(message);
 
-    socket.emit("message-channel", message);
+    socket.emit(Events.Server.ChannelMessage, message);
   };
 
   const sendMessageUser = (socket: Socket, user_id: number, data: string) => {
@@ -62,17 +63,18 @@ export function ChatInput(props: ChatInputProps) {
 
     console.log("sendMessageUser", message);
 
-    socket.emit("message-user", message);
+    socket.emit(Events.Server.UserMessage, message);
   };
 
-  if ((
+  if (
     props.myRole &
-    (ChannelRelationshipType.Owner |
-      ChannelRelationshipType.Admin |
-      ChannelRelationshipType.Member)) || props.friendInfo.id
+      (ChannelRelationshipType.Owner |
+        ChannelRelationshipType.Admin |
+        ChannelRelationshipType.Member) ||
+    props.friendInfo.id
   ) {
     return (
-      <div className=''>
+      <div className="">
         <div className="flex justify-center px-4 my-4 h-1/6">
           <form
             className={`${className}`}
@@ -99,8 +101,7 @@ export function ChatInput(props: ChatInputProps) {
             />
           </form>
         </div>
-      </div >
-
+      </div>
     );
   } else {
     return <div></div>;

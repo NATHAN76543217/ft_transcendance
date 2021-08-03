@@ -1,18 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import ChannelRelationship from './channel-relationship.entity';
-import ChannelRelationshipNotFound from '../exception/ChannelRelationshipNotFound.exception';
 import UpdateChannelRelationshipDto from '../dto/UpdateChannelRelationship.dto';
 import CreateChannelRelationshipDto from '../dto/CreateChannelRelationship.dto';
 import ChannelRelationshipByIdsNotFound from '../exception/ChannelRelationshipByIdsNotFound.exception';
 import DeleteChannelRelationshipDto from '../dto/DeleteChannelRelationship.dto';
 
-// TODO: I want to remove this service, otherwise make it specific to a channel
-
 @Injectable()
 export default class ChannelRelationshipsService {
+  private logger = new Logger('ChannelRelationshipsService');
+
   constructor(
     @InjectRepository(ChannelRelationship)
     private channelRelationshipsRepository: Repository<ChannelRelationship>,
@@ -46,34 +45,30 @@ export default class ChannelRelationshipsService {
   //     return results;
   // }
 
-  async updateChannelRelationship(channelRelationship: UpdateChannelRelationshipDto) {
-    let relation = await this.getChannelRelationshipByIds(channelRelationship.channel_id, channelRelationship.user_id);
-    await this.channelRelationshipsRepository.update(relation, channelRelationship);
-    const updatedChannelRelationship = await this.getChannelRelationshipByIds(channelRelationship.channel_id, channelRelationship.user_id);
+  async updateChannelRelationship(
+    channelRelationship: UpdateChannelRelationshipDto,
+  ) {
+    let relation = await this.getChannelRelationshipByIds(
+      channelRelationship.channel_id,
+      channelRelationship.user_id,
+    );
+    await this.channelRelationshipsRepository.update(
+      relation,
+      channelRelationship,
+    );
+    const updatedChannelRelationship = await this.getChannelRelationshipByIds(
+      channelRelationship.channel_id,
+      channelRelationship.user_id,
+    );
     if (updatedChannelRelationship) {
       return updatedChannelRelationship;
     }
-    throw new ChannelRelationshipByIdsNotFound(channelRelationship.channel_id, channelRelationship.user_id);
+    throw new ChannelRelationshipByIdsNotFound(
+      channelRelationship.channel_id,
+      channelRelationship.user_id,
+    );
   }
 
-  async createChannelRelationship(channelRelationship: CreateChannelRelationshipDto) {
-    const newChannelRelationship = this.channelRelationshipsRepository.create(channelRelationship);
-    await this.channelRelationshipsRepository.save(newChannelRelationship);
-    return newChannelRelationship;
-  }
-
-  async deleteChannelRelationship(channelRelationship: DeleteChannelRelationshipDto) {
-    let relation = await this.getChannelRelationshipByIds(channelRelationship.channel_id, channelRelationship.user_id);
-    const deleteResponse = await this.channelRelationshipsRepository.delete({channel_id: relation.channel_id, user_id: relation.user_id});
-
-    console.log('deleteResponse', deleteResponse)
-
-    if (!deleteResponse.affected) {
-      throw new ChannelRelationshipByIdsNotFound(channelRelationship.channel_id, channelRelationship.user_id);
-    }
-  }
-
-  /*
   async createChannelRelationship(
     channelRelationship: CreateChannelRelationshipDto,
   ) {
@@ -83,5 +78,25 @@ export default class ChannelRelationshipsService {
     return newChannelRelationship;
   }
 
-  */
+  async deleteChannelRelationship(
+    channelRelationship: DeleteChannelRelationshipDto,
+  ) {
+    let relation = await this.getChannelRelationshipByIds(
+      channelRelationship.channel_id,
+      channelRelationship.user_id,
+    );
+    const deleteResponse = await this.channelRelationshipsRepository.delete({
+      channel_id: relation.channel_id,
+      user_id: relation.user_id,
+    });
+
+    this.logger.debug(`deleteRelationship: deleteResponse: ${deleteResponse}`);
+
+    if (!deleteResponse.affected) {
+      throw new ChannelRelationshipByIdsNotFound(
+        channelRelationship.channel_id,
+        channelRelationship.user_id,
+      );
+    }
+  }
 }
