@@ -16,4 +16,5 @@ export interface IAppContext {
   ) => void;
   updateOneRelationshipGameInvite: (message: Message) => void;
   eventSocket?: Socket;
+  matchSocket?: Socket;
 }

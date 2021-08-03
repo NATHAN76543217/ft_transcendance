@@ -140,24 +140,34 @@ class App extends React.Component<AppProps, AppState> {
     console.log("Registered event-socket callbacks!");
   };
 
+  onMatchSocketConnection = (socket: Socket) => {
+    // TODO: Register event callbacks here
+    console.log("TODO: Game socket connected!");
+  };
+
   setUserInit = (user?: IUser) => {
     if (user !== this.state.user) {
       // if the user is undefined, he is not logged
       const logged = user !== undefined;
 
-      let socket;
+      let newEventSocket;
+      let newMatchSocket;
       if (logged) {
-        socket = getSocket("/events", this.onEventSocketConnection);
+        newEventSocket = getSocket("/events", this.onEventSocketConnection);
+        newMatchSocket = getSocket("/matches", this.onMatchSocketConnection);
       } else {
-        socket = undefined;
+        newEventSocket = undefined;
+        newMatchSocket = undefined;
         this.state.eventSocket?.close();
+        this.state.matchSocket?.close();
       }
 
       // update state
       this.setState(
         {
           user: user,
-          eventSocket: socket,
+          eventSocket: newEventSocket,
+          matchSocket: newMatchSocket,
         },
         this.updateAllRelationships
       );
@@ -532,13 +542,11 @@ class App extends React.Component<AppProps, AppState> {
 
   render() {
     let contextValue: IAppContext = {
-      relationshipsList: this.state.relationshipsList,
-      user: this.state.user,
+      ...this.state,
       setUser: this.setUser,
       setUserInit: this.setUserInit,
       updateOneRelationshipType: this.updateOneRelationshipType,
       updateOneRelationshipGameInvite: this.updateOneRelationshipGameInvite,
-      eventSocket: this.state.eventSocket,
     };
 
     if (

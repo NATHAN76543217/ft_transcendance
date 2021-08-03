@@ -1,12 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { NavLink, useHistory } from "react-router-dom";
 import Popup from "reactjs-popup";
+import AppContext from "../../../AppContext";
 import Loading from "../../../components/loading/loading";
-import { GameContext, IGameContext } from "../context";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 
 function GameMatchmaking() {
-  const context: IGameContext = useContext(GameContext);
+  const { matchSocket } = useContext(AppContext);
 
   const history = useHistory();
 
@@ -18,13 +18,13 @@ function GameMatchmaking() {
     setOpen((o) => !o);
     setInQueue(true);
     console.log(`[FRONTEND] clicked on findGame: InQueue: ${inQueue}`);
-    context.gameSocket?.emit(ServerMessages.FIND_GAME);
+    matchSocket?.emit(ServerMessages.FIND_GAME);
   };
 
   const cancelSearch = () => {
     setInQueue(false);
     console.log(`[FRONTEND] cicked on cancelSearch: InQueue: ${inQueue}`);
-    context.gameSocket?.emit(ServerMessages.CANCEL_FIND);
+    matchSocket?.emit(ServerMessages.CANCEL_FIND);
     closeModal();
   };
 
@@ -73,20 +73,20 @@ function GameMatchmaking() {
     };
 
     const deleteSubscribedListeners = () => {
-      if (context.gameSocket) {
-        context.gameSocket
+      if (matchSocket) {
+        matchSocket
           .off(ClientMessages.NOTIFY, onNotify)
           .off(ClientMessages.MATCH_FOUND, goToGamePage);
       }
     };
 
-    if (context.gameSocket) {
-      context.gameSocket
+    if (matchSocket) {
+      matchSocket
         .on(ClientMessages.NOTIFY, onNotify)
         .on(ClientMessages.MATCH_FOUND, goToGamePage);
     }
     return deleteSubscribedListeners;
-  }, [context.gameSocket, history]);
+  }, [matchSocket, history]);
 
   const buttonClassname =
     "flex justify-center rounded-lg py-2 px-4 h-12 " +

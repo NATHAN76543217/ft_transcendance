@@ -7,7 +7,6 @@ import AppContext from "../../../AppContext";
 import { CreateGameDto } from "../../../models/game/CreateGame.dto";
 import { Match } from "../../../models/game/Match";
 import { UserStatus } from "../../../models/user/IUser";
-import { GameContext } from "../context";
 import { ClientMessages } from "../dto/messages";
 
 type CreateGameFormValues = {
@@ -17,20 +16,19 @@ type CreateGameFormValues = {
 
 function GameCreate() {
   const history = useHistory();
-  const { relationshipsList } = useContext(AppContext);
-  const gameContext = useContext(GameContext);
+  const { relationshipsList, matchSocket } = useContext(AppContext);
 
   useEffect(() => {
-    gameContext.gameSocket
+    matchSocket
       ?.on(ClientMessages.NOTIFY, console.log)
       .on(ClientMessages.GUEST_REJECTION, () => history.push("/game"));
 
     return () => {
-      gameContext.gameSocket
+      matchSocket
         ?.off(ClientMessages.NOTIFY, console.log)
         .off(ClientMessages.GUEST_REJECTION, () => history.push("/game"));
     };
-  }, [gameContext.gameSocket, history]);
+  }, [matchSocket, history]);
 
   const {
     register,

@@ -5,4 +5,5 @@ export interface AppState {
   user?: IUser;
   relationshipsList: AppUserRelationship[];
   eventSocket?: Socket;
+  matchSocket?: Socket;
 }
