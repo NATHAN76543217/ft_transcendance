@@ -6,6 +6,7 @@ import { IUser } from "../../models/user/IUser";
 import AdminChannelElement from "../../components/admin/adminChannelElement";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
 import AppContext from "../../AppContext";
+import { Events } from "../../models/channel/Events";
 
 interface AdminChannelProps {
   isOwner?: boolean | false;
@@ -47,7 +48,7 @@ class AdminChannels extends React.Component<
         user1.name.localeCompare(user2.name)
       );
       this.setState({ list: a });
-    } catch (error) { }
+    } catch (error) {}
   }
 
   setAllChannels = async () => {
@@ -60,7 +61,7 @@ class AdminChannels extends React.Component<
         user1.name.localeCompare(user2.name)
       );
       this.setState({ list: a });
-    } catch (error) { }
+    } catch (error) {}
   };
 
   removeOneChannel = async (channel_id: number) => {
@@ -70,22 +71,22 @@ class AdminChannels extends React.Component<
       });
       let a = this.state.list.slice();
       const index = a.findIndex((channel) => {
-        return (Number(channel.id === channel_id))
-      })
+        return Number(channel.id === channel_id);
+      });
       if (index !== -1) {
         a.splice(index, 1);
       }
       this.setState({ list: a });
-    } catch (error) { }
+    } catch (error) {}
   };
 
   destroyChannel = async (channel_id: number) => {
     console.log("Deleting channel " + channel_id);
 
-    this.context.socket?.emit('destroyChannel-front', {
+    this.context.socket?.emit(Events.Server.DestroyChannel, {
       channel_id: channel_id,
     });
-    this.removeOneChannel(channel_id)
+    this.removeOneChannel(channel_id);
   };
 
   // async createChannel(name: string, mode: ChannelMode) {
@@ -100,7 +101,7 @@ class AdminChannels extends React.Component<
   //       { withCredentials: true }
   //     );
   //     console.log('new channel created', newChannel)
-  //     this.context.socket?.emit('joinChannel-front', {
+  //     this.context.socket?.emit(Events.Server.JoinChannel, {
   //       channel_id: newChannel.data.id,
   //     });
   //   } catch (error) { }
@@ -140,12 +141,10 @@ class AdminChannels extends React.Component<
     // this.deleteChannelRelationship("3");
     // this.deleteChannelRelationship("4");
 
-    const sectionClass =
-      "h-auto flex-grow text-center";
+    const sectionClass = "h-auto flex-grow text-center";
 
     return (
-      <div className='flex justify-center mb-8'>
-
+      <div className="flex justify-center mb-8">
         <div className="p-4 mt-12 mb-4 border-2 border-gray-300 rounded-sm bg-neutral ">
           <h2 className="w-full text-3xl font-bold text-center">
             Channels Administration

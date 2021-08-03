@@ -5,6 +5,7 @@ import { IUser } from "../../models/user/IUser";
 import AdminUserElement from "../../components/admin/adminUserElement";
 import { UserRole } from "../../models/user/IUser";
 import AppContext from "../../AppContext";
+import { Events } from "../../models/channel/Events";
 
 const getAllUsers = async (adminInfo: AdminState, setAdminInfo: any) => {
   try {
@@ -50,7 +51,7 @@ function AdminUsers() {
     adminInfo: AdminState,
     setAdminInfo: any
   ) => {
-    contextValue.eventSocket?.emit("updateRole-front", {
+    contextValue.eventSocket?.emit(Events.Server.UpdateUserRole, {
       user_id: id,
       role: role,
     });

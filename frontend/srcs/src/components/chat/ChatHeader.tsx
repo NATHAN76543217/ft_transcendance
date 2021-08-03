@@ -6,6 +6,7 @@ import { NavLink } from "react-router-dom";
 import AppContext from "../../AppContext";
 import ChannelInviteDto from "../../models/channel/ChannelInvite.dto";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import { Events } from "../../models/channel/Events";
 import { CreateGameDto } from "../../models/game/CreateGame.dto";
 import { Match } from "../../models/game/Match";
 import { AppUserRelationship } from "../../models/user/AppUserRelationship";
@@ -53,7 +54,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
     user_id: number,
     type: ChannelRelationshipType
   ) => {
-    contextValue.eventSocket?.emit("updateChannelRelationship-front", {
+    contextValue.eventSocket?.emit(Events.Server.UpdateChannelRelation, {
       channel_id: channel_id,
       user_id: user_id,
       type: type,

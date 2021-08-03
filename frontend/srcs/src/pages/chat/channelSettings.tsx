@@ -8,6 +8,7 @@ import {
   Message,
 } from "../../models/channel/Channel";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
+import { Events } from "../../models/channel/Events";
 import ChannelSettingsProperties from "./channelSettingsProperties";
 import chatContext from "./chatContext";
 
@@ -30,7 +31,7 @@ function ChannelSettings(props: ChannelSettingsProps) {
   const destroyChannel = async (channel_id: number) => {
     console.log("Deleting channel " + channel_id);
 
-    contextValue.eventSocket?.emit("destroyChannel-front", {
+    contextValue.eventSocket?.emit(Events.Server.DestroyChannel, {
       channel_id: channel_id,
     });
     chatContextValue.setCurrentChannelRel(undefined);

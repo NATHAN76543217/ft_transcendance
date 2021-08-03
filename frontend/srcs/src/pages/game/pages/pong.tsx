@@ -8,6 +8,7 @@ import { ClientMessages, ServerMessages } from "../dto/messages";
 import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
 import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
+import { Events } from "../../../models/channel/Events";
 
 export type PongPageParams = {
   id: string;
@@ -75,11 +76,11 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onMatchStart = () => {
-      appSocket?.emit("startGame-front", { roomId: match.params.id });
+      appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
     };
 
     const onMatchEnd = () => {
-      appSocket?.emit("endGame-front", { room: match.params.id });
+      appSocket?.emit(Events.Server.EndGame, { room: match.params.id });
     };
 
     const deleteSubscribedListeners = () => {

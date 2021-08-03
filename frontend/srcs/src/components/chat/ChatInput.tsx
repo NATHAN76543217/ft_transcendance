@@ -9,6 +9,7 @@ import {
   MessageType,
 } from "../../models/channel/MessageEvent.dto";
 import { FriendState } from "./ChatView";
+import { Events } from "../../models/channel/Events";
 interface IMessageFormValues {
   message: string;
 }
@@ -50,7 +51,7 @@ export function ChatInput(props: ChatInputProps) {
 
     console.log(message);
 
-    socket.emit("message-channel", message);
+    socket.emit(Events.Server.ChannelMessage, message);
   };
 
   const sendMessageUser = (socket: Socket, user_id: number, data: string) => {
@@ -62,7 +63,7 @@ export function ChatInput(props: ChatInputProps) {
 
     console.log("sendMessageUser", message);
 
-    socket.emit("message-user", message);
+    socket.emit(Events.Server.UserMessage, message);
   };
 
   if (

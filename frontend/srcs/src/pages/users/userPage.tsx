@@ -17,6 +17,7 @@ import Loading from "../../components/loading/loading";
 import { useModal } from "../../components/utilities/useModal";
 import { TwoFactorSetupModal } from "../../components/users/TwoFactorSetupModal";
 import { IMatch } from "../../models/match/IMatch";
+import { Events } from "../../models/channel/Events";
 
 const onLoad = async (
   userId: number,
@@ -185,7 +186,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
         name: values.username,
       });
       // console.log("dataUser", dataUser);
-      contextValue.eventSocket?.emit("updateUserInfo-front", {
+      contextValue.eventSocket?.emit(Events.Server.UpdateUserInfo, {
         name: values.username,
       });
 
@@ -252,7 +253,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
       });
       // setUser(dataUser.data);
 
-      contextValue.eventSocket?.emit("updateUserInfo-front", {
+      contextValue.eventSocket?.emit(Events.Server.UpdateUserInfo, {
         imgPath: newImgPath,
       });
 
@@ -274,7 +275,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     user_id: number,
     type: UserRelationshipType
   ) => {
-    contextValue.eventSocket?.emit("updateRelationship-front", {
+    contextValue.eventSocket?.emit(Events.Server.UpdateUserRelation, {
       user_id: user_id,
       type: type,
     });
