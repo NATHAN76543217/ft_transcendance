@@ -67,7 +67,7 @@ export class Room implements GameRoom {
       ),
     );
 
-    Logger.debug(`[ROOM ------>] Add player ${playerId} side: ${side} pos: ${pos}`);
+    //Logger.debug(`[ROOM ------>] Add player ${playerId} side: ${side} pos: ${pos}`);
   }
 
   // TODO: Replace with setPlayerStatus (DISCONNECTED)
@@ -183,6 +183,11 @@ export class Room implements GameRoom {
     setTimeout(this.onGameRunning, 3 * 1000);
   }
 
+  private DEBUG(n: number, msg: string) {
+    Logger.debug(`[DEBUG] ${msg} ${n}`);
+    return n;
+  }
+
   onGameRunning() {
     Logger.debug(`[ROOM ${this.getId()}] status: ${this.state.status}`);
     if (this.state.status === GameStatus.RUNNING) {
@@ -196,6 +201,7 @@ export class Room implements GameRoom {
           this.state.scores[0] >= this.ruleset.rounds ||
           this.state.scores[1] >= this.ruleset.rounds
         ) {
+          Logger.debug(`[MATCHES GATEWAY] Game has finished: by round max`);
           this.setStatus(GameStatus.FINISHED);
         }
       }, (t / 3) * 1000);
@@ -205,9 +211,12 @@ export class Room implements GameRoom {
       }, t * 1000); // TO DO: Read doc for times
 
       this.endTimeoutHandle = setTimeout(() => {
+        Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);
         this.setStatus(GameStatus.FINISHED);
         this.onGameFinished();
-      }, this.ruleset.duration - this.state.elapsed * 60);
+
+        // TO DO: Use state elapsed here but is NaN but 
+      }, this.DEBUG(this.ruleset.duration /*- this.state.elapsed*/ * 60, "timeout for end the game is") * 1000);
     }
   }
 
@@ -218,7 +227,7 @@ export class Room implements GameRoom {
 
     clearInterval(this.engineIntervalHandle);
     clearInterval(this.updateIntervalHandle);
-    clearInterval(this.endTimeoutHandle);
+    clearTimeout(this.endTimeoutHandle);
 
     Logger.debug("[MATCHES GATEWAY] on game stopped has been called");
     //this.matchesGateway.onDisconnectClients(this.matchId); // TO DO: Why his was here ?

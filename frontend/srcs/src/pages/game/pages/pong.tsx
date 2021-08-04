@@ -103,8 +103,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             y: (player.y * canvasHeight) / canvHeight
           });
         }
-
-
     };
 
     const onJoined = (data: GameJoinedDto) => {
@@ -126,7 +124,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     }
 
     const onReceiveStatus = (status : GameStatus) => {
-      console.log(`[pong.tsx] Received status: ${status}`);
+      //console.log(`[pong.tsx] Received status: ${status}`);
       state.status = status;
       received |= Received.STATUS;
     };
@@ -136,7 +134,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       players.forEach((player) => {
         player.y = ruleOfThree(player.y);
-        console.log(`[pong.tsx] received player x is: ${player.x}`);
         player.x = ruleOfThree(player.x);
         player.height = ruleOfThree(player.height);
         player.width = ruleOfThree(player.width);
@@ -144,14 +141,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       state.players = players;
       //console.log(`[pong.tsx] canvWidth: ${canvWidth}`);
-      state.players.forEach((player) => console.log(`[pong.tsx] game registered player y: ${player.y} x: ${player.x} side: ${player.side} id: ${player.id} userId: ${user?.id}`));
+      //state.players.forEach((player) => console.log(`[pong.tsx] game registered player y: ${player.y} x: ${player.x} side: ${player.side} id: ${player.id} userId: ${user?.id}`));
       received |= Received.PLAYERS;
     };
 
     const onReceiveScores = (scores : number[]) => {
       //console.log(`[pong.tsx] Received scores: ${scores}`);
       state.scores = scores;
-      state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
+      //state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
     };
 
@@ -189,6 +186,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             if (state.status === GameStatus.RUNNING) {
               animationId = requestAnimationFrame(frame);
             } else {
+              console.log(`[pong.tsx] Cancel animation frame, game status ${state.status}`);
               cancelAnimationFrame(animationId);
               animationId = undefined;
             }
@@ -230,9 +228,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     updateIntervalHandle = setInterval(() => {
-      console.log("[pong.tsx] Engine runs !!!"); // TO DO: Never executed
       pongEngine(state, canvHeight);
-    }, 60 * 1000);
+    }, 60);
 
     matchSocket
       ?.on(ClientMessages.JOINED, onJoined)
