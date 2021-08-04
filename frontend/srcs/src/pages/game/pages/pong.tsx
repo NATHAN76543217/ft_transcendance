@@ -186,7 +186,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         .off(ClientMessages.GAME_START, onMatchStart)
         .off(ClientMessages.GAME_END, onMatchEnd);
 
-        window.removeEventListener("mousemove", mouseEventHandler);
+      window.removeEventListener("mousemove", mouseEventHandler);
+      canvasRef.current?.removeEventListener("mousemove", mouseEventHandler);
     };
 
     const frame = () => {
