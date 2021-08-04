@@ -21,11 +21,11 @@ import { ChannelMessageCaslAbilityFactory } from './channel-message-casl-ability
     TypeOrmModule.forFeature([Channel, ChannelRelationship, Message]),
     AuthenticationModule,
     forwardRef(() => UsersModule),
-    MessagesModule,
+    forwardRef(() => MessagesModule),
   ],
   controllers: [ChannelsController],
   providers: [
-    MessageService,
+    // MessageService,
     ChannelCaslAbilityFactory,
     ChannelMessageCaslAbilityFactory,
     ChannelRelationshipsService,

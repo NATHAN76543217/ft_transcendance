@@ -145,18 +145,18 @@ export default class MatchesService {
       if (!deleteResponse.affected) {
         throw new MatchNotFound(id);
       }
-      match.player_ids.forEach((player_id) => {
-        this.logger.debug(`Deleting invitation ${player_id}...`);
-        if (player_id !== match.player_ids[0]) {
-          this.channelsService.sendUserMessage(match.player_ids[0], {
-            channel_id: 1,
-            type: MessageType.GameCancel,
-            data: id.toFixed(),
-            receiver_id: player_id,
-            sender_id: match.player_ids[0],
-          });
-        }
-      });
+      // match.player_ids.forEach((player_id) => {
+      //   this.logger.debug(`Deleting invitation ${player_id}...`);
+      //   if (player_id !== match.player_ids[0]) {
+      //     this.channelsService.sendUserMessage(match.player_ids[0], {
+      //       channel_id: 1,
+      //       type: MessageType.GameCancel,
+      //       data: id.toFixed(),
+      //       receiver_id: player_id,
+      //       sender_id: match.player_ids[0],
+      //     });
+      //   }
+      // });
     } catch (e) {
       throw new MatchNotFound(id);
     }

@@ -66,6 +66,7 @@ function FriendItem({
     console.log("Accepting game invitation - game Invite: ", gameInvite);
     if (gameInvite) {
       history.push(`/game/${gameInvite.data}`);
+      await axios.delete(`/api/messages/${gameInvite.id}`);
     }
   };
 
