@@ -63,9 +63,9 @@ function FriendItem({
   };
 
   const acceptGameRequest = async () => {
-    console.log("Accepting game invitation");
+    console.log("Accepting game invitation - game Invite: ", gameInvite);
     if (gameInvite) {
-      history.push(`/game/${gameInvite.id}`);
+      history.push(`/game/${gameInvite.data}`);
     }
   };
 
