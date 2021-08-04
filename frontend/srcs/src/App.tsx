@@ -62,6 +62,9 @@ class App extends React.Component<AppProps, AppState> {
     // TODO: Send numbers from the backend instead of converting
 
     socket.on(Events.Client.UpdateUserRelation, (data: any) => {
+
+console.log('Client.UpdateUserRelation')
+
       if (data) {
         this.updateOneRelationshipType(data.user_id, data.type);
       }
@@ -88,6 +91,7 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     socket.on(Events.Client.UpdateChannelRelation, (data: any) => {
+      console.log('UpdateChannelRelation', data)
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
         this.updateChannelRelationship(
           Number(data.channel_id),
@@ -349,17 +353,22 @@ class App extends React.Component<AppProps, AppState> {
     user_id: number,
     newType: UserRelationshipType
   ) => {
+console.log('updateOneRelationshipType', user_id, newType, this.state.relationshipsList)
+
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
       return Number(relation.user.id) === Number(user_id);
     });
+    console.log('index', index)
     if (index !== -1) {
       if (Number(newType) !== Number(UserRelationshipType.null)) {
         a[index].relationshipType = newType;
       } else {
         a.splice(index, 1);
       }
+      console.log('index !== -1 - a: ', a)
       this.setState({ relationshipsList: a });
+      console.log(`State after updating realtionships: ${this.state}`);
     } else if (newType !== UserRelationshipType.null) {
       try {
         const dataUser = await axios.get("/api/users/" + user_id);
@@ -370,6 +379,8 @@ class App extends React.Component<AppProps, AppState> {
         a.sort((user1: AppUserRelationship, user2: AppUserRelationship) =>
           user1.user.name.localeCompare(user2.user.name)
         );
+      console.log('index === -1 - a: ', a)
+
         this.setState({ relationshipsList: a });
         // TODO: It seems like this should be clearing the rest of the state?
         // Normally I use object destruction {...this.state} to keep previous state
@@ -466,6 +477,7 @@ class App extends React.Component<AppProps, AppState> {
     user_id: number,
     newType: ChannelRelationshipType = ChannelRelationshipType.Null
   ) => {
+    console.log('updateChannelRelationship')
     if (this.state.user) {
       let a = this.state.user.channels.slice();
       let index = a.findIndex((channel: any) => {
@@ -500,6 +512,9 @@ class App extends React.Component<AppProps, AppState> {
             });
           }
         }
+
+console.log(a)
+
         const newUser = {
           ...this.state.user,
           channels: a,

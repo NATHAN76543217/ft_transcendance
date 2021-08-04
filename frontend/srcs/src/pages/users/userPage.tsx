@@ -121,6 +121,9 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
 
   useEffect(() => {
     const getPlayerName = async (user_id: number): Promise<string> => {
+      if (!user_id) {
+        return "Unknown player";
+      }
       try {
         const dataUser = await axios.get(`/api/users/${user_id}`);
         // console.log('dataUser', dataUser)
@@ -406,7 +409,6 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
           nbLoss={userInfo.user.nbLoss}
           imgPath={userInfo.user.imgPath}
           isMe={isMe}
-          relationshipsList={contextValue.relationshipsList} // A Gerer au niveau de l'update
           idInf={idInf}
           // isFriend
           twoFactorAuthEnabled={userInfo.user.twoFactorAuthEnabled}

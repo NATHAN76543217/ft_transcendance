@@ -152,6 +152,9 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRelationshipDto,
   ) {
+
+console.log('UpdateUserRelation', body)
+
     const inf = socket.user.id < body.user_id;
     const user1_id = inf ? socket.user.id.toFixed() : body.user_id.toString();
     const user2_id = inf ? body.user_id.toString() : socket.user.id.toFixed();
@@ -224,7 +227,7 @@ export class ChannelsGateway
     });
   }
 
-  @SubscribeMessage(Events.Client.UpdateUserRole)
+  @SubscribeMessage(Events.Server.UpdateUserRole)
   async handleUpdateRole(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRoleDto,
@@ -249,14 +252,14 @@ export class ChannelsGateway
     });
   }
 
-  @SubscribeMessage(Events.Client.UpdateChannelRelation)
+  @SubscribeMessage(Events.Server.UpdateChannelRelation)
   async handleUpdateChannelRelationship(
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateChannelRelationshipDto,
   ) {
-    let relationship;
+
+    console.log('updateChannelRelationship', body)
     try {
-      relationship =
         await this.channelRelationshipsService.getChannelRelationshipByIds(
           body.channel_id,
           body.user_id,
@@ -274,7 +277,6 @@ export class ChannelsGateway
         });
       }
     } catch (error) {
-      relationship =
         await this.channelRelationshipsService.createChannelRelationship({
           type: body.type,
           channel_id: body.channel_id,
@@ -556,7 +558,8 @@ export class ChannelsGateway
             body.receiver_id.toString(),
             socket.user.id.toFixed(),
           );
-        if (relation.type !== UserRelationshipTypes.friends) {
+        if (!(relation.type & UserRelationshipTypes.pending_first_second &&
+          relation.type & UserRelationshipTypes.pending_second_first)) {
           return;
         }
       } catch (error) {

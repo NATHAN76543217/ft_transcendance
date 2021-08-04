@@ -31,7 +31,7 @@ export default class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly userRelationshipsService: UserRelationshipsService,
-  ) {}
+  ) { }
 
   @Get()
   getUsers(@Query('name') name: string) {
@@ -40,6 +40,7 @@ export default class UsersController {
 
   @Get('me')
   getUserHimself(@Req() req: RequestWithUser) {
+    console.log('______________________________________ IS ME ________________________________________________')
     return this.usersService.getUserById(req.user.id, true);
   }
 
@@ -65,9 +66,9 @@ export default class UsersController {
           user1_id,
           user2_id,
         );
-      if (relation.type !== UserRelationshipTypes.friends) {
-        return [];
-      }
+      // if (relation.type !== UserRelationshipTypes.friends) {
+      //   return [];
+      // }
     } catch (error) {
       return [];
     }
@@ -105,7 +106,6 @@ export default class UsersController {
   @Get(':id')
   getUserById(@Req() req: RequestWithUser, @Param('id') id: FindOneParam) {
     const withChannels = req.user.id === Number(id);
-
     return this.usersService.getUserById(Number(id), withChannels);
   }
 
@@ -138,11 +138,6 @@ export default class UsersController {
     return this.userRelationshipsService.getAllUserRelationships();
   }
 
-  @Get('relationships/:id')
-  async getUserRelationshipsById(@Param('id') id: string) {
-    return this.userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
-  }
-
   @Get('relationships/:id1/:id2')
   async getUserRelationshipsByIds(
     @Param('id1') id1: string,
@@ -150,6 +145,12 @@ export default class UsersController {
   ) {
     return this.userRelationshipsService.getUserRelationshipByIds(id1, id2);
   }
+
+  @Get('relationships/:id')
+  async getUserRelationshipsById(@Param('id') id: string) {
+    return this.userRelationshipsService.getAllUserRelationshipsFromOneUser(id);
+  }
+
 
   @Post('relationships')
   async createUserRelationship(

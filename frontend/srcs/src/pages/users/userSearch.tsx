@@ -255,7 +255,6 @@ function UserSearch() {
                 nbWin={user.nbWin}
                 nbLoss={user.nbLoss}
                 imgPath={user.imgPath}
-                relationshipsList={userRelationshipsInfo}
                 twoFactorAuthEnabled={user.twoFactorAuthEnabled}
                 idInf={idInf}
                 addFriend={addFriend}

@@ -152,8 +152,13 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
         </button>
         <ul>
           {Array.from(chatContextValue.channelRels.values()).map((rel) => {
-            return displayChannel(rel, displaySection.channels);
+            if (rel.type !== ChannelRelationshipType.Banned) {
+              return displayChannel(rel, displaySection.channels);
+            }
           })}
+          {/* {chatContextValue.channelRels.values().((rel) => {
+            return displayChannel(rel, displaySection.channels);
+          })} */}
         </ul>
       </div>
     );

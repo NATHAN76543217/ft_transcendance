@@ -70,7 +70,7 @@ function displayBanButton(user: UserElementProps) {
   };
 
   return (
-    <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
+    <div className="relative inline-flex items-center justify-center w-20 mr-4 h-6 text-center ">
       {isMyRoleAbove(user) ? (
         !(user.role & UserRole.Banned) ? (
           <CustomButton
@@ -84,19 +84,19 @@ function displayBanButton(user: UserElementProps) {
             text_size="text-sm"
           />
         ) : (
-          <CustomButton
-            content="Unban"
-            // url="/users/unblock"
-            onClickFunctionId={unbanUser}
-            argId={user.id}
-            bg_color="bg-secondary"
-            // bg_hover_color="bg-unset-dark"
-            dark_text
-            text_size="text-sm"
-          />
+            <CustomButton
+              content="Unban"
+              // url="/users/unblock"
+              onClickFunctionId={unbanUser}
+              argId={user.id}
+              bg_color="bg-secondary"
+              // bg_hover_color="bg-unset-dark"
+              dark_text
+              text_size="text-sm"
+            />
         )
       ) : (
-        <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
+        <div className="relative inline-flex items-center justify-center mr-4 w-20 h-6 text-center"></div>
       )}
     </div>
   );
@@ -138,7 +138,7 @@ function displayMuteButton(user: UserElementProps) {
             />
           )
         ) : (
-          <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
+          <div className="relative inline-flex items-center justify-center w-24 h-6 text-center"></div>
         )}
       </div>
     );
@@ -152,7 +152,7 @@ function displayKickButton(user: UserElementProps) {
 
   if (user.isChannelUserElement) {
     return (
-      <div className="relative inline-flex items-center justify-center w-24 h-6 text-center">
+      <div className="relative inline-flex items-center justify-center w-20 h-6 text-center">
         {isMyRoleAbove(user) ? (
           <CustomButton
             content="Kick"
@@ -165,7 +165,7 @@ function displayKickButton(user: UserElementProps) {
             text_size="text-sm"
           />
         ) : (
-          <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
+          <div className="relative inline-flex items-center justify-center w-24 h-6 text-center"></div>
         )}
       </div>
     );
@@ -188,7 +188,7 @@ function displayAdminButton(user: UserElementProps) {
     user.myRole & UserRole.Owner
   ) {
     return (
-      <div className="inline-flex items-center justify-center w-24 h-6 text-center">
+      <div className="inline-flex items-center justify-center w-24 h-6 text-center ">
         {!(user.role & UserRole.Owner) ? (
           !(user.role & UserRole.Admin) ? (
             <CustomButton
@@ -220,7 +220,7 @@ function displayAdminButton(user: UserElementProps) {
     );
   } else {
     return (
-      <div className="relative inline-flex items-center justify-center w-32 h-6 text-center"></div>
+      <div className="relative inline-flex items-center justify-center w-24 h-6 text-center"></div>
     );
   }
 }
@@ -240,7 +240,7 @@ function AdminUserElement(user: UserElementProps) {
         </div>
       </div>
       <div className={"grid w-48 space-y-2 justify-center"}>
-        <div className='flex'>
+        <div className=' flex '>
           {displayAdminButton(user)}
           {displayBanButton(user)}
         </div>

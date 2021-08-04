@@ -5,43 +5,6 @@ import { Message, MessageType } from "../../models/channel/Channel";
 import { UserRelationshipType } from "../../models/user/UserRelationship";
 import { ChatMessage } from "./ChatMessage";
 
-async function fetchChannelMessages(
-  channelId: number,
-  beforeId?: number
-): Promise<Message[]> {
-  try {
-    const res = await axios.get<Message[]>(
-      `/api/channels/${channelId}/messages/`,
-      { params: { beforeId } }
-    );
-    res.data.sort((m1: Message, m2: Message) => {
-      return m1.created_at.toString().localeCompare(m2.created_at.toString());
-    });
-    return res.data;
-  } catch (e) {
-    return [];
-  }
-}
-
-async function fetchUserMessages(
-  user1_id: number,
-  user2_id: number,
-  beforeId?: number
-): Promise<Message[]> {
-  try {
-    const res = await axios.get<Message[]>(
-      `/api/users/${user1_id}/${user2_id}/messages/`,
-      { params: { beforeId } }
-    );
-    res.data.sort((m1: Message, m2: Message) => {
-      return m1.created_at.toString().localeCompare(m2.created_at.toString());
-    });
-    return res.data;
-  } catch (e) {
-    return [];
-  }
-}
-
 export type ChatMessageListProps = {
   id: string;
 };
@@ -57,20 +20,61 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
   const isChannel = props.id && props.id[0] === "c" ? true : false;
 
+
+  async function fetchChannelMessages(
+    channelId: number,
+    beforeId?: number
+  ): Promise<Message[]> {
+    try {
+      const res = await axios.get<Message[]>(
+        `/api/channels/${channelId}/messages/`,
+        { params: { beforeId } }
+      );
+      res.data.sort((m1: Message, m2: Message) => {
+        return m1.created_at.toString().localeCompare(m2.created_at.toString());
+      });
+      return res.data;
+    } catch (e) {
+      return [];
+    }
+  }
+  
+  async function fetchUserMessages(
+    user1_id: number,
+    user2_id: number,
+    beforeId?: number
+    ): Promise<Message[]> {
+      const friendId = user && user?.id === user1_id ? user2_id : user1_id;
+      if (isUserBlocked(friendId)) {
+        return [];
+      }
+      try {
+        const res = await axios.get<Message[]>(
+          `/api/users/${user1_id}/${user2_id}/messages/`,
+          { params: { beforeId } }
+          );
+      res.data.sort((m1: Message, m2: Message) => {
+        return m1.created_at.toString().localeCompare(m2.created_at.toString());
+      });
+      return res.data;
+    } catch (e) {
+      return [];
+    }
+  }
+
   useEffect(() => {
     // console.log('---- useEffect - socket ----')
 
     socket?.on("message-channel", (data: Message) => {
-      console.log("Incoming channel message:", data);
-      console.log("isChannel", isChannel);
-      console.log("props.id", props.id);
-      console.log("props.id.substring(1)", props.id.substring(1));
-      console.log("data.channel_id", data.channel_id);
+      // console.log("Incoming channel message:", data);
+      // console.log("isChannel", isChannel);
+      // console.log("props.id", props.id);
+      // console.log("props.id.substring(1)", props.id.substring(1));
+      // console.log("data.channel_id", data.channel_id);
       if (
         isChannel &&
         Number(props.id.substring(1)) === Number(data.channel_id)
       ) {
-        console.log("will set message");
         setMessages((olderMessages) => [...olderMessages, data]);
       }
     });
@@ -82,7 +86,6 @@ export function ChatMessageList(props: ChatMessageListProps) {
         (Number(props.id) === Number(data.receiver_id) ||
           Number(props.id) === Number(data.sender_id))
       ) {
-        console.log("will set message");
         setMessages((olderMessages) => [...olderMessages, data]);
       }
       if (
@@ -138,13 +141,13 @@ export function ChatMessageList(props: ChatMessageListProps) {
   let previousSenderId = 0;
   let sameSender;
 
-  const isSenderBlocked = (message: Message) => {
+  const isUserBlocked = (user_id: number) => {
     const senderRelation = relationshipsList.find((relation) => {
-      return relation.user.id === message.sender_id;
+      return relation.user.id === user_id;
     });
     if (senderRelation) {
       const isBlocked =
-        user && user?.id < message.sender_id
+        user && user?.id < user_id
           ? senderRelation.relationshipType &
             UserRelationshipType.block_first_second
           : senderRelation.relationshipType &
@@ -166,7 +169,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
             {messages.map((m) => {
               sameSender = previousSenderId === m.sender_id;
               previousSenderId = m.sender_id;
-              if (!isSenderBlocked(m)) {
+              if (!isUserBlocked(m.sender_id)) {
                 return (
                   <li key={m.id} className="">
                     <ChatMessage message={m} sameSender={sameSender} />

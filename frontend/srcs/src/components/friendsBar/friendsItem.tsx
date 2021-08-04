@@ -38,6 +38,7 @@ function FriendItem({
       ? "/api/uploads/default-profile-picture.png"
       : "/api/uploads/" + imgPath;
   let friendName = name.length < 10 ? name : name.substring(0, 10) + "...";
+
   let friendUrl = isFriend ? `/chat/${id}` : `/users/${id}`;
 
   const displayProfilePicture = () => {

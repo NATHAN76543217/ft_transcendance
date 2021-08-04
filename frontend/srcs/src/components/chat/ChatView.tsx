@@ -67,16 +67,18 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
       return relation.user.id === privateConvId;
     });
     if (friend) {
-      setFriendInfo({
-        id: privateConvId,
-        name: friend ? friend.user.name : "",
-        status: friend ? friend.user.status : UserStatus.Offline,
-        roomId: friend ? friend.user.roomId : undefined,
-        relationshipType: friend
+      if (friendInfo.id !== privateConvId || friend?.relationshipType !== friendInfo.relationshipType) {
+        setFriendInfo({
+          id: privateConvId,
+          name: friend ? friend.user.name : "",
+          status: friend ? friend.user.status : UserStatus.Offline,
+          roomId: friend ? friend.user.roomId : undefined,
+          relationshipType: friend
           ? friend.relationshipType
           : UserRelationshipType.null,
-        gameInvite: friend ? friend.gameInvite : undefined,
-      });
+          gameInvite: friend ? friend.gameInvite : undefined,
+        });
+      }
     } else if (friendInfo.id) {
       setFriendInfo({
         ...friendInfo,
@@ -97,9 +99,15 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   });
 
   const setChannel = useCallback(() => {
+
+console.log('setChannel')
+
     const channel = contextValue.user?.channels.find((channel) => {
       return channel.channel.id === channelId;
     });
+
+console.log('channel', channel)
+
     setChannelInfo({
       id: channelId,
       name: channel ? channel.channel.name : "",
@@ -147,12 +155,16 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   }
 
   useEffect(() => {
-    if (isChannel && channelInfo.id !== channelId) {
+    console.log('useEffect, setChannel')
+    console.log('isChannel', isChannel)
+    if (isChannel) {
       setChannel();
     }
-  }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel]);
-
+  }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel, contextValue.user?.channels]);
+  
   useEffect(() => {
+    console.log('useEffect, setFriend')
+    console.log('isFriend', isPrivateConv)
     if (isPrivateConv) {
       setFriend();
     }

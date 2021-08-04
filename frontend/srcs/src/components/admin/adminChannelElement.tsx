@@ -251,6 +251,7 @@ function AdminChannelElement(props: ChannelElementProps) {
     adminChannelElementInfo: ChannelElementStates,
     setAdminChannelElementInfo: any
   ) => {
+    console.log(`set Role, user-id: ${user_id}, channel_id: ${channel_id}, type: ${type}`)
     contextValue.eventSocket?.emit(Events.Server.UpdateChannelRelation, {
       channel_id: channel_id,
       user_id: user_id,

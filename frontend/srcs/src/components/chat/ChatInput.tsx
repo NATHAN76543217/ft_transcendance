@@ -10,6 +10,7 @@ import {
 } from "../../models/channel/MessageEvent.dto";
 import { FriendState } from "./ChatView";
 import { Events } from "../../models/channel/Events";
+import { UserRelationshipType } from "../../models/user/UserRelationship";
 interface IMessageFormValues {
   message: string;
 }
@@ -49,8 +50,6 @@ export function ChatInput(props: ChatInputProps) {
       data,
     };
 
-    console.log(message);
-
     socket.emit(Events.Server.ChannelMessage, message);
   };
 
@@ -71,7 +70,7 @@ export function ChatInput(props: ChatInputProps) {
       (ChannelRelationshipType.Owner |
         ChannelRelationshipType.Admin |
         ChannelRelationshipType.Member) ||
-    props.friendInfo.id
+    (props.friendInfo.id && !(props.friendInfo.relationshipType & UserRelationshipType.block_both))
   ) {
     return (
       <div className="">

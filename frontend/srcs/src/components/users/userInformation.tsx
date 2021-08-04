@@ -19,7 +19,6 @@ type UserProps = {
   imgPath: string;
   twoFactorAuthEnabled: boolean;
   isMe?: boolean | false;
-  relationshipsList: AppUserRelationship[];
   idInf: boolean;
   isInSearch?: boolean | false;
   usernameErrorMessage?: string;
@@ -331,7 +330,7 @@ function UserInformation(user: UserProps) {
 
   useEffect(() => {
     const setRelationshipType = async () => {
-      let relation = user.relationshipsList.find((relationElem) => {
+      const relation = contextValue.relationshipsList.find((relationElem) => {
         return relationElem.user.id === user.id;
       });
       const type = relation
@@ -343,7 +342,7 @@ function UserInformation(user: UserProps) {
     };
     setRelationshipType();
   }, [
-    user.relationshipsList,
+    contextValue.relationshipsList,
     setUserRelationshipType,
     userRelationshipType,
     user.id,
