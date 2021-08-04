@@ -336,7 +336,7 @@ console.log('Client.UpdateUserRelation')
             const dataInvite = await axios.get(
               `/api/users/${this.state.user?.id}/${friendId}/gameInvite`
             );
-            console.log("dataInvite", dataInvite);
+            // console.log("dataInvite", dataInvite);
             a.push({
               user: dataUser.data,
               relationshipType: relation.type,

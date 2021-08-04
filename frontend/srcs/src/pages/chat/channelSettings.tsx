@@ -43,18 +43,9 @@ function ChannelSettings(props: ChannelSettingsProps) {
     (ChannelRelationshipType.Owner | ChannelRelationshipType.Admin)
   ) {
     return (
-      <div className="grid justify-center ">
-        <ChannelSettingsProperties
-          id={props.id}
-          name={props.name}
-          mode={props.mode}
-          destroyChannel={destroyChannel}
-          isChannelSettings={true}
-          myRole={props.myRole}
-        />
-        <div className="grid justify-center pt-4 pb-4 mt-8 border-2 border-gray-300 rounded-sm bg-neutral w-96">
-          <h2 className="text-3xl font-bold text-center">Channel Users</h2>
-          <AdminChannelElement
+      <div className='overflow-y-scroll'>
+        <div className="grid justify-center ">
+          <ChannelSettingsProperties
             id={props.id}
             name={props.name}
             mode={props.mode}
@@ -62,6 +53,17 @@ function ChannelSettings(props: ChannelSettingsProps) {
             isChannelSettings={true}
             myRole={props.myRole}
           />
+          <div className="grid justify-center pt-4 pb-4 my-8 border-2 border-gray-300 rounded-sm bg-neutral w-96">
+            <h2 className="text-3xl font-bold text-center">Channel Users</h2>
+            <AdminChannelElement
+              id={props.id}
+              name={props.name}
+              mode={props.mode}
+              destroyChannel={destroyChannel}
+              isChannelSettings={true}
+              myRole={props.myRole}
+            />
+          </div>
         </div>
       </div>
     );

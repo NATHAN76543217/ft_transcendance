@@ -154,6 +154,8 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
           {Array.from(chatContextValue.channelRels.values()).map((rel) => {
             if (rel.type !== ChannelRelationshipType.Banned) {
               return displayChannel(rel, displaySection.channels);
+            } else {
+              return <div></div>
             }
           })}
           {/* {chatContextValue.channelRels.values().((rel) => {

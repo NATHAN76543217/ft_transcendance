@@ -100,13 +100,9 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
 
   const setChannel = useCallback(() => {
 
-console.log('setChannel')
-
     const channel = contextValue.user?.channels.find((channel) => {
       return channel.channel.id === channelId;
     });
-
-console.log('channel', channel)
 
     setChannelInfo({
       id: channelId,
@@ -155,16 +151,12 @@ console.log('channel', channel)
   }
 
   useEffect(() => {
-    console.log('useEffect, setChannel')
-    console.log('isChannel', isChannel)
     if (isChannel) {
       setChannel();
     }
   }, [match.params.id, isChannel, channelId, channelInfo.id, setChannel, contextValue.user?.channels]);
   
   useEffect(() => {
-    console.log('useEffect, setFriend')
-    console.log('isFriend', isPrivateConv)
     if (isPrivateConv) {
       setFriend();
     }
@@ -189,7 +181,7 @@ console.log('channel', channel)
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <div className="justify-center h-full ">
+          <div className="justify-center h-full overflow-y-scroll">
             <ChatMessageList id={match.params.id} />
             <ChatInput
               id={match.params.id}

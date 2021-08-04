@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useCallback } from "react";
 import { useContext, useEffect, useState } from "react";
 import AppContext from "../../AppContext";
 import { Message, MessageType } from "../../models/channel/Channel";
@@ -21,46 +22,8 @@ export function ChatMessageList(props: ChatMessageListProps) {
   const isChannel = props.id && props.id[0] === "c" ? true : false;
 
 
-  async function fetchChannelMessages(
-    channelId: number,
-    beforeId?: number
-  ): Promise<Message[]> {
-    try {
-      const res = await axios.get<Message[]>(
-        `/api/channels/${channelId}/messages/`,
-        { params: { beforeId } }
-      );
-      res.data.sort((m1: Message, m2: Message) => {
-        return m1.created_at.toString().localeCompare(m2.created_at.toString());
-      });
-      return res.data;
-    } catch (e) {
-      return [];
-    }
-  }
-  
-  async function fetchUserMessages(
-    user1_id: number,
-    user2_id: number,
-    beforeId?: number
-    ): Promise<Message[]> {
-      const friendId = user && user?.id === user1_id ? user2_id : user1_id;
-      if (isUserBlocked(friendId)) {
-        return [];
-      }
-      try {
-        const res = await axios.get<Message[]>(
-          `/api/users/${user1_id}/${user2_id}/messages/`,
-          { params: { beforeId } }
-          );
-      res.data.sort((m1: Message, m2: Message) => {
-        return m1.created_at.toString().localeCompare(m2.created_at.toString());
-      });
-      return res.data;
-    } catch (e) {
-      return [];
-    }
-  }
+
+
 
   useEffect(() => {
     // console.log('---- useEffect - socket ----')
@@ -108,9 +71,72 @@ export function ChatMessageList(props: ChatMessageListProps) {
     };
   }, [socket, isChannel, props.id, updateOneRelationshipGameInvite]);
 
+
+  let previousSenderId = 0;
+  let sameSender;
+
+  const isUserBlocked = useCallback((user_id: number) => {
+    const senderRelation = relationshipsList.find((relation) => {
+      return relation.user.id === user_id;
+    });
+    if (senderRelation) {
+      const isBlocked =
+        user && user?.id < user_id
+          ? senderRelation.relationshipType &
+          UserRelationshipType.block_first_second
+          : senderRelation.relationshipType &
+          UserRelationshipType.block_second_first;
+      return isBlocked;
+    }
+    return false;
+  }
+  , [relationshipsList, user]);
+
+
   // This fetches previous messages
   useEffect(() => {
     // console.log('---- useEffect - props.id ----')
+
+    async function fetchChannelMessages(
+      channelId: number,
+      beforeId?: number
+    ): Promise<Message[]> {
+      try {
+        const res = await axios.get<Message[]>(
+          `/api/channels/${channelId}/messages/`,
+          { params: { beforeId } }
+        );
+        res.data.sort((m1: Message, m2: Message) => {
+          return m1.created_at.toString().localeCompare(m2.created_at.toString());
+        });
+        return res.data;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function fetchUserMessages(
+      user1_id: number,
+      user2_id: number,
+      beforeId?: number
+    ): Promise<Message[]> {
+      const friendId = user && user?.id === user1_id ? user2_id : user1_id;
+      if (isUserBlocked(friendId)) {
+        return [];
+      }
+      try {
+        const res = await axios.get<Message[]>(
+          `/api/users/${user1_id}/${user2_id}/messages/`,
+          { params: { beforeId } }
+        );
+        res.data.sort((m1: Message, m2: Message) => {
+          return m1.created_at.toString().localeCompare(m2.created_at.toString());
+        });
+        return res.data;
+      } catch (e) {
+        return [];
+      }
+    }
 
     async function appendOlderMessages() {
       if (isChannel) {
@@ -129,7 +155,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
       }
     }
     appendOlderMessages();
-  }, [props.id, isChannel, user]);
+  }, [props.id, isChannel, user, isUserBlocked]);
   // }, [currentChannelRel, currentUserRel, convId]);
 
   // return messages;
@@ -138,24 +164,6 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
   // console.log(`Rendering ${messages.length} messages!`);
 
-  let previousSenderId = 0;
-  let sameSender;
-
-  const isUserBlocked = (user_id: number) => {
-    const senderRelation = relationshipsList.find((relation) => {
-      return relation.user.id === user_id;
-    });
-    if (senderRelation) {
-      const isBlocked =
-        user && user?.id < user_id
-          ? senderRelation.relationshipType &
-            UserRelationshipType.block_first_second
-          : senderRelation.relationshipType &
-            UserRelationshipType.block_second_first;
-      return isBlocked;
-    }
-    return false;
-  };
 
   return (
     <div className="flex justify-center mt-4 h-5/6">

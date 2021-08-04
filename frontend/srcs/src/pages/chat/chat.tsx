@@ -70,13 +70,9 @@ export default function ChatPage({
   >(getUserRel(userIdParam));
 
   useEffect(() => {
-    console.log('---------useEffect - chat', user)
     setChannelRels(new Map(user?.channels.map((rel) => [rel.channel.id, rel])));
   }, [user?.channels]);
   
-  useEffect(() => {
-    console.log('..............useEffect - ChannelRels', channelRels)
-  }, [channelRels ]);
 
   useEffect(() => {
     const getUserRelEffect = (userId: number) => {

@@ -8,7 +8,6 @@ import AppContext from "../../AppContext";
 import UserPageState from "../../models/user/UserPageState";
 import { UserStatus } from "../../models/user/IUser";
 import { IAppContext } from "../../IAppContext";
-import { AppUserRelationship } from "../../models/user/AppUserRelationship";
 
 type UserProps = {
   id: number; // optional ?

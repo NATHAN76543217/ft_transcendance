@@ -59,19 +59,17 @@ export function ChatInput(props: ChatInputProps) {
       type: MessageType.PrivateMessage,
       data,
     };
-
-    console.log("sendMessageUser", message);
-
     socket.emit(Events.Server.UserMessage, message);
   };
 
   if (
-    props.myRole &
+    (props.isChannel && props.myRole &
       (ChannelRelationshipType.Owner |
         ChannelRelationshipType.Admin |
-        ChannelRelationshipType.Member) ||
-    (props.friendInfo.id && !(props.friendInfo.relationshipType & UserRelationshipType.block_both))
+        ChannelRelationshipType.Member)) ||
+    (!props.isChannel && props.friendInfo.id && !(props.friendInfo.relationshipType & UserRelationshipType.block_both))
   ) {
+
     return (
       <div className="">
         <div className="flex justify-center px-4 my-4 h-1/6">
