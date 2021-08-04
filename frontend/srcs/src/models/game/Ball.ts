@@ -51,5 +51,5 @@ export const defaultBall: Ball = new Ball(
   new Vector2D(canvasWidth / 2, canvasHeight / 2),
   new Vector2D(5, 5),
   7,
-  100
+  42
 );

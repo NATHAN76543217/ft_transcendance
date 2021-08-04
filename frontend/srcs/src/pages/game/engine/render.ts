@@ -30,12 +30,12 @@ function renderizeScores(
 }
 
 function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight : number) {
-  const width: number = 2;
-  const height: number = 10;
-  const pos: IVector2D = new Vector2D(canvasWidth - width, 0);
-  for (let i = 0; i < canvasHeight; i += 15) {
+  const width: number = (2 * currCanvHeight) / canvasHeight;
+  const height: number = (10 * currCanvHeight) / canvasHeight;
+  const pos: IVector2D = new Vector2D(currCanvHeight - width, 0);
+  for (let i = 0; i < currCanvHeight; i += 15) {
     context.fillStyle = "WHITE";
-    context.fillRect(pos.x, pos.y, width, height);
+    context.fillRect(pos.x, pos.y + i, width, height);
   }
 }
 

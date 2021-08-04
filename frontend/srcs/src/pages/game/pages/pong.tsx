@@ -162,7 +162,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       ball.rad = ruleOfThree(ball.rad);
       ball.velocity = ruleOfThree(ball.velocity);
 
-
       const tmpDefaultBall = { ...defaultBall };
       tmpDefaultBall.x = ruleOfThree(tmpDefaultBall.x);
       tmpDefaultBall.y = ruleOfThree(tmpDefaultBall.y);
