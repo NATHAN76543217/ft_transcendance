@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { RouteComponentProps, useHistory } from "react-router";
 import AppContext from "../../../AppContext";
 import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
@@ -9,8 +9,9 @@ import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
 import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
 import { Events } from "../../../models/channel/Events";
-import { IPlayer, Player } from "../../../models/game/Player";
-import { Ball, defaultBall, IBall, IBallBase } from "../../../models/game/Ball";
+import { Player } from "../../../models/game/Player";
+import { Ball, defaultBall, IBall } from "../../../models/game/Ball";
+import { Vector2D } from "../../../models/game/Vector2D";
 
 // TO DO: let animationId: number | undefined = undefined; IF NOT UNDEFINED -> LAUNCH RENDER
 
@@ -19,10 +20,10 @@ export type PongPageParams = {
 };
 
 enum Received {
-  STATUS = (1 << 0),
+  STATUS = 1 << 0,
   PLAYERS = Received.STATUS << 1,
   SCORES = Received.PLAYERS << 1,
-  BALL = Received.SCORES << 1
+  BALL = Received.SCORES << 1,
 }
 
 export function Pong({ match }: RouteComponentProps<PongPageParams>) {
@@ -35,39 +36,19 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   console.log("[pong.tsx] Pong.tsx has been called");
 
-  const [canvHeight, setCanvHeight] = useState<number>(window.innerHeight / 2);
-  const [canvWidth, setCanvWidth] = useState<number>((canvasWidth * canvHeight) / canvasHeight);
-
-  if (canvWidth > window.innerWidth) {
-    setCanvHeight((canvasHeight * window.innerWidth) / canvasWidth);
-    setCanvWidth((canvasWidth * canvHeight) / canvasHeight);
-  }
-  
   useEffect(() => {
     if (canvasRef.current !== null)
       ctx.current = canvasRef.current.getContext("2d");
-
-    const windowResizeEventHandler = () => {
-      console.log("[pong.tsx] Resize screen");
-
-      let h = window.innerHeight / 2;
-      let w = (canvasWidth * h) / canvasHeight;
-
-      if (w > window.innerWidth) {
-        h = (canvasHeight * window.innerWidth) / canvasWidth;
-        w = (canvasWidth * h) / canvasHeight;
-      }
-      setCanvHeight(h);
-      setCanvWidth(w);
-    };
-
-    window.addEventListener('resize', windowResizeEventHandler);
-
-    return () => { window.removeEventListener('resize', windowResizeEventHandler); };
-      
   }, []);
 
+  /* 
+
   useEffect(() => {
+    canvasRef.current?.width = window.innerWidth;
+  }, [window.innerWidth]) */
+
+  useEffect(() => {
+    console.log(canvasRef.current?.width);
     if (
       matchSocket === undefined ||
       canvasRef.current === null ||
@@ -75,31 +56,40 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     )
       return;
 
-    let received : number = 0;
+    let received: number = 0;
     let state: GameState = {
       status: GameStatus.UNREADY,
       players: [],
       scores: [0, 0],
-      ball: {} as Ball
+      ball: {} as Ball,
     };
     let animationId: number | undefined = 0;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
 
-    const mouseEventHandler = (event: any) => {
+    const getMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent) => {
       const rect = canvasRef.current!.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
 
-        const player = state.players.find((player) => player.id === user?.id);
+      return new Vector2D(
+        (evt.clientX - rect.left) * scaleX,
+        (evt.clientY - rect.top) * scaleY
+      );
+    };
 
+    const mouseEventHandler = (event: MouseEvent) => {
+      const player = state.players.find((player) => player.id === user?.id);
 
-        if (player) {
-          player.y = event.clientY - rect.top - player.height / 2;
-        }
+      if (player === undefined) return;
+      const mousePos = getMousePos(canvasRef.current!, event);
 
-        // TO DO: Emit mouse pos only if mouse is in the canvas
-        matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
-          x: event.clientX,
-          y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
-        });
+      player.y = mousePos.y;
+
+      // TO DO: Emit mouse pos only if mouse is in the canvas
+      matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
+        x: player.x,
+        y: player.y,
+      });
     };
 
     const onJoined = (data: GameJoinedDto) => {
@@ -115,49 +105,62 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       history.push("/game");
     };
 
-    const onReceiveStatus = (status : GameStatus) => {
-      console.log(`[pong.tsx] Received status: ${status}`);
+    const onReceiveStatus = (status: GameStatus) => {
+      console.log(`[pong.tsx] Received status: `, status);
       state.status = status;
       received |= Received.STATUS;
     };
 
-    const onReceivePlayers = (players : Player[]) => {
-      console.log(`[pong.tsx] Received players: ${players}`);
+    const onReceivePlayers = (players: Player[]) => {
+      console.log(`[pong.tsx] Received players: }`, players);
       state.players = players;
       console.log(`[pong.tsx] User id: ${user?.id}`);
-      state.players.forEach((player) => console.log(`[pong.tsx] game registered player: ${player.id}`));
+      state.players.forEach((player) =>
+        console.log(`[pong.tsx] game registered player: ${player.id}`)
+      );
       received |= Received.PLAYERS;
     };
 
-    const onReceiveScores = (scores : number[]) => {
-      console.log(`[pong.tsx] Received scores: ${scores}`);
+    const onReceiveScores = (scores: number[]) => {
+      console.log(`[pong.tsx] Received scores:`, scores);
       state.scores = scores;
-      state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
+      state.scores.forEach((score) =>
+        console.log(`[pong.tsx] game score:`, score)
+      );
       received |= Received.SCORES;
     };
 
-    const onReceiveBall = (ball : IBall) => {
-      console.log(`[pong.tsx] Received ball: ${ball}`);
-      state.ball = new Ball({
-        x: ball.x,
-        y: ball.y
-      }, ball.dir, ball.velocity, ball.rad);
+    const onReceiveBall = (ball: IBall) => {
+      console.log(`[pong.tsx] Received ball:`, ball);
+      state.ball = new Ball(
+        {
+          x: ball.x,
+          y: ball.y,
+        },
+        ball.dir,
+        ball.velocity,
+        ball.rad
+      );
       state.ball.defaultBall = defaultBall;
       //state.ball = { ...ball, defaultBall: defaultBall as IBallBase } as Ball;
       //received |= Received.BALL;
 
-      if (received === (Received.STATUS | Received.PLAYERS
-        | Received.SCORES/* | Received.BALL*/)) {
-          received = 0;
-          console.log(`[pong.tsx] render frame: Id: ${animationId}`);
-          if (animationId !== undefined) {
-            if (state.status === GameStatus.RUNNING) {
-              animationId = requestAnimationFrame(frame);
-            } else {
-              cancelAnimationFrame(animationId);
-              animationId = undefined;
-            }
+      if (
+        received ===
+        (Received.STATUS |
+          Received.PLAYERS |
+          Received.SCORES) /* | Received.BALL*/
+      ) {
+        received = 0;
+        console.log(`[pong.tsx] render frame: Id: ${animationId}`);
+        if (animationId !== undefined) {
+          if (state.status === GameStatus.RUNNING) {
+            animationId = requestAnimationFrame(frame);
+          } else {
+            cancelAnimationFrame(animationId);
+            animationId = undefined;
           }
+        }
       }
     };
 
@@ -211,7 +214,9 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       .on(ClientMessages.GAME_END, onMatchEnd);
 
     //matchSocket?.emit("test", { id: Number(match.params.id) });
-    matchSocket?.emit(ServerMessages.JOIN_ROOM, { id: Number(match.params.id) });
+    matchSocket?.emit(ServerMessages.JOIN_ROOM, {
+      id: Number(match.params.id),
+    });
 
     return deleteSubscribedListeners;
   }, [user?.id, matchSocket, appSocket, history, match.params.id]);
@@ -223,9 +228,9 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     <div className="">
       <canvas
         ref={canvasRef}
-        height={canvHeight}
-        width={canvWidth}
-        className=""
+        height={canvasHeight}
+        width={canvasWidth}
+        className="w-full"
       />
     </div>
   );
