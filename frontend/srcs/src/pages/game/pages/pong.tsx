@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { RouteComponentProps, useHistory } from "react-router";
 import AppContext from "../../../AppContext";
 import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
@@ -35,9 +35,36 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   console.log("[pong.tsx] Pong.tsx has been called");
 
+  const [canvHeight, setCanvHeight] = useState<number>(window.innerHeight / 2);
+  const [canvWidth, setCanvWidth] = useState<number>((canvasWidth * canvHeight) / canvasHeight);
+
+  if (canvWidth > window.innerWidth) {
+    setCanvHeight((canvasHeight * window.innerWidth) / canvasWidth);
+    setCanvWidth((canvasWidth * canvHeight) / canvasHeight);
+  }
+  
   useEffect(() => {
     if (canvasRef.current !== null)
       ctx.current = canvasRef.current.getContext("2d");
+
+    const windowResizeEventHandler = () => {
+      console.log("[pong.tsx] Resize screen");
+
+      let h = window.innerHeight / 2;
+      let w = (canvasWidth * h) / canvasHeight;
+
+      if (w > window.innerWidth) {
+        h = (canvasHeight * window.innerWidth) / canvasWidth;
+        w = (canvasWidth * h) / canvasHeight;
+      }
+      setCanvHeight(h);
+      setCanvWidth(w);
+    };
+
+    window.addEventListener('resize', windowResizeEventHandler);
+
+    return () => { window.removeEventListener('resize', windowResizeEventHandler); };
+      
   }, []);
 
   useEffect(() => {
@@ -58,25 +85,28 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     let animationId: number | undefined = 0;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
 
+    const mouseEventHandler = (event: any) => {
+      const rect = canvasRef.current!.getBoundingClientRect();
+
+        const player = state.players.find((player) => player.id === user?.id);
+
+
+        if (player) {
+          player.y = event.clientY - rect.top - player.height / 2;
+        }
+
+        // TO DO: Emit mouse pos only if mouse is in the canvas
+        matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
+          x: event.clientX,
+          y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
+        });
+    };
+
     const onJoined = (data: GameJoinedDto) => {
       console.log(`[pong.tsx] onJoined: role ${data.role}`);
+
       if (data.role === GameRole.Player) {
-        canvasRef.current!.addEventListener("mousemove", (event: any) => {
-          const rect = canvasRef.current!.getBoundingClientRect();
-
-          const player = state.players.find((player) => player.id === user?.id);
-
-
-          if (player) {
-            player.y = event.clientY - rect.top - player.height / 2;
-          }
-
-          // TO DO: Emit mouse pos only if mouse is in the canvas
-          matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
-            x: event.clientX,
-            y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
-          });
-        });
+        canvasRef.current!.addEventListener("mousemove", mouseEventHandler);
         matchSocket?.emit(ServerMessages.PLAYER_READY);
       }
     };
@@ -155,6 +185,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         .off(ClientMessages.QUIT, onQuit)
         .off(ClientMessages.GAME_START, onMatchStart)
         .off(ClientMessages.GAME_END, onMatchEnd);
+
+        window.removeEventListener("mousemove", mouseEventHandler);
     };
 
     const frame = () => {
@@ -185,13 +217,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
-  const height: number = canvasRef.current?.height!;
+  //const height: number = window.screen.height / 2;//canvasRef.current?.height!;
   return (
-    <div>
+    <div className="">
       <canvas
         ref={canvasRef}
-        height={height}
-        width={(canvasWidth * height) / canvasHeight}
+        height={canvHeight}
+        width={canvWidth}
         className=""
       />
     </div>
