@@ -9,10 +9,11 @@ function GameHome() {
   const [matchList, setMatchList] = useState<IMatch[]>([]);
 
   const getPlayerName = async (user_id: number) => {
-    console.log('getPlayerName', user_id)
+    if (!user_id) {
+      return "Unknown player";
+    }
     try {
       const dataUser = await axios.get(`/api/users/${user_id}`);
-      console.log("dataUser", dataUser);
       return dataUser.data.name;
     } catch (error) {
       console.log(error);
@@ -21,22 +22,15 @@ function GameHome() {
   };
 
   const getAllCurrentMatches = async () => {
-
-    console.log('-------------------------- getAllCurrentMatches -------------------------')
-
     try {
       const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
-      console.log(`current matches`, dataMatches);
       let a = dataMatches.data.slice();
       a.map(async (match) => {
-        console.log('---------- start map ------------')
         match.playerNames = [];
         match.playerNames[0] = await getPlayerName(match.player_ids[0]);
         match.playerNames[1] = await getPlayerName(match.player_ids[1]);
-        console.log('---------- end map ------------')
       });
       if (JSON.stringify(a) !== JSON.stringify(matchList)) {
-        console.log('a vs matchList', a, matchList)
         setMatchList(a);
       }
     } catch (error) {
@@ -45,26 +39,12 @@ function GameHome() {
     }
   };
 
-  const fastGame = () => {
-    console.log("Fast game");
-  };
-
-  const createGame = () => {
-    console.log("Create game");
-  };
-
   const buttonClassname =
     "flex rounded-lg py-2 px-4 " +
     " bg-secondary hover:bg-secondary-dark" +
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto";
   const textButtonClassname = "text-2xl font-bold text-gray-900";
 
-  // const displayCurrentGames = () => {
-  //   const currentGames = await axios.get('/api/matches/current');
-  //   currentGames.data.map((match) => {
-
-  //   })
-  // }
 
   const displayHomeGamePannel = () => {
     return (
@@ -76,15 +56,13 @@ function GameHome() {
           <div className="flex w-auto space-x-8 rounded-md lg:space-x-24">
             <NavLink
               className={buttonClassname}
-              to="game/matchmaking"
-              onClick={() => fastGame()}
+              to="/game/matchmaking"
             >
               <span className={textButtonClassname}>Fast Game</span>
             </NavLink>
             <NavLink
               className={buttonClassname}
-              to="game/create"
-              onClick={() => createGame()}
+              to="/game/create"
             >
               <span className={textButtonClassname}>Create Game</span>
             </NavLink>
