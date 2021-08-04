@@ -3,8 +3,8 @@ import { IVector2D, Vector2D } from './Vector2D';
 
 export type Side = 'left' | 'right';
 
-export const PLAYER_WIDTH: number = 10;
-export const PLAYER_HEIGHT: number = 100;
+export const PLAYER_WIDTH: number = 40;
+export const PLAYER_HEIGHT: number = 400;
 export interface IPlayer extends IVector2D {
   width: number;
   height: number;

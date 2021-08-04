@@ -33,7 +33,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
-  console.log("[pong.tsx] Pong.tsx has been called");
+  //console.log("[pong.tsx] Pong.tsx has been called");
 
   const [canvHeight, setCanvHeight] = useState<number>(window.innerHeight / 2);
   const [canvWidth, setCanvWidth] = useState<number>((canvasWidth * canvHeight) / canvasHeight);
@@ -129,31 +129,31 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onReceivePlayers = (players : Player[]) => {
-      console.log(`[pong.tsx] Received players: ${players}`);
+      //console.log(`[pong.tsx] Received players: ${players}`);
 
       players.forEach((player) => {
         player.y = ruleOfThree(player.y);
-        console.log(`[pong.tsx] received x is: ${player.x}`);
+        console.log(`[pong.tsx] received player x is: ${player.x}`);
         player.x = ruleOfThree(player.x);
         player.height = ruleOfThree(player.height);
         player.width = ruleOfThree(player.width);
       });
 
       state.players = players;
-      console.log(`[pong.tsx] canvWidth: ${canvWidth}`);
+      //console.log(`[pong.tsx] canvWidth: ${canvWidth}`);
       state.players.forEach((player) => console.log(`[pong.tsx] game registered player y: ${player.y} x: ${player.x} side: ${player.side} id: ${player.id} userId: ${user?.id}`));
       received |= Received.PLAYERS;
     };
 
     const onReceiveScores = (scores : number[]) => {
-      console.log(`[pong.tsx] Received scores: ${scores}`);
+      //console.log(`[pong.tsx] Received scores: ${scores}`);
       state.scores = scores;
       state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
     };
 
     const onReceiveBall = (ball : IBall) => {
-      console.log(`[pong.tsx] Received ball: ${ball}`);
+      //console.log(`[pong.tsx] Received ball: ${ball}`);
 
       ball.x = ruleOfThree(ball.x);
       ball.y = ruleOfThree(ball.y);

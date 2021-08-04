@@ -115,6 +115,7 @@ function GameCreate() {
   /* const displayCreationValidationMessage = (
     showRegisterValidation: boolean
   ) => {
+    
     if (showRegisterValidation) {
       return (
         <div className="absolute bottom-0 w-full pr-12 font-bold text-center text-green-600">

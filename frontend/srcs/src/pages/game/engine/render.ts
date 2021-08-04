@@ -15,10 +15,13 @@ function renderizeScores(
   currCanvHeight: number
 ) {
   const scoreLeft: IVector2D = new Vector2D(
-    (3 * canvasWidth) / 4,
-    canvasHeight / 5
+    (((3 * canvasWidth) / 4) * currCanvHeight) / canvasHeight,
+    ((canvasHeight / 5) * currCanvHeight) / canvasHeight
   );
-  const scoreRight: IVector2D = new Vector2D(canvasWidth / 4, canvasHeight / 5);
+  const scoreRight: IVector2D = new Vector2D(
+    ((canvasWidth / 4) * currCanvHeight) / canvasHeight,
+    ((canvasHeight / 5) * currCanvHeight) / canvasHeight
+  );
 
   context.fillStyle = "#FFF";
   context.font = "75px Arial";
@@ -26,7 +29,7 @@ function renderizeScores(
   context.fillText(status.scores[1].toString(), scoreRight.x, scoreRight.y);
 }
 
-function renderizeNet(context: CanvasRenderingContext2D) {
+function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight : number) {
   const width: number = 2;
   const height: number = 10;
   const pos: IVector2D = new Vector2D(canvasWidth - width, 0);
@@ -56,7 +59,7 @@ export function renderize(
 ) {
   emptyCourt(context);
   renderizeScores(context, status, currCanvHeight);
-  renderizeNet(context);
+  renderizeNet(context, currCanvHeight);
   status.players.forEach((player) => renderizePlayer(context, player));
   renderizeBall(context, status.ball);
 }

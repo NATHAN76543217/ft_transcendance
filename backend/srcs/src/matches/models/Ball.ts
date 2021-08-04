@@ -29,5 +29,5 @@ export const defaultBall: Ball = new Ball(
   new Vector2D(canvasDims.x / 2, canvasDims.y / 2),
   new Vector2D(5, 5),
   7,
-  10,
+  100,
 );
