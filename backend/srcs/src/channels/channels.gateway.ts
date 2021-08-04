@@ -235,6 +235,7 @@ console.log('UpdateUserRelation', body)
     try {
       const user = await this.usersService.getUserById(body.user_id);
       delete user.status;
+      delete user.roomId;
       this.usersService.updateUser(user.id, {
         ...user,
         role: body.role,

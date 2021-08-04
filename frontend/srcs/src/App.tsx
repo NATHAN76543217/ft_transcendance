@@ -62,9 +62,6 @@ class App extends React.Component<AppProps, AppState> {
     // TODO: Send numbers from the backend instead of converting
 
     socket.on(Events.Client.UpdateUserRelation, (data: any) => {
-
-console.log('Client.UpdateUserRelation')
-
       if (data) {
         this.updateOneRelationshipType(data.user_id, data.type);
       }
@@ -85,6 +82,8 @@ console.log('Client.UpdateUserRelation')
     });
 
     socket.on(Events.Client.UpdateUserRole, (data: any) => {
+
+      console.log('UpdateUserRole', data)
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
         this.updateRole(data.role);
       }
