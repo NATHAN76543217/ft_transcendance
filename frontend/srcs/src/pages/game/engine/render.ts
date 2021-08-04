@@ -3,24 +3,26 @@ import { IPlayer } from "../../../models/game/Player";
 import { GameStateDto } from "../../../models/game/GameState.dto";
 import { IVector2D, Vector2D } from "../../../models/game/Vector2D";
 import { canvasWidth, canvasHeight } from "../../../models/game/canvasDims";
+import { ruleOfThree } from "./engine"
 
 function emptyCourt(context: CanvasRenderingContext2D) {
   context.fillStyle = "BLACK";
   context.fillRect(0, 0, canvasWidth, canvasHeight);
 }
 
+// NOTE: Their left corners are in the middle
 function renderizeScores(
   context: CanvasRenderingContext2D,
   status: GameStateDto,
   currCanvHeight: number
 ) {
   const scoreLeft: IVector2D = new Vector2D(
-    (((3 * canvasWidth) / 4) * currCanvHeight) / canvasHeight,
-    ((canvasHeight / 5) * currCanvHeight) / canvasHeight
+    ruleOfThree(3 * canvasWidth / 4, currCanvHeight),
+    ruleOfThree(canvasHeight / 5, currCanvHeight)
   );
   const scoreRight: IVector2D = new Vector2D(
-    ((canvasWidth / 4) * currCanvHeight) / canvasHeight,
-    ((canvasHeight / 5) * currCanvHeight) / canvasHeight
+    ruleOfThree(canvasWidth / 4, currCanvHeight),
+    ruleOfThree(canvasHeight / 5, currCanvHeight)
   );
 
   context.fillStyle = "#FFF";
@@ -30,9 +32,9 @@ function renderizeScores(
 }
 
 function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight : number) {
-  const width: number = (2 * currCanvHeight) / canvasHeight;
-  const height: number = (10 * currCanvHeight) / canvasHeight;
-  const pos: IVector2D = new Vector2D(currCanvHeight - width, 0);
+  const width: number = ruleOfThree(2, currCanvHeight);
+  const height: number = ruleOfThree(10, currCanvHeight);
+  const pos: IVector2D = new Vector2D((ruleOfThree(canvasWidth, currCanvHeight) - width) / 2, 0);
   for (let i = 0; i < currCanvHeight; i += 15) {
     context.fillStyle = "WHITE";
     context.fillRect(pos.x, pos.y + i, width, height);

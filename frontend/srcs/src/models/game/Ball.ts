@@ -34,12 +34,12 @@ export class Ball extends Vector2D implements IBallBase {
     );
   }
 
-  rebound(player: IPlayer) {
+  rebound(player: IPlayer, currCanvHeight: number) {
     // Change the ball direction (rebound)
     const normAngle: number =
       ((this.y - (player.y + player.height / 2)) / player.height / 2) *
       (Math.PI / 4);
-    const sense: number = this.x + this.rad < canvasWidth / 2 ? 1 : -1;
+    const sense: number = this.x + this.rad < ((canvasWidth * currCanvHeight) / canvasHeight) / 2 ? 1 : -1;
     this.dir.x = sense * this.velocity * Math.cos(normAngle);
     this.dir.y = this.velocity * Math.sin(normAngle);
 

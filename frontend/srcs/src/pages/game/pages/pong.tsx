@@ -50,6 +50,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const windowResizeEventHandler = () => {
       //console.log("[pong.tsx] Resize screen");
 
+      // TO DO: SEEMS THIS CAN BE DONE IN 2 LINES (not need if just init h diferently)
+
       let h = window.innerHeight - (window.innerHeight / 2);
       let w = (canvasWidth * h) / canvasHeight;
 
@@ -90,16 +92,19 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
         const player = state.players.find((player) => player.id === user?.id);
 
-
         if (player) {
-          player.y = event.clientY - rect.top - player.height / 2;
+          let tmpVal = event.clientY - rect.top - player.height / 2;
+          if (tmpVal < 0) tmpVal = 0;
+          else if (tmpVal + player.height > canvHeight) tmpVal = canvHeight - player.height;
+          player.y = tmpVal;
+
+          matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
+            x: event.clientX,
+            y: (player.y * canvasHeight) / canvHeight
+          });
         }
 
-        // TO DO: Emit mouse pos only if mouse is in the canvas
-        matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
-          x: event.clientX,
-          y: event.clientY, // TO DO: rule of 3 to normalize mouse pos
-        });
+
     };
 
     const onJoined = (data: GameJoinedDto) => {
@@ -114,8 +119,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const onQuit = () => {
       history.push("/game");
     };
-
-    // TO DO: Normalize mouse pos TOO !!!
 
     const ruleOfThree = (target: number) => {
       // Where y2 = (y1 * x2) / x1
@@ -227,7 +230,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     updateIntervalHandle = setInterval(() => {
-      pongEngine(state);
+      console.log("[pong.tsx] Engine runs !!!"); // TO DO: Never executed
+      pongEngine(state, canvHeight);
     }, 60 * 1000);
 
     matchSocket
