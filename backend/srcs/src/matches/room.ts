@@ -48,7 +48,7 @@ export class Room implements GameRoom {
 
   addPlayer(playerId: number) {
     const pos = this.state.players.size;
-    const side: Side = pos % 2 ? 'left' : 'right';
+    const side: Side = pos % 2 === 0 ? 'left' : 'right';
     const teamSize = this.ruleset.size / 2;
     const teamPos = pos > teamSize ? pos - teamSize : teamSize;
     const playerY = (canvasDims.y / teamSize) * teamPos;
@@ -66,6 +66,8 @@ export class Room implements GameRoom {
         playerId,
       ),
     );
+
+    Logger.debug(`[ROOM ------>] Add player ${playerId} side: ${side} pos: ${pos}`);
   }
 
   // TODO: Replace with setPlayerStatus (DISCONNECTED)
@@ -87,6 +89,7 @@ export class Room implements GameRoom {
     } else if (status === GameStatus.FINISHED) {
       this.onGameFinished();
     } else {
+      Logger.debug(`[ROOM ${this.matchId}] setStatus has been called with game status: ${status}`);
       this.onGameStopped();
     }
   }
@@ -217,6 +220,7 @@ export class Room implements GameRoom {
     clearInterval(this.updateIntervalHandle);
     clearInterval(this.endTimeoutHandle);
 
+    Logger.debug("[MATCHES GATEWAY] on game stopped has been called");
     this.matchesGateway.onDisconnectClients(this.matchId);
   }
 

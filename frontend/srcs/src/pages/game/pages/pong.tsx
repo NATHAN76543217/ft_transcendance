@@ -48,9 +48,9 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       ctx.current = canvasRef.current.getContext("2d");
 
     const windowResizeEventHandler = () => {
-      console.log("[pong.tsx] Resize screen");
+      //console.log("[pong.tsx] Resize screen");
 
-      let h = window.innerHeight / 2;
+      let h = window.innerHeight - (window.innerHeight / 2);
       let w = (canvasWidth * h) / canvasHeight;
 
       if (w > window.innerWidth) {
@@ -115,6 +115,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       history.push("/game");
     };
 
+    // TO DO: Normalize mouse pos TOO !!!
+
+    const ruleOfThree = (target: number) => {
+      // Where y2 = (y1 * x2) / x1
+      return (target * canvHeight) / canvasHeight;
+    }
+
     const onReceiveStatus = (status : GameStatus) => {
       console.log(`[pong.tsx] Received status: ${status}`);
       state.status = status;
@@ -123,9 +130,18 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     const onReceivePlayers = (players : Player[]) => {
       console.log(`[pong.tsx] Received players: ${players}`);
+
+      players.forEach((player) => {
+        player.y = ruleOfThree(player.y);
+        console.log(`[pong.tsx] received x is: ${player.x}`);
+        player.x = ruleOfThree(player.x);
+        player.height = ruleOfThree(player.height);
+        player.width = ruleOfThree(player.width);
+      });
+
       state.players = players;
-      console.log(`[pong.tsx] User id: ${user?.id}`);
-      state.players.forEach((player) => console.log(`[pong.tsx] game registered player: ${player.id}`));
+      console.log(`[pong.tsx] canvWidth: ${canvWidth}`);
+      state.players.forEach((player) => console.log(`[pong.tsx] game registered player y: ${player.y} x: ${player.x} side: ${player.side} id: ${player.id} userId: ${user?.id}`));
       received |= Received.PLAYERS;
     };
 
@@ -138,11 +154,28 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     const onReceiveBall = (ball : IBall) => {
       console.log(`[pong.tsx] Received ball: ${ball}`);
+
+      ball.x = ruleOfThree(ball.x);
+      ball.y = ruleOfThree(ball.y);
+      ball.dir.x = ruleOfThree(ball.dir.x);
+      ball.dir.y = ruleOfThree(ball.dir.y);
+      ball.rad = ruleOfThree(ball.rad);
+      ball.velocity = ruleOfThree(ball.velocity);
+
+
+      const tmpDefaultBall = { ...defaultBall };
+      tmpDefaultBall.x = ruleOfThree(tmpDefaultBall.x);
+      tmpDefaultBall.y = ruleOfThree(tmpDefaultBall.y);
+      tmpDefaultBall.dir.x = ruleOfThree(tmpDefaultBall.dir.x);
+      tmpDefaultBall.dir.y = ruleOfThree(tmpDefaultBall.dir.y);
+      tmpDefaultBall.rad = ruleOfThree(tmpDefaultBall.rad);
+      tmpDefaultBall.velocity = ruleOfThree(tmpDefaultBall.velocity);
+      
       state.ball = new Ball({
         x: ball.x,
         y: ball.y
       }, ball.dir, ball.velocity, ball.rad);
-      state.ball.defaultBall = defaultBall;
+      state.ball.defaultBall = tmpDefaultBall;
       //state.ball = { ...ball, defaultBall: defaultBall as IBallBase } as Ball;
       //received |= Received.BALL;
 
@@ -190,7 +223,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const frame = () => {
-      renderize(state, ctx.current!);
+      renderize(state, ctx.current!, canvHeight);
       requestAnimationFrame(frame);
     };
 

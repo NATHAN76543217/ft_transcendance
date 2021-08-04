@@ -186,7 +186,10 @@ export class MatchesGateway
 
     if (room.playerIds.includes(socket.user.id)) {
       role = GameRole.Player;
-      room.addPlayer(socket.user.id);
+      // TO DO: I've needed to add this condition cause addPlayer was called twice for first player, need to find out the reason in a future
+      if (room.state.players.has(socket.user.id) === false) {
+        room.addPlayer(socket.user.id);
+      }
     } else {
       role = GameRole.Spectator;
     }
@@ -271,7 +274,7 @@ export class MatchesGateway
         playerIds[0][0],
         {
           guests: [playerIds[1][0]],
-          ruleset: {},
+          ruleset: defaultRuleset,
         },
         true,
       );
@@ -338,6 +341,7 @@ export class MatchesGateway
     @MessageBody() roomId: number,
   ) {
     const room = this.getRoom(roomId);
+    this.logger.debug("[MATCHES GATEWAY] on leave room has been called");
 
     client.leave(room.getId());
     //room.playerIds.filter((id) => id !== playerId);
@@ -364,7 +368,7 @@ export class MatchesGateway
   }
 
   onGameUpdate(roomId: number, state: GameState) {
-    this.logger.debug(`[MATCHES GATEWAY] Update game ${roomId.toFixed()}`);
+    //this.logger.debug(`[MATCHES GATEWAY] Update game ${roomId.toFixed()}`);
 
     this.server
       .to(roomId.toFixed())

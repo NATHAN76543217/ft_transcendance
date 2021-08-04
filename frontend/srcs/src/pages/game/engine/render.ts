@@ -11,7 +11,8 @@ function emptyCourt(context: CanvasRenderingContext2D) {
 
 function renderizeScores(
   context: CanvasRenderingContext2D,
-  status: GameStateDto
+  status: GameStateDto,
+  currCanvHeight: number
 ) {
   const scoreLeft: IVector2D = new Vector2D(
     (3 * canvasWidth) / 4,
@@ -50,10 +51,11 @@ function renderizeBall(context: CanvasRenderingContext2D, ball: Ball) {
 
 export function renderize(
   status: GameStateDto,
-  context: CanvasRenderingContext2D
+  context: CanvasRenderingContext2D,
+  currCanvHeight : number,
 ) {
   emptyCourt(context);
-  renderizeScores(context, status);
+  renderizeScores(context, status, currCanvHeight);
   renderizeNet(context);
   status.players.forEach((player) => renderizePlayer(context, player));
   renderizeBall(context, status.ball);
