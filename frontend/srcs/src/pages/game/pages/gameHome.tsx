@@ -2,11 +2,13 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import CurrentMatches from "../../../components/matchHistory/currentMatches";
 import CurrentMatchItem from "../../../components/matchHistory/currentMatchItem";
 import { IMatch } from "../../../models/match/IMatch";
 
 function GameHome() {
-  const [matchList, setMatchList] = useState<IMatch[]>([]);
+  const [matchList, setMatchList] = useState<{ list: IMatch[] }>({ list: [] });
+  const [matchesLoaded, setMatchesLoaded] = useState<boolean>(false);
 
   const getPlayerName = async (user_id: number) => {
     if (!user_id) {
@@ -24,27 +26,49 @@ function GameHome() {
   const getAllCurrentMatches = async () => {
     try {
       const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
-      let a = dataMatches.data.slice();
-      a.map(async (match) => {
-        match.playerNames = [];
-        match.playerNames[0] = await getPlayerName(match.player_ids[0]);
-        match.playerNames[1] = await getPlayerName(match.player_ids[1]);
+      // console.log('dataMatches', dataMatches)
+      if (!dataMatches.data.length) {
+        setMatchList({ list: [] });
+        return;
+      }
+      let a: IMatch[] = [];
+      dataMatches.data.map(async (match, index) => {
+        let playerNames: string[] = [];
+        const nameA = await getPlayerName(match.player_ids[0]);
+        const nameB = await getPlayerName(match.player_ids[1]);
+        playerNames = [nameA, nameB];
+        a[index] = {
+          id: match.id,
+          player_ids: match.player_ids,
+          scores: match.scores,
+          startedAt: match.startedAt,
+          endAt: match.endAt,
+          playerNames: playerNames,
+        };
+        if (!matchesLoaded) {
+          setMatchList({ list: a });
+        }
       });
-      if (JSON.stringify(a) !== JSON.stringify(matchList)) {
-        setMatchList(a);
+      if (!matchesLoaded) {
+        setMatchesLoaded(true);
+        setMatchList({ list: a });
       }
     } catch (error) {
       console.log(error);
-      // setMatchList([]);
     }
   };
+
+  useEffect(() => {
+    if (!matchesLoaded) {
+      getAllCurrentMatches();
+    }
+  }, [matchesLoaded])
 
   const buttonClassname =
     "flex rounded-lg py-2 px-4 " +
     " bg-secondary hover:bg-secondary-dark" +
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto";
   const textButtonClassname = "text-2xl font-bold text-gray-900";
-
 
   const displayHomeGamePannel = () => {
     return (
@@ -72,31 +96,6 @@ function GameHome() {
     );
   };
 
-  const displayMatchesList = () => {
-    if (matchList.length) {
-      return (
-        <ul>
-          {matchList.map((match) => {
-            return (
-              <li key={match.id}>
-                <CurrentMatchItem
-                  playerA={match.playerNames[0]}
-                  playerB={match.playerNames[1]}
-                  scoreA={match.scores[0]}
-                  scoreB={match.scores[1]}
-                  id={match.id}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      );
-    } else {
-      return (
-        <div className="font-semibold">There is no live game for now.</div>
-      );
-    }
-  };
 
   const displayCurrentGames = () => {
     return (
@@ -104,23 +103,22 @@ function GameHome() {
         <div>
           <h1 className="text-3xl font-bold text-center">Live games</h1>
           <section className="flex justify-center pt-4">
-            {displayMatchesList()}
+            <CurrentMatches
+              matchList={matchList.list}
+              matchesLoaded={matchesLoaded}
+            />
           </section>
         </div>
       </section>
     );
   };
 
-  useEffect(() => {
-    getAllCurrentMatches();
-  })
 
   return (
     <div className="h-screen grid justify-center overflow-y-scroll">
       <div className='mb-8'>
-
-      {displayHomeGamePannel()}
-      {displayCurrentGames()}
+        {displayHomeGamePannel()}
+        {displayCurrentGames()}
       </div>
     </div>
   );

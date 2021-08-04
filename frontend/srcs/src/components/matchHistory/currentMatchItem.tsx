@@ -10,7 +10,7 @@ type CurrentMatchProps = {
 }
 
 function CurrentMatchItem(match: CurrentMatchProps) {
-    console.log('CurrentMatchItem', match)
+    // console.log('CurrentMatchItem', match)
     return (
         <div className="grid justify-center grid-cols-3 p-4 my-2 whitespace-pre bg-gray-200 border-2 border-gray-300">
             <div className="grid flex-1 col-span-1 text-center ">
