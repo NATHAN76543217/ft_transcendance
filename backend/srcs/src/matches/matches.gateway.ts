@@ -391,12 +391,15 @@ export class MatchesGateway
     const room = this.getRoom(roomId);
 
     room.playerIds.forEach((playerId) => {
+
       this.logger.debug(
-        `[MATCHES GATEWAY] player ${playerId} should not be inGame now`,
+        `[MATCHES GATEWAY] Emmit GAME_END to client ${playerId}`,
       );
+      this.server.to(this.playerSockets.get(playerId)!).emit(ClientMessages.GAME_END);
       this.playerSockets.delete(playerId);
-      this.server.to(playerId.toFixed()).emit(ClientMessages.GAME_END);
     });
-    this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);
+
+    // TO DO: Clear to room ??
+    //this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);
   }
 }
