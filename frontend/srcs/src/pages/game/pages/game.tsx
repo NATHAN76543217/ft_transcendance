@@ -20,7 +20,7 @@ function Game() {
   console.log("Game is present");
 
   return (
-    <div className="">
+    <div className="h-full">
       <Switch>
         <Route exact path="/game">
           <GameHome />

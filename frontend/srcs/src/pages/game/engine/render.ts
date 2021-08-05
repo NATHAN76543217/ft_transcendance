@@ -2,12 +2,13 @@ import { Ball } from "../../../models/game/Ball";
 import { IPlayer } from "../../../models/game/Player";
 import { GameStateDto } from "../../../models/game/GameState.dto";
 import { IVector2D, Vector2D } from "../../../models/game/Vector2D";
-import { canvasWidth, canvasHeight } from "../../../models/game/canvasDims";
+import { canvasWidth, canvasHeight, whRatio } from "../../../models/game/canvasDims";
 import { ruleOfThree } from "./engine"
 
-function emptyCourt(context: CanvasRenderingContext2D) {
+function emptyCourt(context: CanvasRenderingContext2D, currHeight: number) {
   context.fillStyle = "BLACK";
-  context.fillRect(0, 0, canvasWidth, canvasHeight);
+  context.fillRect(0, 0, currHeight * whRatio, currHeight);
+  // context.fillRect(0, 0, canvasWidth, canvasHeight);
 }
 
 // NOTE: Their left corners are in the middle
@@ -16,30 +17,42 @@ function renderizeScores(
   status: GameStateDto,
   currCanvHeight: number
 ) {
-  const scoreLeft: IVector2D = new Vector2D(
-    ruleOfThree(3 * canvasWidth / 4, currCanvHeight),
-    ruleOfThree(canvasHeight / 5, currCanvHeight)
-  );
-  const scoreRight: IVector2D = new Vector2D(
-    ruleOfThree(canvasWidth / 4, currCanvHeight),
-    ruleOfThree(canvasHeight / 5, currCanvHeight)
-  );
+  const scoreLeft = {
+    x: currCanvHeight * whRatio * 3 / 4,
+    y: currCanvHeight / 5
+  };
+  const scoreRight = {
+    x: currCanvHeight * whRatio / 4,
+    y: currCanvHeight / 5
+  };
 
   context.fillStyle = "#FFF";
-  context.font = "75px Arial";
+  context.font = currCanvHeight > 450 ? "75px Arial" : "40px Arial";
   context.fillText(status.scores[0].toString(), scoreLeft.x, scoreLeft.y);
   context.fillText(status.scores[1].toString(), scoreRight.x, scoreRight.y);
 }
 
-function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight : number) {
+function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight: number) {
   const width: number = ruleOfThree(2, currCanvHeight);
   const height: number = ruleOfThree(10, currCanvHeight);
-  const pos: IVector2D = new Vector2D((ruleOfThree(canvasWidth, currCanvHeight) - width) / 2, 0);
+  const pos = {
+    x: currCanvHeight * whRatio / 2,
+    y: 0
+  };
   for (let i = 0; i < currCanvHeight; i += 15) {
     context.fillStyle = "WHITE";
     context.fillRect(pos.x, pos.y + i, width, height);
   }
 }
+// function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight : number) {
+//   const width: number = ruleOfThree(2, currCanvHeight);
+//   const height: number = ruleOfThree(10, currCanvHeight);
+//   const pos: IVector2D = new Vector2D((ruleOfThree(canvasWidth, currCanvHeight) - width) / 2, 0);
+//   for (let i = 0; i < currCanvHeight; i += 15) {
+//     context.fillStyle = "WHITE";
+//     context.fillRect(pos.x, pos.y + i, width, height);
+//   }
+// }
 
 function renderizePlayer(context: CanvasRenderingContext2D, player: IPlayer) {
   context.fillStyle = "WHITE";
@@ -57,9 +70,10 @@ function renderizeBall(context: CanvasRenderingContext2D, ball: Ball) {
 export function renderize(
   status: GameStateDto,
   context: CanvasRenderingContext2D,
-  currCanvHeight : number,
+  currCanvHeight: number,
 ) {
-  emptyCourt(context);
+  // console.log('renderize - h: ', currCanvHeight)
+  emptyCourt(context, currCanvHeight);
   renderizeScores(context, status, currCanvHeight);
   renderizeNet(context, currCanvHeight);
   status.players.forEach((player) => renderizePlayer(context, player));

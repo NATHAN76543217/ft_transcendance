@@ -7,10 +7,11 @@ import { GameState, GameStatus } from "../../../models/game/GameState";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 import { pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
-import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
+import { canvasHeight, canvasWidth, whRatio } from "../../../models/game/canvasDims";
 import { Events } from "../../../models/channel/Events";
 import { IPlayer, Player } from "../../../models/game/Player";
 import { Ball, defaultBall, IBall, IBallBase } from "../../../models/game/Ball";
+import Popup from "reactjs-popup";
 
 // TO DO: let animationId: number | undefined = undefined; IF NOT UNDEFINED -> LAUNCH RENDER
 
@@ -33,16 +34,26 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
+  const widthMargin = 50;
   //console.log("[pong.tsx] Pong.tsx has been called");
 
-  const [canvHeight, setCanvHeight] = useState<number>(window.innerHeight / 2);
-  const [canvWidth, setCanvWidth] = useState<number>((canvasWidth * canvHeight) / canvasHeight);
+  const [canvSize, setCanvSize] = useState<{ h: number, w: number }>({
+    h: window.innerHeight * 3 / 4,
+    w: whRatio * window.innerHeight * 3 / 4
+  });
+  // const [canvHeight, setCanvHeight] = useState<number>(window.innerHeight * 3 / 4);
+  // const [canvWidth, setCanvWidth] = useState<number>(canvHeight * whRatio);
 
-  if (canvWidth > window.innerWidth) {
-    setCanvHeight((canvasHeight * window.innerWidth) / canvasWidth);
-    setCanvWidth((canvasWidth * canvHeight) / canvasHeight);
+  if (canvSize.w > (window.innerWidth - widthMargin)) {
+    setCanvSize({
+      h: (window.innerWidth - widthMargin) / whRatio,
+      w: window.innerWidth - widthMargin
+    })
+    
+    // setCanvHeight((window.innerWidth - widthMargin) / whRatio);
+    // setCanvWidth(window.innerWidth - widthMargin);
   }
-  
+
   useEffect(() => {
     if (canvasRef.current !== null)
       ctx.current = canvasRef.current.getContext("2d");
@@ -52,21 +63,25 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       // TO DO: SEEMS THIS CAN BE DONE IN 2 LINES (not need if just init h diferently)
 
-      let h = window.innerHeight - (window.innerHeight / 2);
-      let w = (canvasWidth * h) / canvasHeight;
+      let h = window.innerHeight * 3 / 4;
+      let w = h * whRatio;
 
-      if (w > window.innerWidth) {
-        h = (canvasHeight * window.innerWidth) / canvasWidth;
-        w = (canvasWidth * h) / canvasHeight;
+      if (w > (window.innerWidth - widthMargin)) {
+        w = window.innerWidth - widthMargin;
+        h = w / whRatio;
       }
-      setCanvHeight(h);
-      setCanvWidth(w);
+      setCanvSize({
+        h: h,
+        w: w
+      })
+      // setCanvHeight(h);
+      // setCanvWidth(w);
     };
 
     window.addEventListener('resize', windowResizeEventHandler);
 
     return () => { window.removeEventListener('resize', windowResizeEventHandler); };
-      
+
   }, []);
 
   useEffect(() => {
@@ -77,7 +92,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     )
       return;
 
-    let received : number = 0;
+    let received: number = 0;
     let state: GameState = {
       status: GameStatus.UNREADY,
       players: [],
@@ -90,19 +105,19 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const mouseEventHandler = (event: any) => {
       const rect = canvasRef.current!.getBoundingClientRect();
 
-        const player = state.players.find((player) => player.id === user?.id);
+      const player = state.players.find((player) => player.id === user?.id);
 
-        if (player) {
-          let tmpVal = event.clientY - rect.top - player.height / 2;
-          if (tmpVal < 0) tmpVal = 0;
-          else if (tmpVal + player.height > canvHeight) tmpVal = canvHeight - player.height;
-          player.y = tmpVal;
+      if (player) {
+        let tmpVal = event.clientY - rect.top - player.height / 2;
+        if (tmpVal < 0) tmpVal = 0;
+        else if (tmpVal + player.height > canvSize.h) tmpVal = canvSize.h - player.height;
+        player.y = tmpVal;
 
-          matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
-            x: event.clientX,
-            y: (player.y * canvasHeight) / canvHeight
-          });
-        }
+        matchSocket?.volatile.emit(ServerMessages.UPDATE_MOUSE_POS, {
+          x: event.clientX,
+          y: (player.y * canvasHeight) / canvSize.h
+        });
+      }
     };
 
     const onJoined = (data: GameJoinedDto) => {
@@ -120,16 +135,16 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     const ruleOfThree = (target: number) => {
       // Where y2 = (y1 * x2) / x1
-      return (target * canvHeight) / canvasHeight;
+      return (target * canvSize.h) / canvasHeight;
     }
 
-    const onReceiveStatus = (status : GameStatus) => {
+    const onReceiveStatus = (status: GameStatus) => {
       //console.log(`[pong.tsx] Received status: ${status}`);
       state.status = status;
       received |= Received.STATUS;
     };
 
-    const onReceivePlayers = (players : Player[]) => {
+    const onReceivePlayers = (players: Player[]) => {
       //console.log(`[pong.tsx] Received players: ${players}`);
 
       players.forEach((player) => {
@@ -145,14 +160,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       received |= Received.PLAYERS;
     };
 
-    const onReceiveScores = (scores : number[]) => {
+    const onReceiveScores = (scores: number[]) => {
       //console.log(`[pong.tsx] Received scores: ${scores}`);
       state.scores = scores;
       //state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
     };
 
-    const onReceiveBall = (ball : IBall) => {
+    const onReceiveBall = (ball: IBall) => {
       //console.log(`[pong.tsx] Received ball: ${ball}`);
 
       ball.x = ruleOfThree(ball.x);
@@ -169,7 +184,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       tmpDefaultBall.dir.y = ruleOfThree(tmpDefaultBall.dir.y);
       tmpDefaultBall.rad = ruleOfThree(tmpDefaultBall.rad);
       tmpDefaultBall.velocity = ruleOfThree(tmpDefaultBall.velocity);
-      
+
       state.ball = new Ball({
         x: ball.x,
         y: ball.y
@@ -180,17 +195,17 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       if (received === (Received.STATUS | Received.PLAYERS
         | Received.SCORES/* | Received.BALL*/)) {
-          received = 0;
-          console.log(`[pong.tsx] render frame: Id: ${animationId}`);
-          if (animationId !== undefined) {
-            if (state.status === GameStatus.RUNNING) {
-              animationId = requestAnimationFrame(frame);
-            } else {
-              console.log(`[pong.tsx] Cancel animation frame, game status ${state.status}`);
-              cancelAnimationFrame(animationId);
-              animationId = undefined;
-            }
+        received = 0;
+        // console.log(`[pong.tsx] render frame: Id: ${animationId}`);
+        if (animationId !== undefined) {
+          if (state.status === GameStatus.RUNNING) {
+            animationId = requestAnimationFrame(frame);
+          } else {
+            // console.log(`[pong.tsx] Cancel animation frame, game status ${state.status}`);
+            cancelAnimationFrame(animationId);
+            animationId = undefined;
           }
+        }
       }
     };
 
@@ -219,16 +234,16 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         .off(ClientMessages.GAME_START, onMatchStart)
         .off(ClientMessages.GAME_END, onMatchEnd);
 
-        window.removeEventListener("mousemove", mouseEventHandler);
+      window.removeEventListener("mousemove", mouseEventHandler);
     };
 
     const frame = () => {
-      renderize(state, ctx.current!, canvHeight);
+      renderize(state, ctx.current!, canvSize.h);
       requestAnimationFrame(frame);
     };
 
     updateIntervalHandle = setInterval(() => {
-      pongEngine(state, canvHeight);
+      pongEngine(state, canvSize.h);
     }, 60);
 
     matchSocket
@@ -246,19 +261,62 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     matchSocket?.emit(ServerMessages.JOIN_ROOM, { id: Number(match.params.id) });
 
     return deleteSubscribedListeners;
-  }, [user?.id, matchSocket, appSocket, history, match.params.id]);
+  }, [user?.id, matchSocket, appSocket, history, match.params.id,
+    canvSize.h
+  ]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
+  const [open, setOpen] = useState(true);
+  const closeModal = () => setOpen(false);
+
+  const quitGame = () => {
+    closeModal();
+    history.push('/game');
+  }
+
+  const buttonClassname =
+    "flex justify-center rounded-lg py-2 w-24 h-8 " +
+    " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto " +
+    "bg-red-600 hover:bg-red-700 items-center my-2";
+  const textButtonClassname = "text-lg font-bold text-gray-900";
+
+  const displayMatchSearch = () => {
+    return (
+      <div>
+        <Popup open={open} closeOnDocumentClick onClose={quitGame}>
+          <div className=" fixed top-0 left-0 z-30 overflow-auto bg-gray-700 flex w-screen h-screen bg-opacity-70">
+            <div className=' bg-red-500 h-12'>
+              <div className="fixed top-0 left-0 z-50 w-full justify-center grid">
+                <button
+                  className={buttonClassname}
+                  onClick={quitGame}
+                >
+                  <span className={textButtonClassname}>Give up</span>
+                </button>
+              </div>
+              <div className='fixed top-0 left-0 z-40  w-screen h-screen pb-16/9'>
+                <div className=' mt-12 w-screen grid justify-center'>
+
+                  <canvas
+                    ref={canvasRef}
+                    // height='450'
+                    // width='800'
+                    height={canvSize.h}
+                    width={canvSize.w}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Popup>
+      </div>
+    );
+  };
+
   //const height: number = window.screen.height / 2;//canvasRef.current?.height!;
   return (
-    <div className="">
-      <canvas
-        ref={canvasRef}
-        height={canvHeight}
-        width={canvWidth}
-        className=""
-      />
-    </div>
+    displayMatchSearch()
   );
 }
