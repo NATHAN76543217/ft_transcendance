@@ -74,10 +74,27 @@ services:
       - pong_database_network
       - pong_backend_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "--retry",
+          "3",
+          "--max-time",
+          "5",
+          "--retry-delay",
+          "10",
+          "--retry-max-time",
+          "60",
+          "http://localhost:8080/health",
+          "||",
+          "kill",
+          "-TERM",
+          "-1",
+        ]
       interval: 1m
-      timeout: 30s
-      retries: 3
+      timeout: 90s
       start_period: 40s
 
   frontend:
@@ -96,10 +113,27 @@ services:
     networks:
       - pong_frontend_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "--retry",
+          "3",
+          "--max-time",
+          "5",
+          "--retry-delay",
+          "10",
+          "--retry-max-time",
+          "60",
+          "http://localhost:3000/health",
+          "||",
+          "kill",
+          "-TERM",
+          "-1",
+        ]
       interval: 1m
-      timeout: 10s
-      retries: 3
+      timeout: 90s
       start_period: 40s
 
   reverse_proxy:
