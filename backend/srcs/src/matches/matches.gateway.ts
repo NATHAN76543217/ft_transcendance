@@ -165,14 +165,6 @@ export class MatchesGateway
     this.server.to(gameId.toFixed()).emit('status', statusChange);
   }
 
-  @SubscribeMessage("test")
-  async test(
-    @ConnectedSocket() socket: SocketWithPlayer,
-    @MessageBody() body: JoinGameDto
-  ) {
-    this.logger.debug(`[MATCHES GATEWAY]: TEST: id is ${socket.user.id}, matchId: ${body.id}`);
-  }
-
   @SubscribeMessage(ServerMessages.JOIN_ROOM)
   async handleJoin(
     @ConnectedSocket() socket: SocketWithPlayer,

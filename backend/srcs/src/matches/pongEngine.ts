@@ -13,6 +13,7 @@ export function pongEngine(st: GameState) {
   else if (st.ball.x + st.ball.rad > canvasDims.x) {
     st.scores[1]++;
     st.ball = defaultBall;
+    st.ball.dir.x = -st.ball.dir.x;
   }
 
   // Check for ball rebounds in court sides

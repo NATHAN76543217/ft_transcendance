@@ -5,13 +5,14 @@ import { GameJoinedDto } from "../../../models/game/GameJoined.dto";
 import { GameRole } from "../../../models/game/GameRole";
 import { GameState, GameStatus } from "../../../models/game/GameState";
 import { ClientMessages, ServerMessages } from "../dto/messages";
-import { pongEngine } from "../engine/engine";
+import { getDefaultBall, pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
 import { canvasHeight, canvasWidth, whRatio } from "../../../models/game/canvasDims";
 import { Events } from "../../../models/channel/Events";
 import { IPlayer, Player } from "../../../models/game/Player";
 import { Ball, defaultBall, IBall, IBallBase } from "../../../models/game/Ball";
 import Popup from "reactjs-popup";
+import { ruleOfThree } from "../engine/engine"
 
 // TO DO: let animationId: number | undefined = undefined; IF NOT UNDEFINED -> LAUNCH RENDER
 
@@ -61,7 +62,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const windowResizeEventHandler = () => {
       //console.log("[pong.tsx] Resize screen");
 
-      // TO DO: SEEMS THIS CAN BE DONE IN 2 LINES (not need if just init h diferently)
+      // TO DO: SEEMS THIS CAN BE DONE IN 2 LINES (not need "if" just init h diferently)
 
       let h = window.innerHeight * 3 / 4;
       let w = h * whRatio;
@@ -97,8 +98,9 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       status: GameStatus.UNREADY,
       players: [],
       scores: [0, 0],
-      ball: {} as Ball
+      ball: getDefaultBall(canvSize.h)
     };
+    console.log(`[pong.tsx] init ball with rad: ${state.ball.rad}`);
     let animationId: number | undefined = 0;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
 
@@ -133,10 +135,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       history.push("/game");
     };
 
-    const ruleOfThree = (target: number) => {
-      // Where y2 = (y1 * x2) / x1
-      return (target * canvSize.h) / canvasHeight;
-    }
+    // const ruleOfThree = (target: number) => {
+    //   // Where y2 = (y1 * x2) / x1
+    //   return (target * canvSize.h) / canvasHeight;
+    // }
 
     const onReceiveStatus = (status: GameStatus) => {
       //console.log(`[pong.tsx] Received status: ${status}`);
@@ -148,10 +150,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       //console.log(`[pong.tsx] Received players: ${players}`);
 
       players.forEach((player) => {
-        player.y = ruleOfThree(player.y);
-        player.x = ruleOfThree(player.x);
-        player.height = ruleOfThree(player.height);
-        player.width = ruleOfThree(player.width);
+        player.y = ruleOfThree(player.y, canvSize.h);
+        player.x = ruleOfThree(player.x,  canvSize.h);
+        player.height = ruleOfThree(player.height, canvSize.h);
+        player.width = ruleOfThree(player.width, canvSize.h);
       });
 
       state.players = players;
@@ -161,7 +163,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onReceiveScores = (scores: number[]) => {
-      //console.log(`[pong.tsx] Received scores: ${scores}`);
+      console.log(`[pong.tsx] Received scores: ${[...scores]}`);
       state.scores = scores;
       //state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
@@ -170,31 +172,29 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const onReceiveBall = (ball: IBall) => {
       //console.log(`[pong.tsx] Received ball: ${ball}`);
 
-      ball.x = ruleOfThree(ball.x);
-      ball.y = ruleOfThree(ball.y);
-      ball.dir.x = ruleOfThree(ball.dir.x);
-      ball.dir.y = ruleOfThree(ball.dir.y);
-      ball.rad = ruleOfThree(ball.rad);
-      ball.velocity = ruleOfThree(ball.velocity);
+      //const respawn = state.ball.defaultBall;
+      //console.log(`[pong.tsx] respawn rad: ${respawn.rad}`);
+      state.ball = new Ball(
+        {
+          x: ruleOfThree(ball.x, canvSize.h),
+          y: ruleOfThree(ball.y, canvSize.h)
+        },
+        {
+          x: ruleOfThree(ball.dir.x, canvSize.h),
+          y: ruleOfThree(ball.dir.y, canvSize.h)
+        },
+        ruleOfThree(ball.rad, canvSize.h),
+        ruleOfThree(ball.velocity, canvSize.h)
+      );
+      //ball.rad = state.players[0].height / 3; // TO DO: Temporary, rm this line to know the reason of its existance
+      // TO DO: Cals will be incoherent in server this the previous line
+      state.ball.defaultBall = getDefaultBall(canvSize.h);
 
-      const tmpDefaultBall = { ...defaultBall };
-      tmpDefaultBall.x = ruleOfThree(tmpDefaultBall.x);
-      tmpDefaultBall.y = ruleOfThree(tmpDefaultBall.y);
-      tmpDefaultBall.dir.x = ruleOfThree(tmpDefaultBall.dir.x);
-      tmpDefaultBall.dir.y = ruleOfThree(tmpDefaultBall.dir.y);
-      tmpDefaultBall.rad = ruleOfThree(tmpDefaultBall.rad);
-      tmpDefaultBall.velocity = ruleOfThree(tmpDefaultBall.velocity);
+      console.log(`[pong.tsx] on ball received: x: ${ball.x}, y: ${ball.y} dirX: ${ball.dir.x} dirY: ${ball.dir.y} rad: ${ball.rad} velocity: ${ball.velocity}`);
 
-      state.ball = new Ball({
-        x: ball.x,
-        y: ball.y
-      }, ball.dir, ball.velocity, ball.rad);
-      state.ball.defaultBall = tmpDefaultBall;
-      //state.ball = { ...ball, defaultBall: defaultBall as IBallBase } as Ball;
-      //received |= Received.BALL;
+      //console.log(`[pong.tsx] received ball rad: ${ball.rad}, normalized: ${state.ball.rad} (${ball.rad} * ${canvSize.h} / ${canvasHeight})`);
 
-      if (received === (Received.STATUS | Received.PLAYERS
-        | Received.SCORES/* | Received.BALL*/)) {
+      if (received === (Received.STATUS | Received.PLAYERS | Received.SCORES)) {
         received = 0;
         // console.log(`[pong.tsx] render frame: Id: ${animationId}`);
         if (animationId !== undefined) {
@@ -243,8 +243,9 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     updateIntervalHandle = setInterval(() => {
+      //console.log(`[pong.tsx] ball rad: ${state.ball.rad}`);
       pongEngine(state, canvSize.h);
-    }, 60);
+    }, 3);
 
     matchSocket
       ?.on(ClientMessages.JOINED, onJoined)

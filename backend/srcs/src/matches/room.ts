@@ -203,17 +203,24 @@ export class Room implements GameRoom {
         ) {
           Logger.debug(`[MATCHES GATEWAY] Game has finished: by round max`);
           this.setStatus(GameStatus.FINISHED);
+          Logger.debug(`[MATCHES GATEWAY] Clear interval ${this.engineIntervalHandle}`);
+          clearInterval(this.engineIntervalHandle);
+          clearInterval(this.updateIntervalHandle);
+          clearTimeout(this.endTimeoutHandle);
         }
-      }, (t / 3) * 1000);
+      }, this.DEBUG( (t / 3) * 1, `Engine Interval: ${this.engineIntervalHandle}`));
 
       this.updateIntervalHandle = setInterval(() => {
         this.matchesGateway.onGameUpdate(this.matchId, this.state);
-      }, t * 1000); // TO DO: Read doc for times
+      }, this.DEBUG( t * 1, `Update Interval: ${this.updateIntervalHandle}`)); // TO DO: Read doc for times
 
       this.endTimeoutHandle = setTimeout(() => {
         Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);
         this.setStatus(GameStatus.FINISHED);
         this.onGameFinished();
+        clearInterval(this.engineIntervalHandle);
+        clearInterval(this.updateIntervalHandle);
+        //clearTimeout(this.endTimeoutHandle);
 
         // TO DO: Use state elapsed here but is NaN but 
       }, this.DEBUG(this.ruleset.duration /*- this.state.elapsed*/ * 60, "timeout for end the game is") * 1000);
