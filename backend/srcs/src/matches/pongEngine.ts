@@ -1,4 +1,5 @@
-import { defaultBall } from './models/Ball';
+import { Logger } from '@nestjs/common';
+import { Ball, defaultBall } from './models/Ball';
 import { canvasDims } from './models/canvasDims';
 import { GameState } from './models/GameRoom';
 import { Side } from './models/Player';
@@ -7,13 +8,31 @@ export function pongEngine(st: GameState) {
   // Check if the ball scored on left side
   if (st.ball.x - st.ball.rad < 0) {
     st.scores[0]++;
-    st.ball = defaultBall; // TO DO: Inverse dir.x here or bellow (remember i got 2 files copy)
+    st.ball = new Ball(
+      {
+        x: defaultBall.x,
+        y:defaultBall.y
+      },
+      defaultBall.dir,
+      defaultBall.velocity,
+      defaultBall.rad
+    );
+    Logger.debug(`Player scored !: ${defaultBall.x}`);
   }
   // Check if the ball scored on right side
   else if (st.ball.x + st.ball.rad > canvasDims.x) {
     st.scores[1]++;
-    st.ball = defaultBall;
+    st.ball = new Ball(
+      {
+        x: defaultBall.x,
+        y:defaultBall.y
+      },
+      defaultBall.dir,
+      defaultBall.velocity,
+      defaultBall.rad
+    );
     st.ball.dir.x = -st.ball.dir.x;
+    Logger.debug(`Player scored !`);
   }
 
   // Check for ball rebounds in court sides

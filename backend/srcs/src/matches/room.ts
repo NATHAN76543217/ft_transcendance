@@ -3,7 +3,7 @@ import { WsException } from '@nestjs/websockets';
 import { PlayerStatus } from './dto/playerStatus';
 import { Ruleset } from './dto/ruleset.dto';
 import { MatchesGateway, defaultRuleset } from './matches.gateway';
-import { defaultBall } from './models/Ball';
+import { Ball, defaultBall } from './models/Ball';
 import { canvasDims, canvasPadding } from './models/canvasDims';
 import { GameRoom, GameState, GameStatus } from './models/GameRoom';
 import { Side, PLAYER_WIDTH, Player } from './models/Player';
@@ -27,7 +27,15 @@ export class Room implements GameRoom {
     status: GameStatus.UNREADY,
     players: new Map(),
     scores: [0, 0],
-    ball: defaultBall,
+    ball: new Ball(
+      {
+        x: defaultBall.x,
+        y:defaultBall.y
+      },
+      defaultBall.dir,
+      defaultBall.velocity,
+      defaultBall.rad
+    )
   };
 
   constructor(
@@ -204,8 +212,8 @@ export class Room implements GameRoom {
           Logger.debug(`[MATCHES GATEWAY] Game has finished: by round max`);
           this.setStatus(GameStatus.FINISHED);
           Logger.debug(`[MATCHES GATEWAY] Clear interval ${this.engineIntervalHandle}`);
-          //clearInterval(this.engineIntervalHandle);
-          //clearInterval(this.updateIntervalHandle);
+          clearInterval(this.engineIntervalHandle);
+          clearInterval(this.updateIntervalHandle);
           clearTimeout(this.endTimeoutHandle);
         }
       }, this.DEBUG( (t / 3) * 1, `Engine Interval: ${this.engineIntervalHandle}`));

@@ -163,8 +163,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onReceiveScores = (scores: number[]) => {
+      console.log(`[pong.tsx] scores received: ${scores}`);
       //console.log(`[pong.tsx] Received scores: ${[...scores]}`);
+      const prevScore = state.scores;
       state.scores = scores;
+
+      if (prevScore[0] !== state.scores[0] || prevScore[1] !== state.scores[1])
+        console.log(`[pong.tsx] Received score: ${[...scores]}`);
       //state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
     };
