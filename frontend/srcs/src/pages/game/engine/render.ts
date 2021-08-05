@@ -17,11 +17,11 @@ function renderizeScores(
   status: GameStateDto,
   currCanvHeight: number
 ) {
-  const scoreLeft = {
+  const scoreLeft: IVector2D = {
     x: currCanvHeight * whRatio * 3 / 4,
     y: currCanvHeight / 5
   };
-  const scoreRight = {
+  const scoreRight: IVector2D = {
     x: currCanvHeight * whRatio / 4,
     y: currCanvHeight / 5
   };
@@ -35,7 +35,7 @@ function renderizeScores(
 function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight: number) {
   const width: number = ruleOfThree(2, currCanvHeight);
   const height: number = ruleOfThree(10, currCanvHeight);
-  const pos = {
+  const pos: IVector2D = {
     x: currCanvHeight * whRatio / 2,
     y: 0
   };
@@ -44,15 +44,6 @@ function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight: number)
     context.fillRect(pos.x, pos.y + i, width, height);
   }
 }
-// function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight : number) {
-//   const width: number = ruleOfThree(2, currCanvHeight);
-//   const height: number = ruleOfThree(10, currCanvHeight);
-//   const pos: IVector2D = new Vector2D((ruleOfThree(canvasWidth, currCanvHeight) - width) / 2, 0);
-//   for (let i = 0; i < currCanvHeight; i += 15) {
-//     context.fillStyle = "WHITE";
-//     context.fillRect(pos.x, pos.y + i, width, height);
-//   }
-// }
 
 function renderizePlayer(context: CanvasRenderingContext2D, player: IPlayer) {
   context.fillStyle = "WHITE";
