@@ -49,7 +49,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       h: (window.innerWidth - widthMargin) / whRatio,
       w: window.innerWidth - widthMargin
     })
-    
+
     // setCanvHeight((window.innerWidth - widthMargin) / whRatio);
     // setCanvWidth(window.innerWidth - widthMargin);
   }
@@ -262,7 +262,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     return deleteSubscribedListeners;
   }, [user?.id, matchSocket, appSocket, history, match.params.id,
-    canvSize.h
+  canvSize.h
   ]);
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
@@ -271,14 +271,54 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const closeModal = () => setOpen(false);
 
   const quitGame = () => {
+    setGiveUpDisplay(false);
     closeModal();
     history.push('/game');
   }
 
+  const [giveUpDisplay, setGiveUpDisplay] = useState(false);
+
+  const displayGiveUpButton = () => {
+    if (!giveUpDisplay) {
+      return (
+        <button
+          className={buttonClassname + " bg-red-600 hover:bg-red-700"}
+          onClick={() => setGiveUpDisplay(true)}
+          disabled={giveUpDisplay}
+        >
+          <span className={textButtonClassname}>Give up</span>
+        </button>
+      )
+    }
+  }
+
+  const displayGiveUpConfirmationButton = () => {
+    if (giveUpDisplay) {
+      return (
+        <div className='flex space-x-8'>
+          <button
+            className={buttonClassname + " bg-red-600 hover:bg-red-700"}
+            onClick={quitGame}
+            disabled={!giveUpDisplay}
+          >
+            <span className={textButtonClassname}>Give up, really?</span>
+          </button>
+          <button
+            className={buttonClassname + " bg-secondary hover:bg-secondary-dark w-12"}
+            onClick={() => setGiveUpDisplay(false)}
+            disabled={!giveUpDisplay}
+          >
+            <span className={textButtonClassname}>No</span>
+          </button>
+        </div>
+      )
+    }
+  }
+
   const buttonClassname =
-    "flex justify-center rounded-lg py-2 w-24 h-8 " +
-    " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto " +
-    "bg-red-600 hover:bg-red-700 items-center my-2";
+    "flex justify-center rounded-lg py-2 px-2 h-8 " +
+    " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap" +
+    " items-center my-2";
   const textButtonClassname = "text-lg font-bold text-gray-900";
 
   const displayMatchSearch = () => {
@@ -288,12 +328,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
           <div className=" fixed top-0 left-0 z-30 overflow-auto bg-gray-700 flex w-screen h-screen bg-opacity-70">
             <div className=' bg-red-500 h-12'>
               <div className="fixed top-0 left-0 z-50 w-full justify-center grid">
-                <button
-                  className={buttonClassname}
-                  onClick={quitGame}
-                >
-                  <span className={textButtonClassname}>Give up</span>
-                </button>
+                {displayGiveUpButton()}
+                {displayGiveUpConfirmationButton()}
               </div>
               <div className='fixed top-0 left-0 z-40  w-screen h-screen pb-16/9'>
                 <div className=' mt-12 w-screen grid justify-center'>
