@@ -18,7 +18,7 @@ export function pongEngine(st: GameState) {
 
   // Check for ball rebounds in court sides
   if (st.ball.y - st.ball.rad < 0 || st.ball.y + st.ball.rad > canvasDims.y)
-    st.ball.y = -st.ball.y;
+    st.ball.dir.y = -st.ball.dir.y;
 
   // Mouse the ball
   st.ball.x += st.ball.dir.x;

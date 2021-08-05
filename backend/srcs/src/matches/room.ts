@@ -204,8 +204,8 @@ export class Room implements GameRoom {
           Logger.debug(`[MATCHES GATEWAY] Game has finished: by round max`);
           this.setStatus(GameStatus.FINISHED);
           Logger.debug(`[MATCHES GATEWAY] Clear interval ${this.engineIntervalHandle}`);
-          clearInterval(this.engineIntervalHandle);
-          clearInterval(this.updateIntervalHandle);
+          //clearInterval(this.engineIntervalHandle);
+          //clearInterval(this.updateIntervalHandle);
           clearTimeout(this.endTimeoutHandle);
         }
       }, this.DEBUG( (t / 3) * 1, `Engine Interval: ${this.engineIntervalHandle}`));

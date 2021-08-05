@@ -163,7 +163,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onReceiveScores = (scores: number[]) => {
-      console.log(`[pong.tsx] Received scores: ${[...scores]}`);
+      //console.log(`[pong.tsx] Received scores: ${[...scores]}`);
       state.scores = scores;
       //state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
@@ -190,7 +190,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       // TO DO: Cals will be incoherent in server this the previous line
       state.ball.defaultBall = getDefaultBall(canvSize.h);
 
-      console.log(`[pong.tsx] on ball received: x: ${ball.x}, y: ${ball.y} dirX: ${ball.dir.x} dirY: ${ball.dir.y} rad: ${ball.rad} velocity: ${ball.velocity}`);
+      //console.log(`[pong.tsx] on ball received: x: ${ball.x}, y: ${ball.y} dirX: ${ball.dir.x} dirY: ${ball.dir.y} rad: ${ball.rad} velocity: ${ball.velocity}`);
 
       //console.log(`[pong.tsx] received ball rad: ${ball.rad}, normalized: ${state.ball.rad} (${ball.rad} * ${canvSize.h} / ${canvasHeight})`);
 
@@ -238,6 +238,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const frame = () => {
+      //pongEngine(state, canvSize.h);
       renderize(state, ctx.current!, canvSize.h);
       requestAnimationFrame(frame);
     };
