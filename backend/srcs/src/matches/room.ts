@@ -252,6 +252,7 @@ export class Room implements GameRoom {
 
   onGameFinished() {
     Logger.debug("[PONG GATEWAY] on Disconnect Clients");
+    this.matchesGateway.onGameUpdate(this.matchId, this.state);
     this.matchesGateway.onDisconnectClients(this.matchId);
   }
 }

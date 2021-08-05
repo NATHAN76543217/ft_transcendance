@@ -13,6 +13,7 @@ import { IPlayer, Player } from "../../../models/game/Player";
 import { Ball, defaultBall, IBall, IBallBase } from "../../../models/game/Ball";
 import Popup from "reactjs-popup";
 import { ruleOfThree } from "../engine/engine"
+import Game from "./game";
 
 export type PongPageParams = {
   id: string;
@@ -51,6 +52,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     // setCanvHeight((window.innerWidth - widthMargin) / whRatio);
     // setCanvWidth(window.innerWidth - widthMargin);
   }
+
+  console.log(`[pong.tsx] Canvas size x: ${canvSize.w} y: ${canvSize.h}`);
 
   useEffect(() => {
     if (canvasRef.current !== null)
@@ -177,7 +180,11 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
           if (state.status === GameStatus.RUNNING) {
             animationId = requestAnimationFrame(frame);
           } else {
+            console.log(`Cancel animation frame ${animationId}`);
             cancelAnimationFrame(animationId);
+            if (state.status === GameStatus.FINISHED) {
+              clearInterval(updateIntervalHandle!);
+            }
             animationId = undefined;
           }
         }

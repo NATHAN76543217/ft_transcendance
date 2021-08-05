@@ -377,12 +377,6 @@ export class MatchesGateway
       this.server
       .to(roomId.toFixed())
       .emit(ClientMessages.RECEIVE_BALL, {
-        // x: state.ball.x,
-        // y: state.ball.y,
-        // dir: state.ball.dir,
-        // velocity: state.ball.velocity,
-        // rad: state.ball.rad,
-        // defaultBall: undefined
         ...(state.ball as IBall), defaultBall: undefined
       } as IBall);
   }
@@ -398,8 +392,6 @@ export class MatchesGateway
       this.server.to(this.playerSockets.get(playerId)!).emit(ClientMessages.GAME_END);
       this.playerSockets.delete(playerId);
     });
-
-    // TO DO: Clear to room ??
-    //this.server.to(roomId.toFixed()).emit(ClientMessages.QUIT);
+    this.rooms.delete(roomId);
   }
 }
