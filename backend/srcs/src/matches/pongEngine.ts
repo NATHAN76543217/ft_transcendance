@@ -13,11 +13,13 @@ export function pongEngine(st: GameState) {
         x: defaultBall.x,
         y:defaultBall.y
       },
-      defaultBall.dir,
+      {
+        x: defaultBall.dir.x,
+        y: defaultBall.dir.y
+      },
       defaultBall.velocity,
       defaultBall.rad
     );
-    Logger.debug(`Player scored !: ${defaultBall.x}`);
   }
   // Check if the ball scored on right side
   else if (st.ball.x + st.ball.rad > canvasDims.x) {
@@ -27,12 +29,13 @@ export function pongEngine(st: GameState) {
         x: defaultBall.x,
         y:defaultBall.y
       },
-      defaultBall.dir,
+      {
+        x: -defaultBall.dir.x,
+        y: defaultBall.dir.y
+      },
       defaultBall.velocity,
       defaultBall.rad
     );
-    st.ball.dir.x = -st.ball.dir.x;
-    Logger.debug(`Player scored !`);
   }
 
   // Check for ball rebounds in court sides

@@ -32,7 +32,10 @@ export class Room implements GameRoom {
         x: defaultBall.x,
         y:defaultBall.y
       },
-      defaultBall.dir,
+      {
+        x: defaultBall.dir.x,
+        y: defaultBall.dir.y
+      },
       defaultBall.velocity,
       defaultBall.rad
     )
@@ -228,7 +231,6 @@ export class Room implements GameRoom {
         this.onGameFinished();
         clearInterval(this.engineIntervalHandle);
         clearInterval(this.updateIntervalHandle);
-        //clearTimeout(this.endTimeoutHandle);
 
         // TO DO: Use state elapsed here but is NaN but 
       }, this.DEBUG(this.ruleset.duration /*- this.state.elapsed*/ * 60, "timeout for end the game is") * 1000);
@@ -245,7 +247,7 @@ export class Room implements GameRoom {
     clearTimeout(this.endTimeoutHandle);
 
     Logger.debug("[MATCHES GATEWAY] on game stopped has been called");
-    //this.matchesGateway.onDisconnectClients(this.matchId); // TO DO: Why his was here ?
+    //this.matchesGateway.onDisconnectClients(this.matchId); // TO DO: Why this was here ?
   }
 
   onGameFinished() {

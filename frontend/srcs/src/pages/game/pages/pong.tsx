@@ -14,8 +14,6 @@ import { Ball, defaultBall, IBall, IBallBase } from "../../../models/game/Ball";
 import Popup from "reactjs-popup";
 import { ruleOfThree } from "../engine/engine"
 
-// TO DO: let animationId: number | undefined = undefined; IF NOT UNDEFINED -> LAUNCH RENDER
-
 export type PongPageParams = {
   id: string;
 };
@@ -36,7 +34,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
   const widthMargin = 50;
-  //console.log("[pong.tsx] Pong.tsx has been called");
 
   const [canvSize, setCanvSize] = useState<{ h: number, w: number }>({
     h: window.innerHeight * 3 / 4,
@@ -75,8 +72,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         h: h,
         w: w
       })
-      // setCanvHeight(h);
-      // setCanvWidth(w);
     };
 
     window.addEventListener('resize', windowResizeEventHandler);
@@ -100,7 +95,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       scores: [0, 0],
       ball: getDefaultBall(canvSize.h)
     };
-    console.log(`[pong.tsx] init ball with rad: ${state.ball.rad}`);
     let animationId: number | undefined = 0;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
 
@@ -135,19 +129,12 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       history.push("/game");
     };
 
-    // const ruleOfThree = (target: number) => {
-    //   // Where y2 = (y1 * x2) / x1
-    //   return (target * canvSize.h) / canvasHeight;
-    // }
-
     const onReceiveStatus = (status: GameStatus) => {
-      //console.log(`[pong.tsx] Received status: ${status}`);
       state.status = status;
       received |= Received.STATUS;
     };
 
     const onReceivePlayers = (players: Player[]) => {
-      //console.log(`[pong.tsx] Received players: ${players}`);
 
       players.forEach((player) => {
         player.y = ruleOfThree(player.y, canvSize.h);
@@ -157,28 +144,15 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       });
 
       state.players = players;
-      //console.log(`[pong.tsx] canvWidth: ${canvWidth}`);
-      //state.players.forEach((player) => console.log(`[pong.tsx] game registered player y: ${player.y} x: ${player.x} side: ${player.side} id: ${player.id} userId: ${user?.id}`));
       received |= Received.PLAYERS;
     };
 
     const onReceiveScores = (scores: number[]) => {
-      console.log(`[pong.tsx] scores received: ${scores}`);
-      //console.log(`[pong.tsx] Received scores: ${[...scores]}`);
-      const prevScore = state.scores;
       state.scores = scores;
-
-      if (prevScore[0] !== state.scores[0] || prevScore[1] !== state.scores[1])
-        console.log(`[pong.tsx] Received score: ${[...scores]}`);
-      //state.scores.forEach((score) => console.log(`[pong.tsx] game score: ${score}`));
       received |= Received.SCORES;
     };
 
     const onReceiveBall = (ball: IBall) => {
-      //console.log(`[pong.tsx] Received ball: ${ball}`);
-
-      //const respawn = state.ball.defaultBall;
-      //console.log(`[pong.tsx] respawn rad: ${respawn.rad}`);
       state.ball = new Ball(
         {
           x: ruleOfThree(ball.x, canvSize.h),
@@ -191,22 +165,18 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         ruleOfThree(ball.rad, canvSize.h),
         ruleOfThree(ball.velocity, canvSize.h)
       );
-      //ball.rad = state.players[0].height / 3; // TO DO: Temporary, rm this line to know the reason of its existance
-      // TO DO: Cals will be incoherent in server this the previous line
+
       state.ball.defaultBall = getDefaultBall(canvSize.h);
 
-      //console.log(`[pong.tsx] on ball received: x: ${ball.x}, y: ${ball.y} dirX: ${ball.dir.x} dirY: ${ball.dir.y} rad: ${ball.rad} velocity: ${ball.velocity}`);
-
-      //console.log(`[pong.tsx] received ball rad: ${ball.rad}, normalized: ${state.ball.rad} (${ball.rad} * ${canvSize.h} / ${canvasHeight})`);
+      // TO DO: This is a temporally solution ! Shold not need this line !!!
+      state.ball.rad = state.ball.defaultBall.rad;
 
       if (received === (Received.STATUS | Received.PLAYERS | Received.SCORES)) {
         received = 0;
-        // console.log(`[pong.tsx] render frame: Id: ${animationId}`);
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
             animationId = requestAnimationFrame(frame);
           } else {
-            // console.log(`[pong.tsx] Cancel animation frame, game status ${state.status}`);
             cancelAnimationFrame(animationId);
             animationId = undefined;
           }
@@ -230,7 +200,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       }
       matchSocket
         ?.off(ClientMessages.JOINED, onJoined)
-        //.off(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
         .off(ClientMessages.RECEIVE_STATUS, onReceiveStatus)
         .off(ClientMessages.RECEIVE_PLAYERS, onReceivePlayers)
         .off(ClientMessages.RECEIVE_SCORES, onReceiveScores)
@@ -243,7 +212,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const frame = () => {
-      //pongEngine(state, canvSize.h);
       renderize(state, ctx.current!, canvSize.h);
       requestAnimationFrame(frame);
     };
@@ -255,7 +223,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     matchSocket
       ?.on(ClientMessages.JOINED, onJoined)
-      //.on(ClientMessages.RECEIVE_ST, onReceiveGameStatus)
       .on(ClientMessages.RECEIVE_STATUS, onReceiveStatus)
       .on(ClientMessages.RECEIVE_PLAYERS, onReceivePlayers)
       .on(ClientMessages.RECEIVE_SCORES, onReceiveScores)
@@ -264,7 +231,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       .on(ClientMessages.GAME_START, onMatchStart)
       .on(ClientMessages.GAME_END, onMatchEnd);
 
-    //matchSocket?.emit("test", { id: Number(match.params.id) });
     matchSocket?.emit(ServerMessages.JOIN_ROOM, { id: Number(match.params.id) });
 
     return deleteSubscribedListeners;
