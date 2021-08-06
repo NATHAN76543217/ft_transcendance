@@ -38,6 +38,7 @@ export enum ServerMessages {
   CALC_GAME_ST = 'server:calcGameSt',
   LEAVE_ROOM = 'server:leaveRoom',
   PLAYER_READY = 'server:playerReady',
+  PLAYER_GIVEUP = 'server:playerGiveUp',
 }
 
 export enum ClientMessages {
@@ -315,6 +316,26 @@ export class MatchesGateway
         }
       });
     }
+  }
+///////////////////////////////////////////////////////////////////
+  @SubscribeMessage(ServerMessages.PLAYER_GIVEUP)
+  handlePlayerGiveUp(@ConnectedSocket() client: SocketWithPlayer) {
+    const room = this.getRoom(client.matchId);
+
+    room.setPlayerStatus(client.user.id, PlayerStatus.GIVEUP);
+
+    this.logger.debug(`[MATCHES GATEWAY] Give up: ${client.user.id}`);
+    console.log('---------------------- give up')
+
+    // if (room.isFilled() && room.playersReady()) {
+    //   room.onStartGame();
+    //   room.playerIds.forEach((playerId) => {
+    //     if (this.playerSockets.has(playerId)) {
+    //       this.logger.debug(`[MATCHES GATEWAY] user ${this.playerSockets.get(playerId)} is ready to play`);
+    //       this.server.to(this.playerSockets.get(playerId)).emit(ClientMessages.GAME_START);
+    //     }
+    //   });
+    // }
   }
 
   @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)

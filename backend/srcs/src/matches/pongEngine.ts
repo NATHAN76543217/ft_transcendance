@@ -6,7 +6,7 @@ import { Side } from './models/Player';
 
 export function pongEngine(st: GameState) {
   // Check if the ball scored on left side
-  if (st.ball.x - st.ball.rad < 0) {
+  if (st.ball.x - st.ball.rad < 0 && st.scores[1] >= 0) {
     st.scores[1]++;
     st.ball = new Ball(
       {
@@ -22,7 +22,7 @@ export function pongEngine(st: GameState) {
     );
   }
   // Check if the ball scored on right side
-  else if (st.ball.x + st.ball.rad > canvasDims.x) {
+  else if (st.ball.x + st.ball.rad > canvasDims.x && st.scores[0] >= 0) {
     st.scores[0]++;
     st.ball = new Ball(
       {

@@ -142,7 +142,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onQuit = () => {
-      history.push("/game");
+      // matchSocket?.emit(ServerMessages.PLAYER_GIVEUP);
+      // history.push("/game");
     };
 
     const onReceiveStatus = (status: GameStatus) => {
@@ -169,11 +170,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onReceiveBall = (ball: IBall) => {
-      // console.log('onReceiveBall', waitingScreen)
-      // if (waitingScreen) {
-        // console.log('onReceiveBall - setWaitingScreen to false')
-        // setWaitingScreen(false);
-      // }
       state.ball = new Ball(
         {
           x: ruleOfThree(ball.x, canvSize.h),
@@ -210,7 +206,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onMatchStart = () => {
-      console.log('--------------------------- START ----------------------------')
       console.log("[pong.tsx] Game has started");
       appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
       setWaitingScreen(false);
@@ -232,7 +227,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const onMatchEnd = async () => {
       console.log("[pong.tsx] Game is finished - state: ", state);
       const winnerIndex = state.scores[0] >= state.scores[1] ? 0 : 1
-      console.log('winnderIndex: ', winnerIndex)
       // await setEndGameData(winnerIndex, data.playerNames);
       await setEndGameData(winnerIndex);
       setGameFinished(true);
@@ -284,7 +278,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   ]);
 
   useEffect(() => {
-    console.log('useEffect - finalData', finalData)
     const setPlayerNamesData = async () => {
       if (!finalData.playersName[0] || !finalData.playersName[0].length) {
         try {
@@ -300,13 +293,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     setPlayerNamesData()
   }, [finalData])
 
-  useEffect(() => {
-    console.log('useEffect - gameFinished', gameFinished)
-  }, [gameFinished])
+  // useEffect(() => {
+  //   console.log('useEffect - gameFinished', gameFinished)
+  // }, [gameFinished])
 
-  useEffect(() => {
-    console.log('useEffect - waitingScreen', waitingScreen)
-  }, [waitingScreen])
+  // useEffect(() => {
+  //   console.log('useEffect - waitingScreen', waitingScreen)
+  // }, [waitingScreen])
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
@@ -316,7 +309,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const quitGame = () => {
     setGiveUpDisplay(false);
     closeModal();
-    history.push('/game');
+    // history.push('/game');
+  }
+
+  const giveUpGame = () => {
+    matchSocket?.emit(ServerMessages.PLAYER_GIVEUP);
+    setGiveUpDisplay(false);
+    closeModal();
   }
 
   const [giveUpDisplay, setGiveUpDisplay] = useState(false);
@@ -341,7 +340,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         <div className='flex space-x-8'>
           <button
             className={buttonClassname + " bg-red-600 hover:bg-red-700"}
-            onClick={quitGame}
+            onClick={giveUpGame}
             disabled={!giveUpDisplay}
           >
             <span className={textButtonClassname}>Give up, really?</span>
@@ -397,7 +396,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayGame = () => {
     return (
       <div>
-        <Popup open={open} closeOnDocumentClick onClose={quitGame}>
+        <Popup open={open} closeOnDocumentClick onClose={giveUpGame}>
           <div className=" fixed top-0 left-0 z-30 overflow-auto bg-gray-700 flex w-screen h-screen bg-opacity-70">
             <div className=' bg-red-500 h-12'>
               <div className="fixed top-0 left-0 z-50 w-full justify-center grid">
@@ -430,14 +429,34 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     )
   }
 
+  const displayScores = () => {
+    if (finalData.scores[1] === -1) {
+      return (
+        <div className="flex justify-center text-center mb-8 text-2xl font-bold md:text-3xl break-words">
+          Forfeit
+        </div>
+      )
+    } else {
+      return (
+        <div className="flex justify-center text-center mb-8 text-2xl font-bold md:text-3xl break-words">
+          Scores:
+          <br />
+          {finalData.scores[0]} - {finalData.scores[1]}
+        </div>
+      )
+    }
+  }
+
   const displayFinishedBoard = () => {
-    console.log('displayFinishedBoard - finalData', finalData)
     return (
       <div className='grid justify-center'>
-        <div className="inline-block w-48 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
-          <div className="flex justify-center mb-8 text-2xl font-bold md:text-3xl ">
-            Winner: {finalData.playersName[0]}
+        <div className="inline-block w-72 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+          <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+            Winner
+            <br />
+            {finalData.playersName[0]}
           </div>
+          {displayScores()}
           <div className="flex w-auto justify-center space-x-8 rounded-md lg:space-x-24">
             {displayWinOrLosePicture()}
           </div>

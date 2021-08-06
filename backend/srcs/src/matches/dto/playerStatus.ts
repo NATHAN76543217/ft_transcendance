@@ -4,4 +4,5 @@ export enum PlayerStatus {
   READY,
   CONNECTED,
   DISCONNECTED,
+  GIVEUP,
 }
