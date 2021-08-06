@@ -71,7 +71,7 @@ export function renderize(
   context: CanvasRenderingContext2D,
   currCanvHeight: number,
 ) {
-  // console.log('renderize - h: ', currCanvHeight)
+  console.log('renderize ', status)
   emptyCourt(context, currCanvHeight);
   renderizeScores(context, status, currCanvHeight);
   renderizeNet(context, currCanvHeight);

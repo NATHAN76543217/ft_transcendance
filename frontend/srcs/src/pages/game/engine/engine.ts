@@ -18,7 +18,7 @@ export function getDefaultBall(currCanvHeight: number) : Ball {
       y: ruleOfThree(defaultBall.dir.y, currCanvHeight)
     },
     ruleOfThree(defaultBall.velocity, currCanvHeight),
-    ruleOfThree(defaultBall.rad, currCanvHeight)
+    Math.max(ruleOfThree(defaultBall.rad, currCanvHeight), 7)
   );
 }
 

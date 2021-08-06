@@ -165,7 +165,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
           x: ruleOfThree(ball.dir.x, canvSize.h),
           y: ruleOfThree(ball.dir.y, canvSize.h)
         },
-        ruleOfThree(ball.rad, canvSize.h),
+        Math.max(ruleOfThree(ball.rad, canvSize.h), 7),
         ruleOfThree(ball.velocity, canvSize.h)
       );
 
