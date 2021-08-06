@@ -1,11 +1,14 @@
 import axios from "axios";
+import { useContext } from "react";
 // import React, { useContext } from "react";
 import { Link, NavLink, useHistory } from "react-router-dom";
+import AppContext from "../../AppContext";
 // import AppContext from "../../AppContext";
 import { Message } from "../../models/channel/Channel";
 import { CreateGameDto } from "../../models/game/CreateGame.dto";
 import { Match } from "../../models/game/Match";
 import { UserStatus } from "../../models/user/IUser";
+import { ServerMessages } from "../../pages/game/dto/messages";
 
 type FriendsProps = {
   name: string;
@@ -32,6 +35,9 @@ function FriendItem({
 }: FriendsProps) {
   const history = useHistory();
   // const { channelSocket: socket } = useContext(AppContext);
+
+  const { matchSocket } = useContext(AppContext);
+
 
   let path =
     imgPath === ""
@@ -64,8 +70,9 @@ function FriendItem({
   };
 
   const acceptGameRequest = async () => {
-    console.log("Accepting game invitation - game Invite: ", gameInvite);
+    console.log("[pong.tsx] Accepting game invitation - game Invite: ", gameInvite);
     if (gameInvite) {
+      matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, { id: gameInvite.id });
       history.push(`/game/${gameInvite.data}`);
       await axios.delete(`/api/messages/${gameInvite.id}`);
     }

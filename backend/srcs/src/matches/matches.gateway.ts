@@ -39,6 +39,7 @@ export enum ServerMessages {
   LEAVE_ROOM = 'server:leaveRoom',
   PLAYER_READY = 'server:playerReady',
   PLAYER_GIVEUP = 'server:playerGiveUp',
+  ACCEPT_INVITATION = 'server:acceptInvitation'
 }
 
 export enum ClientMessages {
@@ -167,6 +168,18 @@ export class MatchesGateway
     player.status = status;
 
     this.server.to(gameId.toFixed()).emit('status', statusChange);
+  }
+
+  @SubscribeMessage(ServerMessages.ACCEPT_INVITATION)
+  async handleAcceptInvitation(
+    @ConnectedSocket() socket: SocketWithPlayer,
+    @MessageBody() body: JoinGameDto
+  ) {
+    this.logger.debug(`[MATCHES GATEWAY] on Accept invitation to game ${body.id}`);
+    const room = this.getRoom(body.id);
+
+    this.logger.debug(`[MATCHES GATEWAY] Invited ${socket.user.id} joined`);
+    room.addPlayer(socket.user.id);
   }
 
   @SubscribeMessage(ServerMessages.JOIN_ROOM)
