@@ -53,7 +53,7 @@ function renderizePlayer(context: CanvasRenderingContext2D, player: IPlayer) {
 
   // TO DO: Why they're no paddles at the begining ? 
   if (once < 2) {
-  console.log(`[pong.tsx] Display player y: ${player.y} x: ${player.x}`);
+  console.log(`[pong.tsx] Display player y: ${player.y} x: ${player.x} w: ${player.width} h: ${player.height}`);
   once++;
   }
 }
