@@ -17,6 +17,8 @@ import { GameResults } from "../../../models/game/GameResults";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 import Loading from "../../../components/loading/loading";
+import { PlayerStatusChangedDto } from "../../../models/game/PlayerStatusChanged.dto";
+import { PlayerStatus } from "../../../models/game/PlayerStatus";
 
 export type PongPageParams = {
   id: string;
@@ -65,7 +67,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     // setCanvWidth(window.innerWidth - widthMargin);
   }
 
-  console.log(`[pong.tsx] Canvas size x: ${canvSize.w} y: ${canvSize.h}`);
+  //console.log(`[pong.tsx] Canvas size x: ${canvSize.w} y: ${canvSize.h}`);
 
   useEffect(() => {
     if (canvasRef.current !== null)
@@ -194,13 +196,16 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         received = 0;
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
+            console.log("[pong.tsx] GAME RUNNING");
             animationId = requestAnimationFrame(frame);
-          } else {
-            console.log(`Cancel animation frame ${animationId}`);
+          } else if (state.status === GameStatus.PAUSED) {
+            console.log("[pong.tsx] GAME PAUSED");
             cancelAnimationFrame(animationId);
-            if (state.status === GameStatus.FINISHED) {
-              clearInterval(updateIntervalHandle!);
-            }
+            clearInterval(updateIntervalHandle!);
+          } else {
+            console.log("[pong.tsx] GAME TERMINATED");
+            cancelAnimationFrame(animationId);
+            clearInterval(updateIntervalHandle!);
             animationId = undefined;
           }
         }
