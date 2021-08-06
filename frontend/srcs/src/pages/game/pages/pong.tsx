@@ -197,14 +197,11 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         received = 0;
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
-            console.log("[pong.tsx] GAME RUNNING");
             animationId = requestAnimationFrame(frame);
           } else if (state.status === GameStatus.PAUSED) {
-            console.log("[pong.tsx] GAME PAUSED");
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);
           } else if (state.status === GameStatus.FINISHED) {
-            console.log("[pong.tsx] GAME TERMINATED");
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);
             animationId = undefined;

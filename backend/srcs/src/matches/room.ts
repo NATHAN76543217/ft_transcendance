@@ -227,7 +227,7 @@ export class Room implements GameRoom {
     if (this.state.status === GameStatus.RUNNING) {
       this.matchesGateway.onClientStartGame(this.matchId);
 
-      const t = 33;
+      const t = 45;
 
       this.lastRunning = Date.now();
 
@@ -244,11 +244,11 @@ export class Room implements GameRoom {
           clearInterval(this.updateIntervalHandle);
           clearTimeout(this.endTimeoutHandle);
         }
-      }, this.DEBUG( (t / 3) * 1, `Engine Interval: ${this.engineIntervalHandle}`));
+      }, this.DEBUG( t / 3, `Engine Interval: ${this.engineIntervalHandle}`));
 
       this.updateIntervalHandle = setInterval(() => {
         this.matchesGateway.onGameUpdate(this.matchId, this.state);
-      }, this.DEBUG( t * 1, `Update Interval: ${this.updateIntervalHandle}`)); // TO DO: Read doc for times
+      }, this.DEBUG( t, `Update Interval: ${this.updateIntervalHandle}`)); // TO DO: Read doc for times
 
       this.endTimeoutHandle = setTimeout(() => {
         Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);

@@ -414,6 +414,11 @@ export class MatchesGateway
   onDisconnectClients(roomId: number) {
     const room = this.getRoom(roomId);
 
+    this.matchesService.updateMatch(roomId, {
+      playerIds: [...room.playerIds],
+      scores: [...room.state.scores]
+    });
+
     room.playerIds.forEach((playerId) => {
 
       this.logger.debug(
