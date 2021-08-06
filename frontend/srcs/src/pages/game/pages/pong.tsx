@@ -187,7 +187,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       state.ball.defaultBall = getDefaultBall(canvSize.h);
 
-      // TO DO: This is a temporally solution ! Shold not need this line !!!
+      // TO DO: This is a temporally solution ! Should not need this line !!!
       state.ball.rad = state.ball.defaultBall.rad;
 
       if (received === (Received.STATUS | Received.PLAYERS | Received.SCORES)) {

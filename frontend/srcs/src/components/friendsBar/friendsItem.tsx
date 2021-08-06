@@ -72,7 +72,7 @@ function FriendItem({
   const acceptGameRequest = async () => {
     console.log("[pong.tsx] Accepting game invitation - game Invite: ", gameInvite);
     if (gameInvite) {
-      matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, { id: gameInvite.id });
+      matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, { id: Number(gameInvite.data) });
       history.push(`/game/${gameInvite.data}`);
       await axios.delete(`/api/messages/${gameInvite.id}`);
     }

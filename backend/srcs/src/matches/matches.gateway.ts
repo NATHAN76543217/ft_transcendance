@@ -175,11 +175,10 @@ export class MatchesGateway
     @ConnectedSocket() socket: SocketWithPlayer,
     @MessageBody() body: JoinGameDto
   ) {
-    this.logger.debug(`[MATCHES GATEWAY] on Accept invitation to game ${body.id}`);
     const room = this.getRoom(body.id);
 
-    this.logger.debug(`[MATCHES GATEWAY] Invited ${socket.user.id} joined`);
-    room.addPlayer(socket.user.id);
+    this.logger.debug(`[MATCHES GATEWAY] Invited ${socket.user.id} accepted invitation and joined ${body.id}`);
+    room.invitePlayer(socket.user.id);
   }
 
   @SubscribeMessage(ServerMessages.JOIN_ROOM)
@@ -193,8 +192,11 @@ export class MatchesGateway
     // Check if the user is allowed to play
     let role: GameRole;
 
+    this.logger.debug(`[MATCHES GATEWAY] players: ${[...room.playerIds]}`);
+    
     if (room.playerIds.includes(socket.user.id)) {
       role = GameRole.Player;
+      this.playerSockets.set(socket.user.id, socket.id);
       // TO DO: I've needed to add this condition cause addPlayer was called twice for first player, need to find out the reason in a future
       if (room.state.players.has(socket.user.id) === false) {
         room.addPlayer(socket.user.id);
@@ -288,8 +290,8 @@ export class MatchesGateway
         true,
       );
 
-      this.playerSockets.set(playerIds[0][0], playerIds[0][1]);
-      this.playerSockets.set(playerIds[1][0], playerIds[1][1]);
+      //this.playerSockets.set(playerIds[0][0], playerIds[0][1]);
+      //this.playerSockets.set(playerIds[1][0], playerIds[1][1]);
 
       playerIds.forEach((player) => {
         this.server.to(player[1]).emit(ClientMessages.MATCH_FOUND, id);
