@@ -7,13 +7,16 @@ import { GameState, GameStatus } from "../../../models/game/GameState";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 import { getDefaultBall, pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
-import { canvasHeight, canvasWidth, whRatio } from "../../../models/game/canvasDims";
+import { canvasHeight, whRatio } from "../../../models/game/canvasDims";
 import { Events } from "../../../models/channel/Events";
-import { IPlayer, Player } from "../../../models/game/Player";
-import { Ball, defaultBall, IBall, IBallBase } from "../../../models/game/Ball";
+import { Player } from "../../../models/game/Player";
+import { Ball, IBall } from "../../../models/game/Ball";
 import Popup from "reactjs-popup";
 import { ruleOfThree } from "../engine/engine"
-import Game from "./game";
+import { GameResults } from "../../../models/game/GameResults";
+import axios from "axios";
+import { NavLink } from "react-router-dom";
+import Loading from "../../../components/loading/loading";
 
 export type PongPageParams = {
   id: string;
@@ -31,10 +34,19 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const { matchSocket } = useContext(AppContext);
   const history = useHistory();
 
+  const [gameFinished, setGameFinished] = useState(false);
+  const [waitingScreen, setWaitingScreen] = useState(false);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
   const widthMargin = 50;
+
+  const [finalData, setFinalData] = useState<GameResults>({
+    playersId: [0, 0],
+    scores: [0, 0],
+    playersName: ['', '']
+  });
 
   const [canvSize, setCanvSize] = useState<{ h: number, w: number }>({
     h: window.innerHeight * 3 / 4,
@@ -126,6 +138,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         canvasRef.current!.addEventListener("mousemove", mouseEventHandler);
         matchSocket?.emit(ServerMessages.PLAYER_READY);
       }
+      setWaitingScreen(true);
     };
 
     const onQuit = () => {
@@ -141,7 +154,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       players.forEach((player) => {
         player.y = ruleOfThree(player.y, canvSize.h);
-        player.x = ruleOfThree(player.x,  canvSize.h);
+        player.x = ruleOfThree(player.x, canvSize.h);
         player.height = ruleOfThree(player.height, canvSize.h);
         player.width = ruleOfThree(player.width, canvSize.h);
       });
@@ -156,6 +169,11 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onReceiveBall = (ball: IBall) => {
+      // console.log('onReceiveBall', waitingScreen)
+      // if (waitingScreen) {
+        // console.log('onReceiveBall - setWaitingScreen to false')
+        // setWaitingScreen(false);
+      // }
       state.ball = new Ball(
         {
           x: ruleOfThree(ball.x, canvSize.h),
@@ -192,12 +210,32 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onMatchStart = () => {
+      console.log('--------------------------- START ----------------------------')
       console.log("[pong.tsx] Game has started");
       appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
+      setWaitingScreen(false);
     };
 
-    const onMatchEnd = () => {
-      console.log("[pong.tsx] Game is finished");
+    const setEndGameData = async (
+      winnerIndex: number,
+    ) => {
+      try {
+        setFinalData({
+          playersId: [state.players[winnerIndex].id, state.players[1 - winnerIndex].id],
+          scores: [state.scores[winnerIndex], state.scores[1 - winnerIndex]],
+          playersName: ['', '']
+        })
+      } catch (error) { console.log(error) }
+    };
+
+    // const onMatchEnd = async (data: { playerNames: string[] }) => {
+    const onMatchEnd = async () => {
+      console.log("[pong.tsx] Game is finished - state: ", state);
+      const winnerIndex = state.scores[0] >= state.scores[1] ? 0 : 1
+      console.log('winnderIndex: ', winnerIndex)
+      // await setEndGameData(winnerIndex, data.playerNames);
+      await setEndGameData(winnerIndex);
+      setGameFinished(true);
       appSocket?.emit(Events.Server.EndGame, { room: match.params.id });
     };
 
@@ -244,6 +282,31 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   }, [user?.id, matchSocket, appSocket, history, match.params.id,
   canvSize.h
   ]);
+
+  useEffect(() => {
+    console.log('useEffect - finalData', finalData)
+    const setPlayerNamesData = async () => {
+      if (!finalData.playersName[0] || !finalData.playersName[0].length) {
+        try {
+          const data0 = await axios.get("/api/users/" + finalData.playersId[0]);
+          const data1 = await axios.get("/api/users/" + finalData.playersId[1]);
+          setFinalData({
+            ...finalData,
+            playersName: [data0.data.name, data1.data.name]
+          })
+        } catch (error) { console.log(error) }
+      }
+    }
+    setPlayerNamesData()
+  }, [finalData])
+
+  useEffect(() => {
+    console.log('useEffect - gameFinished', gameFinished)
+  }, [gameFinished])
+
+  useEffect(() => {
+    console.log('useEffect - waitingScreen', waitingScreen)
+  }, [waitingScreen])
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
@@ -301,7 +364,37 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     " items-center my-2";
   const textButtonClassname = "text-lg font-bold text-gray-900";
 
-  const displayMatchSearch = () => {
+
+  const displayWaitingScreen = () => {
+    if (waitingScreen) {
+      return (
+        <div className='fixed top-12 left-0 z-50 w-screen h-screen bg-gray-700 opacity-70'>
+          <div className='w-72 h-32 bg-primary rounded-md grid justify-center mt-12'>
+            <span className="font-bold text-xl mb-2 mt-4">
+              Waiting for the game...
+            </span>
+            <Loading hideText />
+          </div>
+        </div>
+      )
+    }
+  }
+
+  const displayCanvas = () => {
+    // if (!waitingScreen) {
+    return (
+      <canvas
+        ref={canvasRef}
+        height={canvSize.h}
+        width={canvSize.w}
+        className="w-full"
+      // hidden={waitingScreen}
+      />
+    )
+    // }
+  }
+
+  const displayGame = () => {
     return (
       <div>
         <Popup open={open} closeOnDocumentClick onClose={quitGame}>
@@ -311,28 +404,68 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
                 {displayGiveUpButton()}
                 {displayGiveUpConfirmationButton()}
               </div>
+              {displayWaitingScreen()}
               <div className='fixed top-0 left-0 z-40  w-screen h-screen pb-16/9'>
                 <div className=' mt-12 w-screen grid justify-center'>
-
-                  <canvas
-                    ref={canvasRef}
-                    // height='450'
-                    // width='800'
-                    height={canvSize.h}
-                    width={canvSize.w}
-                    className="w-full"
-                  />
+                  {displayCanvas()}
                 </div>
               </div>
             </div>
           </div>
         </Popup>
-      </div>
+      </div >
     );
   };
 
+  const displayWinOrLosePicture = () => {
+    const path = finalData.playersId[1] === user?.id
+      ? "/api/uploads/lose.png"
+      : "/api/uploads/win.png";
+    return (
+      <img
+        className="object-contain w-32 h-full"
+        src={path}
+        alt="win or lose"
+      />
+    )
+  }
+
+  const displayFinishedBoard = () => {
+    console.log('displayFinishedBoard - finalData', finalData)
+    return (
+      <div className='grid justify-center'>
+        <div className="inline-block w-48 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+          <div className="flex justify-center mb-8 text-2xl font-bold md:text-3xl ">
+            Winner: {finalData.playersName[0]}
+          </div>
+          <div className="flex w-auto justify-center space-x-8 rounded-md lg:space-x-24">
+            {displayWinOrLosePicture()}
+          </div>
+          <div className="flex justify-center ">
+            <NavLink
+              className={
+                buttonClassname +
+                " bg-secondary hover:bg-secondary-dark mt-8 w-32"
+              }
+              to="/game"
+              onClick={() => history.push("/game")}
+            >
+              <span className={textButtonClassname}>Quit</span>
+            </NavLink>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   //const height: number = window.screen.height / 2;//canvasRef.current?.height!;
-  return (
-    displayMatchSearch()
-  );
+  if (!gameFinished) {
+    return (
+      displayGame()
+    );
+  } else {
+    return (
+      displayFinishedBoard()
+    )
+  }
 }

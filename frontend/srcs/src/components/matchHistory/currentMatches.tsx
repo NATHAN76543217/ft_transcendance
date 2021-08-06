@@ -1,6 +1,5 @@
 import { IMatch } from "../../models/match/IMatch";
 import CurrentMatchItem from "./currentMatchItem";
-import MatchHistoryItem from "./matchHistoryItem";
 
 type currentMatchesProps = {
   matchList: IMatch[],

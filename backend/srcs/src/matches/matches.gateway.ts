@@ -17,13 +17,14 @@ import { SocketWithPlayer } from './socketWIthPlayer.interface';
 import { PlayerStatusChangedDto } from './dto/playerStatusChanged.dto';
 import { PlayerStatus } from './dto/playerStatus';
 import { JoinGameDto } from './dto/joinGame.dto';
-import { GameState, GameStateDto, GameStatus } from './models/GameRoom';
+import { GameState } from './models/GameRoom';
 import { GameRole } from './models/GameRole';
 import { GameJoinedDto } from './dto/gameJoined.dto';
 import { IVector2D } from './models/Vector2D';
 import { Ruleset } from './dto/ruleset.dto';
 import { Room } from './room';
 import { IBall } from './models/Ball';
+import UsersService from 'src/users/users.service';
 
 export enum ServerMessages {
   CREATE_ROOM = 'server:createRoom',
@@ -83,6 +84,7 @@ export class MatchesGateway
     @Inject(forwardRef(() => MatchesService))
     private readonly matchesService: MatchesService,
     private readonly authenticationService: AuthenticationService,
+    private readonly usersService: UsersService,
   ) {}
 
   private getRoom(key: number) {
@@ -387,7 +389,7 @@ export class MatchesGateway
     room.playerIds.forEach((playerId) => {
 
       this.logger.debug(
-        `[MATCHES GATEWAY] Emmit GAME_END to client ${playerId}`,
+        `[MATCHES GATEWAY] Emit GAME_END to client ${playerId}`,
       );
       this.server.to(this.playerSockets.get(playerId)!).emit(ClientMessages.GAME_END);
       this.playerSockets.delete(playerId);
