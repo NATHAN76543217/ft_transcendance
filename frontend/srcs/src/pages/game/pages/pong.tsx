@@ -19,6 +19,7 @@ import { NavLink } from "react-router-dom";
 import Loading from "../../../components/loading/loading";
 import { PlayerStatusChangedDto } from "../../../models/game/PlayerStatusChanged.dto";
 import { PlayerStatus } from "../../../models/game/PlayerStatus";
+import Game from "./game";
 
 export type PongPageParams = {
   id: string;
@@ -202,7 +203,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             console.log("[pong.tsx] GAME PAUSED");
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);
-          } else {
+          } else if (state.status === GameStatus.FINISHED) {
             console.log("[pong.tsx] GAME TERMINATED");
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);

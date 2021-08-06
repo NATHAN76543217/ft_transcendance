@@ -39,7 +39,7 @@ export enum ServerMessages {
   LEAVE_ROOM = 'server:leaveRoom',
   PLAYER_READY = 'server:playerReady',
   PLAYER_GIVEUP = 'server:playerGiveUp',
-  ACCEPT_INVITATION = 'server:acceptInvitation'
+  ACCEPT_INVITATION = 'server:acceptInvitation',
 }
 
 export enum ClientMessages {
@@ -140,7 +140,8 @@ export class MatchesGateway
     this.logger.debug('Handling disconnection...');
 
     if ('user' in socket) {
-      await this.onUserDisconnect(socket as SocketWithPlayer);
+      //await this.onUserDisconnect(socket as SocketWithPlayer);
+      await this.onLeaveRoom(socket as SocketWithPlayer);
       this.logger.debug(
         `Authenticated user ${
           (socket as SocketWithPlayer).user.id
@@ -371,34 +372,19 @@ export class MatchesGateway
     room.setMousePos(client.user.id, mousePos);
   }
 
-  @SubscribeMessage(ServerMessages.LEAVE_ROOM)
-  onLeaveRoom(
+  //@SubscribeMessage(ServerMessages.LEAVE_ROOM)
+  async onLeaveRoom(
     @ConnectedSocket() client: SocketWithPlayer,
-    @MessageBody() roomId: number,
   ) {
-    const room = this.getRoom(roomId);
-    this.logger.debug("[MATCHES GATEWAY] on leave room has been called");
+    if (client.matchId !== undefined) {
+      this.logger.debug(`[MATCHES GATEWAY] On leave room: match id: ${client.matchId}`);
+      const room = this.getRoom(client.matchId);
 
-    client.leave(room.getId());
-    //room.playerIds.filter((id) => id !== playerId);
+      client.leave(room.getId());
+      room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
 
-    room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
-
-    this.logger.debug(
-      `[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`,
-    );
-
-    client
-      .to(room.getId())
-      .emit(
-        ClientMessages.NOTIFY,
-        `Player with id ${client.user.id} left the room`,
-      );
-
-    if (room.playerIds.length === 0) {
-      this.rooms.delete(room.matchId);
       this.logger.debug(
-        `[MATCHES GATEWAY] room with id ${room.matchId} has been destroyed`,
+        `[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`,
       );
     }
   }

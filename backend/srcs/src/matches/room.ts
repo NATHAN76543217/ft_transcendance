@@ -100,7 +100,6 @@ export class Room implements GameRoom {
     } else if (status === GameStatus.FINISHED) {
       this.onGameFinished();
     } else {
-      Logger.debug(`[ROOM ${this.matchId}] setStatus has been called with game status: ${status}`);
       this.onGameStopped();
     }
   }
@@ -268,6 +267,7 @@ export class Room implements GameRoom {
 
     this.state.elapsed += current - this.lastRunning;
 
+    this.matchesGateway.onGameUpdate(this.matchId, this.state);
     clearInterval(this.engineIntervalHandle);
     clearInterval(this.updateIntervalHandle);
     clearTimeout(this.endTimeoutHandle);
