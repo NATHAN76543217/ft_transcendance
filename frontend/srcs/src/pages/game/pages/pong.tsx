@@ -378,7 +378,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayWaitingScreen = () => {
     if (waitingScreen) {
       return (
-        <div className='fixed top-12 left-0 z-50 w-screen h-screen bg-gray-700 opacity-70'>
+        <div className='fixed grid top-12 left-0 z-50 w-screen h-screen bg-gray-700 opacity-70 justify-center'>
           <div className='w-72 h-32 bg-primary rounded-md grid justify-center mt-12'>
             <span className="font-bold text-xl mb-2 mt-4">
               Waiting for the game...

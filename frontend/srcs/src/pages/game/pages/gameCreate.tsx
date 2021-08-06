@@ -58,6 +58,8 @@ function GameCreate() {
   const textButtonClassname = "text-2xl font-bold text-gray-900";
 
   const [nbPoints, setNbPoints] = useState<number>(11);
+  const [speedMode, setSpeedMode] = useState<boolean>(false);
+  const [downsizing, setDownsizing] = useState<boolean>(false);
   //const [showCreationValidation, setShowCreationValidation] = useState(false);
 
   const handleChange = (event: any, newValue: any) => {
@@ -67,20 +69,24 @@ function GameCreate() {
 
   const marks = [
     {
-      value: 5,
-      label: "5",
+      value: 3,
+      label: "3",
     },
     {
-      value: 10,
-      label: "10",
+      value: 7,
+      label: "7",
+    },
+    {
+      value: 11,
+      label: "11",
     },
     {
       value: 15,
       label: "15",
     },
     {
-      value: 20,
-      label: "20",
+      value: 19,
+      label: "19",
     },
   ];
 
@@ -203,6 +209,50 @@ function GameCreate() {
     );
   };
 
+  useEffect(() => {
+    console.log('speedMode', speedMode)
+  }, [speedMode])
+  
+  useEffect(() => {
+    console.log('downsizing', downsizing)
+  }, [downsizing])
+
+  function displaySpeedModeBonus() {
+  
+    return (
+      <section className="relative flex items-center justify-center pt-8">
+        <label className="font-bold text-gray-700">
+          <input
+            className="mr-2 leading-tight"
+            type="checkbox"
+            readOnly
+            onClick={() => setSpeedMode(!speedMode)}
+            checked={speedMode}
+          />
+          <span className="text-sm">Speed mode</span>
+        </label>
+      </section>
+    ) 
+  }
+
+  function displayDownsizingBonus() {
+  
+    return (
+      <section className="relative flex items-center justify-center pt-2 pb-4">
+        <label className="font-bold text-gray-700">
+          <input
+            className="mr-2 leading-tight"
+            type="checkbox"
+            readOnly
+            onClick={() => setDownsizing(!downsizing)}
+            checked={downsizing}
+          />
+          <span className="text-sm">Downsizing mode</span>
+        </label>
+      </section>
+    ) 
+  }
+
   const displayCreateGameForm = () => {
     return (
       <form onSubmit={handleSubmit(onSubmit)} className="py-2">
@@ -215,6 +265,8 @@ function GameCreate() {
             </div>
           </div>
           {displaySliderPoints()}
+          {displaySpeedModeBonus()}
+          {displayDownsizingBonus()}
           <div className="flex justify-center pr-4 ">
             <input
               type="submit"
