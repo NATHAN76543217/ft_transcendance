@@ -9,6 +9,7 @@ export enum ServerMessages {
   CALC_GAME_ST = "server:calcGameSt",
   LEAVE_ROOM = "server:leaveRoom",
   PLAYER_READY = "server:playerReady",
+  PLAYER_GIVEUP = 'server:playerGiveUp',
 }
 
 export enum ClientMessages {

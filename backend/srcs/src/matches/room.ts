@@ -116,15 +116,32 @@ export class Room implements GameRoom {
     return player;
   }
 
+  setScoreAfterGiveUp(userId: number) {
+    this.state.players.forEach(async (player) => {
+      const index = !player.side.localeCompare('left') ? 0 : 1;
+      if (player.id === userId) {
+        this.state.scores[index] = -1;
+      } else {
+        this.state.scores[index] = this.ruleset.rounds;
+      }
+    })
+  }
+
   setPlayerStatus(userId: number, status: PlayerStatus) {
     const player = this.getPlayer(userId);
     player.status = status;
+
+    if (status === PlayerStatus.GIVEUP) {
+      this.setScoreAfterGiveUp(userId);
+    }
 
     const gameStatus = this.state.status;
 
     const isReady = status === PlayerStatus.READY && this.playersReady();
     const isRunning =
       status === PlayerStatus.CONNECTED && this.playersConnected();
+    const hasGivenUp = 
+    status === PlayerStatus.GIVEUP && this.playersGiveUp();
 
     switch (gameStatus) {
       case GameStatus.UNREADY:
@@ -133,7 +150,7 @@ export class Room implements GameRoom {
         if (!isReady) this.setStatus(GameStatus.UNREADY);
         break;
       case GameStatus.RUNNING:
-        if (!isRunning) this.setStatus(GameStatus.PAUSED);
+        if (!isRunning && !hasGivenUp) this.setStatus(GameStatus.PAUSED);
         break;
       case GameStatus.PAUSED:
         if (isRunning) this.setStatus(GameStatus.RUNNING);
@@ -180,11 +197,19 @@ export class Room implements GameRoom {
 
   public playersConnected() {
     let running = true;
-
     this.state.players.forEach((player) => {
-      if (player.status !== PlayerStatus.CONNECTED) running = false;
+      if (player.status !== PlayerStatus.CONNECTED && player.status !== PlayerStatus.GIVEUP) running = false;
     });
     return running;
+  }
+
+  public playersGiveUp() {
+    let givenUp = false;
+
+    this.state.players.forEach((player) => {
+      if (player.status === PlayerStatus.GIVEUP) givenUp = true;
+    });
+    return givenUp;
   }
 
   onStartGame() {
