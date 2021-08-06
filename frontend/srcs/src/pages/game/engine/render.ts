@@ -1,8 +1,8 @@
 import { Ball } from "../../../models/game/Ball";
 import { IPlayer } from "../../../models/game/Player";
 import { GameStateDto } from "../../../models/game/GameState.dto";
-import { IVector2D, Vector2D } from "../../../models/game/Vector2D";
-import { canvasWidth, canvasHeight, whRatio } from "../../../models/game/canvasDims";
+import { IVector2D } from "../../../models/game/Vector2D";
+import { whRatio } from "../../../models/game/canvasDims";
 import { ruleOfThree } from "./engine"
 
 function emptyCourt(context: CanvasRenderingContext2D, currHeight: number) {
@@ -71,7 +71,7 @@ export function renderize(
   context: CanvasRenderingContext2D,
   currCanvHeight: number,
 ) {
-  // console.log('renderize - h: ', currCanvHeight)
+  // console.log('renderize ', status)
   emptyCourt(context, currCanvHeight);
   renderizeScores(context, status, currCanvHeight);
   renderizeNet(context, currCanvHeight);

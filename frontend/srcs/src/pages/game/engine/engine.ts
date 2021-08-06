@@ -1,4 +1,4 @@
-import { Ball, defaultBall, IBallBase } from "../../../models/game/Ball";
+import { Ball, defaultBall } from "../../../models/game/Ball";
 import { Side } from "../../../models/game/Player";
 import { GameStateDto } from "../../../models/game/GameState.dto";
 import { canvasWidth, canvasHeight } from "../../../models/game/canvasDims";
@@ -18,7 +18,7 @@ export function getDefaultBall(currCanvHeight: number) : Ball {
       y: ruleOfThree(defaultBall.dir.y, currCanvHeight)
     },
     ruleOfThree(defaultBall.velocity, currCanvHeight),
-    ruleOfThree(defaultBall.rad, currCanvHeight)
+    Math.max(ruleOfThree(defaultBall.rad, currCanvHeight), 7)
   );
 }
 

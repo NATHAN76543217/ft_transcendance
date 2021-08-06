@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import CurrentMatches from "../../../components/matchHistory/currentMatches";
-import CurrentMatchItem from "../../../components/matchHistory/currentMatchItem";
 import { IMatch } from "../../../models/match/IMatch";
 
 function GameHome() {
@@ -23,42 +22,43 @@ function GameHome() {
     }
   };
 
-  const getAllCurrentMatches = async () => {
-    try {
-      const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
-      // console.log('dataMatches', dataMatches)
-      if (!dataMatches.data.length) {
-        setMatchList({ list: [] });
-        return;
-      }
-      let a: IMatch[] = [];
-      dataMatches.data.map(async (match, index) => {
-        let playerNames: string[] = [];
-        const nameA = await getPlayerName(match.player_ids[0]);
-        const nameB = await getPlayerName(match.player_ids[1]);
-        playerNames = [nameA, nameB];
-        a[index] = {
-          id: match.id,
-          player_ids: match.player_ids,
-          scores: match.scores,
-          startedAt: match.startedAt,
-          endAt: match.endAt,
-          playerNames: playerNames,
-        };
-        if (!matchesLoaded) {
-          setMatchList({ list: a });
-        }
-      });
-      if (!matchesLoaded) {
-        setMatchesLoaded(true);
-        setMatchList({ list: a });
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  
 
   useEffect(() => {
+    const getAllCurrentMatches = async () => {
+      try {
+        const dataMatches = await axios.get<IMatch[]>(`/api/matches/current`);
+        // console.log('dataMatches', dataMatches)
+        if (!dataMatches.data.length) {
+          setMatchList({ list: [] });
+          return;
+        }
+        let a: IMatch[] = [];
+        dataMatches.data.map(async (match, index) => {
+          let playerNames: string[] = [];
+          const nameA = await getPlayerName(match.player_ids[0]);
+          const nameB = await getPlayerName(match.player_ids[1]);
+          playerNames = [nameA, nameB];
+          a[index] = {
+            id: match.id,
+            player_ids: match.player_ids,
+            scores: match.scores,
+            startedAt: match.startedAt,
+            endAt: match.endAt,
+            playerNames: playerNames,
+          };
+          if (!matchesLoaded) {
+            setMatchList({ list: a });
+          }
+        });
+        if (!matchesLoaded) {
+          setMatchesLoaded(true);
+          setMatchList({ list: a });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
     if (!matchesLoaded) {
       getAllCurrentMatches();
     }
