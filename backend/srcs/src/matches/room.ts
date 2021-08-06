@@ -202,6 +202,8 @@ export class Room implements GameRoom {
   onGameRunning() {
     Logger.debug(`[ROOM ${this.getId()}] status: ${this.state.status}`);
     if (this.state.status === GameStatus.RUNNING) {
+      this.matchesGateway.onClientStartGame(this.matchId);
+
       const t = 33;
 
       this.lastRunning = Date.now();

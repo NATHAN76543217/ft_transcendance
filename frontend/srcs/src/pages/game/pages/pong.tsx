@@ -137,8 +137,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       if (data.role === GameRole.Player) {
         canvasRef.current!.addEventListener("mousemove", mouseEventHandler);
         matchSocket?.emit(ServerMessages.PLAYER_READY);
+        setWaitingScreen(true);
       }
-      setWaitingScreen(true);
+      else
+        setWaitingScreen(false);
     };
 
     const onQuit = () => {
@@ -214,6 +216,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       console.log("[pong.tsx] Game has started");
       appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
       setWaitingScreen(false);
+      updateIntervalHandle = setInterval(() => {
+        //console.log(`[pong.tsx] ball rad: ${state.ball.rad}`);
+        pongEngine(state, canvSize.h);
+      }, 3);
     };
 
     const setEndGameData = async (
@@ -261,10 +267,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       requestAnimationFrame(frame);
     };
 
-    updateIntervalHandle = setInterval(() => {
-      //console.log(`[pong.tsx] ball rad: ${state.ball.rad}`);
-      pongEngine(state, canvSize.h);
-    }, 3);
+    // updateIntervalHandle = setInterval(() => {
+    //   //console.log(`[pong.tsx] ball rad: ${state.ball.rad}`);
+    //   pongEngine(state, canvSize.h);
+    // }, 3);
 
     matchSocket
       ?.on(ClientMessages.JOINED, onJoined)

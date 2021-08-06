@@ -158,8 +158,9 @@ export class MatchesGateway
       userId,
       status,
     };
-    const room = this.rooms.get(gameId);
+    const room = this.getRoom(gameId);
 
+    // TO DO: This is an error (room is undfined)
     const player = room.state.players.get(userId);
 
     player.status = status;
@@ -308,13 +309,18 @@ export class MatchesGateway
 
     if (room.isFilled() && room.playersReady()) {
       room.onStartGame();
-      room.playerIds.forEach((playerId) => {
-        if (this.playerSockets.has(playerId)) {
-          this.logger.debug(`[MATCHES GATEWAY] user ${this.playerSockets.get(playerId)} is ready to play`);
-          this.server.to(this.playerSockets.get(playerId)).emit(ClientMessages.GAME_START);
-        }
-      });
     }
+  }
+
+  onClientStartGame(matchId : number) {
+    const room = this.getRoom(matchId);
+
+    room.playerIds.forEach((playerId) => {
+      if (this.playerSockets.has(playerId)) {
+        this.logger.debug(`[MATCHES GATEWAY] user ${this.playerSockets.get(playerId)} is ready to play`);
+        this.server.to(this.playerSockets.get(playerId)).emit(ClientMessages.GAME_START);
+      }
+    });
   }
 
   @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
