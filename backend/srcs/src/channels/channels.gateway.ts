@@ -510,8 +510,8 @@ export class ChannelsGateway
       created_at: new Date(),
       updated_at: new Date(),
       id: messageId,
-      sender_id: senderId,
-      receiver_id: messageDto.receiver_id,
+      sender_id: Number(senderId),
+      receiver_id: Number(messageDto.receiver_id),
       data: messageDto.data,
       type: messageDto.type,
     };

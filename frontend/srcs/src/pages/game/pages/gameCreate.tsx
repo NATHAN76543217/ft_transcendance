@@ -111,7 +111,7 @@ function GameCreate() {
         speedMode: speedMode,
         downsize: downsizing
       },
-      guests: [values.opponent_id],
+      guests: [Number(values.opponent_id)],
     };
     try {
       const response = await axios.post<Match>("/api/matches", body);
