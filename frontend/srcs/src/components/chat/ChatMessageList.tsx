@@ -26,23 +26,23 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
 
   useEffect(() => {
-    // console.log('---- useEffect - socket ----')
+    const deleteSubscribedListeners = () => {
+      socket
+      ?.off("message-channel", onChannelMessage)
+      .off("message-user", onUserMessage);
 
-    socket?.on("message-channel", (data: Message) => {
-      // console.log("Incoming channel message:", data);
-      // console.log("isChannel", isChannel);
-      // console.log("props.id", props.id);
-      // console.log("props.id.substring(1)", props.id.substring(1));
-      // console.log("data.channel_id", data.channel_id);
+    };
+
+    const onChannelMessage = (data: Message) => {
       if (
         isChannel &&
         Number(props.id.substring(1)) === Number(data.channel_id)
       ) {
         setMessages((olderMessages) => [...olderMessages, data]);
       }
-    });
+    }
 
-    socket?.on("message-user", (data: Message) => {
+    const onUserMessage = (data: Message) => {
       console.log("Incoming private message:", data);
       if (
         !isNaN(Number(props.id)) &&
@@ -63,12 +63,13 @@ export function ChatMessageList(props: ChatMessageListProps) {
         );
         updateOneRelationshipGameInvite(data);
       }
-    });
+    }
 
-    return () => {
-      socket?.off("message-channel");
-      socket?.off("message-user");
-    };
+    socket
+      ?.on("message-channel", onChannelMessage)
+      .on("message-user", onUserMessage);
+
+    return deleteSubscribedListeners;
   }, [socket, isChannel, props.id, updateOneRelationshipGameInvite]);
 
 
@@ -90,13 +91,11 @@ export function ChatMessageList(props: ChatMessageListProps) {
     }
     return false;
   }
-  , [relationshipsList, user]);
+    , [relationshipsList, user]);
 
 
   // This fetches previous messages
   useEffect(() => {
-    // console.log('---- useEffect - props.id ----')
-
     async function fetchChannelMessages(
       channelId: number,
       beforeId?: number

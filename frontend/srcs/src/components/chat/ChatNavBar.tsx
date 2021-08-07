@@ -224,7 +224,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
     ) {
       return <li key={rel.user.id}>{ChatBarItem({ user: rel.user })}</li>;
     } else {
-      return <div></div>;
+      return <li key={rel.user.id}></li>;
     }
   };
 
