@@ -224,7 +224,7 @@ export function ChatHeader({
     console.log("[chat header] Accepting game invitation");
     if (friendInfo.gameInvite) {
       //matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, { id: friendInfo.gameInvite.id });
-      history.push(`/game/${friendInfo.gameInvite.id}`);
+      history.push(`/game/${friendInfo.gameInvite.data}`);
     }
   };
 
