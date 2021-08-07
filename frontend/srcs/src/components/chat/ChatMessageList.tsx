@@ -183,7 +183,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
                   </li>
                 );
               } else {
-                return <div></div>;
+                return <li key={m.id}></li>;
               }
             })}
           </ul>

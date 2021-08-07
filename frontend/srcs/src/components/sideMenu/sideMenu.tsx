@@ -19,7 +19,7 @@ type SideMenuButtonProps = {
 function SideMenuButton({ name, href, icon, iconStyle }: SideMenuButtonProps) {
   // <i className={`hidden pl-4 m-auto fa-lg ${iconStyle} ${icon} group-hover:block`}></i>
   return (
-    <li className={"h-12"}>
+    <li key={name} className={"h-12"}>
       <NavLink
         to={href}
         exact={true}
@@ -51,7 +51,7 @@ function SideMenu(props: { logged: boolean }) {
     <div>
       <nav className="absolute z-50 w-16 h-full border-r-2 border-gray-300 delay-0 bg-neutral duration-800 transition-width hover:w-64 group lg:w-28 xl:w-32">
         <ul className="w-full ">
-          <li className="h-40 bg-black xl:h-52 2xl:h-60">
+          <li key='img' className="h-40 bg-black xl:h-52 2xl:h-60">
             <Link to="/">
               <header className="table-cell w-16 h-40 text-center text-white align-middle bg-transparent lg:w-28 xl:w-32 group-hover:hidden xl:h-52 2xl:h-60 ">
                 <span className="items-center justify-center inline-block h-10 font-bold transform -rotate-90 bg-transparent w-min text-md md:text-md lg:text-2xl 2xl:text-3xl ">

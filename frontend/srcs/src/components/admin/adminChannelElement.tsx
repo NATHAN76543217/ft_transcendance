@@ -386,9 +386,7 @@ function AdminChannelElement(props: ChannelElementProps) {
                   );
                 } else {
                   return (
-                    <li key={relation.user_id} className="">
-                      <div></div>
-                    </li>
+                    <li key={relation.user_id} className=""></li>
                   );
                 }
               }

@@ -59,7 +59,7 @@ describe('The ChannelsService', () => {
                 find.mockReturnValue(Promise.resolve({channel1, channel2}));
             })
             it('should return a channels list', async() => {
-                const fetchedChannelList = await channelService.getAllChannels();
+                const fetchedChannelList = await channelService.getAllChannels("");
                 expect(fetchedChannelList).toEqual({channel1, channel2});
             })
     })

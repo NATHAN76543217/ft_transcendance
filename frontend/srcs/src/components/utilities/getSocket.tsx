@@ -8,7 +8,7 @@ export function getSocket(
 ) {
   const path = urljoin(baseUrl, "/socket.io");
 
-  console.log(`Initiating socket connection to '${path} on '${namespace}'...`);
+  // console.log(`Initiating socket connection to '${path} on '${namespace}'...`);
 
   const socket = io(namespace, {
     path,
@@ -16,9 +16,7 @@ export function getSocket(
     withCredentials: true,
   })
     .on("authenticated", () => {
-      console.log(
-        `Socket connection to '${path}' on '${namespace}' authenticated!`
-      );
+      // console.log(`Socket connection to '${path}' on '${namespace}' authenticated!`);
 
       if (onConnection !== undefined) {
         onConnection(socket);

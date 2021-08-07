@@ -124,7 +124,7 @@ export function ChatNavBar({ className }: ChatNavBarProps) {
         <li key={rel.channel.id}>{ChatBarItem({ channel: rel.channel })}</li>
       );
     } else {
-      return <div></div>;
+      return <li key={rel.channel.id}></li>;
     }
   };
 

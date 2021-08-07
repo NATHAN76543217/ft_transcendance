@@ -6,13 +6,16 @@ import {
   Post,
   Res,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import fs from 'fs';
 import { imageFileFilter } from './image.file-filter';
 
 @Controller('photos')
+@UseGuards(JwtTwoFactorGuard)
 export default class PhotosController {
   constructor() {}
 
