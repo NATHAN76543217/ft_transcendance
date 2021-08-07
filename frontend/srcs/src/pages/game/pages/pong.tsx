@@ -30,7 +30,7 @@ enum Received {
 }
 
 export function Pong({ match }: RouteComponentProps<PongPageParams>) {
-  const { user, eventSocket: appSocket } = useContext(AppContext);
+  const { user, eventSocket: appSocket, relationshipsList } = useContext(AppContext);
   const { matchSocket } = useContext(AppContext);
   const history = useHistory();
 
@@ -312,7 +312,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   useEffect(() => {
     const setPlayerNamesData = async () => {
-      if (!finalData.playersName[0] || !finalData.playersName[0].length) {
+      if (finalData.playersId[0] && finalData.playersId[1] && (!finalData.playersName[0] || !finalData.playersName[0].length)) {
         try {
           const data0 = await axios.get("/api/users/" + finalData.playersId[0]);
           const data1 = await axios.get("/api/users/" + finalData.playersId[1]);
@@ -336,6 +336,25 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
+  const cancelGameRequest = async () => {
+    const relation = relationshipsList.find((relation) => {
+      if (relation.gameInvite) {
+        return relation.gameInvite.sender_id === user?.id
+      } else {
+        return false;
+      }
+    })
+    if (relation) {
+      try {
+        await axios.delete(`/api/matches/${relation.gameInvite?.data}`);
+        await axios.delete(`/api/messages/${relation.gameInvite?.id}`);
+        history.push(`/`);
+      } catch (e) {
+        history.push(`/`);
+        console.error(e);
+      }
+    }
+  };
 
   const quitGameAsSpectator = () => {
     setGiveUpDisplay(false);
@@ -362,8 +381,17 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
           <span className={textButtonClassname}>Quit</span>
         </button>
       )
-    }
-    else if (!giveUpDisplay) {
+    } else if (waitingScreen) {
+      return (
+        <button
+          className={buttonClassname + " bg-red-600 hover:bg-red-700"}
+          onClick={cancelGameRequest}
+          disabled={giveUpDisplay}
+        >
+          <span className={textButtonClassname}>Cancel invitation</span>
+        </button>
+      )
+    } else if (!giveUpDisplay) {
       return (
         <button
           className={buttonClassname + " bg-red-600 hover:bg-red-700"}
