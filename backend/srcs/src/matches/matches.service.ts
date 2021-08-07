@@ -72,7 +72,7 @@ export default class MatchesService {
       // .where('match.player_ids = :playerId', { playerId })
       .orderBy('match.startedAt', 'DESC')
       .take(count)
-      .orderBy('match.startedAt', 'ASC')
+      // .orderBy('match.startedAt', 'ASC')
       .getMany();
 
     return matches;
