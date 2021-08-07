@@ -17,6 +17,7 @@ import axios from "axios";
 import { NavLink } from "react-router-dom";
 import Loading from "../../../components/loading/loading";
 import { Vector2D } from "../../../models/game/Vector2D";
+import Game from "./game";
 
 export type PongPageParams = {
   id: string;
@@ -83,6 +84,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
     let animationId: number | undefined = undefined;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
+    let once : boolean = true;
 
     const getMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent) => {
       const rect = canvasRef.current!.getBoundingClientRect();
@@ -160,14 +162,17 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         received = 0;
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
-            if (updateIntervalHandle === undefined) {
-              launchEngine();
+            // if (updateIntervalHandle === undefined) {
+            //   launchEngine();
+            // }
+            if (once === true) {
+              animationId = requestAnimationFrame(frame);
+              once = false;
             }
-            animationId = requestAnimationFrame(frame);
           } else {
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);
-            updateIntervalHandle = undefined;
+            //updateIntervalHandle = undefined;
             if (state.status === GameStatus.FINISHED) {
               animationId = undefined;
             }
@@ -185,9 +190,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const onMatchStart = () => {
       console.log("[pong.tsx] Game has started");
       animationId = 0;
-      appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
-      setWaitingScreen(false);
-      launchEngine();
+      if (updateIntervalHandle === undefined) {
+        appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
+        setWaitingScreen(false);
+        launchEngine();
+      } else {
+        clearInterval(updateIntervalHandle);
+        setTimeout(launchEngine, 3 * 1000);
+      }
     };
 
     const setEndGameData = async (winnerIndex: number) => {
