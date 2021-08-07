@@ -77,6 +77,8 @@ export default class MatchesControler {
 
   @Delete(':id')
   async deleteMatch(@Param('id') id: string) {
-    return this.matchesServices.deleteMatch(Number(id));
+    try {
+      return this.matchesServices.deleteMatch(Number(id));
+    } catch (error) {console.log(error)}
   }
 }

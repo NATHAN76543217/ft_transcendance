@@ -17,6 +17,7 @@ import {
   UserStatus,
 } from "../../models/user/IUser";
 import chatContext from "../../pages/chat/chatContext";
+import { ServerMessages } from "../../pages/game/dto/messages";
 import ChannelInviteForm from "../Forms/channelInviteForm";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
 import { ChatTitle } from "./ChatTitle";
@@ -223,8 +224,12 @@ export function ChatHeader({
   const acceptGameRequest = async () => {
     console.log("[chat header] Accepting game invitation");
     if (friendInfo.gameInvite) {
-      //matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, { id: friendInfo.gameInvite.id });
+      contextValue.matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, {
+        roomId: Number(friendInfo.gameInvite.data),
+        messageId: friendInfo.gameInvite.id
+      });
       history.push(`/game/${friendInfo.gameInvite.data}`);
+      // await axios.delete(`/api/messages/${friendInfo.gameInvite.id}`);
     }
   };
 

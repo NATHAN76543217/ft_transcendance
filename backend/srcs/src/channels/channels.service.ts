@@ -272,4 +272,8 @@ export default class ChannelsService {
     );
     this.channelsGateway.sendUserMessage(senderId, message, newMessage.id);
   }
+
+  async sendDeleteUserMessage(senderId: number, message: CreateMessageDto, messageId: number) {
+    this.channelsGateway.sendUserMessage(senderId, message, messageId);
+  }
 }

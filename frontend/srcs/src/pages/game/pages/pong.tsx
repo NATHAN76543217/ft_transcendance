@@ -35,7 +35,12 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const history = useHistory();
 
   const [gameFinished, setGameFinished] = useState(false);
+  const [isPlayer, setIsPlayer] = useState(false);
+  const [noGame, setNoGame] = useState(false);
   const [waitingScreen, setWaitingScreen] = useState(false);
+
+  const [open, setOpen] = useState(true);
+  const closeModal = () => setOpen(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
@@ -96,12 +101,23 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   }, []);
 
   useEffect(() => {
+    setGameFinished(false);
+    setWaitingScreen(false);
+    setIsPlayer(false);
+    setNoGame(false);
+    setOpen(true);
+  }, [match.params.id])
+
+  useEffect(() => {
+
     if (
       matchSocket === undefined ||
       canvasRef.current === null ||
       ctx.current === null
-    )
+    ) {
+      console.log('return early in useEffect Pong')
       return;
+    }
 
     let received: number = 0;
     let state: GameState = {
@@ -135,6 +151,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       console.log(`[pong.tsx] onJoined: role ${data.role}`);
 
       if (data.role === GameRole.Player) {
+        setIsPlayer(true);
         canvasRef.current!.addEventListener("mousemove", mouseEventHandler);
         matchSocket?.emit(ServerMessages.PLAYER_READY);
         setWaitingScreen(true);
@@ -239,6 +256,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       appSocket?.emit(Events.Server.EndGame, { room: match.params.id });
     };
 
+    const ifNoGame = () => {
+      console.log("[pong.tsx] No current game");
+      if (!noGame) {
+        setNoGame(true);
+      }
+    }
+
     const deleteSubscribedListeners = () => {
       if (updateIntervalHandle) {
         clearInterval(updateIntervalHandle);
@@ -251,7 +275,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         .off(ClientMessages.RECEIVE_BALL, onReceiveBall)
         .off(ClientMessages.QUIT, onQuit)
         .off(ClientMessages.GAME_START, onMatchStart)
-        .off(ClientMessages.GAME_END, onMatchEnd);
+        .off(ClientMessages.GAME_END, onMatchEnd)
+        .off(ClientMessages.NO_GAME, ifNoGame);
 
       window.removeEventListener("mousemove", mouseEventHandler);
     };
@@ -274,13 +299,15 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       .on(ClientMessages.RECEIVE_BALL, onReceiveBall)
       .on(ClientMessages.QUIT, onQuit)
       .on(ClientMessages.GAME_START, onMatchStart)
-      .on(ClientMessages.GAME_END, onMatchEnd);
+      .on(ClientMessages.GAME_END, onMatchEnd)
+      .on(ClientMessages.NO_GAME, ifNoGame);
 
-    matchSocket?.emit(ServerMessages.JOIN_ROOM, { id: Number(match.params.id) });
+    matchSocket?.emit(ServerMessages.JOIN_ROOM, { roomId: Number(match.params.id) });
 
     return deleteSubscribedListeners;
   }, [user?.id, matchSocket, appSocket, history, match.params.id,
-  canvSize.h
+  canvSize.h,
+    noGame
   ]);
 
   useEffect(() => {
@@ -309,25 +336,34 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   // NOTE: To stop the animation use: cancelAnimationFrame(animationId);
 
-  const [open, setOpen] = useState(true);
-  const closeModal = () => setOpen(false);
 
-  // const quitGame = () => {
-  //   setGiveUpDisplay(false);
-  //   closeModal();
-  //   // history.push('/game');
-  // }
+  const quitGameAsSpectator = () => {
+    setGiveUpDisplay(false);
+    closeModal();
+    history.push('/game');
+  }
 
   const giveUpGame = () => {
     matchSocket?.emit(ServerMessages.PLAYER_GIVEUP);
     setGiveUpDisplay(false);
-    closeModal();
+    // closeModal();
   }
 
   const [giveUpDisplay, setGiveUpDisplay] = useState(false);
 
   const displayGiveUpButton = () => {
-    if (!giveUpDisplay) {
+    if (!isPlayer) {
+      return (
+        <button
+          className={buttonClassname + " bg-red-600 hover:bg-red-700"}
+          onClick={quitGameAsSpectator}
+        // disabled={!giveUpDisplay}
+        >
+          <span className={textButtonClassname}>Quit</span>
+        </button>
+      )
+    }
+    else if (!giveUpDisplay) {
       return (
         <button
           className={buttonClassname + " bg-red-600 hover:bg-red-700"}
@@ -404,23 +440,29 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       <div>
         <Popup open={open} closeOnDocumentClick onClose={giveUpGame}>
           <div className=" fixed top-0 left-0 z-30 overflow-auto bg-gray-700 flex w-screen h-screen bg-opacity-70">
-            <div className=' bg-red-500 h-12'>
-              <div className="fixed top-0 left-0 z-50 w-full justify-center grid">
-                {displayGiveUpButton()}
-                {displayGiveUpConfirmationButton()}
-              </div>
-              {displayWaitingScreen()}
-              <div className='fixed top-0 left-0 z-40  w-screen h-screen pb-16/9'>
-                <div className=' mt-12 w-screen grid justify-center'>
-                  {displayCanvas()}
-                </div>
-              </div>
-            </div>
+            {!gameFinished ? displayCurrentGame() : displayFinishedBoard()}
           </div>
         </Popup>
       </div >
     );
   };
+
+  const displayCurrentGame = () => {
+    return (
+      <div className=' bg-red-500 h-12'>
+        <div className="fixed top-0 left-0 z-50 w-full justify-center grid">
+          {displayGiveUpButton()}
+          {displayGiveUpConfirmationButton()}
+        </div>
+        {displayWaitingScreen()}
+        <div className='fixed top-0 left-0 z-40  w-screen h-screen pb-16/9'>
+          <div className=' mt-12 w-screen grid justify-center'>
+            {displayCanvas()}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const displayWinOrLosePicture = () => {
     const path = finalData.scores[0] === finalData.scores[1]
@@ -430,7 +472,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         : "/api/uploads/win.png")
     return (
       <img
-        className="object-contain w-32 h-100%"
+        className="object-contain w-100% h-24"
         src={path}
         alt="win or lose"
       />
@@ -440,13 +482,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayScores = () => {
     if (finalData.scores[1] === -1) {
       return (
-        <div className="flex justify-center text-center mb-8 text-2xl font-bold md:text-3xl break-words">
+        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
           Forfeit
         </div>
       )
     } else {
       return (
-        <div className="flex justify-center text-center mb-8 text-2xl font-bold md:text-3xl break-words">
+        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
           Scores:
           <br />
           {finalData.scores[0]} - {finalData.scores[1]}
@@ -475,8 +517,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   const displayFinishedBoard = () => {
     return (
-      <div className='grid justify-center'>
-        <div className="inline-block w-72 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+      <div className='grid justify-center w-screen '>
+        <div className="align-center inline-block w-72 h-96 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
           {displayWinnerName()}
           {displayScores()}
           <div className="flex w-auto justify-center space-x-8 rounded-md lg:space-x-24">
@@ -500,13 +542,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   }
 
   //const height: number = window.screen.height / 2;//canvasRef.current?.height!;
-  if (!gameFinished) {
+  if (noGame) {
+    return (
+      <div className='font-semibold w-full text-center mt-16'>There is no current game in this room</div>
+    )
+  }
+  else {
     return (
       displayGame()
     );
-  } else {
-    return (
-      displayFinishedBoard()
-    )
   }
 }

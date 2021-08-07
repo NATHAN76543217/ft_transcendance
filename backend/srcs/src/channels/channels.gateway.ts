@@ -513,7 +513,7 @@ console.log('UpdateUserRelation', body)
 
   sendUserMessage(
     senderId: number,
-    messageData: CreateMessageDto,
+    messageDto: CreateMessageDto,
     messageId: number = 0,
   ) {
     const message: Message = {
@@ -522,12 +522,15 @@ console.log('UpdateUserRelation', body)
       updated_at: new Date(),
       id: messageId,
       sender_id: senderId,
-      receiver_id: Number(messageData.receiver_id),
-      data: messageData.data,
-      type: messageData.type,
+      receiver_id: messageDto.receiver_id,
+      data: messageDto.data,
+      type: messageDto.type,
     };
 
+console.log('...........sendUserMessage - ', message)
+
     if (!isNaN(message.receiver_id)) {
+      console.log('EMIIIIIIIIIIIT')
       this.server
         .to(message.receiver_id.toFixed())
         .emit(Events.Client.UserMessage, message);
@@ -537,6 +540,7 @@ console.log('UpdateUserRelation', body)
         .emit(Events.Client.UserMessage, message);
     }
   }
+
 
   @SubscribeMessage(Events.Server.UserMessage)
   async handleMessageUser(

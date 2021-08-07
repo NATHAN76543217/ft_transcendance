@@ -26,6 +26,7 @@ export enum ClientMessages {
   GUEST_REJECTION = "client:guestRejection",
   GAME_START = "client:gameStart",
   GAME_END = 'client:gameEnd',
+  NO_GAME = 'client:noGame'
 }
 
 export interface IAcknowledgement {

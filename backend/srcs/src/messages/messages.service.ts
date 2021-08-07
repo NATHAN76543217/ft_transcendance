@@ -1,5 +1,6 @@
 import { forwardRef, HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ChannelsGateway } from 'src/channels/channels.gateway';
 import ChannelsService from 'src/channels/channels.service';
 import { Repository } from 'typeorm';
 import CreateMessageDto from './dto/createMessage.dto';
@@ -46,12 +47,13 @@ export default class MessageService {
       const cancelMessage = {
         channel_id: 1,
         type: MessageType.GameCancel,
-        data: id.toFixed(),
+        id: id,
+        data: message.data,
         receiver_id: message.receiver_id,
         sender_id: message.sender_id,
       }
       this.logger.debug(`Deleting invitation from user ${message.sender_id}...`);
-      this.channelsService.sendUserMessage(message.sender_id, cancelMessage)
+      this.channelsService.sendDeleteUserMessage(message.sender_id, cancelMessage, id)
     }
 
     const deleteResponse = await this.messageRepository.delete(id);

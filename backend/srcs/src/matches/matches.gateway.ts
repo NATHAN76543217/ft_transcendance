@@ -25,6 +25,8 @@ import { Ruleset } from './dto/ruleset.dto';
 import { Room } from './room';
 import { IBall } from './models/Ball';
 import UsersService from 'src/users/users.service';
+import { ChannelsGateway } from 'src/channels/channels.gateway';
+import MessageService from 'src/messages/messages.service';
 
 export enum ServerMessages {
   CREATE_ROOM = 'server:createRoom',
@@ -55,6 +57,7 @@ export enum ClientMessages {
   GUEST_REJECTION = "client:guestRejection",
   GAME_START = "client:gameStart",
   GAME_END = 'client:gameEnd',
+  NO_GAME = 'client:noGame'
 }
 
 export const defaultRuleset: Ruleset = {
@@ -84,14 +87,18 @@ export class MatchesGateway
   constructor(
     @Inject(forwardRef(() => MatchesService))
     private readonly matchesService: MatchesService,
+    @Inject(forwardRef(() => MessageService))
+    private readonly messageService: MessageService,
     private readonly authenticationService: AuthenticationService,
     private readonly usersService: UsersService,
+    // @Inject(forwardRef(() => ChannelsGateway))
+    // private channelsGateway: ChannelsGateway
   ) { }
 
   private getRoom(key: number) {
     const room: Room = this.rooms.get(key);
 
-    if (room === undefined) throw new WsException('Room not found');
+    if (room === undefined) throw new WsException('Room not found: id = ' + key);
     return room;
   }
 
@@ -174,10 +181,13 @@ export class MatchesGateway
     @ConnectedSocket() socket: SocketWithPlayer,
     @MessageBody() body: JoinGameDto
   ) {
-    const room = this.getRoom(body.id);
+    const room = this.getRoom(body.roomId);
 
-    this.logger.debug(`[MATCHES GATEWAY] Invited ${socket.user.id} accepted invitation and joined ${body.id}`);
+    this.logger.debug(`[MATCHES GATEWAY] Invited ${socket.user.id} accepted invitation and joined ${body.roomId}`);
     room.invitePlayer(socket.user.id);
+
+    this.messageService.deleteMessage(body.messageId)
+    
   }
 
   @SubscribeMessage(ServerMessages.JOIN_ROOM)
@@ -185,38 +195,45 @@ export class MatchesGateway
     @ConnectedSocket() socket: SocketWithPlayer,
     @MessageBody() body: JoinGameDto,
   ) {
-    //this.logger.debug(`[MATCHES GATEWAY] player ${socket.user.id} joined room ${body.id}` )
-    const room = this.getRoom(body.id);
 
-    // Check if the user is allowed to play
-    let role: GameRole;
-
-    this.logger.debug(`[MATCHES GATEWAY] players: ${[...room.playerIds]}`);
-
-    if (room.playerIds.includes(socket.user.id)) {
-      role = GameRole.Player;
-      this.playerSockets.set(socket.user.id, socket.id);
-      // TO DO: I've needed to add this condition cause addPlayer was called twice for first player, need to find out the reason in a future
-      if (room.state.players.has(socket.user.id) === false) {
-        room.addPlayer(socket.user.id);
+    console.log('JOIN_ROOM', body.roomId)
+    //this.logger.debug(`[MATCHES GATEWAY] player ${socket.user.id} joined room ${body.roomId}` )
+    try {
+      const room = this.getRoom(body.roomId);
+      
+      // Check if the user is allowed to play
+      let role: GameRole;
+      
+      this.logger.debug(`[MATCHES GATEWAY] players: ${[...room.playerIds]}`);
+      
+      if (room.playerIds.includes(socket.user.id)) {
+        role = GameRole.Player;
+        this.playerSockets.set(socket.user.id, socket.id);
+        // TO DO: I've needed to add this condition cause addPlayer was called twice for first player, need to find out the reason in a future
+        if (room.state.players.has(socket.user.id) === false) {
+          room.addPlayer(socket.user.id);
+        }
+      } else {
+        role = GameRole.Spectator;
       }
-    } else {
-      role = GameRole.Spectator;
-    }
-
-    this.logger.debug(
-      `[MATCHES GATEWAY] user ${socket.user.id} has joined room ${body.id} with role: ${role}`,
-    );
-
-    socket.join(room.getId());
-
-    const data: GameJoinedDto = { role };
-
-    socket.matchId = body.id;
-    this.server
-      .to(socket.id)
-      .emit(ClientMessages.RECEIVE_PLAYERS, [...room.state.players.values()]);
-    this.server.to(socket.id).emit(ClientMessages.JOINED, data);
+      
+      this.logger.debug(
+        `[MATCHES GATEWAY] user ${socket.user.id} has joined room ${body.roomId} with role: ${role}`,
+        );
+        
+        socket.join(room.getId());
+        
+        const data: GameJoinedDto = { role };
+        
+        socket.matchId = body.roomId;
+        this.server
+        .to(socket.id)
+        .emit(ClientMessages.RECEIVE_PLAYERS, [...room.state.players.values()]);
+        this.server.to(socket.id).emit(ClientMessages.JOINED, data);
+      } catch(error) {
+        this.server.to(socket.id).emit(ClientMessages.NO_GAME);
+        console.log(error)
+      }
 
   }
 
@@ -225,7 +242,7 @@ export class MatchesGateway
     @ConnectedSocket() socket: SocketWithPlayer,
     @MessageBody() body: JoinGameDto,
   ) {
-    const room = this.getRoom(body.id);
+    const room = this.getRoom(body.roomId);
 
     this.logger.debug(`User with id ${socket.user.id} rejected the match`);
 

@@ -63,6 +63,7 @@ function FriendItem({
     try {
       const response = await axios.post<Match>("/api/matches", gameData);
       console.log("Game created, redirecting to:", response.data);
+      // history.push(`/game`);
       history.push(`/game/${response.data.id}`);
     } catch (e) {
       console.error("TODO: inviteFriend:", e);
@@ -72,9 +73,13 @@ function FriendItem({
   const acceptGameRequest = async () => {
     console.log("[pong.tsx] Accepting game invitation - game Invite: ", gameInvite);
     if (gameInvite) {
-      matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, { id: Number(gameInvite.data) });
+      matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, {
+        roomId: Number(gameInvite.data),
+        messageId: gameInvite.id
+      });
+      // history.push(`/game`);
       history.push(`/game/${gameInvite.data}`);
-      await axios.delete(`/api/messages/${gameInvite.id}`);
+      // await axios.delete(`/api/messages/${gameInvite.id}`);
     }
   };
 

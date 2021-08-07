@@ -1,3 +1,4 @@
 export type JoinGameDto = {
-  id: number;
+  roomId: number;
+  messageId?: number;
 };

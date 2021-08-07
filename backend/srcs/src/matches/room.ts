@@ -253,7 +253,7 @@ export class Room implements GameRoom {
       this.endTimeoutHandle = setTimeout(() => {
         Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);
         this.setStatus(GameStatus.FINISHED);
-        this.onGameFinished();
+        // this.onGameFinished();
         clearInterval(this.engineIntervalHandle);
         clearInterval(this.updateIntervalHandle);
 
