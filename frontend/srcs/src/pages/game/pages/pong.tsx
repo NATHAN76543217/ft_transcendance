@@ -83,7 +83,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       scores: [0, 0],
       ball: getDefaultBall(),
     };
-    let animationId: number | undefined = 0;
+    let animationId: number | undefined = undefined;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
 
     const getMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent) => {
@@ -186,6 +186,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     const onMatchStart = () => {
       console.log("[pong.tsx] Game has started");
+      animationId = 0;
       appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
       setWaitingScreen(false);
       launchEngine();
