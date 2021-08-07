@@ -25,13 +25,13 @@ export function getDefaultBall(currCanvHeight: number) : Ball {
 export function pongEngine(st: GameStateDto, currCanvHeight: number) {
   // Check if the ball scored on left side
   if (st.ball.x - st.ball.rad < 0) {
-    st.scores[0]++;
+    st.scores[1]++;
     st.ball = getDefaultBall(currCanvHeight);
     //st.ball.dir.x = -st.ball.dir.x;
   }
   // Check if the ball scored on right side
   else if (st.ball.x + st.ball.rad > ruleOfThree(canvasWidth, currCanvHeight)) {
-    st.scores[1]++;
+    st.scores[0]++;
     st.ball = getDefaultBall(currCanvHeight);
     st.ball.dir.x = -st.ball.dir.x;
   }
