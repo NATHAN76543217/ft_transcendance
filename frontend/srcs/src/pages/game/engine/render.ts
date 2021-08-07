@@ -43,17 +43,9 @@ function renderizeNet(context: CanvasRenderingContext2D) {
   }
 }
 
-let once = 0;
-
 function renderizePlayer(context: CanvasRenderingContext2D, player: IPlayer) {
   context.fillStyle = "WHITE";
   context.fillRect(player.x, player.y, player.width, player.height);
-
-  // TO DO: Why they're no paddles at the begining ? 
-  if (once < 2) {
-  console.log(`[pong.tsx] Display player y: ${player.y} x: ${player.x} w: ${player.width} h: ${player.height}`);
-  once++;
-  }
 }
 
 function renderizeBall(context: CanvasRenderingContext2D, ball: Ball) {

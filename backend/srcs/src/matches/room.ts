@@ -62,7 +62,7 @@ export class Room implements GameRoom {
     const side: Side = pos % 2 === 0 ? 'left' : 'right';
     const teamSize = this.ruleset.size / 2;
     const teamPos = pos > teamSize ? pos - teamSize : teamSize;
-    const playerY = (canvasDims.y / teamSize) * teamPos;
+    const playerY = canvasDims.y / 2;
     const playerX =
       side === 'left'
         ? canvasPadding

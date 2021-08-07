@@ -45,8 +45,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
-  // const widthMargin = 50;
-
   const [finalData, setFinalData] = useState<GameResults>({
     playersId: [0, 0],
     scores: [0, 0],
@@ -152,8 +150,8 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
           x: ball.dir.x,
           y: ball.dir.y,
         },
-        ball.rad,
-        ball.velocity
+        ball.velocity,
+        ball.rad
       );
 
       state.ball.defaultBall = getDefaultBall();

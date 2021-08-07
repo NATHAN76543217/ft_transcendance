@@ -69,7 +69,7 @@ export const defaultRuleset: Ruleset = {
 };
 
 @Injectable()
-@WebSocketGateway(0, { namespace: '/matches' })
+@WebSocketGateway(0, { namespace: '/matches'})
 export class MatchesGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
@@ -95,7 +95,9 @@ export class MatchesGateway
     private readonly usersService: UsersService,
     // @Inject(forwardRef(() => ChannelsGateway))
     // private channelsGateway: ChannelsGateway
-  ) { }
+  ) {
+    this.onDeleteRoom = this.onDeleteRoom.bind(this);
+  }
 
   private getRoom(key: number) {
     const room: Room = this.rooms.get(key);
@@ -395,15 +397,15 @@ export class MatchesGateway
   ) {
     if (client.matchId !== undefined) {
       this.logger.debug(`[MATCHES GATEWAY] On leave room: match id: ${client.matchId}`);
-      try {
-        const room = this.getRoom(client.matchId);
+      const room = this.rooms.get(client.matchId);
+      if (room) {
         client.leave(room.getId());
-        room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
-      } catch (error) {console.log(error)}
+      room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
         
       this.logger.debug(
         `[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`,
       );
+      }      
     }
   }
 
@@ -448,6 +450,10 @@ export class MatchesGateway
     }
   }
 
+  private onDeleteRoom(roomId : number) {
+    this.rooms.delete(roomId);
+  }
+
   onDisconnectClients(roomId: number) {
     try {
       const room = this.getRoom(roomId);
@@ -477,7 +483,8 @@ export class MatchesGateway
         this.server.to(this.playerSockets.get(playerId)!).emit(ClientMessages.GAME_END);
         this.playerSockets.delete(playerId);
       });
-      this.rooms.delete(roomId);
+      setTimeout(this.onDeleteRoom, 30 * 1000);
+      
     } catch (error) { console.log(error) }
   }
 }
