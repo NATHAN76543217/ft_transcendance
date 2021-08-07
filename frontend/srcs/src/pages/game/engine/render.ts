@@ -2,12 +2,12 @@ import { Ball } from "../../../models/game/Ball";
 import { IPlayer } from "../../../models/game/Player";
 import { GameStateDto } from "../../../models/game/GameState.dto";
 import { IVector2D } from "../../../models/game/Vector2D";
-import { whRatio } from "../../../models/game/canvasDims";
+import { canvasHeight, canvasWidth, whRatio } from "../../../models/game/canvasDims";
 import { ruleOfThree } from "./engine"
 
-function emptyCourt(context: CanvasRenderingContext2D, currHeight: number) {
+function emptyCourt(context: CanvasRenderingContext2D) {
   context.fillStyle = "BLACK";
-  context.fillRect(0, 0, currHeight * whRatio, currHeight);
+  context.fillRect(0, 0, canvasWidth, canvasHeight);
   // context.fillRect(0, 0, canvasWidth, canvasHeight);
 }
 
@@ -15,31 +15,30 @@ function emptyCourt(context: CanvasRenderingContext2D, currHeight: number) {
 function renderizeScores(
   context: CanvasRenderingContext2D,
   status: GameStateDto,
-  currCanvHeight: number
 ) {
   const scoreLeft: IVector2D = {
-    x: currCanvHeight * whRatio * 3 / 4,
-    y: currCanvHeight / 5
+    x: 3 * canvasWidth / 4,
+    y: canvasHeight / 5
   };
   const scoreRight: IVector2D = {
-    x: currCanvHeight * whRatio / 4,
-    y: currCanvHeight / 5
+    x: canvasWidth / 4,
+    y: canvasHeight / 5
   };
 
   context.fillStyle = "#FFF";
-  context.font = currCanvHeight > 450 ? "75px Arial" : "40px Arial";
+  context.font = canvasHeight > 450 ? "75px Arial" : "40px Arial";
   context.fillText(status.scores[0].toString(), scoreLeft.x, scoreLeft.y);
   context.fillText(status.scores[1].toString(), scoreRight.x, scoreRight.y);
 }
 
-function renderizeNet(context: CanvasRenderingContext2D, currCanvHeight: number) {
-  const width: number = ruleOfThree(2, currCanvHeight);
-  const height: number = ruleOfThree(10, currCanvHeight);
+function renderizeNet(context: CanvasRenderingContext2D) {
+  const width: number = 2;
+  const height: number = 10;
   const pos: IVector2D = {
-    x: currCanvHeight * whRatio / 2,
+    x: (canvasWidth - width) / 2,
     y: 0
   };
-  for (let i = 0; i < currCanvHeight; i += 15) {
+  for (let i = 0; i < canvasHeight; i += 15) {
     context.fillStyle = "WHITE";
     context.fillRect(pos.x, pos.y + i, width, height);
   }
@@ -69,12 +68,11 @@ function renderizeBall(context: CanvasRenderingContext2D, ball: Ball) {
 export function renderize(
   status: GameStateDto,
   context: CanvasRenderingContext2D,
-  currCanvHeight: number,
 ) {
   // console.log('renderize ', status)
-  emptyCourt(context, currCanvHeight);
-  renderizeScores(context, status, currCanvHeight);
-  renderizeNet(context, currCanvHeight);
+  emptyCourt(context);
+  renderizeScores(context, status);
+  renderizeNet(context);
   status.players.forEach((player) => renderizePlayer(context, player));
   renderizeBall(context, status.ball);
 }
