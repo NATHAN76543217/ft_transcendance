@@ -411,6 +411,25 @@ export class MatchesGateway
       } as IBall);
   }
 
+  updateWinLossCount = async (userId: number, won: boolean) => {
+    const user = await this.usersService.getUserById(userId);
+    if (user) {
+      delete user.status;
+      delete user.roomId;
+      if (won) {
+        this.usersService.updateUser(userId, {
+          ...user,
+          nbWin: user.nbWin + 1
+        })
+      } else {
+        this.usersService.updateUser(userId, {
+          ...user,
+          nbLoss: user.nbLoss + 1
+        })
+      }
+    }
+  }
+
   onDisconnectClients(roomId: number) {
     const room = this.getRoom(roomId);
 
@@ -419,8 +438,20 @@ export class MatchesGateway
       scores: [...room.state.scores]
     });
 
-    room.playerIds.forEach((playerId) => {
+    let exaequo = false;
+    if (room.state.scores[0] === room.state.scores[1]) {
+      exaequo = true;
+    }
 
+    room.playerIds.forEach((playerId) => {
+      if (!exaequo) {
+        const player = room.getPlayer(playerId);
+        if (player.side === 'left') {
+          this.updateWinLossCount(playerId, room.state.scores[0] > room.state.scores[1])
+        } else if (player.side === 'right') {
+          this.updateWinLossCount(playerId, room.state.scores[1] > room.state.scores[0])
+        }
+      }
       this.logger.debug(
         `[MATCHES GATEWAY] Emit GAME_END to client ${playerId}`,
       );
