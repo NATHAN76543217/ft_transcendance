@@ -56,7 +56,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   onEventSocketConnection = (socket: Socket) => {
-    console.log("Registering event-socket callbacks...");
+    // console.log("Registering event-socket callbacks...");
 
     // TODO: Define data dtos here to prevent missuse
     // TODO: Send numbers from the backend instead of converting
@@ -141,12 +141,12 @@ class App extends React.Component<AppProps, AppState> {
       }
     });
 
-    console.log("Registered event-socket callbacks!");
+    // console.log("Registered event-socket callbacks!");
   };
 
   onMatchSocketConnection = (socket: Socket) => {
     // TODO: Register event callbacks here
-    console.log("TODO: Game socket connected!");
+    // console.log("TODO: Game socket connected!");
   };
 
   setUserInit = (user?: IUser) => {
@@ -353,22 +353,19 @@ class App extends React.Component<AppProps, AppState> {
     user_id: number,
     newType: UserRelationshipType
   ) => {
-console.log('updateOneRelationshipType', user_id, newType, this.state.relationshipsList)
+// console.log('updateOneRelationshipType', user_id, newType, this.state.relationshipsList)
 
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
       return Number(relation.user.id) === Number(user_id);
     });
-    console.log('index', index)
     if (index !== -1) {
       if (Number(newType) !== Number(UserRelationshipType.null)) {
         a[index].relationshipType = newType;
       } else {
         a.splice(index, 1);
       }
-      console.log('index !== -1 - a: ', a)
       this.setState({ relationshipsList: a });
-      console.log(`State after updating realtionships: ${this.state}`);
     } else if (newType !== UserRelationshipType.null) {
       try {
         const dataUser = await axios.get("/api/users/" + user_id);
@@ -379,12 +376,10 @@ console.log('updateOneRelationshipType', user_id, newType, this.state.relationsh
         a.sort((user1: AppUserRelationship, user2: AppUserRelationship) =>
           user1.user.name.localeCompare(user2.user.name)
         );
-      console.log('index === -1 - a: ', a)
 
         this.setState({ relationshipsList: a });
         // TODO: It seems like this should be clearing the rest of the state?
         // Normally I use object destruction {...this.state} to keep previous state
-        console.log(`State after updating realtionships: ${this.state}`);
       } catch (e) {
         console.log(e);
       }
@@ -477,7 +472,7 @@ console.log('updateOneRelationshipType', user_id, newType, this.state.relationsh
     user_id: number,
     newType: ChannelRelationshipType = ChannelRelationshipType.Null
   ) => {
-    console.log('updateChannelRelationship')
+    // console.log('updateChannelRelationship')
     if (this.state.user) {
       let a = this.state.user.channels.slice();
       let index = a.findIndex((channel: any) => {

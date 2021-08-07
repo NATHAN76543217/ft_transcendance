@@ -162,7 +162,7 @@ function FriendItem({
   };
 
   return (
-    <li className="flex h-16 border-t-2 border-gray-200">
+    <li key={id} className="flex h-16 border-t-2 border-gray-200">
       {displayProfilePicture()}
       <div className="inline-block my-auto align-middle">
         <span className="first-letter:uppercase">{friendName}</span>

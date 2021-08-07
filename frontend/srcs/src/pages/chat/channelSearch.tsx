@@ -40,7 +40,7 @@ const onSubmit = async (
 ) => {
   try {
     const data = await axios.get("/api/channels?name=" + values.channelName);
-    console.log("ChannelSearch", data);
+    // console.log("ChannelSearch", data);
     let a = data.data.slice();
     a.sort((channel1: Channel, channel2: Channel) =>
       channel1.name.localeCompare(channel2.name)
@@ -106,6 +106,7 @@ function ChannelSearch() {
     updateOneRelationship(id);
   };
 
+  let baseKey = -1;
   return (
     <div className="flex flex-col items-center flex-grow">
       <ChannelSearchForm onSubmit={localOnSubmit} />
@@ -130,7 +131,7 @@ function ChannelSearch() {
               </li>
             );
           } else {
-            return <div></div>;
+            return <li key={baseKey--}></li>;
           }
         })}
       </ul>

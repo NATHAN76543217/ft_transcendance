@@ -47,7 +47,7 @@ export default function Login({ match }: LoginPageProps) {
         history.push("/login/2fa");
       } else if (data.user !== undefined) {
         const userData: IUser = data.user;
-        console.log("Setting user data: ", data.user);
+        // console.log("Setting user data: ", data.user);
 
         setUserInit(userData);
 
@@ -59,11 +59,11 @@ export default function Login({ match }: LoginPageProps) {
         // const url = match.params.redirPath
         // ? urljoin("/", match.params.redirPath)
         // : "/";
-        console.log(`Redirecting to ${url}...`);
+        // console.log(`Redirecting to ${url}...`);
         history.push(url);
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
           const details = error.response.data as ExceptionData;
