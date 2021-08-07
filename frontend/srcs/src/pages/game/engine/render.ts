@@ -2,8 +2,7 @@ import { Ball } from "../../../models/game/Ball";
 import { IPlayer } from "../../../models/game/Player";
 import { GameStateDto } from "../../../models/game/GameState.dto";
 import { IVector2D } from "../../../models/game/Vector2D";
-import { canvasHeight, canvasWidth, whRatio } from "../../../models/game/canvasDims";
-import { ruleOfThree } from "./engine"
+import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
 
 function emptyCourt(context: CanvasRenderingContext2D) {
   context.fillStyle = "BLACK";

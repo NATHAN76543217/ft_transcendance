@@ -7,12 +7,11 @@ import { GameState, GameStatus } from "../../../models/game/GameState";
 import { ClientMessages, ServerMessages } from "../dto/messages";
 import { getDefaultBall, pongEngine } from "../engine/engine";
 import { renderize } from "../engine/render";
-import { canvasHeight, canvasWidth, whRatio } from "../../../models/game/canvasDims";
+import { canvasHeight, canvasWidth } from "../../../models/game/canvasDims";
 import { Events } from "../../../models/channel/Events";
 import { Player } from "../../../models/game/Player";
 import { Ball, IBall } from "../../../models/game/Ball";
 import Popup from "reactjs-popup";
-import { ruleOfThree } from "../engine/engine"
 import { GameResults } from "../../../models/game/GameResults";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
@@ -46,7 +45,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctx = useRef<CanvasRenderingContext2D | null>(null);
 
-  const widthMargin = 50;
+  // const widthMargin = 50;
 
   const [finalData, setFinalData] = useState<GameResults>({
     playersId: [0, 0],
