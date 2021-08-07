@@ -423,12 +423,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   };
 
   const displayWinOrLosePicture = () => {
-    const path = finalData.playersId[1] === user?.id
-      ? "/api/uploads/lose.png"
-      : "/api/uploads/win.png";
+    const path = finalData.scores[0] === finalData.scores[1]
+      ? "/api/uploads/exaequo.png"
+      : (finalData.playersId[1] === user?.id
+        ? "/api/uploads/lose.png"
+        : "/api/uploads/win.png")
     return (
       <img
-        className="object-contain w-32 h-full"
+        className="object-contain w-32 h-100%"
         src={path}
         alt="win or lose"
       />
@@ -457,15 +459,15 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     if (finalData.scores[0] > finalData.scores[1]) {
       return (
         <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
-            Winner
-            <br />
-            {finalData.playersName[0]}
-          </div>
+          Winner
+          <br />
+          {finalData.playersName[0]}
+        </div>
       )
     } else {
       return (
         <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
-            Ex aequo
+          Ex aequo
         </div>
       )
     }
