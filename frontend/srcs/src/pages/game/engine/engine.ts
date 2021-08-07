@@ -7,37 +7,37 @@ export function ruleOfThree(target: number, currCanvHeight: number) {
   return (target * currCanvHeight) / canvasHeight;
 }
 
-export function getDefaultBall(currCanvHeight: number) : Ball {
+export function getDefaultBall() : Ball {
   return new Ball(
     {
-      x: ruleOfThree(defaultBall.x, currCanvHeight),
-      y: ruleOfThree(defaultBall.y, currCanvHeight)
+      x: defaultBall.x,
+      y: defaultBall.y
     },
     {
-      x: ruleOfThree(defaultBall.dir.x, currCanvHeight),
-      y: ruleOfThree(defaultBall.dir.y, currCanvHeight)
+      x: defaultBall.dir.x,
+      y: defaultBall.dir.y
     },
-    ruleOfThree(defaultBall.velocity, currCanvHeight),
-    Math.max(ruleOfThree(defaultBall.rad, currCanvHeight), 7)
+    defaultBall.velocity,
+    defaultBall.rad
   );
 }
 
-export function pongEngine(st: GameStateDto, currCanvHeight: number) {
+export function pongEngine(st: GameStateDto) {
   // Check if the ball scored on left side
   if (st.ball.x - st.ball.rad < 0) {
     st.scores[1]++;
-    st.ball = getDefaultBall(currCanvHeight);
+    st.ball = getDefaultBall();
     //st.ball.dir.x = -st.ball.dir.x;
   }
   // Check if the ball scored on right side
-  else if (st.ball.x + st.ball.rad > ruleOfThree(canvasWidth, currCanvHeight)) {
+  else if (st.ball.x + st.ball.rad > canvasWidth) {
     st.scores[0]++;
-    st.ball = getDefaultBall(currCanvHeight);
+    st.ball = getDefaultBall();
     st.ball.dir.x = -st.ball.dir.x;
   }
 
   // Check for ball rebounds in court sides
-  if (st.ball.y - st.ball.rad < 0 || st.ball.y + st.ball.rad > ruleOfThree(canvasHeight, currCanvHeight)) // not need this rule of 3 cause is always == currCanvHeight
+  if (st.ball.y - st.ball.rad < 0 || st.ball.y + st.ball.rad > canvasHeight)
     st.ball.dir.y = -st.ball.dir.y;
 
   // Mouse the ball
@@ -45,13 +45,13 @@ export function pongEngine(st: GameStateDto, currCanvHeight: number) {
   st.ball.y += st.ball.dir.y;
 
   const side: Side =
-    st.ball.x + st.ball.rad < (ruleOfThree(canvasWidth, currCanvHeight)) / 2 ? "left" : "right";
+    st.ball.x + st.ball.rad < canvasWidth / 2 ? "left" : "right";
 
   st.players.find((player) => {
     const isColiding = player.side === side && st.ball.isColiding(player);
 
     if (isColiding) {
-      st.ball.rebound(player, currCanvHeight);
+      st.ball.rebound(player);
     }
     return isColiding;
   });
