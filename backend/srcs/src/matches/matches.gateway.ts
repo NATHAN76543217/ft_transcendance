@@ -66,8 +66,7 @@ export const defaultRuleset: Ruleset = {
 @Injectable()
 @WebSocketGateway(0, { namespace: '/matches' })
 export class MatchesGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private readonly server: Server;
 
@@ -80,14 +79,14 @@ export class MatchesGateway
   /** Current player's socket id mapped by player's id */
   private playerSockets: Map<number, string> = new Map();
   /** Key - Value array mapping player's socket by player's id */
-  public matchmakingQueue: Array<[number, string]> = []; 
+  public matchmakingQueue: Array<[number, string]> = [];
 
   constructor(
     @Inject(forwardRef(() => MatchesService))
     private readonly matchesService: MatchesService,
     private readonly authenticationService: AuthenticationService,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   private getRoom(key: number) {
     const room: Room = this.rooms.get(key);
@@ -143,8 +142,7 @@ export class MatchesGateway
       //await this.onUserDisconnect(socket as SocketWithPlayer);
       await this.onLeaveRoom(socket as SocketWithPlayer);
       this.logger.debug(
-        `Authenticated user ${
-          (socket as SocketWithPlayer).user.id
+        `Authenticated user ${(socket as SocketWithPlayer).user.id
         } disconnected`,
       );
     } else {
@@ -194,7 +192,7 @@ export class MatchesGateway
     let role: GameRole;
 
     this.logger.debug(`[MATCHES GATEWAY] players: ${[...room.playerIds]}`);
-    
+
     if (room.playerIds.includes(socket.user.id)) {
       role = GameRole.Player;
       this.playerSockets.set(socket.user.id, socket.id);
@@ -216,8 +214,8 @@ export class MatchesGateway
 
     socket.matchId = body.id;
     this.server
-    .to(socket.id)
-    .emit(ClientMessages.RECEIVE_PLAYERS, [...room.state.players.values()]);
+      .to(socket.id)
+      .emit(ClientMessages.RECEIVE_PLAYERS, [...room.state.players.values()]);
     this.server.to(socket.id).emit(ClientMessages.JOINED, data);
 
   }
@@ -328,7 +326,7 @@ export class MatchesGateway
       room.onStartGame();
     }
   }
-///////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
   @SubscribeMessage(ServerMessages.PLAYER_GIVEUP)
   handlePlayerGiveUp(@ConnectedSocket() client: SocketWithPlayer) {
     const room = this.getRoom(client.matchId);
@@ -349,7 +347,7 @@ export class MatchesGateway
     // }
   }
 
-  onClientStartGame(matchId : number) {
+  onClientStartGame(matchId: number) {
     const room = this.getRoom(matchId);
 
     room.playerIds.forEach((playerId) => {
@@ -378,11 +376,12 @@ export class MatchesGateway
   ) {
     if (client.matchId !== undefined) {
       this.logger.debug(`[MATCHES GATEWAY] On leave room: match id: ${client.matchId}`);
-      const room = this.getRoom(client.matchId);
-
-      client.leave(room.getId());
-      room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
-
+      try {
+        const room = this.getRoom(client.matchId);
+        client.leave(room.getId());
+        room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
+      } catch (error) {console.log(error)}
+        
       this.logger.debug(
         `[MATCHES GATEWAY] player ${client.user.id} has disconected to the game`,
       );
@@ -395,16 +394,16 @@ export class MatchesGateway
     this.server
       .to(roomId.toFixed())
       .emit(ClientMessages.RECEIVE_STATUS, state.status);
-    
+
     this.server
-       .to(roomId.toFixed())
-       .emit(ClientMessages.RECEIVE_PLAYERS, [...state.players.values()]);
+      .to(roomId.toFixed())
+      .emit(ClientMessages.RECEIVE_PLAYERS, [...state.players.values()]);
 
     this.server
       .to(roomId.toFixed())
       .emit(ClientMessages.RECEIVE_SCORES, state.scores);
 
-      this.server
+    this.server
       .to(roomId.toFixed())
       .emit(ClientMessages.RECEIVE_BALL, {
         ...(state.ball as IBall), defaultBall: undefined
@@ -431,33 +430,35 @@ export class MatchesGateway
   }
 
   onDisconnectClients(roomId: number) {
-    const room = this.getRoom(roomId);
+    try {
+      const room = this.getRoom(roomId);
 
-    this.matchesService.updateMatch(roomId, {
-      playerIds: [...room.playerIds],
-      scores: [...room.state.scores]
-    });
+      this.matchesService.updateMatch(roomId, {
+        playerIds: [...room.playerIds],
+        scores: [...room.state.scores]
+      });
 
-    let exaequo = false;
-    if (room.state.scores[0] === room.state.scores[1]) {
-      exaequo = true;
-    }
-
-    room.playerIds.forEach((playerId) => {
-      if (!exaequo) {
-        const player = room.getPlayer(playerId);
-        if (player.side === 'left') {
-          this.updateWinLossCount(playerId, room.state.scores[0] > room.state.scores[1])
-        } else if (player.side === 'right') {
-          this.updateWinLossCount(playerId, room.state.scores[1] > room.state.scores[0])
-        }
+      let exaequo = false;
+      if (room.state.scores[0] === room.state.scores[1]) {
+        exaequo = true;
       }
-      this.logger.debug(
-        `[MATCHES GATEWAY] Emit GAME_END to client ${playerId}`,
-      );
-      this.server.to(this.playerSockets.get(playerId)!).emit(ClientMessages.GAME_END);
-      this.playerSockets.delete(playerId);
-    });
-    this.rooms.delete(roomId);
+
+      room.playerIds.forEach((playerId) => {
+        if (!exaequo) {
+          const player = room.getPlayer(playerId);
+          if (player.side === 'left') {
+            this.updateWinLossCount(playerId, room.state.scores[0] > room.state.scores[1])
+          } else if (player.side === 'right') {
+            this.updateWinLossCount(playerId, room.state.scores[1] > room.state.scores[0])
+          }
+        }
+        this.logger.debug(
+          `[MATCHES GATEWAY] Emit GAME_END to client ${playerId}`,
+        );
+        this.server.to(this.playerSockets.get(playerId)!).emit(ClientMessages.GAME_END);
+        this.playerSockets.delete(playerId);
+      });
+      this.rooms.delete(roomId);
+    } catch (error) { console.log(error) }
   }
 }
