@@ -64,6 +64,8 @@ export const defaultRuleset: Ruleset = {
   duration: 3,
   rounds: 11,
   size: 2,
+  speedMode: false,
+  downsize: false
 };
 
 @Injectable()

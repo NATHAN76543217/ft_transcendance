@@ -4,7 +4,7 @@ import { canvasDims } from './models/canvasDims';
 import { GameState } from './models/GameRoom';
 import { Side } from './models/Player';
 
-export function pongEngine(st: GameState) {
+export function pongEngine(st: GameState, speedMode: boolean, downsize: boolean) {
   // Check if the ball scored on left side
   if (st.ball.x - st.ball.rad < 0 && st.scores[1] >= 0) {
     st.scores[1]++;
@@ -18,7 +18,7 @@ export function pongEngine(st: GameState) {
         y: defaultBall.dir.y
       },
       defaultBall.velocity,
-      defaultBall.rad
+      defaultBall.rad - ((defaultBall.rad / 20) * Number(downsize))
     );
   }
   // Check if the ball scored on right side
@@ -34,7 +34,7 @@ export function pongEngine(st: GameState) {
         y: defaultBall.dir.y
       },
       defaultBall.velocity,
-      defaultBall.rad
+      defaultBall.rad - ((defaultBall.rad / 20) * Number(downsize))
     );
   }
 
@@ -67,7 +67,7 @@ export function pongEngine(st: GameState) {
         st.ball.dir.x = sense * st.ball.velocity * Math.cos(normAngle);
         st.ball.dir.y = st.ball.velocity * Math.sin(normAngle);
 
-        st.ball.velocity += 0.1;
+        st.ball.velocity += 0.1 + (0.1 * Number(speedMode));
 
         return true;
       }

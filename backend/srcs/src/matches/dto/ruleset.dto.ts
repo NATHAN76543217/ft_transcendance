@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, Max } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, Max } from 'class-validator';
 
 export class Ruleset {
   @IsOptional()
@@ -15,4 +15,12 @@ export class Ruleset {
   @IsNumber()
   // TODO: @Min and @Max
   size?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  speedMode?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  downsize?: boolean;
 }

@@ -106,7 +106,11 @@ function GameCreate() {
 
     console.log("opponent id", values.opponent_id);
     const body: CreateGameDto = {
-      ruleset: { rounds: values.rounds },
+      ruleset: {
+        rounds: values.rounds,
+        speedMode: speedMode,
+        downsize: downsizing
+      },
       guests: [values.opponent_id],
     };
     try {

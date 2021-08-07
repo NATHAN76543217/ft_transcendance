@@ -233,7 +233,7 @@ export class Room implements GameRoom {
       this.lastRunning = Date.now();
 
       this.engineIntervalHandle = setInterval(() => {
-        pongEngine(this.state);
+        pongEngine(this.state, this.ruleset.speedMode, this.ruleset.downsize);
         if (
           this.state.scores[0] >= this.ruleset.rounds ||
           this.state.scores[1] >= this.ruleset.rounds
