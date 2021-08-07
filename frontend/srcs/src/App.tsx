@@ -147,8 +147,7 @@ console.log('--------------- Events.Client.UserMessage ----------------', messag
               "Received cancel to",
               message.data,
               "from",
-              message.sender_id
-              , message);
+              message.sender_id);
             }
         this.updateOneRelationshipGameInvite(message);
       }

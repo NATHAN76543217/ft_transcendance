@@ -152,9 +152,6 @@ export class ChannelsGateway
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateRelationshipDto,
   ) {
-
-console.log('UpdateUserRelation', body)
-
     const inf = socket.user.id < body.user_id;
     const user1_id = inf ? socket.user.id.toFixed() : body.user_id.toString();
     const user2_id = inf ? body.user_id.toString() : socket.user.id.toFixed();
@@ -258,8 +255,6 @@ console.log('UpdateUserRelation', body)
     @ConnectedSocket() socket: SocketWithUser,
     @MessageBody() body: UpdateChannelRelationshipDto,
   ) {
-
-    console.log('updateChannelRelationship', body)
     try {
         await this.channelRelationshipsService.getChannelRelationshipByIds(
           body.channel_id,
@@ -483,12 +478,7 @@ console.log('UpdateUserRelation', body)
     const author = channel.users.find((user) => {
       return user.user_id === socket.user.id;
     });
-    // const canSend = (author.type & ChannelRelationshipType.Member ||
-    //   author.type & ChannelRelationshipType.Admin ||
-    //   author.type & ChannelRelationshipType.Owner)
-    // const author = socket.user;
 
-    // const abilities = this.abilityFactory.createForUser(author);
     const abilities =
       this.messageAbilityFactory.createForChannelRelationship(author);
 
@@ -497,7 +487,6 @@ console.log('UpdateUserRelation', body)
 
     if (
       body.type === MessageType.Text &&
-      // canSend
       abilities.can(ChannelMessageAction.Create, channel)
     ) {
       const message = await this.messageService.createMessage(
@@ -527,16 +516,12 @@ console.log('UpdateUserRelation', body)
       type: messageDto.type,
     };
 
-console.log('...........sendUserMessage - ', message)
-
     if (!isNaN(message.receiver_id)) {
-      console.log('EMIIIIIIIIIIIT')
       this.server
-        .to(message.receiver_id.toFixed())
-        .emit(Events.Client.UserMessage, message);
-
-      this.server
-        .to(message.sender_id.toFixed())
+        .to([
+          message.receiver_id.toFixed(),
+          message.sender_id.toFixed(),
+        ])
         .emit(Events.Client.UserMessage, message);
     }
   }
