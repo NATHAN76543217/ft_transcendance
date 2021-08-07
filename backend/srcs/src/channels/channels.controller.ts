@@ -31,6 +31,8 @@ import {
   ChannelMessageCaslAbilityFactory,
 } from './channel-message-casl-ability.factory';
 import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
+
+//REVIEW Remove dirty comments
 @Controller('channels')
 // @UseInterceptors(ClassSerializerInterceptor)
 @UseGuards(JwtTwoFactorGuard)
