@@ -162,10 +162,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         received = 0;
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
+            if (updateIntervalHandle === undefined) {
+              launchEngine();
+            }
             animationId = requestAnimationFrame(frame);
           } else {
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);
+            updateIntervalHandle = undefined;
             if (state.status === GameStatus.FINISHED) {
               animationId = undefined;
             }
@@ -174,14 +178,17 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       }
     };
 
+    const launchEngine = () => {
+      updateIntervalHandle = setInterval(() => {
+        pongEngine(state);
+      }, 3);
+    };
+
     const onMatchStart = () => {
       console.log("[pong.tsx] Game has started");
       appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
       setWaitingScreen(false);
-      updateIntervalHandle = setInterval(() => {
-        //console.log(`[pong.tsx] ball rad: ${state.ball.rad}`);
-        pongEngine(state);
-      }, 3);
+      launchEngine();
     };
 
     const setEndGameData = async (winnerIndex: number) => {

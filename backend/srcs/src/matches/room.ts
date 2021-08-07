@@ -224,6 +224,7 @@ export class Room implements GameRoom {
   }
 
   onGameRunning() {
+    this.state.elapsed = 0;
     if (this.state.status === GameStatus.RUNNING) {
       this.matchesGateway.onClientStartGame(this.matchId);
 
@@ -257,8 +258,7 @@ export class Room implements GameRoom {
         clearInterval(this.engineIntervalHandle);
         clearInterval(this.updateIntervalHandle);
 
-        // TO DO: Use state elapsed here but is NaN but 
-      }, this.DEBUG(this.ruleset.duration /*- this.state.elapsed*/ * 60, "timeout for end the game is") * 1000);
+      }, this.DEBUG((this.ruleset.duration - this.state.elapsed) * 60, "timeout for end the game is") * 1000);
     }
   }
 
