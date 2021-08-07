@@ -126,29 +126,17 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     socket.on(Events.Client.UserMessage, (message: Message) => {
-
-console.log('--------------- Events.Client.UserMessage ----------------', message)
-
       if (
         message.type === MessageType.GameInvite ||
         message.type === MessageType.GameCancel
       ) {
         if (message.type === MessageType.GameInvite) {
 
-          console.log(
-            "Received invitation to",
-            message.data,
-            "from",
-            message.sender_id);
+          console.log(`Received invitation to ${message.data} from ${message.sender_id}`);
           }
           if (message.type === MessageType.GameCancel) {
-
-            console.log(
-              "Received cancel to",
-              message.data,
-              "from",
-              message.sender_id);
-            }
+            console.log(`Received cancel to ${message.data} from ${message.sender_id}`);
+          }
         this.updateOneRelationshipGameInvite(message);
       }
     });

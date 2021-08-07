@@ -118,19 +118,6 @@ function GameCreate() {
     }
   };
 
-  /* const displayCreationValidationMessage = (
-    showRegisterValidation: boolean
-  ) => {
-    
-    if (showRegisterValidation) {
-      return (
-        <div className="absolute bottom-0 w-full pr-12 font-bold text-center text-green-600">
-          Game creation confirmed
-        </div>
-      );
-    }
-  }; */
-
   const getNbOnlineFriends = () => {
     let nbOnlineFriends = 0;
     relationshipsList.map((relation) => {
@@ -176,7 +163,7 @@ function GameCreate() {
                 </li>
               );
             } else {
-              return <div></div>;
+              return <li key={relation.user.id}></li>;
             }
           })}
         </ul>
