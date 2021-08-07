@@ -95,7 +95,12 @@ export default class MatchesService {
   }
 
   public async updateMatch(id: number, match: UpdateMatchDto) {
-    await this.matchesRepository.update(id, { player_ids: match.playerIds , endAt: new Date()});
+    await this.matchesRepository.update(id,
+      {
+        player_ids: match.playerIds,
+        scores: match.scores,
+        endAt: new Date()
+      });
     const updatedMatch = this.getMatchById(id);
     if (updatedMatch) return updatedMatch;
     throw new MatchNotFound(id);
