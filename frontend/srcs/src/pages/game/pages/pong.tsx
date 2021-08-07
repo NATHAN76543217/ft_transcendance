@@ -453,15 +453,29 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     }
   }
 
-  const displayFinishedBoard = () => {
-    return (
-      <div className='grid justify-center'>
-        <div className="inline-block w-72 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
-          <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+  const displayWinnerName = () => {
+    if (finalData.scores[0] > finalData.scores[1]) {
+      return (
+        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
             Winner
             <br />
             {finalData.playersName[0]}
           </div>
+      )
+    } else {
+      return (
+        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+            Ex aequo
+        </div>
+      )
+    }
+  }
+
+  const displayFinishedBoard = () => {
+    return (
+      <div className='grid justify-center'>
+        <div className="inline-block w-72 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+          {displayWinnerName()}
           {displayScores()}
           <div className="flex w-auto justify-center space-x-8 rounded-md lg:space-x-24">
             {displayWinOrLosePicture()}
