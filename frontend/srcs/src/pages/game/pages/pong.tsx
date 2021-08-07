@@ -17,9 +17,6 @@ import { GameResults } from "../../../models/game/GameResults";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 import Loading from "../../../components/loading/loading";
-import { PlayerStatusChangedDto } from "../../../models/game/PlayerStatusChanged.dto";
-import { PlayerStatus } from "../../../models/game/PlayerStatus";
-import Game from "./game";
 
 export type PongPageParams = {
   id: string;
@@ -315,11 +312,11 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const [open, setOpen] = useState(true);
   const closeModal = () => setOpen(false);
 
-  const quitGame = () => {
-    setGiveUpDisplay(false);
-    closeModal();
-    // history.push('/game');
-  }
+  // const quitGame = () => {
+  //   setGiveUpDisplay(false);
+  //   closeModal();
+  //   // history.push('/game');
+  // }
 
   const giveUpGame = () => {
     matchSocket?.emit(ServerMessages.PLAYER_GIVEUP);

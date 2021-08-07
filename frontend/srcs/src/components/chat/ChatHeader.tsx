@@ -3,7 +3,6 @@ import React from "react";
 import { useContext } from "react";
 import { useHistory } from "react-router";
 import { NavLink } from "react-router-dom";
-import App from "../../App";
 import AppContext from "../../AppContext";
 import ChannelInviteDto from "../../models/channel/ChannelInvite.dto";
 import { ChannelRelationshipType } from "../../models/channel/ChannelRelationship";
@@ -18,7 +17,6 @@ import {
   UserStatus,
 } from "../../models/user/IUser";
 import chatContext from "../../pages/chat/chatContext";
-import { ServerMessages } from "../../pages/game/dto/messages";
 import ChannelInviteForm from "../Forms/channelInviteForm";
 import { TooltipIconButton } from "../utilities/TooltipIconButton";
 import { ChatTitle } from "./ChatTitle";
