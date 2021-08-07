@@ -67,7 +67,7 @@ export class School42Strategy extends PassportStrategy(Strategy, 'school42') {
             nbTry = -1;
           } catch (e) {
             if (e?.code === PostgresErrorCode.UniqueViolation) {
-              // throw new UserNameAlreadyExistsException(profile.login);
+              // TODO throw new UserNameAlreadyExistsException(profile.login);
             }
             nbTry++;
           }

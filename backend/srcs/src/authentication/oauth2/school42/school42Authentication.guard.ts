@@ -6,13 +6,12 @@ export class School42AuthenticationGuard extends AuthGuard('school42') {
   handleRequest(err: Error, user: any, info: any) {
     // You can throw an exception based on either "info" or "err" arguments
     if (
-      info &&
-      info.message ===
+      info
+      && info.message ===
         'The resource owner or authorization server denied the request.'
     )
-      throw new UnauthorizedException('Denied by resource owner');
-    //TODO switch 'failure' to a throw
-    if (err || !user) {
+		return "failure";
+    else if (err || !user) {
       throw err || new UnauthorizedException();
     }
     return user;
