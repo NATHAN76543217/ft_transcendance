@@ -44,7 +44,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             if (profile.name.givenName == undefined) {
               throw new UserNameAlreadyExistsException(undefined);
             }
-            let name = profile.name.givenName.substring(0, 13);
+            let name: string = profile.name.givenName.substring(0, 13).toLowerCase();
             if (nbTry) {
               name = name + nbTry;
             }
