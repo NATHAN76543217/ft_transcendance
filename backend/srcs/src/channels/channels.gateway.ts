@@ -571,12 +571,14 @@ export class ChannelsGateway
       channel_id: id.toString(),
       user_id: '-1',
     });
-    const socketIds = await this.server.in(roomName).allSockets();
+    this.server.in(roomName).socketsLeave(roomName);
+    
+    // const socketIds = await this.server.in(roomName).allSockets();
 
-    // Force all sockets to leave the deleted room
-    socketIds.forEach((socketId) => {
-      this.server.sockets.sockets.get(socketId).leave(roomName);
-    });
+    // // Force all sockets to leave the deleted room
+    // socketIds.forEach((socketId) => {
+    //   this.server.sockets.sockets.get(socketId).leave(roomName);
+    // });
   }
 
   async connectChannel(socket: SocketWithUser, channel_id: number) {

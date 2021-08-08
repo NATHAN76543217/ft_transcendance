@@ -70,7 +70,6 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       canvasRef.current === null ||
       ctx.current === null
     ) {
-      console.log("return early in useEffect Pong");
       return;
     }
 
@@ -160,14 +159,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
       state.ball.defaultBall = getDefaultBall();
 
-      console.log("[pong.tsx] Receiving ball ...");
+      // console.log("[pong.tsx] Receiving ball ...");
       if (received === (Received.STATUS | Received.PLAYERS | Received.SCORES)) {
         received = 0;
-        console.log("[pong.tsx] Animation id is not 0");
+        // console.log("[pong.tsx] Animation id is not 0");
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
             if (updateIntervalHandle === undefined) {
-              console.log("[pong.tsx] Launch animation frame");
+              // console.log("[pong.tsx] Launch animation frame");
               animationId = requestAnimationFrame(frame);
               launchEngine();
             } else if (paused === true) {

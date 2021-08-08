@@ -17,6 +17,7 @@ import ChannelsService from './channels.service';
 import { CreateChannelDto } from './dto/createChannel.dto';
 import { UpdateChannelDto } from './dto/updateChannel.dto';
 
+import UserNotFound from '../users/exception/UserNotFound.exception';
 import UpdateChannelRelationshipDto from './dto/UpdateChannelRelationship.dto';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
 import { ChannelRelationshipType } from './relationships/channel-relationship.type';
@@ -31,6 +32,8 @@ import {
   ChannelMessageCaslAbilityFactory,
 } from './channel-message-casl-ability.factory';
 import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
+import UsersService from 'src/users/users.service';
+import { UserRole } from 'src/users/utils/userRole';
 
 //REVIEW Remove dirty comments
 @Controller('channels')
@@ -45,9 +48,10 @@ export default class ChannelsController {
 
   constructor(
     private readonly channelsService: ChannelsService,
+    private readonly usersService: UsersService,
     private readonly abilityFactory: ChannelCaslAbilityFactory,
     private readonly messageAbilityFactory: ChannelMessageCaslAbilityFactory,
-  ) {}
+  ) { }
 
   @Get(':id/messages')
   async getMessagesById(
@@ -56,26 +60,33 @@ export default class ChannelsController {
     @Query('beforeId') beforeId: string,
     @Query('afterId') afterId: string,
   ) {
-    const channel = await this.channelsService.getChannelById(
-      Number(channelId),
-    );
-    const relation = channel.users.find((user) => {
-      return user.user_id === req.user.id;
-    });
-    // const abilities = this.abilityFactory.createForUser(req.user);
-    const abilities =
-      this.messageAbilityFactory.createForChannelRelationship(relation);
-
-    if (abilities.can(ChannelMessageAction.Read, channel)) {
-      return this.channelsService.getMessagesById(
-        channel.id,
-        beforeId ? Number(beforeId) : undefined,
-        afterId ? Number(afterId) : undefined,
+    try {
+      const channel = await this.channelsService.getChannelById(
+        Number(channelId),
       );
-    } else {
+      const relation = channel.users.find((user) => {
+        return user.user_id === req.user.id;
+      });
+      // const abilities = this.abilityFactory.createForUser(req.user);
+      if (!relation) {
+        return [];
+      }
+      const abilities =
+        this.messageAbilityFactory.createForChannelRelationship(relation);
+
+      if (abilities.can(ChannelMessageAction.Read, channel)) {
+        return this.channelsService.getMessagesById(
+          channel.id,
+          beforeId ? Number(beforeId) : undefined,
+          afterId ? Number(afterId) : undefined,
+        );
+      } else {
+        return [];
+      }
+      throw new HttpException('TODO: Unauthorized read', 400);
+    } catch (error) {
       return [];
     }
-    throw new HttpException('TODO: Unauthorized read', 400);
   }
 
   // TODO: Check if user has a positive relation and CASL read permission
@@ -100,31 +111,41 @@ export default class ChannelsController {
   @Get()
   //@UseGuards(PoliciesGuard)
   //@CheckPolicies(new ReadChannelPolicyHandler())
-  getChannels(@Req() req: RequestWithUser, @Query('name') name: string) {
-    if (!name) {
-      name = '';
-    }
-    let channels = this.channelsService.getAllChannels(name);
-    channels.then((array) => {
-      let len = array.length;
-      while (--len >= 0) {
-        let users = array[len].users;
-        let relationType = ChannelRelationshipType.Null;
-        users.map((elem) => {
-          if (req.user.id === elem.user_id) {
-            relationType = elem.type;
-          }
-        });
-        if (
-          relationType === ChannelRelationshipType.Banned ||
-          (array[len].mode === ChannelMode.private &&
-            relationType === ChannelRelationshipType.Null)
-        ) {
-          array.splice(len, 1);
-        }
+  async getChannels(@Req() req: RequestWithUser, @Query('name') name: string) {
+    try {
+      const user = await this.usersService.getUserById(req.user.id);
+
+
+      const userRole = user ? user.role : UserRole.User;
+      const isAdmin = (userRole === UserRole.Owner || userRole === UserRole.Admin)
+
+      if (!name) {
+        name = '';
       }
-    });
-    return channels;
+      let channels = this.channelsService.getAllChannels(name);
+      channels.then((array) => {
+        let len = array.length;
+        while (--len >= 0) {
+          let users = array[len].users;
+          let relationType = ChannelRelationshipType.Null;
+          users.map((elem) => {
+            if (req.user.id === elem.user_id) {
+              relationType = elem.type;
+            }
+          });
+          if (!isAdmin &&
+            (relationType === ChannelRelationshipType.Banned ||
+              (array[len].mode === ChannelMode.private &&
+                relationType === ChannelRelationshipType.Null))
+          ) {
+            array.splice(len, 1);
+          }
+        }
+      });
+      return channels;
+    } catch (error) {
+      throw new UserNotFound(req.user.id);
+    }
   }
 
   // @Get()

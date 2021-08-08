@@ -210,18 +210,17 @@ function AdminChannelElement(props: ChannelElementProps) {
     props.myRole,
     adminChannelElementInfo,
     setAdminChannelElementInfo,
+    contextValue.user?.channels
   ]);
 
-  // useEffect(() => {
-  //   const test = () => {
-  //     // setAdminChannelElementInfo({
-  //     //   ...adminChannelElementInfo,
-  //     // })
-  //   }
-  //   test()
-  // }, [adminChannelElementInfo.channelRelationshipsList])
+  useEffect(() => {
+      setchannelRelationshipsList(
+        props.id,
+        adminChannelElementInfo,
+        setAdminChannelElementInfo
+      );
+  }, [contextValue.user?.channels, adminChannelElementInfo, props.id])
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const updateOneRelationship = async (
     channel_id: number,
@@ -251,7 +250,7 @@ function AdminChannelElement(props: ChannelElementProps) {
     adminChannelElementInfo: ChannelElementStates,
     setAdminChannelElementInfo: any
   ) => {
-    console.log(`set Role, user-id: ${user_id}, channel_id: ${channel_id}, type: ${type}`)
+    // console.log(`set Role, user-id: ${user_id}, channel_id: ${channel_id}, type: ${type}`)
     contextValue.eventSocket?.emit(Events.Server.UpdateChannelRelation, {
       channel_id: channel_id,
       user_id: user_id,
@@ -362,8 +361,7 @@ function AdminChannelElement(props: ChannelElementProps) {
             {adminChannelElementInfo.channelRelationshipsList.map(
               (relation) => {
                 let translatedRole = translateRelationTypeToRole(relation.type);
-
-                if (!(relation.type & ChannelRelationshipType.Null)) {
+                if (relation.type !== ChannelRelationshipType.Null) {
                   return (
                     <li key={relation.user_id.toFixed()} className="w-96">
                       <AdminUserElement

@@ -59,15 +59,18 @@ const getImgPath = (mode: ChannelMode) => {
 }
 
 function displayChannelPicture(channel: ChannelProps) {
-  const path = "/api/uploads/" + getImgPath(channel.mode);
-  return (
-    <img
+  const imgPath = getImgPath(channel.mode);
+  if (imgPath) {
+    const path = "/api/uploads/" + imgPath;
+    return (
+      <img
       className="object-contain w-20 h-full"
       src={path}
       alt="channel"
       onClick={() => { }}
-    />
-  );
+      />
+      );
+    }
 }
 
 // function onFileChangeTrigger(channel: ChannelProps, ev: any) {

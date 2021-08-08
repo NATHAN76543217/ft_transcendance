@@ -29,7 +29,7 @@ function ChannelSettings(props: ChannelSettingsProps) {
   const history = useHistory();
 
   const destroyChannel = async (channel_id: number) => {
-    console.log("Deleting channel " + channel_id);
+    // console.log("Deleting channel " + channel_id);
 
     contextValue.eventSocket?.emit(Events.Server.DestroyChannel, {
       channel_id: channel_id,
