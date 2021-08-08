@@ -52,7 +52,7 @@ export class School42Strategy extends PassportStrategy(Strategy, 'school42') {
             if (profile.login == undefined) {
               throw new UserNameAlreadyExistsException(undefined);
             }
-            let name = profile.login.substring(0, 13);
+            let name = profile.login.substring(0, 13).toLowerCase();
             if (nbTry) {
               name = name + nbTry;
             }

@@ -355,7 +355,6 @@ export class MatchesGateway
     room.setPlayerStatus(client.user.id, PlayerStatus.GIVEUP);
 
     this.logger.debug(`[MATCHES GATEWAY] Give up: ${client.user.id}`);
-    console.log('---------------------- give up')
 
     // if (room.isFilled() && room.playersReady()) {
     //   room.onStartGame();

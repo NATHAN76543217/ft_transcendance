@@ -135,6 +135,9 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
     };
 
     const getAllMatches = async () => {
+      if (!userId || isNaN(Number(userId))) {
+        return ;
+      }
       try {
         const dataMatches = await axios.get<IMatch[]>(
           `/api/matches/user/${userId}`

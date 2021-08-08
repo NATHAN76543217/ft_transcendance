@@ -16,11 +16,11 @@ function renderizeScores(
   status: GameStateDto,
 ) {
   const scoreLeft: IVector2D = {
-    x: 3 * canvasWidth / 4,
+    x: canvasWidth / 4,
     y: canvasHeight / 5
   };
   const scoreRight: IVector2D = {
-    x: canvasWidth / 4,
+    x: 3 * canvasWidth / 4,
     y: canvasHeight / 5
   };
 

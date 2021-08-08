@@ -300,7 +300,8 @@ function displayChangeNameField(user: UserProps, setUser: any) {
 function displayWrongUsernameMessage(user: UserProps) {
   if (user.usernameErrorMessage) {
     return (
-      <div className="absolute bottom-0 w-48 font-bold text-red-600">
+      <div className="w-48 font-bold text-red-600">
+      {/* <div className="absolute bottom-0 w-48 font-bold text-red-600"> */}
         {user.usernameErrorMessage}
       </div>
     );
@@ -357,7 +358,7 @@ function UserInformation(user: UserProps) {
               {displayFileChange(user, contextValue.setUser)}
             </div>
 
-            <div className="grid justify-center w-40 mr-4 text-center">
+            <div className="relative grid justify-center w-40 mr-4 text-center">
               {displayUsername(user)}
               <h1 className={"font-bold " + getStatusColor(user.status)}>
                 {getStatus(user.status)}

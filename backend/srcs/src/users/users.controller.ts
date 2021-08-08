@@ -19,8 +19,8 @@ import UserRelationshipsService from './relationships/user-relationships.service
 import CreateUserRelationshipDto from './dto/CreateUserRelationship.dto';
 import UpdateUserRelationshipDto from './dto/UpdateUserRelationship.dto';
 import RequestWithUser from 'src/authentication/requestWithUser.interface';
-import { UserRelationshipTypes } from './relationships/userRelationshipTypes';
 import { JwtTwoFactorGuard } from 'src/authentication/two-factor/jwt-two-factor.guard';
+import UserNotFound from './exception/UserNotFound.exception';
 
 @Controller('users')
 @SerializeOptions({
@@ -40,8 +40,14 @@ export default class UsersController {
 
   @Get('me')
   getUserHimself(@Req() req: RequestWithUser) {
-    console.log('______________________________________ IS ME ________________________________________________')
-    return this.usersService.getUserById(req.user.id, true);
+    if (!req.user.id || isNaN(Number(req.user.id))) {
+      throw new UserNotFound(0);
+    }
+    try {
+      return this.usersService.getUserById(req.user.id, true);
+    } catch (error) {
+      throw new UserNotFound(req.user.id);
+    }
   }
 
   @Get(':id1/:id2/messages')

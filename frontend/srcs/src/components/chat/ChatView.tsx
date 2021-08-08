@@ -67,7 +67,9 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
       return relation.user.id === privateConvId;
     });
     if (friend) {
-      if (friendInfo.id !== privateConvId || friend?.relationshipType !== friendInfo.relationshipType) {
+      if (friendInfo.id !== privateConvId ||
+          friend?.relationshipType !== friendInfo.relationshipType ||
+          friend?.user.status !== friendInfo.status) {
         setFriendInfo({
           id: privateConvId,
           name: friend ? friend.user.name : "",
