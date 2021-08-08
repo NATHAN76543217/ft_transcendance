@@ -27,6 +27,7 @@ import { IBall } from './models/Ball';
 import UsersService from 'src/users/users.service';
 import { ChannelsGateway } from 'src/channels/channels.gateway';
 import MessageService from 'src/messages/messages.service';
+import { MousePosDto } from "./dto/mousePos.dto"
 
 export enum ServerMessages {
   CREATE_ROOM = 'server:createRoom',
@@ -381,7 +382,7 @@ export class MatchesGateway
   @SubscribeMessage(ServerMessages.UPDATE_MOUSE_POS)
   async onUpdateMousePos(
     @ConnectedSocket() client: SocketWithPlayer,
-    @MessageBody() mousePos: IVector2D,
+    @MessageBody() mousePos: MousePosDto,
   ) {
     //this.logger.debug("[MATCHES GATEWAY] receiving mouse pos ...");
     const roomId = client.matchId;
