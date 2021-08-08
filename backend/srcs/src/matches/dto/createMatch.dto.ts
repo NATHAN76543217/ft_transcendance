@@ -8,8 +8,8 @@ export class CreateMatchDto {
   @IsArray()
   @ArrayNotEmpty()
   @ArrayUnique()
-  @ArrayMaxSize(2, {each: true})
-  @ArrayMinSize(2, {each: true})
+  @ArrayMaxSize(1)
+  @ArrayMinSize(1)
   @Type(() => Number)
   guests: number[];
 
