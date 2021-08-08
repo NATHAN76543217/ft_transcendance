@@ -42,7 +42,7 @@ import { Message, MessageType } from "./models/channel/Channel";
 import { getSocket } from "./components/utilities/getSocket";
 import { Events } from "./models/channel/Events";
 
-interface AppProps {}
+interface AppProps { }
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
@@ -91,7 +91,7 @@ class App extends React.Component<AppProps, AppState> {
 
     socket.on(Events.Client.UpdateChannelRelation, (data: any) => {
       console.log('UpdateChannelRelation', data)
-      if (data && Number(data.user_id) === Number(this.state.user?.id)) {
+      if (data) {
         this.updateChannelRelationship(
           Number(data.channel_id),
           Number(data.user_id),
@@ -133,10 +133,10 @@ class App extends React.Component<AppProps, AppState> {
         if (message.type === MessageType.GameInvite) {
 
           console.log(`Received invitation to ${message.data} from ${message.sender_id}`);
-          }
-          if (message.type === MessageType.GameCancel) {
-            console.log(`Received cancel to ${message.data} from ${message.sender_id}`);
-          }
+        }
+        if (message.type === MessageType.GameCancel) {
+          console.log(`Received cancel to ${message.data} from ${message.sender_id}`);
+        }
         this.updateOneRelationshipGameInvite(message);
       }
     });
@@ -274,7 +274,7 @@ class App extends React.Component<AppProps, AppState> {
               withCredentials: true,
             });
             this.setUserInit(res.data);
-          } catch (error) {}
+          } catch (error) { }
         } else {
           console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
@@ -343,17 +343,17 @@ class App extends React.Component<AppProps, AppState> {
               gameInvite: dataInvite.data,
             });
             this.setState({ relationshipsList: a });
-          } catch (error) {}
+          } catch (error) { }
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   updateOneRelationshipType = async (
     user_id: number,
     newType: UserRelationshipType
   ) => {
-// console.log('updateOneRelationshipType', user_id, newType, this.state.relationshipsList)
+    // console.log('updateOneRelationshipType', user_id, newType, this.state.relationshipsList)
 
     let a = this.state.relationshipsList.slice();
     let index = a.findIndex((relation: AppUserRelationship) => {
@@ -479,7 +479,7 @@ class App extends React.Component<AppProps, AppState> {
         return Number(channel.channel.id) === channel_id;
       });
       if (index !== -1) {
-        if (user_id === this.state.user.id) {
+        if (user_id === this.state.user.id || user_id === -1) {
           if (Number(newType) !== Number(ChannelRelationshipType.Null)) {
             a[index].type = newType;
           } else {
@@ -507,9 +507,7 @@ class App extends React.Component<AppProps, AppState> {
             });
           }
         }
-
-console.log(a)
-
+        // console.log(a)
         const newUser = {
           ...this.state.user,
           channels: a,
@@ -637,7 +635,7 @@ console.log(a)
                         {this.displayAdminRoute(
                           // true
                           this.state.user?.role === UserRole.Admin ||
-                            this.state.user?.role === UserRole.Owner
+                          this.state.user?.role === UserRole.Owner
                         )}
                       </Switch>
                     </main>

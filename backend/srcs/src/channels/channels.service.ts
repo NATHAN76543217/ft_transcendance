@@ -250,11 +250,18 @@ export default class ChannelsService {
   async deleteChannel(id: number) {
     const deleteResponseRelationships =
       await this.channelRelationshipRepository.delete({ channel_id: id });
-    this.logger.debug(
-      `deleteChannel: deleteResponseRelationships: ${JSON.stringify(
-        deleteResponseRelationships,
-      )}`,
-    );
+      this.logger.debug(
+        `deleteChannel: deleteResponseRelationships: ${JSON.stringify(
+          deleteResponseRelationships,
+        )}`,
+      );
+      const deleteResponseMessages =
+      await this.messageRepository.delete({ channel_id: id });
+      this.logger.debug(
+        `deleteChannel: deleteResponseMessages: ${JSON.stringify(
+          deleteResponseMessages,
+        )}`,
+      );
 
     const deleteResponse = await this.channelsRepository.delete(id);
 

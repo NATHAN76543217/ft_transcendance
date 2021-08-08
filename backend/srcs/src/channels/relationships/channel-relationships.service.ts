@@ -90,7 +90,7 @@ export default class ChannelRelationshipsService {
       user_id: relation.user_id,
     });
 
-    this.logger.debug(`deleteRelationship: deleteResponse: ${deleteResponse}`);
+    this.logger.debug(`deleteRelationship: deleteResponse: `, JSON.stringify(deleteResponse));
 
     if (!deleteResponse.affected) {
       throw new ChannelRelationshipByIdsNotFound(

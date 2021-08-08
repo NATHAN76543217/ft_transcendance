@@ -83,7 +83,7 @@ class AdminChannels extends React.Component<
   destroyChannel = async (channel_id: number) => {
     console.log("Deleting channel " + channel_id);
 
-    this.context.socket?.emit(Events.Server.DestroyChannel, {
+    this.context.eventSocket?.emit(Events.Server.DestroyChannel, {
       channel_id: channel_id,
     });
     this.removeOneChannel(channel_id);
