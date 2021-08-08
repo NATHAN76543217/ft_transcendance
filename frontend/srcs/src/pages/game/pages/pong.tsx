@@ -17,7 +17,6 @@ import axios from "axios";
 import { NavLink } from "react-router-dom";
 import Loading from "../../../components/loading/loading";
 import { Vector2D } from "../../../models/game/Vector2D";
-import Game from "./game";
 
 export type PongPageParams = {
   id: string;
