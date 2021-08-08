@@ -15,6 +15,7 @@ export class Room implements GameRoom {
   private engineIntervalHandle: NodeJS.Timeout;
   private updateIntervalHandle: NodeJS.Timeout;
   private endTimeoutHandle: NodeJS.Timeout;
+  private afkRoomHandle: NodeJS.Timeout | undefined = undefined;
 
   ruleset: Ruleset;
   playerIds: number[] = [];
@@ -52,6 +53,7 @@ export class Room implements GameRoom {
     this.addPlayer(hostId);
 
     this.onGameRunning = this.onGameRunning.bind(this);
+    this.onAfkRoom = this.onAfkRoom.bind(this);
   }
   getId() {
     return this.matchId.toFixed();
@@ -230,6 +232,9 @@ export class Room implements GameRoom {
     if (this.state.status === GameStatus.RUNNING) {
       this.matchesGateway.onClientStartGame(this.matchId);
 
+    if (this.afkRoomHandle)
+      clearInterval(this.afkRoomHandle);
+
       const t = 45;
 
       this.lastRunning = Date.now();
@@ -248,6 +253,8 @@ export class Room implements GameRoom {
                 clearInterval(this.engineIntervalHandle);
                 clearInterval(this.updateIntervalHandle);
                 clearTimeout(this.endTimeoutHandle);
+                if (this.afkRoomHandle)
+                  clearInterval(this.afkRoomHandle);
               }
               else if ((this.state.scores[0] >= this.ruleset.rounds ||
                 this.state.scores[1] >= this.ruleset.rounds)){
@@ -266,13 +273,19 @@ export class Room implements GameRoom {
         this.endTimeoutHandle = setTimeout(() => {
           Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);
           this.setStatus(GameStatus.FINISHED);
-          // this.onGameFinished();
           clearInterval(this.engineIntervalHandle);
           clearInterval(this.updateIntervalHandle);
+          if (this.afkRoomHandle)
+            clearInterval(this.afkRoomHandle);
           
         }, this.DEBUG((this.ruleset.duration - this.state.elapsed) * 60, "timeout for end the game is") * 1000);
       }
     }
+  }
+
+  onAfkRoom() {
+    this.setStatus(GameStatus.FINISHED);
+    this.afkRoomHandle = undefined;
   }
 
   onGameStopped() {
@@ -280,12 +293,7 @@ export class Room implements GameRoom {
 
     this.state.elapsed += current - this.lastRunning;
 
-    // if (this.state.elapsed >= this.ruleset.duration)
-    // {
-    //   Logger.debug("[MATCHES GATEWAY] Overtime stopped, clear the game");
-    //   this.setStatus(GameStatus.FINISHED);
-    //   return ;
-    // }
+    this.afkRoomHandle = setTimeout(this.onAfkRoom, this.ruleset.duration * 60 * 1000);
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
     clearInterval(this.engineIntervalHandle);
