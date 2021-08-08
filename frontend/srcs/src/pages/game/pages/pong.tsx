@@ -84,7 +84,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
     let animationId: number | undefined = undefined;
     let updateIntervalHandle: NodeJS.Timeout | undefined = undefined;
-    let once : boolean = true;
+    let paused : boolean = false;
 
     const getMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent) => {
       const rect = canvasRef.current!.getBoundingClientRect();
@@ -162,16 +162,18 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
         received = 0;
         if (animationId !== undefined) {
           if (state.status === GameStatus.RUNNING) {
-            // if (updateIntervalHandle === undefined) {
-            //   launchEngine();
-            // }
-            if (once === true) {
+            if (updateIntervalHandle === undefined) {
               animationId = requestAnimationFrame(frame);
-              once = false;
+              launchEngine();
+            } else if (paused === true) {
+              clearInterval(updateIntervalHandle);
+              setTimeout(launchEngine, 3 * 1000);
+              paused = false;
             }
           } else {
             cancelAnimationFrame(animationId);
             clearInterval(updateIntervalHandle!);
+            paused = true;
             //updateIntervalHandle = undefined;
             if (state.status === GameStatus.FINISHED) {
               animationId = undefined;
@@ -184,7 +186,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     const launchEngine = () => {
       updateIntervalHandle = setInterval(() => {
         pongEngine(state);
-      }, 3);
+      }, 20);
     };
 
     const onMatchStart = () => {
@@ -193,11 +195,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       if (updateIntervalHandle === undefined) {
         appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
         setWaitingScreen(false);
-        launchEngine();
-      } else {
-        clearInterval(updateIntervalHandle);
-        setTimeout(launchEngine, 3 * 1000);
-      }
+      } 
     };
 
     const setEndGameData = async (winnerIndex: number) => {
