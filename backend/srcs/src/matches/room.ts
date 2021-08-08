@@ -30,7 +30,7 @@ export class Room implements GameRoom {
     ball: new Ball(
       {
         x: defaultBall.x,
-        y:defaultBall.y
+        y: defaultBall.y
       },
       {
         x: defaultBall.dir.x,
@@ -139,8 +139,8 @@ export class Room implements GameRoom {
     const isReady = status === PlayerStatus.READY && this.playersReady();
     const isRunning =
       status === PlayerStatus.CONNECTED && this.playersConnected();
-    const hasGivenUp = 
-    status === PlayerStatus.GIVEUP && this.playersGiveUp();
+    const hasGivenUp =
+      status === PlayerStatus.GIVEUP && this.playersGiveUp();
 
     switch (gameStatus) {
       case GameStatus.UNREADY:
@@ -161,8 +161,7 @@ export class Room implements GameRoom {
 
   setMousePos(playerId: number, mousePos: Vector2D) {
     const player = this.getPlayer(playerId);
-    if (this.ruleset.size == 4)
-    {
+    if (this.ruleset.size == 4) {
       const index = this.playerIds.findIndex(id => id === playerId);
       if (index === -1)
         throw new Error();
@@ -212,6 +211,7 @@ export class Room implements GameRoom {
   }
 
   onStartGame() {
+    console.log('onStartGame');
     this.state.status = GameStatus.RUNNING;
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
@@ -224,6 +224,8 @@ export class Room implements GameRoom {
   }
 
   onGameRunning() {
+    console.log('onGameRunning');
+
     this.state.elapsed = 0;
     if (this.state.status === GameStatus.RUNNING) {
       this.matchesGateway.onClientStartGame(this.matchId);
@@ -232,33 +234,44 @@ export class Room implements GameRoom {
 
       this.lastRunning = Date.now();
 
-      this.engineIntervalHandle = setInterval(() => {
-        pongEngine(this.state, this.ruleset.speedMode, this.ruleset.downsize);
-        if (
-          this.state.scores[0] >= this.ruleset.rounds ||
-          this.state.scores[1] >= this.ruleset.rounds
-        ) {
-          Logger.debug(`[MATCHES GATEWAY] Game has finished: by round max`);
+      if (!this.engineIntervalHandle) {
+        this.engineIntervalHandle = setInterval(() => {
+          pongEngine(this.state, this.ruleset.speedMode, this.ruleset.downsize);
+          if (
+            (this.state.scores[0] >= this.ruleset.rounds ||
+              this.state.scores[1] >= this.ruleset.rounds)  &&
+              this.state.status !== GameStatus.FINISHED
+              ) {
+                Logger.debug(`[MATCHES GATEWAY] Game has finished: by round max`);
+                this.setStatus(GameStatus.FINISHED);
+                Logger.debug(`[MATCHES GATEWAY] Clear interval ${this.engineIntervalHandle}`);
+                clearInterval(this.engineIntervalHandle);
+                clearInterval(this.updateIntervalHandle);
+                clearTimeout(this.endTimeoutHandle);
+              }
+              else if ((this.state.scores[0] >= this.ruleset.rounds ||
+                this.state.scores[1] >= this.ruleset.rounds)){
+                  console.log('infinite loop ?', this.state.status)
+                }
+              }, this.DEBUG(t / 3, `Engine Interval: ${this.engineIntervalHandle}`));
+      }
+      
+      if (!this.updateIntervalHandle) {
+        this.updateIntervalHandle = setInterval(() => {
+          this.matchesGateway.onGameUpdate(this.matchId, this.state);
+        }, this.DEBUG(t, `Update Interval: ${this.updateIntervalHandle}`)); // TO DO: Read doc for times
+      }
+      
+      if (!this.endTimeoutHandle) {
+        this.endTimeoutHandle = setTimeout(() => {
+          Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);
           this.setStatus(GameStatus.FINISHED);
-          Logger.debug(`[MATCHES GATEWAY] Clear interval ${this.engineIntervalHandle}`);
+          // this.onGameFinished();
           clearInterval(this.engineIntervalHandle);
           clearInterval(this.updateIntervalHandle);
-          clearTimeout(this.endTimeoutHandle);
-        }
-      }, this.DEBUG( t / 3, `Engine Interval: ${this.engineIntervalHandle}`));
-
-      this.updateIntervalHandle = setInterval(() => {
-        this.matchesGateway.onGameUpdate(this.matchId, this.state);
-      }, this.DEBUG( t, `Update Interval: ${this.updateIntervalHandle}`)); // TO DO: Read doc for times
-
-      this.endTimeoutHandle = setTimeout(() => {
-        Logger.debug(`[MATCHES GATEWAY] Game has finished by timeout: ${this.state.elapsed} seconds`);
-        this.setStatus(GameStatus.FINISHED);
-        // this.onGameFinished();
-        clearInterval(this.engineIntervalHandle);
-        clearInterval(this.updateIntervalHandle);
-
-      }, this.DEBUG((this.ruleset.duration - this.state.elapsed) * 60, "timeout for end the game is") * 1000);
+          
+        }, this.DEBUG((this.ruleset.duration - this.state.elapsed) * 60, "timeout for end the game is") * 1000);
+      }
     }
   }
 
@@ -284,7 +297,10 @@ export class Room implements GameRoom {
   }
 
   onGameFinished() {
-    Logger.debug("[PONG GATEWAY] on Disconnect Clients");
+    Logger.debug("[PONG GATEWAY] on Game Finished");
+    // clearInterval(this.engineIntervalHandle);
+    // clearInterval(this.updateIntervalHandle);
+    // clearTimeout(this.endTimeoutHandle);
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
     this.matchesGateway.onDisconnectClients(this.matchId);
   }
