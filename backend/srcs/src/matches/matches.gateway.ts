@@ -397,7 +397,8 @@ export class MatchesGateway
     if (client.matchId !== undefined) {
       this.logger.debug(`[MATCHES GATEWAY] On leave room: match id: ${client.matchId}`);
       const room = this.rooms.get(client.matchId);
-      if (room) {
+      const player = room.playerIds.includes(client.user.id);
+      if (room && player) {
         client.leave(room.getId());
       room.setPlayerStatus(client.user.id, PlayerStatus.DISCONNECTED);
         

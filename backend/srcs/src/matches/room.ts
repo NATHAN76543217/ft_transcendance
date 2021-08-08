@@ -212,7 +212,7 @@ export class Room implements GameRoom {
   }
 
   onStartGame() {
-    this.state.status = GameStatus.RUNNING;//GameStatus.STARTING; // TO DO: Staus === STARTING when not all the player have joined, here all the players have joined
+    this.state.status = GameStatus.RUNNING;
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
     setTimeout(this.onGameRunning, 3 * 1000);
@@ -266,6 +266,13 @@ export class Room implements GameRoom {
     const current = Date.now();
 
     this.state.elapsed += current - this.lastRunning;
+
+    // if (this.state.elapsed >= this.ruleset.duration)
+    // {
+    //   Logger.debug("[MATCHES GATEWAY] Overtime stopped, clear the game");
+    //   this.setStatus(GameStatus.FINISHED);
+    //   return ;
+    // }
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
     clearInterval(this.engineIntervalHandle);
