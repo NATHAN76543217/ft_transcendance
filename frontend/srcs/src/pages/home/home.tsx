@@ -28,7 +28,9 @@ function Home(props: { logged: boolean }) {
                             <p className="mt-2 mb-4 ml-4 text-sm md:text-lg">
                                 - A game is played between 2 players.
                             <br />
-                            - The goal is to reach the number of points limit (customizable - 11 by default) before the time limit (customizable - 3 min by default).
+                                - Players can move their paddle with the mouse or trackpad.
+                            <br />
+                            - The goal is to reach the number of points limit (customizable - 11 by default) before the time limit (3 min).
                             <br />
                             - A player scores a point when the ball hits its opponent wall.
                             <br />
