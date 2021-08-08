@@ -50,6 +50,6 @@ export class Ball extends Vector2D implements IBallBase {
 export const defaultBall: Ball = new Ball(
   new Vector2D(canvasWidth / 2, canvasHeight / 2),
   new Vector2D(5, 5),
-  7,
+  15,
   42
 );
