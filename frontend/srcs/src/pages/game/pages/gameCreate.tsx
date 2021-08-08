@@ -92,7 +92,7 @@ function GameCreate() {
 
   const onSubmit = async (values: CreateGameFormValues) => {
     values.rounds = nbPoints;
-    console.log("onSubmit", values);
+    //console.log("onSubmit", values);
     //setShowCreationValidation(false);
     clearErrors();
     if (values.opponent_id === null || values.opponent_id === undefined) {
@@ -104,7 +104,7 @@ function GameCreate() {
       return;
     }
 
-    console.log("opponent id", values.opponent_id);
+    //console.log("opponent id", values.opponent_id);
     const body: CreateGameDto = {
       ruleset: {
         rounds: values.rounds,
@@ -115,7 +115,7 @@ function GameCreate() {
     };
     try {
       const response = await axios.post<Match>("/api/matches", body);
-      console.log("Game created, redirecting to:", response.data);
+      //console.log("Game created, redirecting to:", response.data);
       history.push(`/game/${response.data.id}`);
     } catch (e) {
       console.error("TODO: inviteFriend:", e);
@@ -200,13 +200,13 @@ function GameCreate() {
     );
   };
 
-  useEffect(() => {
-    console.log('speedMode', speedMode)
-  }, [speedMode])
+  // useEffect(() => {
+  //   console.log('speedMode', speedMode)
+  // }, [speedMode])
   
-  useEffect(() => {
-    console.log('downsizing', downsizing)
-  }, [downsizing])
+  // useEffect(() => {
+  //   console.log('downsizing', downsizing)
+  // }, [downsizing])
 
   function displaySpeedModeBonus() {
   

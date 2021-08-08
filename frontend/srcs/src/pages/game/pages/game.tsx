@@ -11,13 +11,13 @@ import Loading from "../../../components/loading/loading";
 function Game() {
   const { matchSocket } = useContext(AppContext);
 
-  console.log("matchSocket", matchSocket);
+  //console.log("matchSocket", matchSocket);
 
   if (matchSocket === undefined) {
     return <Loading></Loading>;
   }
 
-  console.log("Game is present");
+  //console.log("Game is present");
 
   return (
     <div className="h-full">

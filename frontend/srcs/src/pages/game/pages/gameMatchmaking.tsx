@@ -17,13 +17,13 @@ function GameMatchmaking() {
   const findGame = () => {
     setOpen((o) => !o);
     setInQueue(true);
-    console.log(`[FRONTEND] clicked on findGame: InQueue: ${inQueue}`);
+    //console.log(`[FRONTEND] clicked on findGame: InQueue: ${inQueue}`);
     matchSocket?.emit(ServerMessages.FIND_GAME);
   };
 
   const cancelSearch = () => {
     setInQueue(false);
-    console.log(`[FRONTEND] cicked on cancelSearch: InQueue: ${inQueue}`);
+    //console.log(`[FRONTEND] cicked on cancelSearch: InQueue: ${inQueue}`);
     matchSocket?.emit(ServerMessages.CANCEL_FIND);
     closeModal();
   };
@@ -69,7 +69,7 @@ function GameMatchmaking() {
 
     const goToGamePage = (id: number) => {
       //cancelSearch();
-      console.log(`[pong.tsx] [matchmaking] redirect to /game/${id}`);
+      //console.log(`[pong.tsx] [matchmaking] redirect to /game/${id}`);
       history.push(`/game/${id}`);
     };
 

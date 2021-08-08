@@ -110,7 +110,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onJoined = (data: GameJoinedDto) => {
-      console.log(`[pong.tsx] onJoined: role ${data.role}`);
+      //console.log(`[pong.tsx] onJoined: role ${data.role}`);
 
       if (data.role === GameRole.Player) {
         setIsPlayer(true);
@@ -194,7 +194,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const onMatchStart = () => {
-      console.log("[pong.tsx] Game has started");
+      //console.log("[pong.tsx] Game has started");
       animationId = 0;
       if (updateIntervalHandle === undefined) {
         appSocket?.emit(Events.Server.StartGame, { roomId: match.params.id });
@@ -219,7 +219,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
     // const onMatchEnd = async (data: { playerNames: string[] }) => {
     const onMatchEnd = async () => {
-      console.log("[pong.tsx] Game is finished - state: ", state);
+      //console.log("[pong.tsx] Game is finished - state: ", state);
       const winnerIndex = state.scores[0] >= state.scores[1] ? 0 : 1;
       // await setEndGameData(winnerIndex, data.playerNames);
       await setEndGameData(winnerIndex);
@@ -228,7 +228,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     };
 
     const ifNoGame = () => {
-      console.log("[pong.tsx] No current game");
+      //console.log("[pong.tsx] No current game");
       if (!noGame) {
         setNoGame(true);
       }

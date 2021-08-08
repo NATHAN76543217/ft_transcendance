@@ -221,7 +221,7 @@ export class Room implements GameRoom {
   }
 
   private DEBUG(n: number, msg: string) {
-    Logger.debug(`[DEBUG] ${msg} ${n}`);
+    //Logger.debug(`[DEBUG] ${msg} ${n}`);
     return n;
   }
 
@@ -303,12 +303,12 @@ export class Room implements GameRoom {
     clearTimeout(this.endTimeoutHandle);
     this.endTimeoutHandle = undefined;
 
-    Logger.debug("[MATCHES GATEWAY] on game stopped has been called");
+    //Logger.debug("[MATCHES GATEWAY] on game stopped has been called");
     //this.matchesGateway.onDisconnectClients(this.matchId); // TO DO: Why this was here ?
   }
 
   onGameFinished() {
-    Logger.debug("[PONG GATEWAY] on Game Finished");
+    //Logger.debug("[PONG GATEWAY] on Game Finished");
     // clearInterval(this.engineIntervalHandle);
     // clearInterval(this.updateIntervalHandle);
     // clearTimeout(this.endTimeoutHandle);
