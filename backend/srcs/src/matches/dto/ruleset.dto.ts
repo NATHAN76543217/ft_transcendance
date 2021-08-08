@@ -1,19 +1,22 @@
-import { IsBoolean, IsNumber, IsOptional, Max } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, Max, Min } from 'class-validator';
 
 export class Ruleset {
   @IsOptional()
   @IsNumber()
-  // TODO: @Min and @Max
-  duration?: number; // todo
+  @Max(3)
+  @Min(3)
+  duration?: number;
 
   @IsOptional()
   @IsNumber()
-  // TODO: @Min and @Max
+  @Min(3)
+  @Max(15)
   rounds?: number;
 
   @IsOptional()
   @IsNumber()
-  // TODO: @Min and @Max
+  @Min(2)
+  @Max(2)
   size?: number;
 
   @IsOptional()

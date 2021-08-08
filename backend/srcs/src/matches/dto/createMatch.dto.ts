@@ -1,7 +1,21 @@
 import { Ruleset } from './ruleset.dto';
 
-export type CreateMatchDto = {
+import { IsBoolean, IsNumber, IsOptional, Max, IsArray, IsDate, ArrayNotEmpty, ArrayUnique, ArrayMaxSize, ArrayMinSize } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class CreateMatchDto {
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayUnique()
+  @ArrayMaxSize(2, {each: true})
+  @ArrayMinSize(2, {each: true})
+  @Type(() => Number)
   guests: number[];
+
   ruleset: Ruleset;
+
+  @IsOptional()
+  @IsDate()
   startedAt?: Date;
 };

@@ -1,5 +1,9 @@
+import { Type } from 'class-transformer';
+import { IsString } from 'class-validator';
 import { GameRole } from '../models/GameRole';
 
-export type GameJoinedDto = {
+export class GameJoinedDto {
+
+  @IsString()
   role: GameRole;
 };
