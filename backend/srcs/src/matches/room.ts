@@ -289,8 +289,11 @@ export class Room implements GameRoom {
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
     clearInterval(this.engineIntervalHandle);
+    this.engineIntervalHandle = undefined;
     clearInterval(this.updateIntervalHandle);
+    this.updateIntervalHandle = undefined;
     clearTimeout(this.endTimeoutHandle);
+    this.endTimeoutHandle = undefined;
 
     Logger.debug("[MATCHES GATEWAY] on game stopped has been called");
     //this.matchesGateway.onDisconnectClients(this.matchId); // TO DO: Why this was here ?
