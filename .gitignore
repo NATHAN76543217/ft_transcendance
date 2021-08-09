@@ -15,7 +15,7 @@ dist
 # misc
 .DS_Store
 .vscode/*
-!.vscode/project.code-workspace
+!.vscode/ft_transcendance.code-workspace
 # .env
 # .env.local
 # .env.development.local
