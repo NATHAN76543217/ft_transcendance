@@ -1,0 +1,19 @@
+FROM  node:16.2.0-alpine3.13
+
+# Prepare workdir
+COPY --chown=node:node srcs/package*.json /app/
+
+RUN mkdir -p /app/node_modules /app/dist   \
+    && chown -R node:node /app/node_modules /app/dist
+
+USER    node
+WORKDIR /app
+
+# Install modules
+RUN     npm install && npm uninstall bcrypt && npm install bcrypt
+
+# Install sources
+COPY    --chown=node:node srcs/ .
+
+# Start the development server
+CMD     npm run start:dev
