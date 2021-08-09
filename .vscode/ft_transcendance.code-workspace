@@ -6,11 +6,11 @@
     },
     {
       "name": "frontend",
-      "path": "../frontend/srcs"
+      "path": "../srcs/frontend/srcs"
     },
     {
       "name": "backend",
-      "path": "../backend/srcs"
+      "path": "../srcs/backend/srcs"
     },
   ],
   "settings": {
