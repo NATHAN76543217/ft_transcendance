@@ -96,6 +96,7 @@ export function TextInput<FormValues>({
         type={type}
         id={name}
         placeholder={placeholder}
+        autoComplete="off"
         className={`${inputBasicClassName} ${inputClass}`}
         {...register(name, { required })}
       />
