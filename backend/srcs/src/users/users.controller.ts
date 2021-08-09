@@ -58,7 +58,7 @@ export default class UsersController {
     @Query('beforeId') beforeId: string,
     @Query('afterId') afterId: string,
   ) {
-    console.log('get :id1/:id2/messages - begin');
+    // console.log('get :id1/:id2/messages - begin');
     // const channel = await this.channelsService.getChannelById(
     //   Number(channelId),
     // );
@@ -85,7 +85,7 @@ export default class UsersController {
       beforeId ? Number(beforeId) : undefined,
       afterId ? Number(afterId) : undefined,
     );
-    console.log('messages', messages);
+    // console.log('messages', messages);
     return messages;
     // throw new HttpException('TODO: Unauthorized read', 400);
   }

@@ -213,7 +213,7 @@ export class Room implements GameRoom {
   }
 
   onStartGame() {
-    console.log('onStartGame');
+    // console.log('onStartGame');
     this.state.status = GameStatus.RUNNING;
 
     this.matchesGateway.onGameUpdate(this.matchId, this.state);
@@ -226,7 +226,7 @@ export class Room implements GameRoom {
   }
 
   onGameRunning() {
-    console.log('onGameRunning');
+    // console.log('onGameRunning');
 
     this.state.elapsed = 0;
     if (this.state.status === GameStatus.RUNNING) {
@@ -256,10 +256,10 @@ export class Room implements GameRoom {
                 if (this.afkRoomHandle)
                   clearInterval(this.afkRoomHandle);
               }
-              else if ((this.state.scores[0] >= this.ruleset.rounds ||
-                this.state.scores[1] >= this.ruleset.rounds)){
-                  console.log('infinite loop ?', this.state.status)
-                }
+              // else if ((this.state.scores[0] >= this.ruleset.rounds ||
+              //   this.state.scores[1] >= this.ruleset.rounds)){
+              //     // console.log('infinite loop', this.state.status)
+              //   }
               }, this.DEBUG(t / 3, `Engine Interval: ${this.engineIntervalHandle}`));
       }
       

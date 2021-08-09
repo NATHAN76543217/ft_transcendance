@@ -201,7 +201,7 @@ export class MatchesGateway
     @MessageBody() body: JoinGameDto,
   ) {
 
-    console.log('JOIN_ROOM', body.roomId)
+    // console.log('JOIN_ROOM', body.roomId)
     //this.logger.debug(`[MATCHES GATEWAY] player ${socket.user.id} joined room ${body.roomId}` )
     try {
       const room = this.getRoom(body.roomId);
