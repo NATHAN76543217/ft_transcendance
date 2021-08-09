@@ -23,7 +23,7 @@ services:
   pgadmin:
     depends_on:
       - db
-    build: ./pgadmin
+    build: ./srcs/pgadmin
     container_name: pong_pgadmin_cnt
     restart: always
     volumes:
@@ -44,13 +44,13 @@ services:
   backend:
     depends_on:
       - db
-    build: ./backend
+    build: ./srcs/backend
     image: pong_back_img
     container_name: pong_back_cnt
     expose:
       - "8080"
     volumes:
-      - ./backend/srcs:/app
+      - ./srcs/backend/srcs:/app
       - /app/node_modules
       - /app/dist
     environment:
@@ -83,13 +83,13 @@ services:
   frontend:
     depends_on:
       - backend
-    build: ./frontend
+    build: ./srcs/frontend
     image: pong_front_img
     container_name: pong_front_cnt
     expose:
       - "3000"
     volumes:
-      - ./frontend/srcs/:/app
+      - ./srcs/frontend/srcs/:/app
       - /app/node_modules
     restart: always
     stop_grace_period: 1m
@@ -107,12 +107,12 @@ services:
       - pgadmin
       - frontend
       - backend
-    build: ./reverse_proxy
+    build: ./srcs/reverse_proxy
     image: pong_reverse_proxy_img
     container_name: pong_reverse_proxy_cnt
     volumes:
-      - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
-      - ./reverse_proxy/certs/:/etc/nginx/certs/
+      - ./srcs/reverse_proxy/nginx.conf:/etc/nginx/nginx.conf
+      - ./srcs/reverse_proxy/certs/:/etc/nginx/certs/
     ports:
       - 80:80
       - 443:443
