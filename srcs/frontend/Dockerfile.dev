@@ -1,0 +1,19 @@
+FROM node:16.2.0-alpine3.13
+
+# Prepare workdir
+COPY --chown=node:node srcs/package*.json    /app/
+
+RUN mkdir -p /app/node_modules \
+    &&  chown -R node:node /app/node_modules
+
+USER node
+WORKDIR /app
+
+# Install modules
+RUN npm install
+
+# Install sources
+COPY --chown=node:node srcs/ .
+
+# Run development server
+CMD npm start
