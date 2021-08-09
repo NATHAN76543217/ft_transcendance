@@ -108,7 +108,7 @@ function ChannelSearch() {
 
   let baseKey = -1;
   return (
-    <div className="flex flex-col items-center flex-grow">
+    <div className="flex flex-col items-center flex-grow h-full overflow-y-scroll">
       <ChannelSearchForm onSubmit={localOnSubmit} />
       <ul>
         {searchInfo.list.map((elem) => {

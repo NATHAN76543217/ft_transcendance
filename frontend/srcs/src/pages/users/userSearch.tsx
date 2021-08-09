@@ -51,10 +51,9 @@ function UserSearch() {
     setSearchInfo: any,
     contextValue: IAppContext
   ) => {
-    console.log("contextValue", contextValue);
     try {
       const data = await axios.get("/api/users?name=" + values.username);
-      console.log("search", data);
+      // console.log("search", data);
       let a = data.data.slice();
       a.sort((user1: IUser, user2: IUser) =>
         user1.name.localeCompare(user2.name)
@@ -75,7 +74,7 @@ function UserSearch() {
         list: a,
         username: values.username,
       });
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const updateRelationship = async (
@@ -222,53 +221,53 @@ function UserSearch() {
   };
 
   return (
-    <div className="flex flex-col ">
-      <div className="flex justify-center">
-        <UserSearchForm onSubmit={localOnSubmit} />
-      </div>
-      <ul>
-        {searchInfo?.list.map((elem) => {
-          // if (!elem) {
-          //   return (<div></div>);
-          // }
-          let user = elem.user;
-          let isMe =
-            contextValue.user === undefined
-              ? false
-              : Number(user.id) === Number(contextValue.user.id);
-          let idInf =
-            contextValue.user === undefined
-              ? false
-              : Number(contextValue.user.id) < Number(user.id);
-          let userInfo = {
-            doesUserExist: true,
-            user: searchInfo,
-            relationshipType: elem.relationType,
-            showWrongUsernameMessage: false,
-          };
-          return (
-            <li key={user.id} className="flex justify-center py-4 rounded-md ">
-              <UserInformation
-                id={user.id}
-                name={user.name}
-                status={user.status}
-                nbWin={user.nbWin}
-                nbLoss={user.nbLoss}
-                imgPath={user.imgPath}
-                twoFactorAuthEnabled={user.twoFactorAuthEnabled}
-                idInf={idInf}
-                addFriend={addFriend}
-                removeFriend={removeFriend}
-                blockUser={blockUser}
-                unblockUser={unblockUser}
-                isInSearch
-                isMe={isMe}
-                userInfo={userInfo}
-              />
-            </li>
-          );
-        })}
-      </ul>
+    <div className="flex flex-col h-full overflow-y-scroll ">
+        <div className="flex justify-center">
+          <UserSearchForm onSubmit={localOnSubmit} />
+        </div>
+        <ul>
+          {searchInfo?.list.map((elem) => {
+            // if (!elem) {
+            //   return (<div></div>);
+            // }
+            let user = elem.user;
+            let isMe =
+              contextValue.user === undefined
+                ? false
+                : Number(user.id) === Number(contextValue.user.id);
+            let idInf =
+              contextValue.user === undefined
+                ? false
+                : Number(contextValue.user.id) < Number(user.id);
+            let userInfo = {
+              doesUserExist: true,
+              user: searchInfo,
+              relationshipType: elem.relationType,
+              showWrongUsernameMessage: false,
+            };
+            return (
+              <li key={user.id} className="flex justify-center py-4 rounded-md ">
+                <UserInformation
+                  id={user.id}
+                  name={user.name}
+                  status={user.status}
+                  nbWin={user.nbWin}
+                  nbLoss={user.nbLoss}
+                  imgPath={user.imgPath}
+                  twoFactorAuthEnabled={user.twoFactorAuthEnabled}
+                  idInf={idInf}
+                  addFriend={addFriend}
+                  removeFriend={removeFriend}
+                  blockUser={blockUser}
+                  unblockUser={unblockUser}
+                  isInSearch
+                  isMe={isMe}
+                  userInfo={userInfo}
+                />
+              </li>
+            );
+          })}
+        </ul>
     </div>
   );
 }
