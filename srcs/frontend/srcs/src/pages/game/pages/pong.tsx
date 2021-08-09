@@ -213,7 +213,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
           playersName: ["", ""],
         });
       } catch (error) {
-        console.log(error);
+        //console.log(error);
       }
     };
 
@@ -286,7 +286,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
             playersName: [data0.data.name, data1.data.name],
           });
         } catch (error) {
-          console.log(error);
+          // console.log(error);
         }
       }
     };
