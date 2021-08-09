@@ -71,7 +71,7 @@ export default function ChannelSettingsForm(props: ChannelCreateProps) {
 
   const onChangeRadio = (e: any) => {
     setSelectedMode(e.target.value);
-    console.log("selectedMode", selectedMode);
+    // console.log("selectedMode", selectedMode);
   };
 
   const modeList = [

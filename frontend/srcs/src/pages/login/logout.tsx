@@ -20,7 +20,7 @@ export default function Logout({setUser} : ChildProps) {
 
 		try {
 			await axios.post("/api/authentication/logout", {withCredentials: true});
-            console.log("Logout");//TODO to remove
+            // console.log("Logout");//TODO to remove
 		}
 		catch (error) {
 			if (axios.isAxiosError(error))

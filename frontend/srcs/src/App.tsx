@@ -83,14 +83,14 @@ class App extends React.Component<AppProps, AppState> {
 
     socket.on(Events.Client.UpdateUserRole, (data: any) => {
 
-      console.log('UpdateUserRole', data)
+      // console.log('UpdateUserRole', data)
       if (data && Number(data.user_id) === Number(this.state.user?.id)) {
         this.updateRole(data.role);
       }
     });
 
     socket.on(Events.Client.UpdateChannelRelation, (data: any) => {
-      console.log('UpdateChannelRelation', data)
+      // console.log('UpdateChannelRelation', data)
       if (data) {
         this.updateChannelRelationship(
           Number(data.channel_id),
@@ -132,10 +132,10 @@ class App extends React.Component<AppProps, AppState> {
       ) {
         if (message.type === MessageType.GameInvite) {
 
-          console.log(`Received invitation to ${message.data} from ${message.sender_id}`);
+          // console.log(`Received invitation to ${message.data} from ${message.sender_id}`);
         }
         if (message.type === MessageType.GameCancel) {
-          console.log(`Received cancel to ${message.data} from ${message.sender_id}`);
+          // console.log(`Received cancel to ${message.data} from ${message.sender_id}`);
         }
         this.updateOneRelationshipGameInvite(message);
       }
@@ -276,7 +276,7 @@ class App extends React.Component<AppProps, AppState> {
             this.setUserInit(res.data);
           } catch (error) { }
         } else {
-          console.log("TODO: GetLoggedProfile: Handle status:", e.message);
+          // console.log("TODO: GetLoggedProfile: Handle status:", e.message);
         }
       }
     }
@@ -298,7 +298,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentWillUnmount() {
-    console.log("App will unmount, closing socket...");
+    // console.log("App will unmount, closing socket...");
     this.state.eventSocket?.close();
     this.setState({ ...this.state, eventSocket: undefined });
   }

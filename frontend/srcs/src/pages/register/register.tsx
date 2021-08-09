@@ -26,8 +26,8 @@ export default function Register(props: {}) {
             setError("confirm password", { message: "The password does not match." }, { shouldFocus: true });
         else {
             try {
-                const data = await axios.post("/api/authentication/registerWithPassword", { name: values.username, password: values.password });
-                console.log(data);
+                await axios.post("/api/authentication/registerWithPassword", { name: values.username, password: values.password });
+                // console.log(data);
                 setRegisterInfo({ showRegisterValidation: true })
             }
             catch (error) {

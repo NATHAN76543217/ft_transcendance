@@ -33,7 +33,7 @@ export default function TwoFactorAuth({ match }: TwoFactorAuthPageProps) {
     try {
       const { data } = await axios.post<IUser>("/api/2fa/authenticate", values);
 
-      console.log("Setting user data: ", data);
+      // console.log("Setting user data: ", data);
 
       setUserInit(data);
 
@@ -45,7 +45,7 @@ export default function TwoFactorAuth({ match }: TwoFactorAuthPageProps) {
       // const url = match.params.redirPath
       // ? urljoin("/", match.params.redirPath)
       // : "/";
-      console.log(`Redirecting to ${url}...`);
+      // console.log(`Redirecting to ${url}...`);
       history.push(url);
     } catch (error) {
       console.log(error);

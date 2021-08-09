@@ -43,7 +43,7 @@ export default function Login({ match }: LoginPageProps) {
       );
 
       if (data.twoFactorAuthEnabled) {
-        console.log("2FA required");
+        // console.log("2FA required");
         history.push("/login/2fa");
       } else if (data.user !== undefined) {
         const userData: IUser = data.user;

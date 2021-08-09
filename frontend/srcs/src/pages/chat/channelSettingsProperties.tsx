@@ -65,22 +65,22 @@ function ChannelSettingsProperties(props: ChannelProps) {
             );
             return;
         }
-        console.log("values1", values)
-        console.log("props.mode", props.mode)
+        // console.log("values1", values)
+        // console.log("props.mode", props.mode)
         if (values.mode === null) {
             values.mode = Number(props.mode);
         } else {
             values.mode = Number(values.mode);
         }
-        console.log("values", values)
+        // console.log("values", values)
         try {
             // const data = await axios.patch(`/api/channels/${props.id}`, values);
-            const data = await axios.patch(`/api/channels/${props.id}`, {
+            await axios.patch(`/api/channels/${props.id}`, {
                 mode: values.mode,
                 password: values.password
             }
-                );
-            console.log(data);
+            );
+            // console.log(data);
             setShowUpdateValidation(true);
         }
         catch (error) {
@@ -113,7 +113,7 @@ function ChannelSettingsProperties(props: ChannelProps) {
                         onClick={localChangeDestroyValidationButtonState}
                     >
                         Destroy channel
-                </button>
+                    </button>
                 </div>
             );
         }

@@ -43,7 +43,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
     }
 
     const onUserMessage = (data: Message) => {
-      console.log("Incoming private message:", data);
+      // console.log("Incoming private message:", data);
       if (
         !isNaN(Number(props.id)) &&
         (Number(props.id) === Number(data.receiver_id) ||
@@ -55,12 +55,12 @@ export function ChatMessageList(props: ChatMessageListProps) {
         data.type === MessageType.GameInvite ||
         data.type === MessageType.GameCancel
       ) {
-        console.log(
-          "Received invitation or cancel to",
-          data.data,
-          "from",
-          data.sender_id
-        );
+        // console.log(
+        //   "Received invitation or cancel to",
+        //   data.data,
+        //   "from",
+        //   data.sender_id
+        // );
         updateOneRelationshipGameInvite(data);
       }
     }

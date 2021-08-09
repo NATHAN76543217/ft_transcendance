@@ -31,7 +31,7 @@ class UserCreate extends React.Component<UserProps, UserState> {
   onSubmit = async (values: IUserCreateFormValues) => {
     try {
       const data = await axios.post("/api/users", values);
-      console.log(data);
+      // console.log(data);
     } catch (error) {}
   };
 

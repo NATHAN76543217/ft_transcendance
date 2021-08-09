@@ -26,9 +26,9 @@ class UserDelete extends React.Component<UserProps, UserStates> {
 
   onSubmit = async (values: IUserDeleteFormValues) => {
     try {
-      const data = await axios.delete("/api/users/" + values.id);
-      console.log(data);
-    } catch (error) {}
+      await axios.delete("/api/users/" + values.id);
+      // console.log(data);
+    } catch (error) { }
   };
 
   render() {

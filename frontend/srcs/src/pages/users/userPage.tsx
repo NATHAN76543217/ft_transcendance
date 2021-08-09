@@ -146,7 +146,7 @@ function UserPage({ match }: RouteComponentProps<UserPageParams>) {
           setMatchList({ list: [] });
           return;
         }
-        console.log(`matches for user ${userId}`, dataMatches);
+        // console.log(`matches for user ${userId}`, dataMatches);
         let a: IMatch[] = [];
         dataMatches.data.map(async (match, index) => {
           const inf = userInfo.user.id === Number(match.player_ids[0]);

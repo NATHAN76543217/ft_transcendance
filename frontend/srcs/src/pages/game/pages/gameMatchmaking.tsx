@@ -64,7 +64,7 @@ function GameMatchmaking() {
 
   useEffect(() => {
     const onNotify = (msg: string) => {
-      console.log(msg);
+      // console.log(msg);
     };
 
     const goToGamePage = (id: number) => {

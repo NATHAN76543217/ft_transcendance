@@ -61,13 +61,13 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
       type: type,
     });
 
-    console.log("setRole");
+    // console.log("setRole");
     history.push(`/chat/c${channel_id}/refresh`);
     // updateOneRelationship(channel_id, user_id, type);
   };
 
   const onSubmitInvite = async (values: ChannelInviteDto) => {
-    console.log("invite - chatContextValue", values, chatContextValue);
+    // console.log("invite - chatContextValue", values, chatContextValue);
     if (values.username && chatContextValue.currentChannelRel) {
       const index = chatContextValue.currentChannelRel?.channel.users.findIndex(
         (relation) => {
@@ -79,7 +79,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
           let users = await axios.get<IUser[]>(
             `/api/users?name=${values.username}`
           );
-          console.log("users query", users.data);
+          // console.log("users query", users.data);
           if (
             users.data &&
             users.data.length === 1 &&
@@ -210,19 +210,19 @@ export function ChatHeader({
   const inviteFriendToPlay = async () => {
     const gameData: CreateGameDto = { guests: [friendInfo.id], ruleset: {} };
 
-    console.log("Creating new game", gameData);
+    // console.log("Creating new game", gameData);
 
     try {
       const response = await axios.post<Match>("/api/matches", gameData);
-      console.log("Game created, redirecting to:", response.data);
+      // console.log("Game created, redirecting to:", response.data);
       history.push(`/game/${response.data.id}`);
     } catch (e) {
-      console.error("TODO: inviteFriend:", e);
+      // console.error("TODO: inviteFriend:", e);
     }
   };
 
   const acceptGameRequest = async () => {
-    console.log("[chat header] Accepting game invitation");
+    // console.log("[chat header] Accepting game invitation");
     if (friendInfo.gameInvite) {
       contextValue.matchSocket?.emit(ServerMessages.ACCEPT_INVITATION, {
         roomId: Number(friendInfo.gameInvite.data),
@@ -238,7 +238,7 @@ export function ChatHeader({
       if (friendInfo.gameInvite) {
         await axios.delete(`/api/matches/${friendInfo.gameInvite.data}`);
         await axios.delete(`/api/messages/${friendInfo.gameInvite.id}`);
-        console.log("Game invitation deleted");
+        // console.log("Game invitation deleted");
       }
     } catch (e) {
       console.error(e);

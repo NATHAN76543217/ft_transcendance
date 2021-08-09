@@ -7,7 +7,7 @@ function OnlyPublic(props: {
   path?: string;
   children?: React.ReactNode | JSX.Element;
 }): JSX.Element {
-  console.log("isAuthenticated:", props.isAuth);
+  // console.log("isAuthenticated:", props.isAuth);
 
   const shouldRender = !props.isAuth;
 
