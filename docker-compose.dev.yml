@@ -46,11 +46,15 @@ services:
       - db
     build:
       context: ./srcs/backend
-      target: production
+      dockerfile: Dockerfile.dev
     image: pong_back_img
     container_name: pong_back_cnt
     expose:
       - "8080"
+    volumes:
+      - ./srcs/backend/srcs:/app
+      - /app/node_modules
+      - /app/dist
     environment:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
@@ -83,11 +87,14 @@ services:
       - backend
     build:
       context: ./srcs/frontend
-      target: production
+      dockerfile: Dockerfile.dev
     image: pong_front_img
     container_name: pong_front_cnt
     expose:
       - "3000"
+    volumes:
+      - ./srcs/frontend/srcs/:/app
+      - /app/node_modules
     restart: always
     stop_grace_period: 1m
     networks:
