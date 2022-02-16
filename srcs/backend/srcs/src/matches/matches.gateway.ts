@@ -13,7 +13,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import MatchesService from './matches.service';
-import { SocketWithPlayer } from './socketWIthPlayer.interface';
+import { SocketWithPlayer } from './socketWithPlayer.interface';
 import { PlayerStatusChangedDto } from './dto/playerStatusChanged.dto';
 import { PlayerStatus } from './dto/playerStatus';
 import { JoinGameDto } from './dto/joinGame.dto';
