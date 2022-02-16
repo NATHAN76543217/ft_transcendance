@@ -222,7 +222,7 @@ function UserSearch() {
 
   return (
     <div className="flex flex-col h-full overflow-y-scroll ">
-        <div className="flex justify-center">
+        <div className="flex justify-center w-3/4">
           <UserSearchForm onSubmit={localOnSubmit} />
         </div>
         <ul>

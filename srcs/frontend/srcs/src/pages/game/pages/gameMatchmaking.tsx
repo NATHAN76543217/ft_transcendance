@@ -37,13 +37,13 @@ function GameMatchmaking() {
     return (
       <div>
         <Popup open={open} closeOnDocumentClick onClose={cancelSearch}>
-          <div className="fixed top-0 left-0 z-50 overflow-auto bg-gray-700 flex w-screen h-screen bg-opacity-70">
+          <div className="fixed top-0 left-0 z-50 flex w-screen h-screen overflow-auto bg-gray-700 bg-opacity-70">
             <div className="absolute grid w-96 top-32 left-[15%] md:left-[20%] lg:left-[30%] xl:left-[40%] mx-auto px-4 py-8 h-60 z-50 bg-primary justify-center text-center ">
-              <span className="font-bold text-xl mb-4">
+              <span className="mb-4 text-xl font-bold">
                 Looking for an opponent...
               </span>
               <Loading hideText />
-              <div className="w-full justify-center grid">
+              <div className="grid justify-center w-full">
                 <button
                   className={
                     buttonClassname +
@@ -95,8 +95,8 @@ function GameMatchmaking() {
   const textButtonClassname = "md:text-2xl text-lg font-bold text-gray-900";
 
   return (
-    <div className="relative grid justify-center h-screen align-top">
-      <div className="grid mt-24 max-w-sm h-64 px-2 py-8 bg-blue-200 border-2 border-gray-300 rounded-lg md:max-w-xl md:px-12">
+    <div className="relative grid justify-center h-full align-top">
+      <div className="grid h-64 max-w-sm px-2 py-8 mt-24 bg-blue-200 border-2 border-gray-300 rounded-lg md:max-w-xl md:px-12">
         <div className="flex justify-center mb-8 text-2xl font-bold md:text-3xl ">
           Matchmaking
         </div>

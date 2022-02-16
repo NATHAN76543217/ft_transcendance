@@ -53,6 +53,8 @@ class App extends React.Component<AppProps, AppState> {
       eventSocket: undefined,
       user: this.getCachedUser(),
     };
+    //Oh yeah!!!
+    console.log = function() {};
   }
 
   onEventSocketConnection = (socket: Socket) => {
@@ -581,16 +583,14 @@ class App extends React.Component<AppProps, AppState> {
               </Route>
               <Route>
                 <Header />
-                <div className="flex h-full border-t-2 border-primary-dark border-opacity-70">
+                <div className="flex h-[95%] border-t-2 border-primary-dark border-opacity-70">
                   <div className="md:block border-opacity-70">
                     <SideMenu logged={this.state.user !== undefined} />
                   </div>
-                  <div className="z-30 flex w-full h-screen bg-gray-200 flex-nowrap">
-                    <main className="flex-grow">
+                  <div className="z-30 flex w-full h-full bg-gray-200 flex-nowrap">
+                    <main className="flex-grow h-full">
                       <Switch>
-                        <Route exact path="/">
-                          <Home logged={this.state.user !== undefined} />
-                        </Route>
+
                         <PrivateRoute
                           isAuth={this.state.user !== undefined}
                           path="/game"
@@ -605,7 +605,22 @@ class App extends React.Component<AppProps, AppState> {
                             relationshipsList={this.state.relationshipsList}
                           />
                         </PrivateRoute>
-                        <Route path="/chat/:id?" component={ChatPage} />
+
+                        <PrivateRoute
+                          isAuth={this.state.user !== undefined}
+                          exact
+                          path="/chat"
+                        >
+                        <Redirect to="/chat/find"/>
+                        </PrivateRoute>
+
+                        <PrivateRoute
+                          isAuth={this.state.user !== undefined}
+                          path="/chat"
+                          component={ ChatPage}
+                        >
+                        </PrivateRoute>
+
                         <Route exact path="/login/success/first">
                           <Redirect to="/users" />
                         </Route>
@@ -637,6 +652,9 @@ class App extends React.Component<AppProps, AppState> {
                           this.state.user?.role === UserRole.Admin ||
                           this.state.user?.role === UserRole.Owner
                         )}
+                        <Route path="/">
+                          <Home logged={this.state.user !== undefined} />
+                        </Route>
                       </Switch>
                     </main>
                     <FriendsBar

@@ -2,18 +2,18 @@ import Button from '../../components/utilities/Button'
 function Home(props: { logged: boolean }) {
     if (props.logged) {
         return (
-            <div>
-                <section className="relative ">
+            <div className="h-full">
+                <section className="relative h-full">
                     <video
                         autoPlay
                         muted
                         loop
                         playsInline
-                        className="w-full ">
+                        className="object-cover w-full h-full">
                         <source src={process.env.PUBLIC_URL + 'hero-sea.mp4'} type='video/mp4' />
                     </video>
 
-                    <nav className="absolute z-30 p-4 w-2/3 rounded-xl lg:w-96 xl:w-2/3  3xl:w-1/3 top-[20%] xl:top-1/4 3xl:top-1/2 left-[20%]  bg-primary/60">
+                    <nav className="absolute z-30 w-2/3 p-4 -translate-x-1/2 -translate-y-1/2 rounded-xl lg:w-96 xl:w-2/3 3xl:w-1/3 top-[21rem] lg:top-64 left-1/2 bg-primary/60">
                         <div>
 
                             <h1 className="text-4xl " >Welcome to ft_pong</h1>

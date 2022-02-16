@@ -31,13 +31,13 @@ function displayProfileItem(user: IUser | undefined) {
 function displayLoginAndRegisterItem(user: IUser | undefined) {
   if (user !== undefined) {
     return (
-      <div className="m-4">
+      <div className="p-4 ml-4">
         <LogoutButton />
       </div>
     );
   } else {
     return (
-      <div className="m-4 space-x-4">
+      <div className="p-4 ml-4 space-x-4">
         <Button
           content="Login"
           secondary
@@ -58,10 +58,10 @@ function displayLoginAndRegisterItem(user: IUser | undefined) {
 function Header() {
   const { user } = useContext(AppContext);
 
-  //TODO replace logout button redirection by a query to /apip/authentication/api
+  //TODO replace logout button redirection by a query to /api/authentication/api
   return (
-    <header className="relative z-30 flex flex-row items-center justify-between w-full h-12 bg-primary">
-      <span className="block px-4 text-4xl font-bold">ft_pong</span>
+    <header className="relative z-30 flex flex-row items-center justify-between w-full h-[5%] py-4 bg-primary">
+      <a href="/" className="block px-4 text-4xl font-bold">ft_pong</a>
       <div className="flex items-center">
         {displayProfileItem(user)}
         {displayLoginAndRegisterItem(user)}

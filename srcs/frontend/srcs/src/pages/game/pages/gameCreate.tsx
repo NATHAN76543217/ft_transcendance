@@ -57,7 +57,7 @@ function GameCreate() {
     " focus:outline-none focus:ring-2 focus:ring-gray-500 whitespace-nowrap w-auto";
   const textButtonClassname = "text-2xl font-bold text-gray-900";
 
-  const [nbPoints, setNbPoints] = useState<number>(11);
+  const [nbPoints, setNbPoints] = useState<number>(8);
   const [speedMode, setSpeedMode] = useState<boolean>(false);
   const [downsizing, setDownsizing] = useState<boolean>(false);
   //const [showCreationValidation, setShowCreationValidation] = useState(false);

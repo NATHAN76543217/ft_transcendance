@@ -395,9 +395,9 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayWaitingScreen = () => {
     if (waitingScreen) {
       return (
-        <div className="fixed grid top-12 left-0 z-50 w-screen h-screen bg-gray-700 opacity-70 justify-center">
-          <div className="w-72 h-32 bg-primary rounded-md grid justify-center mt-12">
-            <span className="font-bold text-xl mb-2 mt-4">
+        <div className="fixed left-0 z-50 grid justify-center w-screen h-full bg-gray-700 top-12 opacity-70">
+          <div className="grid justify-center h-32 mt-12 rounded-md w-72 bg-primary">
+            <span className="mt-4 mb-2 text-xl font-bold">
               Waiting for the game...
             </span>
             <Loading hideText />
@@ -425,7 +425,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
     return (
       <div>
         <Popup open={open} closeOnDocumentClick onClose={giveUpGame}>
-          <div className=" fixed top-0 left-0 z-30 overflow-auto bg-gray-700 flex w-screen h-screen bg-opacity-70">
+          <div className="fixed top-0 left-0 z-30 flex w-screen h-full overflow-auto bg-gray-700 bg-opacity-70">
             {!gameFinished ? displayCurrentGame() : displayFinishedBoard()}
           </div>
         </Popup>
@@ -435,14 +435,14 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
 
   const displayCurrentGame = () => {
     return (
-      <div className=" bg-red-500 h-12">
-        <div className="fixed top-0 left-0 z-50 w-full justify-center grid">
+      <div className="h-12 bg-red-500 ">
+        <div className="fixed top-0 left-0 z-50 grid justify-center w-full">
           {displayGiveUpButton()}
           {displayGiveUpConfirmationButton()}
         </div>
         {displayWaitingScreen()}
-        <div className="fixed top-0 left-0 z-40  w-screen h-screen pb-16/9">
-          <div className=" mt-12 w-screen grid justify-center">
+        <div className="fixed top-0 left-0 z-40 w-screen h-full pb-16/9">
+          <div className="grid justify-center w-screen mt-12 ">
             {displayCanvas()}
           </div>
         </div>
@@ -469,13 +469,13 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayScores = () => {
     if (finalData.scores[1] === -1) {
       return (
-        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+        <div className="flex justify-center mb-4 text-2xl font-bold text-center break-words md:text-3xl">
           Forfeit
         </div>
       );
     } else {
       return (
-        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+        <div className="flex justify-center mb-4 text-2xl font-bold text-center break-words md:text-3xl">
           Scores:
           <br />
           {finalData.scores[0]} - {finalData.scores[1]}
@@ -487,7 +487,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayWinnerName = () => {
     if (finalData.scores[0] > finalData.scores[1]) {
       return (
-        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+        <div className="flex justify-center mb-4 text-2xl font-bold text-center break-words md:text-3xl">
           Winner
           <br />
           {finalData.playersName[0]}
@@ -495,7 +495,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
       );
     } else {
       return (
-        <div className="flex justify-center text-center mb-4 text-2xl font-bold md:text-3xl break-words">
+        <div className="flex justify-center mb-4 text-2xl font-bold text-center break-words md:text-3xl">
           Ex aequo
         </div>
       );
@@ -505,10 +505,10 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   const displayFinishedBoard = () => {
     return (
       <div className="grid justify-center w-screen ">
-        <div className="align-center inline-block w-72 h-96 max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg bg-neutral md:px-12 md:max-w-lg">
+        <div className="inline-block max-w-sm px-2 py-8 mt-16 mb-8 border-2 border-gray-300 rounded-lg align-center w-72 h-96 bg-neutral md:px-12 md:max-w-lg">
           {displayWinnerName()}
           {displayScores()}
-          <div className="flex w-auto justify-center space-x-8 rounded-md lg:space-x-24">
+          <div className="flex justify-center w-auto space-x-8 rounded-md lg:space-x-24">
             {displayWinOrLosePicture()}
           </div>
           <div className="flex justify-center ">
@@ -531,7 +531,7 @@ export function Pong({ match }: RouteComponentProps<PongPageParams>) {
   //const height: number = window.screen.height / 2;//canvasRef.current?.height!;
   if (noGame) {
     return (
-      <div className="font-semibold w-full text-center mt-16">
+      <div className="w-full mt-16 font-semibold text-center">
         There is no current game in this room
       </div>
     );

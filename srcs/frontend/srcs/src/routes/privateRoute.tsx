@@ -11,15 +11,24 @@ function PrivateRoute(props: {
 
   const shouldRender = props.isAuth;
 
-  return (
-    <Route
-      exact={props.exact}
-      path={props.path}
-      component={shouldRender ? props.component : undefined}
-      render={shouldRender ? undefined : () => <Redirect to="/" />}
-    >
-      {props.children}
-    </Route>
-  );
+    if (props.children == null)
+      return (
+        <Route
+          exact={props.exact}
+          path={props.path}
+          component={shouldRender ? props.component : () => <Redirect to="/" /> }
+        >
+        </Route>
+      );
+    else
+      return (
+        <Route
+          exact={props.exact}
+          path={props.path}
+          render={shouldRender ? undefined : () => <Redirect to="/" />}
+        >
+          {props.children}
+        </Route>
+      );
 }
 export default PrivateRoute;

@@ -11,7 +11,7 @@ class Admin extends React.Component {
     const contextValue = this.context;
     if (true || contextValue.myRole & (UserRole.Owner + UserRole.Admin)) {
       return (
-        <div>
+        <div className="h-full overflow-scroll">
           <AdminChannels />
           <AdminUsers />
         </div>

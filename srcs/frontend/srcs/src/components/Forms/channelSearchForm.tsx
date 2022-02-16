@@ -1,5 +1,5 @@
 import { TextInput } from "../../components/utilities/TextInput";
-
+import React, {useState} from 'react';
 import { useForm } from "react-hook-form";
 import ChannelSearchDto from "../../models/channel/ChannelSearch.dto";
 
@@ -8,10 +8,19 @@ type ChannelSearchProps = {
 };
 
 export default function ChannelSearchForm(props: ChannelSearchProps) {
-  //const [username, password] = useState();
-
-  const { register, handleSubmit } = useForm<ChannelSearchDto>();
-
+  // const [username, password] = useState();
+  const { onSubmit } = props;
+  const [once, setOnce] = useState(0);
+  const { register, handleSubmit } = useForm<ChannelSearchDto>({ defaultValues: {channelName: ""}});
+  
+  React.useEffect(() => {
+    // fetch list on channels on load
+    if (once === 0)
+    {
+      onSubmit({channelName: ""});
+      setOnce(1);
+    }
+    }, [onSubmit, once]);
   return (
     <div className="flex flex-col max-w-sm pt-4 mt-20 mb-2 border-2 border-gray-300 rounded-md bg-neutral">
       <h1 className="flex justify-center mb-2 ">

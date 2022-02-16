@@ -165,7 +165,7 @@ export function ChatMessageList(props: ChatMessageListProps) {
 
 
   return (
-    <div className="flex justify-center mt-4 h-5/6">
+    <div className="flex justify-center overflow-y-scroll h-5/6">
       <div className="grid justify-center w-full h-full rounded-md">
         <div className="flex-grow w-full max-w-2xl p-2 py-2 mt-4 overflow-y-scroll bg-gray-100 border-2 border-gray-500 rounded-md">
           <div className="inline-flex h-1">

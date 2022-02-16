@@ -172,7 +172,7 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
   ]);
 
   return (
-    <div className="flex flex-col flex-grow h-screen ">
+    <div className="flex flex-col flex-grow h-full ">
       <ChatHeader
         myRole={channelInfo.myRole}
         isChannel={isChannel}
@@ -183,7 +183,7 @@ export function ChatView({ match }: RouteComponentProps<ChatPageParams>) {
         {displaySettings()}
         {displaySettingsRefresh()}
         <Route path="/chat/:id">
-          <div className="justify-center h-full overflow-y-scroll">
+          <div className="justify-center h-full">
             <ChatMessageList id={match.params.id} />
             <ChatInput
               id={match.params.id}

@@ -34,8 +34,8 @@ export function ChatInput(props: ChatInputProps) {
     reset,
   } = useForm<IMessageFormValues>();
 
-  const className =
-    "w-full max-w-sm pt-2 pl-2 bg-gray-100 border-2 border-gray-500 rounded-md md:max-w-md xl:max-w-xl";
+  const channelInputClassName =
+    "w-full max-w-sm p-2 bg-gray-100 border-2 border-gray-500 rounded-md md:max-w-md xl:max-w-xl";
 
   // const isChannel = props.id && props.id[0] === "c" ? true : false;
 
@@ -74,7 +74,7 @@ export function ChatInput(props: ChatInputProps) {
       <div className="">
         <div className="flex justify-center px-4 my-4 h-1/6">
           <form
-            className={`${className}`}
+            className={`${channelInputClassName}`}
             onSubmit={handleSubmit((values) => {
               if (socket && props.isChannel) {
                 sendMessageChannel(

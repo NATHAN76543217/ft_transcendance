@@ -105,7 +105,7 @@ function AdminActions({ channelId, nbUsers }: AdminActionsProps) {
   return (
     <>
       <UserActions channelId={channelId} nbUsers={nbUsers} />
-      <div className="flex h-10 md:px-2">
+      <div className="flex h-[5%] md:px-2">
         <ChannelInviteForm onSubmit={onSubmitInvite} />
       </div>
       <TooltipIconButton
@@ -311,8 +311,8 @@ export function ChatHeader({
 
   const displayPrivateConvHeader = () => {
     return (
-      <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
-        <span className="font-semibold pl-4">{getPrivateSenderName()}</span>
+      <header className="flex justify-between w-full h-[5%] p-2 bg-gray-300 border-b-2 border-gray-300">
+        <span className="pl-4 font-semibold">{getPrivateSenderName()}</span>
         <div className="flex items-center ">
           {displayInviteButton()}
           {displayWatchButton()}
@@ -329,7 +329,7 @@ export function ChatHeader({
         ChannelRelationshipType.Member)
   ) {
     return (
-      <header className="flex justify-between w-full h-10 p-2 bg-gray-300 border-b-2 border-gray-300">
+      <header className="flex justify-between w-full h-[5%] p-2 bg-gray-300 border-b-2 border-gray-300">
         <ChatTitle channel={currentChat} isInHeader />
         <div className="flex items-center ">
           <ChatActions channelRelation={chatContextValue.currentChannelRel} />
@@ -339,6 +339,6 @@ export function ChatHeader({
   } else if (isPrivateConv) {
     return displayPrivateConvHeader();
   } else {
-    return <header className="w-full h-10 bg-gray-200"></header>;
+    return <header className="w-full h-[5%] bg-gray-200"></header>;
   }
 }

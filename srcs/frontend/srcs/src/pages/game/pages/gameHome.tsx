@@ -115,7 +115,7 @@ function GameHome() {
 
 
   return (
-    <div className="h-screen grid justify-center overflow-y-scroll">
+    <div className="grid justify-center h-full overflow-y-scroll">
       <div className='mb-8'>
         {displayHomeGamePannel()}
         {displayCurrentGames()}

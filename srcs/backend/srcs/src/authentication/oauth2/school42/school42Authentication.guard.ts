@@ -10,7 +10,7 @@ export class School42AuthenticationGuard extends AuthGuard('school42') {
       && info.message ===
         'The resource owner or authorization server denied the request.'
     )
-		return "failure";
+		  return "failure";
     else if (err || !user) {
       throw err || new UnauthorizedException();
     }
